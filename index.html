@@ -1002,6 +1002,22 @@
   .sat-doors.grow b { animation: doorfill .45s cubic-bezier(.3,.7,.2,1) both; animation-delay: calc(var(--d) + .75s); }
   @keyframes doorfill { from { transform: scaleY(var(--f0)); } }
   .sat-card p { margin: 0; font-size: 14px; line-height: 1.42; color: var(--ink-2); }
+  .next-path { margin-top: 12px; padding: 14px 16px; border-radius: 20px; background: var(--accent-soft); }
+  .next-path .np-k { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-ink); }
+  .next-path .np-lead { margin: 4px 0 0; font-size: 15.5px; line-height: 1.4; color: var(--ink-2); }
+  .next-path ol { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 7px; }
+  .next-path li { display: grid; grid-template-columns: 22px 1fr auto; gap: 8px; align-items: center; font-size: 15px; }
+  .next-path .np-d { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 11.5px; font-weight: 800; background: #FFFFFF; color: var(--ink-3); box-shadow: inset 0 0 0 1.5px var(--line); }
+  .next-path li.on { font-weight: 700; }
+  .next-path li.on .np-d { background: var(--accent); color: #FFFFFF; box-shadow: none; }
+  .next-path li small { font-size: 13px; color: var(--ink-3); }
+  .next-path li.on small { color: var(--accent-ink); font-weight: 700; }
+  .sat-mini { margin: 10px 0 0; text-align: center; font-size: 14.5px; line-height: 1.4; color: var(--ink-3); }
+  .sat-mini b { color: var(--accent-ink); }
+  .sat-card .sat-h { margin: 2px 0 0; font-family: var(--serif, Newsreader), Newsreader, serif; font-size: 27px; line-height: 1.1; font-weight: 600; color: var(--ink); }
+  .sat-card .sat-sub { margin: 4px 0 2px; font-size: 16.5px; font-weight: 700; color: var(--accent-ink); }
+  .sat-card .sat-note { font-size: 14px; color: var(--ink-3); }
+  .done-hero .togo { margin: 0; font-size: 14px; font-weight: 600; color: var(--ink-3); }
   .wrap-bar .sbar-row { display: none; }
   .wrap-bar .sbar { margin-bottom: 8px; }
   .when-q { margin: 0 2px; text-align: center; font-size: 13px; line-height: 1.35; color: var(--ink-2); }
@@ -1215,10 +1231,10 @@ const HOME = {
 /* the welcome series: 5 lessons, 5 minutes each (get out the vote at the door) */
 const LESSONS5 = [
   { n: 1, title: "How to introduce yourself at the door", line: "Open with your name, that you live nearby and that the election is close.", ready: true },
-  { n: 2, title: "Ask, then listen", line: "Ask one real question and let them finish.", ready: true },
-  { n: 3, title: "Don\u2019t argue, next door", line: "Thank them, mark it and move on. You\u2019ll also get a quick safety tip.", ready: true },
-  { n: 4, title: "Plan when, where, how", line: "Help them say when, where and how they\u2019ll vote.", ready: true },
-  { n: 5, title: "Ask for three friends", line: "Ask a supporter to remind three friends to vote.", ready: true },
+  { n: 2, title: "How to get a voter talking", line: "Ask one real question and let them finish.", ready: true },
+  { n: 3, title: "How to leave a tough door gracefully", line: "Thank them, mark it and move on. You\u2019ll also get a quick safety tip.", ready: true },
+  { n: 4, title: "How to help a voter plan their vote", line: "Help them say when, where and how they\u2019ll vote.", ready: true },
+  { n: 5, title: "How to get a voter to remind three friends", line: "Ask a supporter to remind three friends to vote.", ready: true },
 ];
 /* version 80: a title that reads as a phrase ("How to ...") goes lowercase inside a sentence, so "Lesson 1 of 5 is how to introduce yourself at the door." */
 const titleIn = (x) => (/^How to /.test(x) ? "h" + x.slice(1) : x);
@@ -1603,7 +1619,7 @@ const SKILLS = {
     ],
   },
   listen: {
-    title: "Ask, then listen",
+    title: "How to get a voter talking",
     where: "at a supporter\u2019s door",
     whyLine: "a real question turns a pitch into a conversation, and listening is what earns an honest answer.",
     headsUp: "Ask one thing, then stop talking and wait.",
@@ -1667,7 +1683,7 @@ const SKILLS = {
     door: "priya",
   },
   noargue: {
-    title: "Don\u2019t argue, next door",
+    title: "How to leave a tough door gracefully",
     where: "at a door where they disagree",
     whyLine: "in the final days, your time belongs to supporters. A calm thank-you and the next door beats any debate.",
     headsUp: "Never go inside. Trust your gut: if something feels off, leave.",
@@ -1729,7 +1745,7 @@ const SKILLS = {
     door: "gloria",
   },
   friends: {
-    title: "Ask for three friends",
+    title: "How to get a voter to remind three friends",
     where: "at a supporter\u2019s door",
     whyLine: "a reminder from a friend works better than almost anything a campaign can send.",
     headsUp: "Ask for three by name, then ask them to text now.",
@@ -1793,7 +1809,7 @@ const SKILLS = {
     door: "brianna",
   },
   plan: {
-    title: "Plan when, where, how",
+    title: "How to help a voter plan their vote",
     headsUp: "Say \u201cmost of your neighbors are voting,\u201d never \u201cturnout is low.\u201d",
     stretch: 3,
     where: "at a supporter\u2019s door",
@@ -1945,11 +1961,11 @@ const LINE_DUR = [5.33, 8.67, 6.13, 8.33, 17.87, 10.62, 10.6];
    Line 7 cuts back to her hard (CUT_OFF is its start). CUT_T holds when each screen starts, in seconds from the start of the welcome. */
 const CUT_ON = 25.75;
 const CUT_OFF = LINE_T[6];
-const CUT_T = [25.75, 28.9, 34.0, 37.75, 42.05, 46.6, 48.7];
+const CUT_T = [25.75, 28.9, 34.0, 37.75, 42.05, 46.6];
 const CUT_ROWS = [26.3];
 const CUT_LIT = [34.45, 34.95, 35.45, 35.95];
 const CUT_WARM = 40.6;
-const CUT_TODAY = [49.3, 49.65, 50.0, 50.35];
+const CUT_TODAY = [47.7, 48.3, 48.8, 49.3, 49.8]; /* the What's next rows slide in on "we'll text you four more trainings over the next few days" */
 /* the cutaway's story, scored by the real graders: a first try with a name and the minute question, then Kevin's door with three of the four moves */
 const CUT_TRY = "Hi, do you have a minute? I\u2019m {name}.";
 const CUT_DOOR = "Hi, do you have a minute? I\u2019m {name}. I live a few blocks over, and Election Day is Tuesday.";
@@ -3478,13 +3494,13 @@ const NOTES = {
   main: ["Your 2nd try", "A whole door from the knock. Today\u2019s moves sit on screen as chips; earlier lessons come from memory and get a light check on the scorecard. Lesson 1 is the opener only: Kevin answers and the door closes. A perfect first try lands here straight away."],
   door: ["Your 2nd try", "Claude plays the person and grades the conversation. Version 72: one mic button and no typing prompt. In claude.ai the page can\u2019t use the mic, so the button opens the keyboard\u2019s own dictation, and on a phone the screen folds up so the voter stays in view above the keyboard. A page opened on its own (a hosted copy, or the backup file in a browser) listens directly, with no keyboard. Ask the campaign: a voter\u2019s question the volunteer can\u2019t answer gets a line from the campaign\u2019s notes, and the campaign logs it."],
   score: ["Feedback, then say it now", "Three blocks: what you did right, what to fix and my tip, with earlier lessons under From memory. Then the volunteer says the tip out loud once, so the lesson ends on a clean rep."],
-  close: ["The lesson\u2019s end", "Lesson N done, with the ring growing to N of 5 (You\u2019re 1/5 warmed up) and, when the door beat the first try, how many new moves the volunteer picked up. Below it, Saturday\u2019s 40 doors fill by the lessons done, so one lesson visibly reaches every door on the list. Then When\u2019s lesson N? with time chips pinned above the button, so spacing becomes the plan Mia\u2019s next text follows, plus links to another door, a retake and a one-minute campaign note. After lesson 5, You\u2019re 5 by 5, radio talk for loud and clear."],
+  close: ["The lesson\u2019s end", "Lesson N done, with the ring growing to N of 5 (You\u2019re 1/5 warmed up) and, when the door beat the first try, how many new moves the volunteer picked up. Below it, Saturday\u2019s 40 doors fill by the lessons done, so one lesson visibly reaches every door on the list. Then When\u2019s lesson N? with time chips pinned above the button, so spacing becomes the plan Mia\u2019s next text follows, plus links to another door, a retake and a one-minute campaign note. After lesson 5, You\u2019re door-ready."],
   ready: ["Visible readiness", "Preparation shows up as a badge and a record that carries across shifts."],
   sms2: ["The cooldown text", "One text, sent when the shift ends, opens the cooldown while it\u2019s fresh."],
   debrief: ["Cooldown", "The stars and the four ratings stay for the campaign. New in version 71: one spoken question, Tell me about one door you\u2019ll remember. The coach names the Tough door it points to and adds one like it to the next Warmup. It ends on Sign up for your next shift?"],
   library: ["The library: three shelves", "Your five (redo any lesson; each page holds its four moves with the why, your best take and Go deeper talks from top canvassers), Tough doors (eight curveballs, the coach\u2019s picks on top) and From your campaign (the welcome, Where Saturday fits, How your list gets made, the platform and answers from Ask the campaign). Top canvassers live inside the shelves, so the library never turns into an endless catalog. Other programs keep the version 28 library."],
   training: ["A library page", "A lesson page holds its moves and why, your best take and Go deeper; a Tough door says what it sharpens. Add to my next Warmup puts it into the next Warmup. Anything not built yet says so and asks for a vote."],
-  me: ["Me", "Status like an airline\u2019s: a tier earned by ready shifts (worked within a day of a Warmup), the 5 by 5 badge, the five skills with their levels (Learning, Solid, Sharp, Mentor), then campaigns and record. Mentor replaced Coach, so coach only ever means the AI."],
+  me: ["Me", "Status like an airline\u2019s: a tier earned by ready shifts (worked within a day of a Warmup), the Door-ready badge, the five skills with their levels (Learning, Solid, Sharp, Mentor), then campaigns and record. Mentor replaced Coach, so coach only ever means the AI."],
   try: ["Your 1st try, before any teaching", "The volunteer answers out loud before any teaching. Trying first, even wrong, makes the lesson that follows stick (the pretesting effect). Feedback is positive only and never a grade: what they got right and what to watch for. All four moves on the first try goes straight to Your 2nd try, the version 67 rule applied to every lesson. Lesson 1\u2019s try also places them. Version 72: one mic button and no box until it\u2019s tapped, so a phone\u2019s keyboard never opens on its own."],
   spot: ["Spot the miss", "The same door on another day with one realistic miss. Lesson 1 picks it from the volunteer\u2019s own try: the neighbor move, or the permission question. Tap the miss, see why it matters, then tap to talk and say the fix. Contrast first, then a first correct rep, on one screen."],
   coach: ["Practice: the coach\u2019s home", "Extra doors anytime, no new teaching: the coach\u2019s pick (from the Cooldown or the last scorecard\u2019s miss), the five lesson doors, the eight Tough doors and Surprise me. In the demo the angry voter is playable (Gloria); the other Tough doors are honest placeholders that ask for a vote."],
@@ -4309,7 +4325,7 @@ function vSMS() {
     <div class="sms-thread">
       <p class="sms-time">Sunday 6:41 PM</p>
       <div class="sms-bub">${t.sms.replace("{name}", esc(me()))}</div>
-      <button class="sms-card" data-act="go" data-arg="${t.video ? "video" : "welcome"}"><span class="art"><svg width="34" height="34" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="32" fill="none" stroke="#E6DFD3" stroke-width="12"/><circle cx="42" cy="42" r="32" fill="none" stroke="#35B57C" stroke-width="12" stroke-linecap="round" stroke-dasharray="67 202" transform="rotate(-90 42 42)"/></svg></span><span class="txt"><b>${t.video ? "Your 5-minute canvass warmup" : "Your first practice"}</b><small>${t.video ? "warmup.mayakaur.com" : "5 minutes, nothing to download"}</small></span></button>
+      <button class="sms-card" data-act="go" data-arg="${t.video ? "video" : "welcome"}"><span class="art"><svg width="34" height="34" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="32" fill="none" stroke="#E6DFD3" stroke-width="12"/><circle cx="42" cy="42" r="32" fill="none" stroke="#35B57C" stroke-width="12" stroke-linecap="round" stroke-dasharray="151 202" transform="rotate(-90 42 42)"/></svg></span><span class="txt"><b>${t.video ? "Your canvass warmup. Nothing to download." : "Your first practice"}</b><small>${t.video ? "warmup.mayakaur.com" : "5 minutes, nothing to download"}</small></span></button>
       <p class="sms-hint">Tap the link to open the lesson</p>
     </div>
     <div class="sms-compose" aria-hidden="true">Text Message</div>
@@ -4347,7 +4363,7 @@ function videoCut() {
   /* the feedback, the scorecard this line really earns */
   const score = `<div class="cut-screen cut-score" data-at="${C[4] + 0.15}">${barHtml(1, 3, 0.9)}<div class="score-top compact"><div class="ring-wrap" style="width:64px;height:64px">${ring(got / 4, 64, 9)}<span class="ring-num num" style="font-size:18px">${got}/4</span></div><h2 class="h1 verdict-h" style="margin:0"><span class="emo" aria-hidden="true">${VERDICT[level][0]}</span>${VERDICT[level][1]}</h2></div><div class="card3">${fbSections({ rightList: sk.hitNames.filter((_, i) => hits[i]), fixList: sk.missNames.filter((_, i) => !hits[i]) })}${miss >= 0 ? `<div class="fb-sec tip cut-rev" data-at="${C[4] + 2.55}"><b>My tip</b><p>${esc(sk.tips[miss])}</p></div>` : ""}</div></div>`;
   /* Lesson 1 done: the lesson's end as the app draws it, the ring growing to 1/5 and Saturday's 40 doors filling */
-  const done = `<div class="cut-screen cut-done"><div class="wrap-bar">${barHtml(1, 4, 0)}</div><div class="cut-hero" data-at="${C[5] + 0.2}">${doneHero(1, 1, gainLine(tryHits, hits), false)}</div><div class="cut-sat" data-at="${C[5] + 0.65}">${satCard("open", 1, 0, false)}</div></div>`;
+  const done = `<div class="cut-screen cut-done"><div class="wrap-bar">${barHtml(1, 4, 0)}</div><div class="cut-hero" data-at="${C[5] + 0.2}">${doneHero(1, 1, "", false)}</div><div class="cut-next">${nextPath("open", { 1: true }, CUT_TODAY)}</div></div>`;
   /* Today, as vToday draws it after lesson 1 (Maya Kaur version): the ring at 1 of 6, lesson 1 done and lessons 2 to 5 sliding in on \u201cover the next few days\u201d */
   const tick = `<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const todayRows = LESSONS5.map((L, j) => `<li class="${j === 0 ? "done" : j === 1 ? "next" : ""}${j ? " cut-rev" : ""}"${j ? ` data-at="${CUT_TODAY[j - 1]}"` : ""}><button tabindex="-1"><span class="tick">${j === 0 ? tick : L.n}</span><span><b>${L.title}</b><small>${j === 0 ? `Done \u00b7 ${got} of 4 at the door` : `${DAY5[j]} \u00b7 5 min`}</small></span>${j === 1 ? `<span class="next-tag">Next</span>` : ""}</button></li>`).join("");
@@ -4356,7 +4372,7 @@ function videoCut() {
   const finger = (cx, cy, w, h, rot) => `<g transform="rotate(${rot} ${cx} ${cy})"><rect x="${cx - w / 2}" y="${cy - h / 2}" width="${w}" height="${h}" rx="${h / 2}" fill="url(#chf-skin)"/><path d="M${cx - w / 2 + 8} ${cy - h / 2 + 10} Q${cx - w / 2 + 14} ${cy} ${cx - w / 2 + 8} ${cy + h / 2 - 10}" fill="none" stroke="#6E4530" stroke-width="2" stroke-opacity=".45"/><ellipse cx="${cx + w / 2 - 14}" cy="${cy}" rx="8.5" ry="${h / 2 - 9}" fill="url(#chf-nail)"/></g>`;
   const handFront = `<svg class="cut-hand cut-hand-front" viewBox="0 0 372 760" aria-hidden="true"><defs><linearGradient id="chf-skin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D2A485"/><stop offset="1" stop-color="#A67A5B"/></linearGradient><linearGradient id="chf-nail" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#DDB7A0"/><stop offset="1" stop-color="#C4957A"/></linearGradient><filter id="chf-sh" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="7"/></filter></defs><g fill="#000" opacity=".3" filter="url(#chf-sh)"><ellipse cx="50" cy="339" rx="15" ry="22"/><ellipse cx="49" cy="396" rx="16" ry="22"/><ellipse cx="49" cy="453" rx="15" ry="21"/><ellipse cx="52" cy="507" rx="13" ry="19"/><ellipse cx="352" cy="632" rx="18" ry="62"/></g>${finger(20, 336, 76, 48, -7)}${finger(18, 393, 80, 48, -5)}${finger(18, 450, 78, 46, -4)}${finger(22, 505, 70, 42, -3)}<g transform="rotate(-18 357 633)"><rect x="334" y="548" width="46" height="172" rx="23" fill="url(#chf-skin)"/><ellipse cx="357" cy="574" rx="12" ry="15" fill="url(#chf-nail)"/><path d="M346 640 q11 6 22 0" fill="none" stroke="#6E4530" stroke-width="2" stroke-opacity=".4"/></g></svg>`;
   const keys = `<span class="cut-key l" style="top:104px;height:26px"></span><span class="cut-key l" style="top:152px;height:56px"></span><span class="cut-key l" style="top:222px;height:56px"></span><span class="cut-key r" style="top:170px;height:84px"></span>`;
-  const phone = `<div class="cut-phone">${keys}<div class="cut-screenwrap"><div class="cut-status"><span>6:43</span><span class="cut-island"></span>${SB_ICONS}</div><div class="cut-content">${open}${tryS}${watch}${door}${score}${done}${today}</div><div class="cut-home"></div><div class="cut-glare"></div></div></div>`;
+  const phone = `<div class="cut-phone">${keys}<div class="cut-screenwrap"><div class="cut-status"><span>6:43</span><span class="cut-island"></span>${SB_ICONS}</div><div class="cut-content">${open}${tryS}${watch}${door}${score}${done}</div><div class="cut-home"></div><div class="cut-glare"></div></div></div>`;
   return `<div class="vid-cut" id="vid-cut" data-act="video-toggle"><div class="cut-bg" style="background-image:url(${CAND_PHOTO})"></div><div class="cut-vig"></div><div class="cut-rig">${handBack}${phone}${handFront}</div></div>`;
 }
 
@@ -4494,7 +4510,7 @@ function statusNow() {
 function vMe() {
   const t = T(), done = countDone(), st = statusNow(), nd = DAYS.find((d) => !S.sessions[S.track][d.n]);
   const tick = `<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10.5 L8.5 14 L15 6.5" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const badges = [["First shift", true], ["100 conversations", true], [`Ready streak ${streakNow()}`, streakNow() >= 2], [S.track === "gotv" ? "5 by 5" : BADGE[S.track], S.track === "gotv" ? Object.keys(S.done5 || {}).length >= 5 : !!S.sessions[S.track][5]]];
+  const badges = [["First shift", true], ["100 conversations", true], [`Ready streak ${streakNow()}`, streakNow() >= 2], [S.track === "gotv" ? "Door-ready" : BADGE[S.track], S.track === "gotv" ? Object.keys(S.done5 || {}).length >= 5 : !!S.sessions[S.track][5]]];
   const past = TRACK_ORDER.filter((k) => k !== S.track).slice(0, 2).map((k) => { const p = TRACKS[k]; return `<div class="camp"><span class="seal" style="background:${{ libraries: "#0F4A52", neighbors: "#283573", okafor: "#2E2346", porch: "#2C3A2E", textthree: "#2A2440" }[p.skin]}">${p.org.seal}</span><div><b>${p.org.name}</b><small>${PAST[k]}</small></div></div>`; }).join("");
   const no = (n) => (n === 5 ? 1 : n === 3 ? 2 : 3);
   return app(`
@@ -4690,7 +4706,7 @@ function vFits() {
     <p class="lede">Our work runs in three phases, from months out to Election Day.</p>
     ${fitsTimeline(f)}
     <div class="react"><p>Did this change how you see Saturday?</p><div>${["Yes", "Not really"].map((x) => `<button class="opt" data-act="fits-react" data-arg="${x}" aria-pressed="${r === x}">${x}</button>`).join("")}</div></div>
-  `, g ? { tag: S.noteFrom === "wrap" ? "From the campaign" : "Library", primary: S.noteFrom === "wrap" ? ["See your plan", "go", "welcome"] : ["Back to the library", "go", "library"] } : { tag: "From the campaign", back: "welcome", primary: ["Next: quick rep", "day-rep"] });
+  `, g ? { tag: S.noteFrom === "wrap" ? "From the campaign" : "Library", primary: S.noteFrom === "wrap" ? ["Back to Today", "go", "welcome"] : ["Back to the library", "go", "library"] } : { tag: "From the campaign", back: "welcome", primary: ["Next: quick rep", "day-rep"] });
 }
 /* Friday's word from the campaign: behind the scenes with the data director (also a ready card in the library) */
 const BEHIND = {
@@ -4710,7 +4726,7 @@ function vBehind() {
     <p class="lede">${b.lede}</p>
     <ol class="funnel">${b.rows.map(([n, d], j) => `<li style="width:${100 - j * 7}%"><b class="num">${n}</b><span>${d}</span></li>`).join("")}</ol>
     <p class="why-line">${b.close}</p>
-  `, lib ? (S.noteFrom === "wrap" ? { tag: "From the campaign", primary: ["See your plan", "go", "welcome"] } : { tag: "Library", back: "training", primary: ["Back to the library", "go", "library"] }) : { tag: "From the campaign", back: "welcome", primary: ["Next: quick rep", "day-rep"] });
+  `, lib ? (S.noteFrom === "wrap" ? { tag: "From the campaign", primary: ["Back to Today", "go", "welcome"] } : { tag: "Library", back: "training", primary: ["Back to the library", "go", "library"] }) : { tag: "From the campaign", back: "welcome", primary: ["Next: quick rep", "day-rep"] });
 }
 function vNote() { if (S.track === "gotv") return S.noteKind === "fits" ? vFits() : vBehind(); return S.noteFrom === "library" || S.day === 1 ? vBehind() : vFits(); }
 function basicsBody(c, art) {
@@ -5280,6 +5296,8 @@ function vScore() {
    40 doors fill by the lessons done, so one lesson visibly reaches every door on the list. Then the next lesson's time.
    The growth plays once per finished lesson, not again on every tap of a time chip (each tap re-renders). */
 const DOOR_GETS = { open: "your name, that you live nearby and why you came", listen: "a real question and your full attention", noargue: "a calm thank-you, even when it\u2019s a no", plan: "your help making a plan to vote", friends: "your ask to remind three friends" };
+/* Maya Kaur version: what every door on Saturday's list now gets, short, for the lesson's end */
+const DOOR_NEW = { open: "your new opener", listen: "a real question", noargue: "a calm thank-you, even at a no", plan: "your help making a plan to vote", friends: "your ask to remind three friends" };
 const LEFTW = ["no", "one", "two", "three", "four", "five"];
 /* the ring, growing from one value to another (a CSS animation from the old arc to the new one) */
 function ringGrow(f0, f1, size, stroke) {
@@ -5294,23 +5312,35 @@ function gainLine(a, b) {
 }
 function doneHero(n, cnt, gain, anim) {
   const all = cnt >= 5, left = Math.max(0, 5 - cnt);
-  const sub = all ? "In radio talk, 5 by 5 means loud and clear. That\u2019s you now. Next is your Warmup before Saturday\u2019s canvass." : `You\u2019re ${cnt}/5 warmed up, with ${LEFTW[left]} lesson${left === 1 ? "" : "s"} to go.`;
+  const sub = all ? "All five moves, from memory." : `${left} to go`;
   const r = anim && cnt > 0 ? ringGrow((cnt - 1) / 5, cnt / 5, 76, 10) : ring(cnt / 5, 76, 10);
-  return `<div class="done-hero"><div class="ring-wrap" style="width:76px;height:76px">${r}<span class="ring-num num" style="font-size:20px">${cnt}/5</span></div><h1 class="h1">${all ? "You\u2019re 5 by 5." : `Lesson ${n} done.`}</h1><p class="lede">${sub}</p>${gain || ""}</div>`;
+  return `<div class="done-hero"><div class="ring-wrap" style="width:76px;height:76px">${r}<span class="ring-num num" style="font-size:20px">${cnt}/5</span></div><h1 class="h1">${all ? "You\u2019re door-ready." : `Lesson ${n} done.`}</h1><p class="${all ? "lede" : "togo"}">${sub}</p></div>`;
 }
 /* Saturday's 40 doors (the list from How your list gets made), each filled by the lessons done so far */
+/* What's next (Maya Kaur version, Robert): the lessons left, the next one tomorrow and the rest one a day, then the Warmup Saturday at 8 AM;
+   Saturday's 40 doors follow as one line. at, when given, holds the video's beat times for the rows (they slide in) */
+function nextPath(k, d5, at) {
+  const left = LESSONS5.filter((L) => !d5[L.n]);
+  const gets = left.length ? DOOR_NEW[k] || "what you just learned" : "all five moves";
+  const rows = left.map((L, j) => [j === 0 ? "on" : "", String(L.n), L.title, j === 0 ? "Tomorrow" : DAY5[L.n - 1]]);
+  rows.push([left.length ? "" : "on", "\u2605", "Your Warmup", "Sat 8 AM"]);
+  if (!left.length) rows.push(["", "", "Your canvass", "Sat 9 AM"]);
+  const rv = (j) => (at && at[j] != null ? ` cut-rev" data-at="${at[j]}` : "");
+  const lead = left.length ? "Mia texts you one lesson a day. Each takes 5 minutes." : "Next is your Warmup, two doors and one tip, right before your canvass.";
+  return `<div class="next-path"><p class="np-k">What\u2019s next</p><p class="np-lead">${lead}</p><ol>${rows.map((r, j) => `<li class="${r[0]}${rv(j)}"><span class="np-d">${r[1]}</span><span>${r[2]}</span><small>${r[3]}</small></li>`).join("")}</ol></div><p class="sat-mini">Then <b>40 doors Saturday</b>, each one getting ${gets}.</p>`;
+}
 function satCard(k, cnt, prev, anim) {
-  const f = Math.max(0, Math.min(5, cnt)) / 5, f0 = Math.max(0, Math.min(5, prev)) / 5;
+  const f = cnt > 0 ? 1 : 0, f0 = prev > 0 ? 1 : 0;
   const doors = Array.from({ length: 40 }, (_, j) => `<i style="--d:${(j * 0.018).toFixed(3)}s"><b></b></i>`).join("");
-  const gets = cnt >= 5 ? "all five moves" : DOOR_GETS[k] || "what you just learned";
-  return `<div class="sat-card"><div class="sat-head"><b>Saturday \u00b7 40 doors</b><span>Elm Street side</span></div><div class="sat-doors${f > 0 ? " lit" : ""}${anim ? " grow" : ""}${anim && f0 === 0 ? " first" : ""}" style="--f:${f};--f0:${f0}" aria-hidden="true">${doors}</div><p>Every one of these doors now gets ${gets}. They\u2019re supporters who might not vote without a reminder.</p></div>`;
+  const gets = cnt >= 5 ? "all five moves" : DOOR_NEW[k] || "what you just learned";
+  return `<div class="sat-card"><h2 class="sat-h">40 doors Saturday.</h2><p class="sat-sub">Each one gets ${gets}.</p><div class="sat-doors${f > 0 ? " lit" : ""}${anim ? " grow" : ""}${anim && f0 === 0 ? " first" : ""}" style="--f:${f};--f0:${f0}" aria-hidden="true">${doors}</div><p class="sat-note">They\u2019re supporters who need a reminder to vote.</p></div>`;
 }
 let closeSeen = "";
 function vClose5() {
   const d5 = S.done5 || {}, cnt = Math.min(5, Object.keys(d5).length), n = lessonNo(), nx = LESSONS5.find((x) => !d5[x.n]);
   const pick = nx ? S.nextAt[nx.n] : null, key = `${n}:${(S.doneAt || {})[n] || 0}`, anim = closeSeen !== key;
   closeSeen = key;
-  const R = tryNow(), gain = R && !R.pending && d5[n] ? gainLine(R.hits, d5[n]) : "";
+  const gain = ""; /* Maya Kaur version: no gain line at the lesson's end (Robert) */
   /* version 71: spacing becomes a plan. "When's lesson N?" with time chips schedules Mia's next text; version 77 pins it above the button */
   const when = !nx ? "" : `<p class="when-q"><b>When\u2019s lesson ${nx.n}?</b> Spacing them out is how they stick.</p><div class="time-chips" role="group" aria-label="When to send lesson ${nx.n}">${NEXT_TIMES.slice(0, 2).map(([label], j) => `<button data-act="next-at" data-arg="${j}" aria-pressed="${!!pick && pick.label === label}">${label}</button>`).join("")}<select id="next-pick" aria-label="Pick a time"><option value="">Pick a time</option>${NEXT_TIMES.slice(2).map(([label], j) => `<option value="${j + 2}"${pick && pick.label === label ? " selected" : ""}>${label}</option>`).join("")}</select></div>${pick ? `<p class="set-line">Set. Mia will text you ${pick.say}.</p>` : ""}`;
   const fits = n % 2 === 1;
@@ -5318,9 +5348,9 @@ function vClose5() {
   return app(`
     <div class="wrap-bar">${progressBar(99)}</div>
     ${doneHero(n, cnt, gain, anim)}
-    ${satCard(skKey(), cnt, anim ? cnt - 1 : cnt, anim)}
+    ${nextPath(skKey(), d5)}
     ${links}
-  `, { noBack: true, footer: `${when}${button(["See your plan", "go", "welcome"])}` });
+  `, { noBack: true, footer: button(["Done for today", "go", "welcome"]) }); /* Maya Kaur version: no time chips; the path shows what comes next (Robert) */
 }
 function vClose() {
   if (S.track === "gotv") return vClose5();
@@ -5809,7 +5839,7 @@ function vToday() {
     : ["Practice a door", "go", "coach"];
   return app(`
     <div class="today-head"><div class="ring-wrap" style="width:60px;height:60px">${ring(ready / 6, 60, 9)}</div>
-      <div><h1 class="h1" style="margin:0">Today</h1><p class="today-left">${cnt >= 5 ? "You\u2019re 5 by 5." : `${cnt} of 5 lessons done.`} Your canvass is ${t.when}.</p></div></div>
+      <div><h1 class="h1" style="margin:0">Today</h1><p class="today-left">${cnt >= 5 ? "You\u2019re door-ready." : `${cnt} of 5 lessons done.`} Your canvass is ${t.when}.</p></div></div>
     <ol class="plan">${rows}${warm}${shift}${cool}</ol>
     <p class="week-line">The ring fills with your five lessons, then your Warmup. <button class="link inline" data-act="go" data-arg="how">How Warmup works</button></p>
   `, { primary, tabs: "today" });
@@ -5826,7 +5856,7 @@ function vHow() {
     <p class="lede">Five lessons, five minutes each, one part of the door at a time. Every lesson goes the same way.</p>
     <dl class="parts brief">${parts.map(([b, x]) => `<div><dt>${b}</dt><dd>${x}</dd></div>`).join("")}</dl>
     <p class="why-line">We space the lessons out and pace them to your shift. Before every shift, a 5-minute Warmup. After it, a quick Cooldown. Extra doors live in Practice, anytime.</p>
-    <p class="why-line"><b>5 by 5</b> is what you are once all five are done. It\u2019s radio talk for loud and clear.</p>
+    <p class="why-line"><b>Door-ready</b> is what you are once all five lessons are done.</p>
   `, { tag: "Warmup", back: "welcome", primary: ["Back to Today", "go", "welcome"] });
 }
 
@@ -5864,7 +5894,7 @@ function vCoach() {
   if (td && td.door) pick = { title: `Tough door: ${td.title}`, sub: `${DOORS[td.door].name}, ${DOORS[td.door].brief}. It sharpens ${titleIn(LESSONS5[td.lesson - 1].title)}.`, door: td.door };
   else if (td && S.coolDoor === td.id) pick = { title: `Tough door: ${td.title}`, sub: "From your Cooldown. The coach will play this one soon, and one like it is on your next Warmup.", lib: "tough:" + td.id };
   else if (L) { const door = SKILLS[L.skill].door, mi = L.moves.findIndex((m) => !m); pick = { title: `${DOORS[door].name}\u2019s door, again`, sub: `Last time: ${lowerFirst(SKILLS[L.skill].missNames[mi])}. One more door makes it stick.`, door }; }
-  else pick = { title: "Tough door: An angry voter", sub: `${DOORS.gloria.name}, ${DOORS.gloria.brief}. It sharpens ${LESSONS5[2].title}.`, door: "gloria" };
+  else pick = { title: "Tough door: An angry voter", sub: `${DOORS.gloria.name}, ${DOORS.gloria.brief}. It sharpens ${titleIn(LESSONS5[2].title)}.`, door: "gloria" };
   const five = LESSONS5.map((x) => { const sk = SKILLS[LESSON_SKILL[x.n]], d = DOORS[sk.door]; return `<li><button data-act="coach-door" data-arg="${sk.door}"><span class="p-num">${x.n}</span><span><b>${d.name}\u2019s door</b><small>${x.title}${d5[x.n] ? "" : ` \u00b7 best after lesson ${x.n}`}</small></span><span class="small">${d.short ? "1 min" : "2 min"}</span></button></li>`; }).join("");
   const tough = TOUGH.map((x) => `<li><button data-act="${x.door ? "coach-door" : "lib-open"}" data-arg="${x.door || "tough:" + x.id}">${trAv(x.by)}<span><b>${x.title}</b><small>Sharpens ${titleIn(LESSONS5[x.lesson - 1].title)}</small></span>${x.door ? `<i class="lib-ready">Ready</i>` : `<span class="small">Soon</span>`}</button></li>`).join("");
   const shuffle = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h3c4 0 6 10 10 10h3M4 17h3c1.6 0 2.8-1.6 3.9-3.6M14 9.6C15.1 8 16.3 7 17 7h3M17 4l3 3-3 3M17 14l3 3-3 3"/></svg>`;
@@ -5940,7 +5970,7 @@ function vWarmReady() {
     <h1 class="h1" style="text-align:center">Ready for Saturday.</h1>
     <p class="lede" style="text-align:center">You warmed up within a day of your shift, so it counts as a ready shift. See you at 9 AM on the Elm Street side.</p>
     <div class="record"><div><b>Ready streak</b><small>${streakNow()} shifts in a row, fully prepared</small></div><div><b>${st.tier} canvasser</b><small>${st.next ? `${Math.max(0, st.next[1] - st.ready)} more ready shifts to ${st.next[0]}` : "Top tier"}</small></div></div>
-  `, { tag: "Warmup", noBack: true, primary: ["See your plan", "go", "welcome"] });
+  `, { tag: "Warmup", noBack: true, primary: ["Done for today", "go", "welcome"] });
 }
 
 /* ---------- the Cooldown's spoken question ---------- */
@@ -6022,7 +6052,7 @@ function meTrainingG() {
   const d5 = S.done5 || {}, cnt = Object.keys(d5).length, nx = LESSONS5.find((x) => !d5[x.n]);
   const weak = LESSONS5.find((x) => d5[x.n] && d5[x.n].filter(Boolean).length < 4);
   const rows = LESSONS5.map((L) => `<li><span>${L.title}</span><i class="${d5[L.n] ? "" : "off"}">${d5[L.n] ? "Learning" : "Not yet"}</i></li>`).join("");
-  return `<div class="tstatus">You\u2019ve done ${cnt} of 5 lessons.${nx ? ` Lesson ${nx.n} is next.` : " You\u2019re 5 by 5."}${weak ? `<br><b>Refresh soon:</b> ${weak.title}. Your next Warmup brings it back.<br><button class="link" data-act="lib-open" data-arg="lesson:${weak.n}">Open that lesson</button>` : ""}</div>
+  return `<div class="tstatus">You\u2019ve done ${cnt} of 5 lessons.${nx ? ` Lesson ${nx.n} is next.` : " You\u2019re door-ready."}${weak ? `<br><b>Refresh soon:</b> ${weak.title}. Your next Warmup brings it back.<br><button class="link" data-act="lib-open" data-arg="lesson:${weak.n}">Open that lesson</button>` : ""}</div>
     <p class="deb-q">Your five</p>
     <ul class="skill-list">${rows}</ul>
     <p class="small lvl-note">Each skill goes Learning, then Solid (3 of 4 on two different days), Sharp (4 of 4 on two days, against tougher voters) and Mentor (Sharp, plus teaching it to someone else).</p>`;
