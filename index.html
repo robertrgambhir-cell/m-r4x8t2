@@ -956,6 +956,58 @@
   .spot-opts + .fb .fb-sec > b { display: inline; margin: 0 4px 0 0; text-transform: none; letter-spacing: 0; font-size: 15px; }
   .spot-opts + .fb .fb-sec > b + p { display: inline; }
   .actions .fix-ask { margin: 0 2px; font-size: 16px; }
+  /* Maya Kaur version: Spot the miss, redesigned (Oct 14) */
+  .h2.spot-title { margin-bottom: 12px; }
+  .spot-card { padding: 8px; }
+  .spot-card .frame.mini { height: 112px; border-radius: 16px; }
+  .spot-card .frame.mini svg.voter { margin-top: -88px; }
+  .spot-lines { display: grid; gap: 6px; }
+  .spot-card .frame + .spot-lines { margin-top: 8px; }
+  .sq { margin: 0; padding: 9px 12px; border-radius: 14px; font-size: 15px; line-height: 1.42; }
+  .sq.you { background: var(--soft); }
+  .sq.them { background: var(--card); box-shadow: inset 0 0 0 1px var(--line); }
+  .sq b { font-weight: 700; }
+  .spot-ask { margin: 18px 2px 10px; font-size: 16px; font-weight: 700; line-height: 1.35; }
+  .spot-tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .spot-card + .spot-tiles { margin-top: 14px; }
+  .spot-tiles li { display: flex; }
+  .spot-tiles .tile { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 3px; min-height: 60px; padding: 10px 13px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--card); font: inherit; font-size: 15px; line-height: 1.3; text-align: left; color: var(--ink); cursor: pointer; transition: transform .12s ease, border-color .2s ease; -webkit-tap-highlight-color: transparent; }
+  .spot-tiles .tile:active { transform: scale(.98); border-color: var(--ink); }
+  .spot-tiles .tile:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+  .spot-tiles.done .tile { cursor: default; opacity: .4; min-height: 46px; padding: 8px 12px; font-size: 14px; }
+  @media (max-height: 820px) { .spot-card.long .frame { display: none; } }
+  .spot-tiles.done .tile.missing { opacity: 1; border: 2px solid var(--accent); background: var(--accent-soft); font-weight: 700; }
+  .spot-tiles.done .tile.mine { opacity: .8; border-style: dashed; border-color: var(--ink-3); }
+  .spot-tiles .tile small { font-size: 12px; font-weight: 700; color: var(--accent-ink); }
+  .spot-tiles .tile.mine small { color: var(--ink-3); }
+  .spot-tiles.anim .tile:not(.missing):not(.mine) { animation: tilerecede .4s ease both; }
+  .spot-tiles.anim .tile.missing { animation: tilelift .45s cubic-bezier(.3,.7,.2,1) both; }
+  @keyframes tilerecede { from { opacity: 1; } to { opacity: .4; } }
+  @keyframes tilelift { 0% { transform: scale(1); } 45% { transform: scale(1.04); } 100% { transform: scale(1); } }
+  .spot-fb { margin-top: 12px; padding: 12px 14px; }
+  .spot-fb .why-s { font-size: 13.5px; }
+  .spot-fb .fb-sec > b { display: inline; margin: 0 4px 0 0; text-transform: none; letter-spacing: 0; font-size: 15px; }
+  .spot-fb .fb-sec > b + p { display: inline; }
+  .spot-fb .fb-sec.tip > b { display: block; margin: 0 0 4px; }
+  .spot-fb .fb-sec.tip > b + p { display: block; }
+  /* the script reads like a script: no boxes inside the card, a hairline between speakers */
+  .spot-card { padding: 8px 8px 4px; }
+  .spot-lines { gap: 0; }
+  .spot-card .frame + .spot-lines { margin-top: 2px; }
+  .spot-lines .sq { padding: 11px 8px; background: none; box-shadow: none; border-radius: 0; font-size: 15.5px; line-height: 1.45; }
+  .spot-lines .sq + .sq { border-top: 1px solid var(--line); }
+  /* the answer card, built like the 1st try card */
+  .spot-ans { margin-top: 14px; padding: 16px 16px 15px; }
+  .spot-ans h3 { margin: 0 0 6px; font-size: 22px; }
+  .spot-ans .ans-miss { margin: 0 0 4px; font-size: 17px; font-weight: 700; line-height: 1.35; }
+  .spot-ans .ans-line { font-size: 15px; line-height: 1.45; }
+  .spot-ans .why-s { margin-top: 8px; font-size: 13.5px; line-height: 1.45; color: var(--ink-2); }
+  .spot-ans .ans-fix { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .spot-ans.strong .ans-fix { border-top-color: rgba(27, 122, 77, .22); }
+  .spot-ans .ans-fix p { margin: 0; font-size: 15px; line-height: 1.45; }
+  .spot-ans .ans-fix .ans-k { margin-top: 10px; font-size: 12.5px; font-weight: 700; color: var(--ink-3); }
+  .spot-ans .ans-fix .ans-model { margin-top: 3px; font-family: var(--head-font); font-weight: var(--head-weight); font-size: 17px; line-height: 1.35; }
+  .spot-ans.anim { animation: vpin .4s ease both; }
   .frame.wframe.wdone { height: 118px; }
   .frame.wframe.wdone svg.voter { margin-top: -70px; }
   .frame.wframe.wdone .who-tag { display: none; }
@@ -971,6 +1023,7 @@
     .app.talking .sticky-scene .frame svg.voter { margin-top: -60px; }
     .app.talking .talk-tray .field { max-height: 88px; }
     .app.talking .fix-ask { margin-top: 0; }
+    .app.talking .spot-card, .app.talking .spot-tiles, .app.talking .spot-ask, .app.talking .spot-ans { display: none !important; }
     .app.listening .kicker, .app.listening .h1, .app.listening .h2, .app.listening .lede, .app.listening .rep-who, .app.listening .rep-prompt, .app.listening .rep-goal, .app.listening .say-note, .app.listening .door-links, .app.listening .cam-btn, .app.listening .score-top, .app.listening .card3 > .fb-sec:not(.tip), .app.listening .prior-line, .app.listening .score-next, .app.listening .rv-sub, .app.listening .actions .link.center, .app.listening .powered { display: none !important; }
     .app.listening .content { padding-top: 12px; }
     .app.listening .frame.mini { height: 112px; }
@@ -1085,6 +1138,7 @@
     .voter .fig-wrap, .voter .door-panel, .voter .brow, .voter .look, .bar > span, .ring-arc { transition: none !important; }
     .ring-arc.grow, .sat-doors.grow b, .sat-doors.grow i, .cut-sat .sat-doors b, .cut-sat .sat-doors i { animation: none !important; transition: none !important; }
     .content { scroll-behavior: auto; }
+    .spot-tiles.anim .tile, .spot-ans.anim { animation: none !important; }
   }
 </style>
 </head>
@@ -3502,7 +3556,7 @@ const NOTES = {
   training: ["A library page", "A lesson page holds its moves and why, your best take and Go deeper; a Tough door says what it sharpens. Add to my next Warmup puts it into the next Warmup. Anything not built yet says so and asks for a vote."],
   me: ["Me", "Status like an airline\u2019s: a tier earned by ready shifts (worked within a day of a Warmup), the Door-ready badge, the five skills with their levels (Learning, Solid, Sharp, Mentor), then campaigns and record. Mentor replaced Coach, so coach only ever means the AI."],
   try: ["Your 1st try, before any teaching", "The volunteer answers out loud before any teaching. Trying first, even wrong, makes the lesson that follows stick (the pretesting effect). Feedback is positive only and never a grade: what they got right and what to watch for. All four moves on the first try goes straight to Your 2nd try, the version 67 rule applied to every lesson. Lesson 1\u2019s try also places them. Version 72: one mic button and no box until it\u2019s tapped, so a phone\u2019s keyboard never opens on its own."],
-  spot: ["Spot the miss", "The same door on another day with one realistic miss. Lesson 1 picks it from the volunteer\u2019s own try: the neighbor move, or the permission question. Tap the miss, see why it matters, then tap to talk and say the fix. Contrast first, then a first correct rep, on one screen."],
+  spot: ["Spot the miss", "The same door on another day with one realistic miss. Lesson 1 picks it from the volunteer\u2019s own try: the neighbor move, or the permission question. The volunteer taps the miss, sees why it matters and goes straight to the 2nd try to use it at the next door."],
   coach: ["Practice: the coach\u2019s home", "Extra doors anytime, no new teaching: the coach\u2019s pick (from the Cooldown or the last scorecard\u2019s miss), the five lesson doors, the eight Tough doors and Surprise me. In the demo the angry voter is playable (Gloria); the other Tough doors are honest placeholders that ask for a vote."],
   warm: ["The Warmup before every shift", "Five minutes within a day of the shift: one line from the campaign (the campaign minute lives here and in the library now), door 1 from memory with no chips, door 2 with a different kind of voter picked by the coach, then one tip said out loud. A Warmup within 24 hours of a shift is what makes it a ready shift, the same rule for the ring, the badges and the director\u2019s count."],
   warmtip: ["One tip, out loud", "The tip comes from the weaker of the two doors. Saying it once out loud is the last rep before the real doors."],
@@ -4350,7 +4404,7 @@ function videoCut() {
   const said = (from, dur, text) => `<span class="cut-said-txt" data-from="${from}" data-for="${dur}" data-full="${esc(text)}"></span>`;
   const voice = (live, talk, dur, off, label) => `<div class="cut-voice" data-live="${live}" data-talk="${talk}" data-for="${dur}"${off ? ` data-off="${off}"` : ""}><span class="cut-mic"><span class="cut-pulse"></span><span class="cut-pulse p2"></span>${ICON.mic}</span><span><span class="cut-wave">${"<i></i>".repeat(12)}</span><p class="cut-vlabel">${label}</p></span></div>`;
   /* the lesson opening, as vSessionG draws it (version 80): the bar with First try lit, Lesson 1 of 5, the title, why it matters and Walter's shut door, which slides in at CUT_ROWS[0] */
-  const open = `<div class="cut-screen cut-open"><div class="open-bar">${lessonBarHtml(1, [0.75, 1, 0.75, 1.5], -1, 0, false, false, 0)}</div><p class="kicker">Lesson 1 of 5 \u00b7 ${lessonMin(1)} min</p><h1 class="h1">${sk.title}</h1><p class="why-line open-why">${LINE5.open}</p><div class="frame small open-door cut-rev" data-at="${CUT_ROWS[0]}">${scene("door", f.persona, { shut: true, crop: true, label: "Walter\u2019s front door, still shut" })}</div></div>`;
+  const open = `<div class="cut-screen cut-open"><div class="open-bar">${lessonBarHtml(1, [0.75, 1, 0.5, 1.5], -1, 0, false, false, 0)}</div><p class="kicker">Lesson 1 of 5 \u00b7 ${lessonMin(1)} min</p><h1 class="h1">${sk.title}</h1><p class="why-line open-why">${LINE5.open}</p><div class="frame small open-door cut-rev" data-at="${CUT_ROWS[0]}">${scene("door", f.persona, { shut: true, crop: true, label: "Walter\u2019s front door, still shut" })}</div></div>`;
   /* First try: Walter opens the door, the volunteer answers out loud before any teaching, and the card says only what went right */
   const tryCard = `You ${andList(f.did.filter((_, i) => tryHits[i]))}. ${tried ? `Watch for the other ${NUMW[4 - tried]}.` : "Watch for all four."}`;
   const tryS = `<div class="cut-screen cut-try">${barHtml(1, 0, 0.5)}<h2 class="h2 tight">The door opens. How would you start?</h2><div class="rep-card"><div class="frame small mini">${scene("door", f.persona, { label: "Walter at the door" })}</div><p class="rep-quote"><b>${sk.lesson.name}:</b> \u201c${f.line}\u201d</p></div>${voice(C[1] + 0.3, C[1] + 0.7, 1.3, C[1] + 2.6, said(C[1] + 0.7, 1.3, tryLine))}<div class="fb try cut-rev" data-at="${C[1] + 2.6}"><h3>Nice start.</h3><p>${tryCard}</p></div></div>`;
@@ -5649,9 +5703,9 @@ const COOL_MAP = [
 const lessonNo = () => S.lesson || 1;
 const tryNow = () => (S.tryRes && S.tryRes.lesson === lessonNo() ? S.tryRes : null);
 const skipNow = () => { const R = tryNow(); return !!(R && !R.pending && R.hits.every(Boolean)); };
-/* minutes per part, from the doc's minute-by-minute: Try, Watch, Spot, Your turn (lesson 1's door is the opener only); plus the opening and the wrap */
-function partMins(n = lessonNo()) { const skip = skipNow(); return [0.75, skip ? 0 : 1, skip ? 0 : 0.75, n === 1 ? 1.5 : 2]; }
-const lessonMin = (n) => Math.max(1, Math.round(0.25 + [0.75, 1, 0.75, n === 1 ? 1.5 : 2].reduce((a, b) => a + b, 0) + 0.5));
+/* minutes per part, from the doc's minute-by-minute: Try, Watch, Spot, Your turn (lesson 1's door is the opener only); plus the opening and the wrap. Maya version 15: Spot is 0.5, since nothing is said out loud there */
+function partMins(n = lessonNo()) { const skip = skipNow(); return [0.75, skip ? 0 : 1, skip ? 0 : 0.5, n === 1 ? 1.5 : 2]; }
+const lessonMin = (n) => Math.max(1, Math.round(0.25 + [0.75, 1, 0.5, n === 1 ? 1.5 : 2].reduce((a, b) => a + b, 0) + 0.5));
 function lessonBar(part, fill = 0) { const n = lessonNo(); return lessonBarHtml(n, partMins(n), part, fill, skipNow(), true); }
 /* version 77: the bar's markup on its own, so the video's phone draws lesson 1's bar without reading the volunteer's state (and without the live id) */
 function lessonBarHtml(n, m, part, fill, skipped, live, here) {
@@ -5665,7 +5719,7 @@ function lessonBarHtml(n, m, part, fill, skipped, live, here) {
   const segs = m.map((_, i) => `<i${live && i === part ? ' id="sbar-now"' : ""}${i === here ? ' class="now"' : ""}><span style="width:${fills[i]}%"></span></i>`).join("");
   return `<div class="sbar" aria-label="${label}, ${right}"><div class="sbar-segs" style="grid-template-columns:repeat(4,1fr)">${segs}</div>${barNames(PARTS4, part < 0 && here != null ? here : part)}<div class="sbar-row"><span>${label}</span><span>${right}</span></div></div>`;
 }
-const barHtml = (n, part, fill) => lessonBarHtml(n, [0.75, 1, 0.75, n === 1 ? 1.5 : 2], part, fill, false, false);
+const barHtml = (n, part, fill) => lessonBarHtml(n, [0.75, 1, 0.5, n === 1 ? 1.5 : 2], part, fill, false, false);
 function warmBar(part, fill = 0) {
   const m = [1.5, 1.5, 0.5], names = ["Door 1", "Door 2", "Tip"], done = part >= 3, f = Math.max(0, Math.min(1, fill || 0));
   const fills = m.map((_, i) => (i < part ? 100 : i === part ? Math.round(f * 100) : 0));
@@ -5690,7 +5744,7 @@ function partRows(n, sk, d) {
   return [
     [PARTS4[0], n === 1 ? "Open the door your way. There\u2019s no wrong answer." : "Say what you\u2019d say next. There\u2019s no wrong answer."],
     [PARTS4[1], `Watch ${sk.lesson.name}\u2019s door done right, move by move.`],
-    [PARTS4[2], "Find the move that\u2019s missing, then say the fix out loud."],
+    [PARTS4[2], "Spot the move that\u2019s missing."],
     [PARTS4[3], n === 1 ? `Knock on ${d.name}\u2019s door and say your opener out loud.` : `Take a whole door with ${d.name}, from the knock, out loud.`],
   ];
 }
@@ -5771,7 +5825,7 @@ async function checkTry() {
   render();
   scrollDown();
 }
-/* Spot: the same door on another day with one realistic miss (lesson 1 picks it from the volunteer's own try), then the fix, said out loud */
+/* Spot: the same door on another day with one realistic miss (lesson 1 picks it from the volunteer's own try). Maya version 15: nothing is said out loud here, the pick goes straight on to the 2nd try */
 function spotPick() { if (skKey() !== "open") return 0; const R = tryNow(); return R && R.hits && !R.hits[3] && R.hits[1] ? 1 : 0; }
 function spotData() {
   const k = skKey(), f = FLOW[k];
@@ -5779,20 +5833,23 @@ function spotData() {
   return { lines: f.spot.lines, miss: f.spot.miss, missLine: f.spot.missLine, fix: f.fix[f.spot.miss] };
 }
 function vSpotG() {
+  /* Maya Kaur version (Robert, Oct 14): one card with the voter at the door and the exchange as a short script, the question right above
+     the four moves in a 2 by 2 grid; after the pick, the grid gives way to one answer card (the verdict, the miss in plain words, what it cost
+     and why), and one button goes straight to the 2nd try (version 15, Robert: spotting is the whole job here) */
   const sk = SK(), L = sk.lesson, sp = S.spot || { item: 0, picked: null, said: null }, it = spotData();
-  const bubbles = `<div class="thread spot-thread">${it.lines.map(([who, t]) => `<div class="bub ${who}">${esc(fill(t))}</div>`).join("")}</div>`;
-  const picked = sp.picked, done = picked != null, right = picked === it.miss, said = sp.said;
-  const opts = `<div class="opts spot-opts" role="group" aria-label="The four moves">${sk.moves.map((m, i) => (!done || i === it.miss) ? `<button class="opt${done ? " is-right" : ""}" data-act="spot-pick" data-arg="${i}" aria-pressed="${picked === i}"${done ? " disabled" : ""}>${mark()}${m}</button>` : "").join("")}</div>`;
-  const reveal = !done ? "" : `<div class="fb ${right ? "strong" : "ok"}"><div class="fb-sec ${right ? "right" : "fix"}"><b>${right ? "Right." : "Not quite."}</b><p>${right ? "" : `The miss: ${endP(sk.moves[it.miss])} `}${it.missLine}</p><p class="why-s">${sk.whyShort[it.miss]}</p></div></div>`;
-  const fixCard = !said ? "" : `<div class="fb ${said.ok ? "strong" : "ok"}"><div class="fb-sec ${said.ok ? "right" : "fix"}"><b>${said.ok ? "That\u2019s the one." : "Almost."}</b><p>${said.ok ? "Say it like that at the door." : esc(it.fix.no)}</p></div>${said.ok ? "" : `<div class="fb-sec tip"><b>One line that works</b><p>\u201c${esc(fill(it.fix.model))}\u201d</p></div>`}</div>`;
-  const footer = !done ? "" : !said
-    ? `<p class="fix-ask">${it.fix.ask}</p>${composer("spot-fix", "", "Check my fix")}`
-    : `<button class="btn" data-act="go" data-arg="main">Next: your 2nd try</button><button class="link center" data-act="spot-again">Say it again</button>`;
+  const picked = sp.picked, done = picked != null, right = picked === it.miss;
+  const anim = done && sp.at && Date.now() - sp.at < 1500;
+  const lines = it.lines.map(([w, t]) => `<p class="sq ${w}"><b>${w === "you" ? "You" : L.name}:</b> \u201c${esc(fill(t))}\u201d</p>`).join("");
+  const card = `<div class="rep-card spot-card${it.lines.length > 2 ? " long" : ""}">${done ? "" : `<div class="frame small mini spot-frame">${scene("door", L.persona, { label: `${L.name} at the door` })}</div>`}<div class="spot-lines">${lines}</div></div>`;
+  const tiles = `<p class="spot-ask">This time, one of the four moves is missing. Which one?</p><ol class="spot-tiles" aria-label="The four moves">${sk.moves.map((m, i) => `<li><button class="tile" data-act="spot-pick" data-arg="${i}" aria-pressed="false"><span class="tile-t">${m}</span></button></li>`).join("")}</ol>`;
+  const youDid = (x) => `You ${x.charAt(0).toLowerCase()}${x.slice(1)}${/[.?!\u201d]$/.test(x) ? "" : "."}`;
+  const ans = !done ? "" : `<div class="fb spot-ans ${right ? "strong" : "ok"}${anim ? " anim" : ""}"><h3>${right ? "Right." : "Not quite."}</h3><p class="ans-miss">${esc(youDid(sk.missNames[it.miss]))}</p><p class="ans-line">${it.missLine}</p><p class="why-s">${sk.whyShort[it.miss]}</p></div>`;
+  const footer = !done ? "" : `<button class="btn" data-act="go" data-arg="main">Next: your 2nd try</button>`;
   return app(`
-    ${lessonBar(2, said ? 1 : done ? 0.55 : 0.2)}
-    <h2 class="h2 tight spot-h">Here\u2019s ${L.name}\u2019s door on a different day. This time, one of the four moves is missing. Can you find it?</h2>
-    ${bubbles}
-    ${opts}${reveal}${fixCard}
+    ${lessonBar(2, done ? 1 : 0.2)}
+    <h2 class="h2 tight spot-title">Here\u2019s ${L.name}\u2019s door again.</h2>
+    ${card}
+    ${done ? ans : tiles}
   `, footer ? { tag: "", footer } : { tag: "" });
 }
 function checkSpotFix() {
@@ -5848,7 +5905,7 @@ function vHow() {
   const parts = [
     [PARTS4[0], "Say what you\u2019d say before any tips. There\u2019s no wrong answer, and trying first helps the lesson stick."],
     [PARTS4[1], "Watch a good conversation at the door, with the four moves called out before and after."],
-    [PARTS4[2], "The same door on another day, with one move missing. Find it, then say the fix out loud."],
+    [PARTS4[2], "The same door on another day, with one move missing. Can you spot it?"],
     [PARTS4[3], "Take a whole door from the knock, then get feedback and say one tip out loud."],
   ];
   return app(`
@@ -6914,7 +6971,7 @@ document.addEventListener("click", (e) => {
     case "back": goBack(arg); break;
     case "watch-next": if (S.track === "gotv") go("spot"); else if (SK().spot && S.day === 5 && !S.skipWatch) go("spot"); else startMicro(); break;
     case "spot-next": if (S.spot) { S.spot = { i: 1, picked: null }; render(); } break;
-    case "spot-pick": if (S.spot && S.spot.picked == null) { S.spot.picked = Number(arg); render(); } break;
+    case "spot-pick": if (S.spot && S.spot.picked == null) { S.spot.picked = Number(arg); S.spot.at = Date.now(); render(); scrollDown(); } break;
     case "video-toggle":
       if (!S.video) break;
       if (!S.video.started || (!S.video.playing && S.video.i < WELCOME.lines.length)) playVideo(S.video.started ? S.video.i : 0, S.video.started ? (S.video.offset || 0) : 0);
