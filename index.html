@@ -327,10 +327,10 @@
   .sms-thread { flex: 1; overflow-y: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
   .sms-time { text-align: center; font-size: 11.5px; color: #8A8A8E; margin: 4px 0 8px; }
   .sms-bub { align-self: flex-start; max-width: 78%; background: #E9E9EB; padding: 9px 13px; border-radius: 18px; font-size: 15.5px; line-height: 1.35; }
-  .sms-card { align-self: flex-start; width: 92%; display: grid; grid-template-columns: 48px 1fr; text-align: left; cursor: pointer; border: 0; padding: 0; border-radius: 18px; overflow: hidden; background: #E9E9EB; animation: rise 0.4s ease 0.4s both; }
+  .sms-card { align-self: flex-start; width: 78%; display: grid; grid-template-columns: 52px 1fr; text-align: left; cursor: pointer; border: 0; padding: 0; border-radius: 18px; overflow: hidden; background: #E9E9EB; animation: rise 0.4s ease 0.4s both; }
   .sms-card .art { display: grid; place-items: center; background: #FCF8F2; }
   .sms-card .txt { padding: 11px 13px; }
-  .sms-card b { display: block; font-size: 14.5px; }
+  .sms-card b { display: block; font-size: 14.5px; line-height: 1.25; }
   .sms-card small { display: block; font-size: 12.5px; color: #6E6E73; margin-top: 2px; }
   .sms-hint { align-self: center; margin-top: auto; font-size: 13px; color: #8A8A8E; padding: 10px; }
   .sms-compose { margin: 8px 12px 18px; border: 1px solid #DADADA; border-radius: 20px; padding: 8px 14px; color: #A0A0A5; font-size: 15px; }
@@ -874,6 +874,13 @@
   .plan li.shift .tick { background: var(--accent); color: #FFFFFF; }
   .fb.try { border-color: var(--accent); background: var(--accent-soft); }
   .fb.try h3 { font-size: 22px; margin: 0 0 6px; }
+  /* Maya Kaur version: the first try's four moves in one list (check: you did it; eyes: watch for it) */
+  .fb.try .try-lead { margin: 0 0 12px; font-size: 16px; font-weight: 600; }
+  .try-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .try-list li { display: grid; grid-template-columns: 26px 1fr; align-items: center; gap: 8px; font-size: 16.5px; line-height: 1.3; }
+  .try-list .ti { font-size: 19px; line-height: 1; text-align: center; }
+  .try-list li.got { font-weight: 700; color: var(--ink); }
+  .try-list li.watch { color: var(--ink-3); }
   .watch-list { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 5px; }
   .watch-list li { position: relative; padding-left: 26px; font-size: 15px; line-height: 1.4; }
   .watch-list li::before { content: ""; position: absolute; left: 1px; top: 3px; width: 12px; height: 12px; border-radius: 50%; border: 2.5px solid var(--accent); }
@@ -923,6 +930,24 @@
   .talk-hint { display: flex; align-items: center; gap: 6px; margin: 0 2px; font-size: 13px; line-height: 1.3; font-weight: 700; color: var(--accent-ink); }
   .talk-hint svg { flex: none; width: 15px; height: 15px; }
   .talk-tray .field[readonly] { background: var(--soft); }
+  .talk-live { margin: 14px 0 4px; display: grid; grid-template-columns: 68px 1fr; gap: 14px; align-items: center; padding: 14px 16px 14px 14px; border-radius: 22px; background: var(--card); border: 1.5px solid var(--line); animation: vpin .3s ease both; }
+  .talk-live .tl-mic { position: relative; width: 68px; height: 68px; border-radius: 50%; border: 0; padding: 0; background: var(--ink-3); color: #FFFDF9; display: grid; place-items: center; cursor: pointer; transition: background .3s; }
+  .talk-live.live .tl-mic { background: var(--accent); }
+  .talk-live .tl-mic svg { width: 30px; height: 30px; }
+  .talk-live .tl-pulse { position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--accent); opacity: 0; pointer-events: none; }
+  .talk-live.live .tl-pulse { animation: cutpulse 1.6s ease-out infinite; }
+  .talk-live.live .tl-pulse.p2 { animation-delay: .8s; }
+  .talk-live .tl-wave { display: flex; align-items: center; gap: 4px; height: 28px; }
+  .talk-live .tl-wave i { display: block; width: 4px; height: 6px; border-radius: 2px; background: var(--accent); opacity: .5; }
+  .talk-live.live .tl-wave i { opacity: .8; }
+  .talk-live.talking .tl-wave i { opacity: 1; animation: cutwave .8s ease-in-out infinite; }
+  .talk-live .tl-wave i:nth-child(3n+2) { animation-delay: .15s; } .talk-live .tl-wave i:nth-child(3n) { animation-delay: .3s; } .talk-live .tl-wave i:nth-child(4n) { animation-delay: .45s; }
+  .talk-live .tl-said { margin: 6px 0 0; font-size: 18px; line-height: 1.3; font-weight: 700; color: var(--accent-ink); max-height: 7.8em; overflow-y: auto; }
+  .talk-live .tl-said:empty::before { content: "Listening. Say it your way."; }
+  .talk-live:not(.live) .tl-said { color: var(--ink); }
+  .talk-live .tl-note { margin: 6px 0 0; font-size: 13px; font-weight: 600; color: var(--ink-3); }
+  .talk-live .tl-note:empty { display: none; }
+  .mic-btn.on .mic-dot, .mic-btn.send .mic-dot { display: none; }
   .say-note { margin: 0 2px; text-align: center; font-size: 13px; font-weight: 600; color: var(--ink-3); }
   .h2.spot-h { font-size: 21px; line-height: 1.22; }
   .spot-thread .bub { font-size: 14.5px; }
@@ -3437,21 +3462,21 @@ function tabBar(cur) {
 /* ---------- presenter notes ---------- */
 const NOTES = {
   pick: ["Every program in the cycle", "Signatures a year or more out, registration six months or more out, deep canvassing for persuasion in the months before and turnout in the final two weeks, at the door or by vote tripling at a busy site."],
-  video: ["A welcome from the candidate", "About a minute, filmed on an iPhone. Maya Kaur, the candidate, talks to the camera at home: why the campaign needs you, that the in-person training comes first and that Warmup gets you door-ready before your shift. On \u201cstarting with how to introduce yourself,\u201d her iPhone fills the frame, in her hand, and plays lesson 1 the way the volunteer will meet it, timed to her words: the lesson opening, a first try at Walter\u2019s door, See it done with the moves ticking, Kevin\u2019s door with the volunteer speaking out loud and Kevin talking back, the feedback, Lesson 1 done at 1/5 and Today with lessons 2 to 5. Then it cuts back to her for the ask. She\u2019s a real person reading the script in her own words, so this is the version to compare with the AI welcome."],
+  video: ["A welcome from the candidate", "About a minute, filmed on an iPhone. Maya Kaur, the candidate, talks to the camera at home: why the campaign needs you, that the in-person training comes first and that Warmup gets you door-ready before your shift. On \u201cstarting with how to introduce yourself,\u201d her iPhone fills the frame, in her hand, and plays lesson 1 the way the volunteer will meet it, timed to her words: the lesson opening, a first try at Walter\u2019s door, Listen in with the moves ticking, Kevin\u2019s door with the volunteer speaking out loud and Kevin talking back, the feedback, Lesson 1 done at 1/5 and Today with lessons 2 to 5. Then it cuts back to her for the ask. She\u2019s a real person reading the script in her own words, so this is the version to compare with the AI welcome."],
   sms: ["SMS-delivered", "Nobody has the campaign\u2019s number saved, so a real person signs the text and says who they\u2019re with. At sign-up the campaign says to expect it, so it never reads as spam. The link opens the lesson, with nothing to download. Testing with someone? Tell them first: you\u2019ll play a volunteer and talk out loud with a pretend voter."],
   welcome: ["Today: the plan around the shift", "Version 71 (How Warmup Teaches, approved Oct 12). One list: each lesson on its day, the Warmup Saturday at 8, the canvass at 9 and the Cooldown after. The ring shows readiness for the next shift: the five lessons, then the Warmup. One button for the next thing; a second lesson the same day opens a few hours later, so the button reads Do it now anyway. Four tabs: Today, Practice, Library, Me."],
   intake: ["Find your starting point (off the main path since version 64)", "One question: their experience. The heads-up that practice happens out loud comes right before they first speak: before the opener for veterans, after the four cards for first-timers. Each answer is reflected back, and the name comes from the sign-up list."],
   talk: ["Right before they speak (off the main path since version 64)", "The talk-or-type question waits until the first moment it matters, so first-timers aren\u2019t asked about practicing out loud before they know what Saturday looks like."],
   placement: ["Everyone shows their opener", "Since version 64 (Robert, Oct 11) there is no experience question and no talk-or-type question: the first try places you. A Knock first, so nobody is put on the spot; the box says typing works if you can\u2019t talk. A strong opener skips Watch. The first-timer cards still exist for the presenter menu and \u201cHow Saturday works\u201d: Saturday as a story: six tap-through cards (tap or swipe, auto-advancing like Instagram Stories), each a small animation and one line, ending on a pass with when, where, how long and what to bring. First-timers learn how a canvass works before any technique, and a concrete where and when makes people likelier to show up. Four cards, no test, so their first graded moment is a likely win. Veterans show their opener and get feedback on it right away, on the same screen that opens the lesson; a strong one skips the demo. No level on screen: placement changes what comes next, not a label. The heading says why we ask (version 65): the opener tells us where to start the lesson. The card shows the four moves as checks and the misses as what happened, like the scorecard (version 66). One rule, two paths (version 67): all four moves goes straight to Your turn, nothing re-taught; anything less gets the full lesson, with the reps picked from the moves they missed."],
   path: ["Today: the plan around the shift", "Get out the vote opens Today here (version 71): the five lessons on their days, the Warmup, the canvass and the Cooldown in one list. Other programs keep their three-lesson week."],
-  session: ["One lesson, four parts", "Version 80 (Suman Gidwani\u2019s feedback): the opening says only what the lesson is and why it matters. The bar names the four parts in their order (First try, See it done, Find and fix, Your door) with First try lit, and the door the first try opens on sits below, so Start feels like walking up to it. A lesson is one 5-minute sitting. Other programs keep Watch, Practice, Your turn."],
+  session: ["One lesson, four parts", "Version 80 (Suman Gidwani\u2019s feedback): the opening says only what the lesson is and why it matters. The bar names the four parts in their order (Your 1st try, Listen in, Spot the miss, Your 2nd try) with Your 1st try lit, and the door the first try opens on sits below, so Start feels like walking up to it. A lesson is one 5-minute sitting. Other programs keep Watch, Practice, Your turn."],
   note: ["A word from the campaign", "Version 71: for get out the vote the campaign minute left the lessons. Where Saturday fits and How your list gets made are one-minute notes in the library and an optional card on the wrap, and the Warmup carries one line from the campaign. The one-tap question still feeds the split test on the director\u2019s view."],
-  watch: ["See it done, with the moves outside the clip", "The four moves are named before the door plays and recapped after with the why. During the door only a quiet tick lands on each move, so attention stays on the conversation; people can\u2019t read and listen closely at once. The live strip along the frame\u2019s bottom edge is a menu toggle (Watch strip), so both versions can be tested. When the door ends, the frame folds down (or away on a short screen) so the recap fits a phone without scrolling. Every voter is a cartoon; in lesson 4, Maria keeps her recorded voice."],
+  watch: ["Listen in, with the moves outside the clip", "The four moves are named before the door plays and recapped after with the why. During the door only a quiet tick lands on each move, so attention stays on the conversation; people can\u2019t read and listen closely at once. The live strip along the frame\u2019s bottom edge is a menu toggle (Watch strip), so both versions can be tested. When the door ends, the frame folds down (or away on a short screen) so the recap fits a phone without scrolling. Every voter is a cartoon; in lesson 4, Maria keeps her recorded voice."],
   why: ["Why it works", "Each best practice comes with the research, rule or field experience behind it, labeled honestly."],
   recap: ["Quick refresher", "Later lessons skip the demo and go straight to recall."],
   practice: ["Two reps a day", "Monday drills the two moves crews miss most, Wednesday the other two and Friday whatever this volunteer missed on Wednesday. The box stays on screen; feedback comes in three blocks (what you did right, what to fix, my tip) with the why behind the move. Your turn still uses all four."],
-  main: ["Your door", "A whole door from the knock. Today\u2019s moves sit on screen as chips; earlier lessons come from memory and get a light check on the scorecard. Lesson 1 is the opener only: Kevin answers and the door closes. A perfect first try lands here straight away."],
-  door: ["Your door", "Claude plays the person and grades the conversation. Version 72: one mic button and no typing prompt. In claude.ai the page can\u2019t use the mic, so the button opens the keyboard\u2019s own dictation, and on a phone the screen folds up so the voter stays in view above the keyboard. A page opened on its own (a hosted copy, or the backup file in a browser) listens directly, with no keyboard. Ask the campaign: a voter\u2019s question the volunteer can\u2019t answer gets a line from the campaign\u2019s notes, and the campaign logs it."],
+  main: ["Your 2nd try", "A whole door from the knock. Today\u2019s moves sit on screen as chips; earlier lessons come from memory and get a light check on the scorecard. Lesson 1 is the opener only: Kevin answers and the door closes. A perfect first try lands here straight away."],
+  door: ["Your 2nd try", "Claude plays the person and grades the conversation. Version 72: one mic button and no typing prompt. In claude.ai the page can\u2019t use the mic, so the button opens the keyboard\u2019s own dictation, and on a phone the screen folds up so the voter stays in view above the keyboard. A page opened on its own (a hosted copy, or the backup file in a browser) listens directly, with no keyboard. Ask the campaign: a voter\u2019s question the volunteer can\u2019t answer gets a line from the campaign\u2019s notes, and the campaign logs it."],
   score: ["Feedback, then say it now", "Three blocks: what you did right, what to fix and my tip, with earlier lessons under From memory. Then the volunteer says the tip out loud once, so the lesson ends on a clean rep."],
   close: ["The lesson\u2019s end", "Lesson N done, with the ring growing to N of 5 (You\u2019re 1/5 warmed up) and, when the door beat the first try, how many new moves the volunteer picked up. Below it, Saturday\u2019s 40 doors fill by the lessons done, so one lesson visibly reaches every door on the list. Then When\u2019s lesson N? with time chips pinned above the button, so spacing becomes the plan Mia\u2019s next text follows, plus links to another door, a retake and a one-minute campaign note. After lesson 5, You\u2019re 5 by 5, radio talk for loud and clear."],
   ready: ["Visible readiness", "Preparation shows up as a badge and a record that carries across shifts."],
@@ -3460,8 +3485,8 @@ const NOTES = {
   library: ["The library: three shelves", "Your five (redo any lesson; each page holds its four moves with the why, your best take and Go deeper talks from top canvassers), Tough doors (eight curveballs, the coach\u2019s picks on top) and From your campaign (the welcome, Where Saturday fits, How your list gets made, the platform and answers from Ask the campaign). Top canvassers live inside the shelves, so the library never turns into an endless catalog. Other programs keep the version 28 library."],
   training: ["A library page", "A lesson page holds its moves and why, your best take and Go deeper; a Tough door says what it sharpens. Add to my next Warmup puts it into the next Warmup. Anything not built yet says so and asks for a vote."],
   me: ["Me", "Status like an airline\u2019s: a tier earned by ready shifts (worked within a day of a Warmup), the 5 by 5 badge, the five skills with their levels (Learning, Solid, Sharp, Mentor), then campaigns and record. Mentor replaced Coach, so coach only ever means the AI."],
-  try: ["First try, before any teaching", "The volunteer answers out loud before any teaching. Trying first, even wrong, makes the lesson that follows stick (the pretesting effect). Feedback is positive only and never a grade: what they got right and what to watch for. All four moves on the first try goes straight to Your door, the version 67 rule applied to every lesson. Lesson 1\u2019s try also places them. Version 72: one mic button and no box until it\u2019s tapped, so a phone\u2019s keyboard never opens on its own."],
-  spot: ["Find and fix", "The same door on another day with one realistic miss. Lesson 1 picks it from the volunteer\u2019s own try: the neighbor move, or the permission question. Tap the miss, see why it matters, then tap to talk and say the fix. Contrast first, then a first correct rep, on one screen."],
+  try: ["Your 1st try, before any teaching", "The volunteer answers out loud before any teaching. Trying first, even wrong, makes the lesson that follows stick (the pretesting effect). Feedback is positive only and never a grade: what they got right and what to watch for. All four moves on the first try goes straight to Your 2nd try, the version 67 rule applied to every lesson. Lesson 1\u2019s try also places them. Version 72: one mic button and no box until it\u2019s tapped, so a phone\u2019s keyboard never opens on its own."],
+  spot: ["Spot the miss", "The same door on another day with one realistic miss. Lesson 1 picks it from the volunteer\u2019s own try: the neighbor move, or the permission question. Tap the miss, see why it matters, then tap to talk and say the fix. Contrast first, then a first correct rep, on one screen."],
   coach: ["Practice: the coach\u2019s home", "Extra doors anytime, no new teaching: the coach\u2019s pick (from the Cooldown or the last scorecard\u2019s miss), the five lesson doors, the eight Tough doors and Surprise me. In the demo the angry voter is playable (Gloria); the other Tough doors are honest placeholders that ask for a vote."],
   warm: ["The Warmup before every shift", "Five minutes within a day of the shift: one line from the campaign (the campaign minute lives here and in the library now), door 1 from memory with no chips, door 2 with a different kind of voter picked by the coach, then one tip said out loud. A Warmup within 24 hours of a shift is what makes it a ready shift, the same rule for the ring, the badges and the director\u2019s count."],
   warmtip: ["One tip, out loud", "The tip comes from the weaker of the two doors. Saying it once out loud is the last rep before the real doors."],
@@ -3901,6 +3926,7 @@ function trayOpen(focus) {
   if (focus) { setTalking(true); ta.focus(); }
 }
 function trayClose() {
+  heldWords = "";
   const tray = $("#talk-tray"), btn = $('#talk [data-act="talk"]'), h = $("#talk-hint");
   if (tray) tray.hidden = true;
   if (btn) btn.hidden = false;
@@ -3927,7 +3953,37 @@ function listenFold(on) {
   if (lf) { const c = $("#content"); if (c) c.scrollTop = S.screen === "door" ? c.scrollHeight : 0; }
   scrollCue();
 }
+/* the live voice card (Maya Kaur version, Robert): while the page listens, the words appear beside a big mic, as in the welcome video's phone,
+   right under the voter. The hidden box still holds the words, so sending works as before. Tapping the card's mic starts over. */
+let heldWords = "";
+function liveCard() {
+  let c = $("#talk-live");
+  if (c) return c;
+  const host = $("#content");
+  if (!host) return null;
+  c = document.createElement("div");
+  c.className = "talk-live";
+  c.id = "talk-live";
+  c.innerHTML = `<button class="tl-mic" data-act="talk-again" aria-label="Start over"><span class="tl-pulse"></span><span class="tl-pulse p2"></span>${ICON.mic}</button><div><span class="tl-wave" aria-hidden="true">${"<i></i>".repeat(14)}</span><p class="tl-said" id="tl-said" aria-live="polite"></p><p class="tl-note" id="tl-note"></p></div>`;
+  host.appendChild(c);
+  return c;
+}
+function liveCardOff() { const c = $("#talk-live"); if (c) c.remove(); heldWords = ""; const b = $('#talk [data-act="talk"]'); if (b) b.classList.remove("send"); }
+let talkingTimer = 0;
+function liveCardWords(text) {
+  const c = liveCard();
+  if (!c) return;
+  const s = $("#tl-said");
+  if (s && s.textContent !== text) s.textContent = text;
+  c.classList.add("talking");
+  clearTimeout(talkingTimer);
+  talkingTimer = setTimeout(() => { const k = $("#talk-live"); if (k) k.classList.remove("talking"); }, 900);
+  if (s) s.scrollTop = s.scrollHeight;
+  const host = $("#content");
+  if (host) { const r = c.getBoundingClientRect(), h = host.getBoundingClientRect(); if (r.bottom > h.bottom) host.scrollTop += r.bottom - h.bottom + 12; }
+}
 function talkTap() {
+  if (heldWords && !rec) { const send = $("#talk-tray [data-act]"); liveCardOff(); if (send) send.click(); return; }
   if (S.screen === "door" && S.convo) { if (S.convo.busy || S.convo.ended) return; S.convo.talked = true; }
   if (pageMic()) { micToggle(); return; }
   trayOpen(true);
@@ -4023,6 +4079,11 @@ function micToggle() {
   let heard = "", started = false;
   r.lang = "en-US"; r.interimResults = true; r.continuous = true;
   trayOpen(false);
+  const tray0 = $("#talk-tray");
+  if (tray0) tray0.hidden = true;
+  heldWords = "";
+  const card = liveCard();
+  if (card) { card.classList.add("live"); card.classList.remove("talking"); const s0 = $("#tl-said"), n0 = $("#tl-note"); if (s0) s0.textContent = ""; if (n0) n0.textContent = ""; const host = $("#content"); if (host) { const r1 = card.getBoundingClientRect(), h1 = host.getBoundingClientRect(); if (r1.bottom > h1.bottom) host.scrollTop += r1.bottom - h1.bottom + 12; } }
   const ta = $("#say"), btn = $('#talk [data-act="talk"]'), lab = $("#talk-label"), hint = $("#talk-hint");
   if (ta) { ta.value = ""; autoGrow(ta); }
   if (btn) btn.classList.add("on");
@@ -4033,7 +4094,7 @@ function micToggle() {
   listenFold(true);
   r.onstart = () => { started = true; };
   r.onaudiostart = () => { started = true; };
-  r.onresult = (e) => { started = true; heard = heardFrom(e.results); const box = $("#say"); if (box) { box.value = heard; autoGrow(box); box.scrollTop = box.scrollHeight; } if (S.screen === "door") { const c = $("#content"); if (c) c.scrollTop = c.scrollHeight; } };
+  r.onresult = (e) => { started = true; heard = heardFrom(e.results); const box = $("#say"); if (box) { box.value = heard; autoGrow(box); } liveCardWords(heard); };
   r.onerror = (e) => { if (["not-allowed", "service-not-allowed", "audio-capture"].includes(e && e.error)) micBlocked = true; };
   r.onend = () => {
     if (rec !== r) return;
@@ -4045,11 +4106,19 @@ function micToggle() {
     if (b) b.classList.remove("on");
     if (l) l.textContent = talkLabel();
     const send = $("#talk-tray [data-act]");
+    const card = $("#talk-live"), note = $("#tl-note");
+    if (card) card.classList.remove("live", "talking");
+    if (micBlocked) { liveCardOff(); const t0 = $("#talk-tray"); if (t0) t0.hidden = false; }
     if (micBlocked) { if (box) box.readOnly = false; if (b) b.hidden = true; if (send) send.hidden = false; listenFold(false); if (h) h.textContent = isTouch() ? "Tap the box, then the mic on your keyboard." : keyHint(); return; }
-    if (!heard) { if (h) h.textContent = "Nothing came through. Tap to talk and try again."; return; }
+    if (!heard) { if (note) note.textContent = "Nothing came through. Tap to talk and try again."; if (h) h.textContent = "Nothing came through. Tap to talk and try again."; return; }
     if (send) send.hidden = false;
     if (box) autoGrow(box);
-    if (recStop) { if (send) send.click(); return; }
+    if (recStop) { liveCardOff(); if (send) send.click(); return; }
+    /* a pause: the words wait in the card; the big button sends them and the card's mic starts over */
+    heldWords = heard;
+    if (note) note.textContent = "Got it. Tap Send it, or tap the mic to say it again.";
+    if (l) l.textContent = "Send it";
+    if (b) b.classList.add("send");
     if (h) h.textContent = "Got it. Tap the arrow to send it, or tap to talk again.";
   };
   try { if (navigator.audioSession) navigator.audioSession.type = "play-and-record"; } catch (e) { /* ignore */ }
@@ -4061,11 +4130,12 @@ function micToggle() {
     if (btn) btn.classList.remove("on");
     if (lab) lab.textContent = talkLabel();
     if (send0) send0.hidden = false;
+    liveCardOff();
     listenFold(false);
     trayOpen(true);
   }
 }
-function stopMic() { clearTimeout(recDog); clearTimeout(recCap); if (rec) { const r = rec; rec = null; try { r.abort(); } catch (e) { /* ignore */ } audioBack(); } }
+function stopMic() { liveCardOff(); clearTimeout(recDog); clearTimeout(recCap); if (rec) { const r = rec; rec = null; try { r.abort(); } catch (e) { /* ignore */ } audioBack(); } }
 
 /* ---------- screens ---------- */
 const EXPERIENCE = [["never", "Not yet"], ["few", "A few times"], ["lot", "A lot"], ["trainer", "I\u2019ve trained others"]];
@@ -4239,7 +4309,7 @@ function vSMS() {
     <div class="sms-thread">
       <p class="sms-time">Sunday 6:41 PM</p>
       <div class="sms-bub">${t.sms.replace("{name}", esc(me()))}</div>
-      <button class="sms-card" data-act="go" data-arg="${t.video ? "video" : "welcome"}"><span class="art"><svg width="34" height="34" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="32" fill="none" stroke="#E6DFD3" stroke-width="12"/><circle cx="42" cy="42" r="32" fill="none" stroke="#35B57C" stroke-width="12" stroke-linecap="round" stroke-dasharray="67 202" transform="rotate(-90 42 42)"/></svg></span><span class="txt"><b>${t.video ? "Your 5-minute canvass warmup" : "Your first practice"}</b><small>${t.video ? "Nothing to download, just tap and start" : "5 minutes, nothing to download"}</small></span></button>
+      <button class="sms-card" data-act="go" data-arg="${t.video ? "video" : "welcome"}"><span class="art"><svg width="34" height="34" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="32" fill="none" stroke="#E6DFD3" stroke-width="12"/><circle cx="42" cy="42" r="32" fill="none" stroke="#35B57C" stroke-width="12" stroke-linecap="round" stroke-dasharray="67 202" transform="rotate(-90 42 42)"/></svg></span><span class="txt"><b>${t.video ? "Your 5-minute canvass warmup" : "Your first practice"}</b><small>${t.video ? "warmup.mayakaur.com" : "5 minutes, nothing to download"}</small></span></button>
       <p class="sms-hint">Tap the link to open the lesson</p>
     </div>
     <div class="sms-compose" aria-hidden="true">Text Message</div>
@@ -4302,7 +4372,7 @@ function vVideo() {
       <div class="vid-head"><span class="seal" aria-hidden="true">${t.org.seal}</span><b>${t.org.name}</b>
         ${ended ? "" : `<button class="vid-pp" data-act="video-toggle" aria-label="${V.playing ? "Pause" : "Play"}">${pp}</button>`}<button data-act="video-skip">${ended ? "Close" : "Skip"}</button></div></div>
     ${ended
-      ? `<div class="vid-end"><p>Lesson 1 of 5 is ${titleIn(LESSONS5[0].title)}. You\u2019ll give it a first try, see it done, find and fix a miss and then take a door yourself. It takes about ${lessonMin(1)} minutes.</p><button class="btn" data-act="video-skip">Start lesson 1</button><button class="link" data-act="video-again">Watch again</button></div>`
+      ? `<div class="vid-end"><p>Lesson 1 of 5 is ${titleIn(LESSONS5[0].title)}. You\u2019ll take a first try, listen in on a good conversation, spot the miss and then take your second try. It takes about ${lessonMin(1)} minutes.</p><button class="btn" data-act="video-skip">Start lesson 1</button><button class="link" data-act="video-again">Watch again</button></div>`
       : `<div class="vid-cap" aria-live="polite" id="vid-cap"><p>${V.started ? esc(WELCOME.lines[Math.min(V.i, n - 1)].text) : "A welcome from Maya Kaur"}</p></div>`}
     ${!V.started ? `<button class="vid-play" data-act="video-toggle" aria-label="Play the welcome video"><svg width="26" height="26" viewBox="0 0 14 14" aria-hidden="true"><path d="M3.5 1.5 L12.5 7 L3.5 12.5 Z" fill="currentColor"/></svg></button>` : ""}
   </div>`;
@@ -4875,7 +4945,7 @@ function vWatch() {
     <div class="lesson-row"><h2 class="h2">${S.track === "gotv" ? "Here\u2019s how it\u2019s done" : "Watch a strong conversation"}</h2></div>
     <div class="caption" id="cap" aria-live="polite">${S.track === "gotv" ? `<span class="cap-who">Watch for four moves</span><p>${FLOW[skKey()].watchFor}</p>` : `<span class="cap-who">Watch for the four moves</span><p>They all come in the first ten seconds. After that, it\u2019s a friendly close.</p>`}</div>
     <ol class="moves chips" id="l-moves">${sk.moves.map((m, i) => `<li data-i="${i}">${mark()}<span>${m}</span></li>`).join("")}</ol>
-  `, { tag: "", back: "session", primary: [S.track === "gotv" ? "Next: find and fix" : sk.spot && S.day === 5 ? "Next: spot the miss" : "Start practicing", "watch-next"] });
+  `, { tag: "", back: "session", primary: [S.track === "gotv" ? "Next: spot the miss" : sk.spot && S.day === 5 ? "Next: spot the miss" : "Start practicing", "watch-next"] });
 }
 
 /* Maria on video (get out the vote): a silent listening loop and six talking clips, drawn on one canvas */
@@ -5146,7 +5216,7 @@ function vMain() {
   const mem = g && !drill && n > 1 ? `<p class="mem-line"><b>From memory:</b> ${LESSONS5.slice(0, n - 1).map((x) => x.title).join(" \u00b7 ")}</p>` : "";
   return app(`
     ${progressBar(repMoves().length + 1, 0)}
-    ${drill ? `<p class="kicker">${warm ? "Warmup" : "Practice"}</p>` : ""}<h1 class="h1">${warm ? `Door ${drill.step} of 2` : drill ? `${d.name}\u2019s door` : g ? "Your door" : "Your turn"}</h1>
+    ${drill ? `<p class="kicker">${warm ? "Warmup" : "Practice"}</p>` : ""}<h1 class="h1">${warm ? `Door ${drill.step} of 2` : drill ? `${d.name}\u2019s door` : g ? "Your 2nd try" : "Your turn"}</h1>
     <p class="lede">${lede}</p>
     ${warm ? "" : `<div class="move-chips big" aria-label="The moves">${chips.map((m, i) => `<span>${i + 1}. ${m}</span>`).join("")}</div>`}
     ${mem}
@@ -5436,7 +5506,7 @@ function vDirector() {
    Around the lessons: Today (the plan around the shift), the Warmup before every shift, the Cooldown question after it,
    the Practice tab (extra doors with the coach) and the library's three shelves. Other programs keep the version 70 flow. */
 /* version 72: the parts are named the way an organizer would say them (they were Try, Watch, Spot, Your turn, which read as clipped) */
-const PARTS4 = ["First try", "See it done", "Find and fix", "Your door"];
+const PARTS4 = ["Your 1st try", "Listen in", "Spot the miss", "Your 2nd try"]; /* Maya Kaur version: renamed by Robert, Oct 13 */
 const LESSON_OF = { open: 1, listen: 2, noargue: 3, plan: 4, friends: 5 };
 const DOOR_LESSON = { kevin: 1, priya: 2, gloria: 3, denise: 4, brianna: 5 };
 const DAY5 = ["Mon", "Tue", "Wed", "Thu", "Fri"];
@@ -5604,7 +5674,7 @@ function vSessionG() {
     <h1 class="h1">${sk.title}</h1>
     <p class="why-line open-why">${LINE5[k] || sk.whyLine}</p>
     <div class="frame small open-door">${scene("door", f.persona, { shut: true, label: `${L.name}\u2019s front door, still shut` })}</div>
-  `, { tag: "", back: "welcome", primary: ["Start your first try", "try-start"] });
+  `, { tag: "", back: "welcome", primary: ["Start your 1st try", "try-start"] });
 }
 /* Try: one line before any teaching. Feedback is positive only, never a grade; all four moves skips Watch and Spot (version 67's rule, every lesson) */
 function vTry() {
@@ -5614,7 +5684,7 @@ function vTry() {
   const scenePart = `<div class="rep-card"><div class="frame small mini">${scene("door", f.persona, { main: true, shut: knock && !knocked, label: `${L.name} at the door` })}</div>
       <p class="rep-who">${knock ? "At a supporter\u2019s door" : "After your opener"}</p>
       ${knocked ? `<p class="rep-quote"><b>${L.name}:</b> \u201c${f.line}\u201d</p><p class="rep-prompt">${knock ? "What do you say first?" : "What do you say next?"}</p>` : ""}</div>`;
-  const title = R && !R.pending ? "Your first try" : knock ? (knocked ? "The door opens. How would you start?" : "Try it first: how would you open the door?") : "Try it before the lesson. What would you say?";
+  const title = R && !R.pending ? "Your 1st try" : knock ? (knocked ? "The door opens. How would you start?" : "Try it first: how would you open the door?") : "Try it before the lesson. What would you say?";
   const head = `${lessonBar(0, R && !R.pending ? 1 : knocked ? 0.4 : 0.1)}<h2 class="h2 tight">${title}</h2>`;
   if (R && R.pending) return app(`${head}${scenePart}${pendingCard("Reading your answer\u2026")}`, { tag: "" });
   if (!R) {
@@ -5625,9 +5695,9 @@ function vTry() {
   }
   const hits = R.hits, c = hits.filter(Boolean).length, all = c === 4;
   const did = c ? `You ${andList(f.did.filter((_, i) => hits[i]))}.` : "You tried it first. That\u2019s the hard part.";
-  const watch = all ? "Straight to a real door." : c ? `Watch for the other ${NUMW[4 - c]}.` : "Watch for all four.";
-  const card = `<div class="fb try"><p class="you-said">You said: \u201c${esc(R.text)}\u201d</p><h3>${all ? "You already have all four." : "Nice start."}</h3><p>${did} ${watch}</p>${all ? "" : `<ul class="watch-list">${sk.moves.filter((_, i) => !hits[i]).map((m) => `<li>${m}</li>`).join("")}</ul>`}</div>`;
-  return app(`${head}${card}`, { tag: "", primary: [all ? "Next: your door" : "Next: see it done", "try-next"] });
+  const watch = all ? "Straight to a real door." : c ? `You\u2019ve got ${c} of 4. Watch for the other ${NUMW[4 - c]}.` : "You tried it first. That\u2019s the hard part. Watch for all four.";
+  const card = `<div class="fb try"><p class="you-said">You said: \u201c${esc(R.text)}\u201d</p><h3>${all ? "You already have all four." : "Nice start."}</h3><p class="try-lead">${watch}</p><ul class="try-list">${sk.moves.map((m, i) => hits[i] ? `<li class="got"><span class="ti" aria-hidden="true">\u2705</span><span>${sk.hitNames[i]}</span></li>` : `<li class="watch"><span class="ti" aria-hidden="true">\uD83D\uDC40</span><span>${m}</span></li>`).join("")}</ul></div>`;
+  return app(`${head}${card}`, { tag: "", primary: [all ? "Next: your 2nd try" : "Next: listen in", "try-next"] });
 }
 async function tryKnock() {
   if (S.tryKnocked) return;
@@ -5687,7 +5757,7 @@ function vSpotG() {
   const fixCard = !said ? "" : `<div class="fb ${said.ok ? "strong" : "ok"}"><div class="fb-sec ${said.ok ? "right" : "fix"}"><b>${said.ok ? "That\u2019s the one." : "Almost."}</b><p>${said.ok ? "Say it like that at the door." : esc(it.fix.no)}</p></div>${said.ok ? "" : `<div class="fb-sec tip"><b>One line that works</b><p>\u201c${esc(fill(it.fix.model))}\u201d</p></div>`}</div>`;
   const footer = !done ? "" : !said
     ? `<p class="fix-ask">${it.fix.ask}</p>${composer("spot-fix", "", "Check my fix")}`
-    : `<button class="btn" data-act="go" data-arg="main">Next: your door</button><button class="link center" data-act="spot-again">Say it again</button>`;
+    : `<button class="btn" data-act="go" data-arg="main">Next: your 2nd try</button><button class="link center" data-act="spot-again">Say it again</button>`;
   return app(`
     ${lessonBar(2, said ? 1 : done ? 0.55 : 0.2)}
     <h2 class="h2 tight spot-h">Here\u2019s ${L.name}\u2019s door on a different day. This time, one of the four moves is missing. Can you find it?</h2>
@@ -5905,7 +5975,7 @@ function vTrainingG(it) {
       ${hero}
       <p class="kicker">Your five \u00b7 lesson ${n} of 5</p>
       <h1 class="h1">${sk.title}</h1>
-      <p class="lede">About 5 minutes. You give it a first try, see it done, find and fix a miss and then take a door yourself.${best ? ` Your best take: ${best.filter(Boolean).length} of 4.` : ""}</p>
+      <p class="lede">About 5 minutes. You take a first try, listen in on a good conversation, spot the miss and then take your second try.${best ? ` Your best take: ${best.filter(Boolean).length} of 4.` : ""}</p>
       <p class="deb-q">The four moves</p>
       <ul class="basics-list">${sk.moves.map((m, i) => li(`<b>${m}</b><small class="mv-why">${sk.whyShort[i]}</small>`)).join("")}</ul>
       ${deeper.length ? `<p class="deb-q">Go deeper</p><ul class="lib-list">${deeper.map((x) => `<li><button data-act="lib-open" data-arg="${x.id}">${trAv(x.by)}<span><b>${x.title}</b><small>${TRAINERS[x.by].name}, ${x.min} min</small></span></button></li>`).join("")}</ul>` : ""}
@@ -6709,7 +6779,7 @@ function stopCamera() {
 /* ---------- demo menu, toast ---------- */
 const JUMPS = [
   ["Pick a program", "pick"], ["The SMS", "sms"], ["Welcome video", "video"], ["Today", "path"], ["How Warmup works", "how"],
-  ["Lesson opening", "session"], ["First try", "try"], ["See it done", "watch"], ["Find and fix", "spot"], ["Your door", "main"], ["Wrap-up", "close"],
+  ["Lesson opening", "session"], ["Your 1st try", "try"], ["Listen in", "watch"], ["Spot the miss", "spot"], ["Your 2nd try", "main"], ["Wrap-up", "close"],
   ["Practice tab", "coach"], ["Warmup", "warm"], ["Cooldown", "sms2"], ["Field director view", "director"], ["Library", "library"], ["Me", "me"],
   ["Campaign note", "note"], ["Ready before the shift", "ready"], ["Old: starting point", "intake"], ["Old: opener check", "placement"], ["Old: practice reps", "practice"],
 ];
@@ -6911,7 +6981,8 @@ document.addEventListener("click", (e) => {
     case "ask-use": { const ta = $("#say"), a = S.ask && S.ask.answer; if (ta && a) { trayOpen(false); ta.value = a; autoGrow(ta); } askClose(); if (ta && !isTouch()) ta.focus(); break; }
     case "camera": toggleCamera(el); break;
     case "mic": micHelp(); break;
-    case "talk": talkTap(); break;
+    case "talk-again": liveCardOff(); if (!rec) talkTap(); break;
+case "talk": talkTap(); break;
     case "rv-star": {
       const R = S.review, n = Number(arg), k = el.dataset.k;
       if (k === "overall") R.overall = n;
