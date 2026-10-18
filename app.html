@@ -1421,7 +1421,7 @@ const LESSONS5 = [
   { n: 1, title: "How to introduce yourself at the door", line: "Open with your name, that you live nearby and that the election is close.", ready: true },
   { n: 2, title: "How to get a voter talking", line: "Ask one real question and let them finish.", ready: true },
   { n: 3, title: "How to leave a tough door gracefully", line: "Thank them, mark it and move on. You\u2019ll also get a quick safety tip.", ready: true },
-  { n: 4, title: "How to help a voter plan their vote", line: "Help them say when, where and how they\u2019ll vote.", ready: true },
+  { n: 4, title: "How to help a voter make a plan to vote", line: "Help them say when, where and how they\u2019ll vote.", ready: true },
   { n: 5, title: "How to get a voter to remind three friends", line: "Ask a supporter to remind three friends to vote.", ready: true },
 ];
 /* version 80: a title that reads as a phrase ("How to ...") goes lowercase inside a sentence, so "Lesson 1 of 5 is how to introduce yourself at the door." */
@@ -2001,7 +2001,7 @@ const SKILLS = {
     door: "brianna",
   },
   plan: {
-    title: "How to help a voter plan their vote",
+    title: "How to help a voter make a plan to vote",
     headsUp: "Say \u201cmost of your neighbors are voting,\u201d never \u201cturnout is low.\u201d",
     stretch: 3,
     where: "at a supporter\u2019s door",
@@ -6219,7 +6219,7 @@ function vToday() {
   return app(`
     <div class="today-head"><div class="ring-wrap" style="width:60px;height:60px">${ring(ready / 6, 60, 9)}</div>
       <div><h1 class="h1" style="margin:0">Today</h1><p class="today-left">${cnt >= 5 ? "You\u2019re door-ready." : `${cnt} of 5 lessons done.`} Your canvass is ${t.when}.</p></div></div>
-    <ol class="plan">${rows}${warm}${shift}${cool}</ol>
+    <ol class="plan">${rows}${shift}${cool}</ol>
     <p class="week-line">The ring fills with your five lessons, then your Warmup. <button class="link inline" data-act="go" data-arg="how">How Warmup works</button></p>
   `, { primary, tabs: "today" });
 }
