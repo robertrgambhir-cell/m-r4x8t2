@@ -1145,6 +1145,29 @@
   .frame.full svg.voter { transition: margin-top .9s cubic-bezier(.3,.7,.2,1); }
   @media (max-height: 640px) { .content .frame.full { height: 190px; } .content .frame.full svg.voter { margin-top: -34px; } }
   @media (max-height: 580px) { .content .frame.full { height: 142px; } .content .frame.full svg.voter { margin-top: -54px; } }
+  /* version 28 (Maya Kaur): Listen in: the title above the door, one play/pause glyph, the lines as a transcript, the four moves in one soft card that fills in */
+  .frame.wframe.wv2 { border-radius: 22px; }
+  .w-pp { position: absolute; right: 10px; top: 10px; z-index: 2; width: 34px; height: 34px; border-radius: 50%; border: 0; padding: 0; background: rgba(255, 253, 249, .92); color: var(--ink); display: grid; place-items: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, .14); }
+  .frame.wframe.wdone .w-pp { display: none; }
+  .wcap { min-height: 64px; margin: 10px 2px 8px; padding: 1px 0 1px 12px; border-left: 3px solid var(--line); transition: border-color .3s; }
+  .wcap .cap-who { display: block; font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 3px; }
+  .wcap p { margin: 0; font-size: 17px; line-height: 1.4; color: var(--ink); }
+  .wcap.you { border-left-color: var(--accent); }
+  .wcap.you .cap-who { color: var(--accent-ink); }
+  .moves.wgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 6px; border-radius: 18px; background: var(--soft); }
+  .moves.wgrid li { display: flex; align-items: flex-start; gap: 8px; padding: 7px 10px 7px 8px; border: 0; background: transparent; border-radius: 13px; font-size: 12.5px; line-height: 1.25; color: var(--ink-3); transition: background .3s, color .3s; }
+  .moves.wgrid li .wn { position: relative; flex: none; margin-top: -2px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 800; background: var(--card); color: var(--ink-3); border: 1.5px solid var(--line); transition: background .3s, border-color .3s; }
+  .moves.wgrid li .wn em { font-style: normal; }
+  .moves.wgrid li .wn svg { position: absolute; left: 50%; top: 50%; width: 13px; height: 13px; transform: translate(-50%, -50%); opacity: 0; }
+  .moves.wgrid li.lit { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(38, 35, 32, .06); }
+  .moves.wgrid li.lit .wn { background: var(--accent); border-color: var(--accent); }
+  .moves.wgrid li.lit .wn em { opacity: 0; }
+  .moves.wgrid li.lit .wn svg { opacity: 1; }
+  .moves.wrecap { gap: 0; padding: 2px 12px; border-radius: 18px; background: var(--soft); }
+  .moves.wrecap li { background: transparent; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 9px 0; }
+  .moves.wrecap li:last-child { border-bottom: 0; }
+  @media (max-height: 700px) { .content .frame.wframe.wv2:not(.wdone) { height: 168px; } .content .frame.wframe.wv2:not(.wdone) svg.voter { margin-top: -12px; } }
+  @media (max-height: 640px) { .content .frame.wframe.wv2:not(.wdone) { height: 118px; } .content .frame.wframe.wv2:not(.wdone) svg.voter { margin-top: -70px; } .lesson-row.wrow .h2 { display: none; } }
   .cut-open .why-line.open-why { margin-bottom: 12px; }
   .plan b { text-wrap: balance; }
   @media (prefers-reduced-motion: reduce) {
@@ -1637,6 +1660,7 @@ const SKILLS = {
     hitNames: ["Said your name", "Said you\u2019re a neighbor volunteering for Maya", "Said why you\u2019re here: Election Day is Tuesday", "Didn\u2019t ask \u201cDo you have a minute?\u201d"],
     missNames: ["Didn\u2019t say your name", "Didn\u2019t say you\u2019re a neighbor volunteering for Maya", "Didn\u2019t say why you\u2019re here", "Asked \u201cDo you have a minute?\u201d"],
     short: ["say your name", "say you\u2019re a neighbor volunteering for Maya", "say why you\u2019re here: Election Day is Tuesday", "don\u2019t ask \u201cDo you have a minute?\u201d"],
+    recap: ["Turns a stranger into a person.", "Neighbors beat mail and robocalls.", "Answers their first question.", "It makes no the easy answer."], /* version 28 (Maya Kaur): Listen in's short why */
     whyShort: [
       "A name turns a stranger at the door into a person.",
       "Personal contact from a real person beats mail and robocalls. A neighbor with Maya\u2019s campaign is that person.",
@@ -1704,6 +1728,7 @@ const SKILLS = {
     hitNames: ["Asked a real question", "Asked one question at a time", "Responded to what they said", "Followed up once"],
     missNames: ["Didn\u2019t ask a real question", "Asked more than one question at once", "Didn\u2019t respond to what they said", "Didn\u2019t follow up"],
     short: ["ask one real question", "ask one at a time", "respond to what they said", "follow up once"],
+    recap: ["Turns a pitch into a conversation.", "Stacked questions get one answer.", "Earns you the next answer.", "Shows you care, not your script."], /* version 28 (Maya Kaur): Listen in's short why */
     whyShort: [
       "A real question turns a pitch into a conversation.",
       "Stacked questions get one answer, usually the easiest one.",
@@ -1768,6 +1793,7 @@ const SKILLS = {
     hitNames: ["Stayed calm, didn\u2019t argue", "Thanked them", "Wrapped up fast", "Stayed outside"],
     missNames: ["Argued back", "Didn\u2019t thank them", "Stayed too long", "Didn\u2019t clearly stay outside"],
     short: ["stay calm", "thank them", "wrap up fast", "stay outside"],
+    recap: ["Contact rarely changes minds.", "Keeps it calm and the door open.", "Your time belongs with supporters.", "Talk at the door. Trust your gut."], /* version 28 (Maya Kaur): Listen in's short why */
     whyShort: [
       "In general elections, contact changes almost no one\u2019s mind. Don\u2019t spend your time debating.",
       "A thank-you keeps the door open and keeps things calm.",
@@ -1830,6 +1856,7 @@ const SKILLS = {
     hitNames: ["Asked them to remind friends", "Asked for three", "Helped them name three", "Got a yes on when"],
     missNames: ["Didn\u2019t ask them to remind friends", "Didn\u2019t ask for three", "Didn\u2019t help them name three", "Didn\u2019t get a yes on when"],
     short: ["ask them to remind friends", "ask for three", "help them name three", "get a yes on when"],
+    recap: ["A friend\u2019s reminder lifts turnout.", "The number sets the goal.", "Naming who makes it real.", "\u201cLater\u201d rarely happens."], /* version 28 (Maya Kaur): Listen in's short why */
     whyShort: [
       "A friend\u2019s reminder lifts turnout more than almost any other tactic.",
       "Asked for three, people remind about three. The number sets the goal.",
@@ -1893,6 +1920,7 @@ const SKILLS = {
     hitNames: ["Asked when, specifically", "Asked where and how", "Asked what comes before", "Summed up the plan"],
     missNames: ["Didn\u2019t pin down a day and a time", "Didn\u2019t ask where and how", "Didn\u2019t ask what comes before", "Didn\u2019t sum up the plan"],
     short: ["ask when", "ask where and how", "ask what comes before", "sum it up"],
+    recap: ["A plan lifts turnout about 4 points.", "How and where make it real.", "Ties the vote to their day.", "Their yes makes it a commitment."], /* version 28 (Maya Kaur): Listen in's short why */
     whyShort: [
       "In a 2008 study, plan-making raised turnout about 4 points. A plain reminder did nothing.",
       "How and where make the plan real. Most neighbors vote, so say so.",
@@ -4407,7 +4435,7 @@ function videoCut() {
   const watch = `<div class="cut-screen cut-watch">${barHtml(1, 1, 0.6)}<div class="frame wframe">${scene("door", sk.lesson.persona, { crop: "tight", label: "Walter at his front door" })}<span class="who-tag"><b>${sk.lesson.name}</b> ${sk.lesson.tag}</span>${play}</div><div class="lesson-row"><h2 class="h2">Here\u2019s how it\u2019s done</h2></div><div class="caption you"><span class="cap-who">You</span><p>${esc(fill(sk.lesson.lines[0].text))} ${esc(sk.lesson.lines[1].text)}</p></div><ol class="moves chips">${sk.moves.map((m, i) => `<li data-lit="${CUT_LIT[i]}">${mark()}<span>${m}</span></li>`).join("")}</ol></div>`;
   /* Find and fix: Walter's door on another day with the neighbor move missing (the door spotPick() gives a first try like this one); the volunteer taps it */
   /* Your door: Kevin answers, the volunteer speaks out loud and Kevin talks back with his real scripted reply */
-  const door = `<div class="cut-screen cut-door">${barHtml(1, 3, 0.5)}<div class="frame" data-at="${C[3] + 0.05}">${scene("door", "kevin", { crop: true, label: "Kevin at the door of apartment 3B" })}<span class="who-tag"><b>${d.name}</b> ${d.sub}</span></div><div class="thread"><div class="bub them cut-rev" data-at="${C[3] + 0.2}">${esc(d.first.say)}</div><div class="bub you cut-rev" data-at="${C[3] + 0.45}"><span class="cut-said" aria-hidden="true">${ICON.mic}</span>${said(C[3] + 0.45, 1.25, doorLine)}</div><div class="bub them cut-rev" data-at="${CUT_WARM}">${esc(kev.say)}</div></div>${voice(C[3] + 0.3, C[3] + 0.45, 1.25, CUT_WARM, "Listening. Say it your way.")}</div>`;
+  const door = `<div class="cut-screen cut-door">${barHtml(1, 3, 0.5)}<div class="frame" data-at="${C[3] + 0.05}">${scene("door", "kevin", { crop: true, label: "Kevin at the door of apartment 3B" })}</div><div class="thread"><div class="bub them cut-rev" data-at="${C[3] + 0.2}">${esc(d.first.say)}</div><div class="bub you cut-rev" data-at="${C[3] + 0.45}"><span class="cut-said" aria-hidden="true">${ICON.mic}</span>${said(C[3] + 0.45, 1.25, doorLine)}</div><div class="bub them cut-rev" data-at="${CUT_WARM}">${esc(kev.say)}</div></div>${voice(C[3] + 0.3, C[3] + 0.45, 1.25, CUT_WARM, "Listening. Say it your way.")}</div>`;
   /* the feedback, the scorecard this line really earns */
   const score = `<div class="cut-screen cut-score" data-at="${C[4] + 0.15}">${barHtml(1, 3, 0.9)}<div class="score-top compact"><div class="ring-wrap" style="width:64px;height:64px">${ring(got / 4, 64, 9)}<span class="ring-num num" style="font-size:18px">${got}/4</span></div><h2 class="h1 verdict-h" style="margin:0"><span class="emo" aria-hidden="true">${VERDICT[level][0]}</span>${VERDICT[level][1]}</h2></div><div class="card3">${fbSections({ rightList: sk.hitNames.filter((_, i) => hits[i]), fixList: sk.missNames.filter((_, i) => !hits[i]) })}${miss >= 0 ? `<div class="fb-sec tip cut-rev" data-at="${C[4] + 2.55}"><b>My tip</b><p>${esc(sk.tips[miss])}</p></div>` : ""}</div></div>`;
   /* Lesson 1 done: the lesson's end as the app draws it, the ring growing to 1/5 and Saturday's 40 doors filling */
@@ -5003,6 +5031,14 @@ function vSession() {
 
 function vWatch() {
   const sk = SK(), L = sk.lesson;
+  /* version 28 (Maya Kaur): the title above the door, one play/pause glyph on the frame, the lines as a transcript, the four moves in one card that fills in */
+  if (S.track === "gotv") return app(`
+    ${progressBar(0, S.lessonAt / Math.max(1, L.lines.length))}
+    <div class="lesson-row wrow"><h2 class="h2">Here\u2019s how it\u2019s done</h2></div>
+    <div class="frame wframe wv2">${scene(L.scene, L.persona, { main: true, crop: "tight", sign: L.sign })}<button class="w-pp" data-act="lesson-toggle" id="l-toggle" data-state="Pause" aria-label="Pause">${PP_ICON.pause}</button><div class="hl" id="hl" hidden></div></div>
+    <div class="wcap" id="cap" aria-live="polite"><span class="cap-who">${esc(L.name)}</span><p>Listen for the four moves below.</p></div>
+    <ol class="moves wgrid" id="l-moves">${sk.moves.map((m, i) => `<li data-i="${i}"><span class="wn" aria-hidden="true"><em>${i + 1}</em>${CHECK}</span><span>${m}</span></li>`).join("")}</ol>
+  `, { tag: "", back: "session", primary: ["Next: spot the miss", "watch-next"] });
   return app(`
     ${progressBar(0, S.lessonAt / Math.max(1, SK().lesson.lines.length))}
     <div class="frame wframe">${mariaOn(L) ? mariaVid() : scene(L.scene, L.persona, { main: true, crop: "tight", sign: L.sign })}<span class="who-tag"><b>${L.name}</b> ${L.tag || (L.scene === "store" ? "at the table" : "supporter on the list")}</span><span class="ctrl in-frame"><button data-act="lesson-toggle" id="l-toggle">Pause</button><button data-act="lesson-replay">Replay</button></span><div class="hl" id="hl" hidden></div></div>
@@ -5306,10 +5342,10 @@ function vDoor() {
   const d = DOORS[SK().door], sk = SK();
   const rule = sk.headsUp ? `<p class="rule-line"><b>Heads up:</b> ${sk.headsUp}</p>` : "";
   const footer = `${S.convo && S.convo.knocked ? composer("send", "Type what you\u2019d say") : `${S.drill && S.drill.kind === "warm" ? `<p class="door-goal"><b>From memory.</b> No chips this time.</p>` : `<p class="door-goal"><b>Your goal:</b> ${goalLine()}.</p>`}${rule}<button class="btn" data-act="knock">${d.scene === "door" ? "Knock" : "Start"}</button>`}
-    <div class="door-links"><button class="link" data-act="suggest">Need a line?</button><button class="link" data-act="ask-open">Ask the campaign</button><button class="link" data-act="end-convo">End conversation</button></div>`;
+    ${S.track === "gotv" ? "" : `<div class="door-links"><button class="link" data-act="suggest">Need a line?</button><button class="link" data-act="ask-open">Ask the campaign</button><button class="link" data-act="end-convo">End conversation</button></div>`}`;
   return app(`
     <div class="sticky-scene">${progressBar(repMoves().length + 1, S.convo ? Math.min(0.9, S.convo.turns.filter((x) => x.who === "you").length / (shortDoor() ? 2 : 7)) : 0)}<div class="frame">${scene(d.scene, d.persona, { main: true, crop: true, sign: d.sign, shut: d.scene === "door", away: d.scene === "store", label: `${d.name}, ${d.sub}` })}
-      <span class="who-tag"><b>${d.name}</b> ${d.sub}</span>
+      ${S.track === "gotv" ? "" : `<span class="who-tag"><b>${d.name}</b> ${d.sub}</span>`}
       <video class="selfie" id="selfie" playsinline muted autoplay hidden></video>
     </div></div>
     <div class="thread" id="thread"><p class="note">${d.intro}</p></div>
@@ -5857,7 +5893,7 @@ function vSpotG() {
   const card = `<div class="rep-card spot-card${it.lines.length > 2 ? " long" : ""}">${done ? "" : `<div class="frame small mini spot-frame">${scene("door", L.persona, { label: `${L.name} at the door` })}</div>`}<div class="spot-lines">${lines}</div></div>`;
   const tiles = `<p class="spot-ask">This time, one of the four moves is missing. Which one?</p><ol class="spot-tiles" aria-label="The four moves">${sk.moves.map((m, i) => `<li><button class="tile" data-act="spot-pick" data-arg="${i}" aria-pressed="false"><span class="tile-t">${m}</span></button></li>`).join("")}</ol>`;
   const youDid = (x) => `You ${x.charAt(0).toLowerCase()}${x.slice(1)}${/[.?!\u201d]$/.test(x) ? "" : "."}`;
-  const ans = !done ? "" : `<div class="fb spot-ans ${right ? "strong" : "ok"}${anim ? " anim" : ""}"><h3>${right ? "Right." : "Not quite."}</h3><p class="ans-miss">${esc(youDid(sk.missNames[it.miss]))}</p><p class="ans-line">${it.missLine}</p><p class="why-s">${sk.whyShort[it.miss]}</p></div>`;
+  const ans = !done ? "" : `<div class="fb spot-ans ${right ? "strong" : "ok"}${anim ? " anim" : ""}"><h3>${right ? "Right." : "Not quite."}</h3><p class="ans-miss">${esc(youDid(sk.missNames[it.miss]))}</p><p class="why-s">${esc((sk.recap || sk.whyShort)[it.miss])}</p></div>`;
   const footer = !done ? "" : `<button class="btn" data-act="go" data-arg="main">Next: your 2nd try</button>`;
   return app(`
     ${lessonBar(2, done ? 1 : 0.2)}
@@ -6210,17 +6246,23 @@ function afterRender() {
 }
 
 /* ---------- lesson player ---------- */
+function setToggle(state) {
+  const t = $("#l-toggle");
+  if (!t) return;
+  if (t.classList.contains("w-pp")) { t.dataset.state = state; t.setAttribute("aria-label", state); t.innerHTML = PP_ICON[state.toLowerCase()]; }
+  else t.textContent = state;
+}
+const toggleState = (t) => (t.classList.contains("w-pp") ? t.dataset.state : t.textContent);
 function showCaption(line, name) {
   const cap = $("#cap");
   if (!cap) return;
-  cap.className = "caption " + (line.who === "you" ? "you" : "them");
+  cap.className = (S.track === "gotv" ? "wcap " : "caption ") + (line.who === "you" ? "you" : "them");
   cap.innerHTML = `<span class="cap-who">${line.who === "you" ? "You" : esc(name)}</span><p>${esc(fill(line.show || line.text))}</p>`;
 }
 async function playLesson() {
   const run = ++lessonRun;
   const L = SK().lesson;
-  const toggle = $("#l-toggle");
-  if (toggle) toggle.textContent = "Pause";
+  setToggle("Pause");
   /* version 71: the caption and the chips name the four moves first, then the door plays */
   await wait(S.track === "gotv" && S.lessonAt === 0 ? 2600 : 500);
   for (let i = S.lessonAt; i < L.lines.length; i += 1) {
@@ -6264,9 +6306,9 @@ async function playLesson() {
   if (run !== lessonRun) return;
   S.lessonAt = L.lines.length;
   const cap = $("#cap");
-  if (cap) { cap.className = "caption"; cap.innerHTML = S.track === "gotv" ? `<span class="cap-who">That\u2019s the door</span><p>Next, the same door on another day, with one move missing.</p>` : SK().spot && S.day === 5 ? `<span class="cap-who">That\u2019s the opener</span><p>Next, two doors with one move missing each. Can you spot it?</p>` : `<span class="cap-who">Now it\u2019s your turn to talk</span><p>${esc(L.name)} says a line. You answer out loud, in your own words.</p>`; }
+  if (cap) { cap.className = S.track === "gotv" ? "wcap" : "caption"; cap.innerHTML = S.track === "gotv" ? `<span class="cap-who">That\u2019s the door</span><p>Next, the same door on another day, with one move missing.</p>` : SK().spot && S.day === 5 ? `<span class="cap-who">That\u2019s the opener</span><p>Next, two doors with one move missing each. Can you spot it?</p>` : `<span class="cap-who">Now it\u2019s your turn to talk</span><p>${esc(L.name)} says a line. You answer out loud, in your own words.</p>`; }
   if (S.track === "gotv") watchEnd();
-  if (toggle) toggle.textContent = "Play";
+  setToggle("Play");
 }
 
 /* version 72: when the door ends, the frame folds down (or away on a short screen) and the recap takes its place, so the screen fits a phone without scrolling.
@@ -6275,13 +6317,11 @@ function watchEnd() {
   const cap = $("#cap"), ol = $("#l-moves"), row = $("#screen .lesson-row"), h2 = row && row.querySelector(".h2"), fr = $("#screen .frame.wframe"), c = $("#content");
   if (cap) cap.hidden = true;
   if (h2) h2.textContent = "The four moves, and why";
-  if (ol) { ol.className = "moves recap"; ol.innerHTML = SK().moves.map((m, i) => `<li class="lit" data-i="${i}">${mark()}<span><b>${esc(endP(m))}</b> ${esc(SK().whyShort[i])}</span></li>`).join(""); }
+  if (ol) { ol.className = "moves recap wrecap"; ol.innerHTML = SK().moves.map((m, i) => `<li class="lit" data-i="${i}">${mark()}<span><b>${esc(endP(m))}</b><small>${esc((SK().recap || SK().whyShort)[i])}</small></span></li>`).join(""); }
+  if (row && !row.querySelector(".w-again")) row.insertAdjacentHTML("beforeend", `<button class="link w-again" data-act="lesson-replay">Watch again</button>`);
   if (fr) {
     fr.classList.add("wdone");
-    if (c && c.scrollHeight - c.clientHeight > 2) {
-      fr.classList.add("wgone");
-      if (row && !row.querySelector(".w-again")) row.insertAdjacentHTML("beforeend", `<button class="link w-again" data-act="lesson-replay">Watch again</button>`);
-    }
+    if (c && c.scrollHeight - c.clientHeight > 2) fr.classList.add("wgone");
   }
   if (c) c.scrollTop = 0;
   scrollCue();
@@ -6611,7 +6651,7 @@ async function knock() {
   S.convo.knocked = true;
   S.convo.mode = aiOn() ? "live" : "scripted";
   const footer = $("#screen .actions");
-  if (footer) footer.innerHTML = `${composer("send", "Type what you\u2019d say")}<div class="door-links"><button class="link" data-act="suggest">Need a line?</button><button class="link" data-act="ask-open">Ask the campaign</button><button class="link" data-act="end-convo">End conversation</button></div>`;
+  if (footer) footer.innerHTML = `${composer("send", "Type what you\u2019d say")}${S.track === "gotv" ? "" : `<div class="door-links"><button class="link" data-act="suggest">Need a line?</button><button class="link" data-act="ask-open">Ask the campaign</button><button class="link" data-act="end-convo">End conversation</button></div>`}`;
   setComposer(false);
   if (d.scene === "door") {
     svg.classList.add("knock");
@@ -7069,7 +7109,7 @@ document.addEventListener("click", (e) => {
     case "retake": if (S.track === "gotv") startLesson5(lessonNo()); else go("session"); break;
     case "jump-day": jumpDay(Number(arg)); break;
     case "lesson-toggle":
-      if (el.textContent === "Pause") { lessonRun += 1; stopSpeech(); stopWatchAudio(); el.textContent = "Play"; }
+      if (toggleState(el) === "Pause") { lessonRun += 1; stopSpeech(); stopWatchAudio(); setToggle("Play"); }
       else { if (S.lessonAt >= SK().lesson.lines.length) { S.lessonAt = 0; if (S.track === "gotv") { render(); break; } } playLesson(); }
       break;
     case "lesson-replay":
