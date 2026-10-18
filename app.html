@@ -1150,6 +1150,7 @@
   /* version 29 (Maya Kaur): the 2nd try's feedback in one card */
   .ba-line { margin: -4px 0 12px; font-size: 14px; line-height: 1.4; color: var(--ink-3); }
   .ba-line b { color: var(--ink); font-weight: 700; }
+  @media (max-height: 700px) { .sc-top { margin-bottom: 8px; } .sc-top + .ba-line { margin: -6px 0 8px; } }
   .done-hero .ba-line { margin: 0; font-size: 14px; font-weight: 600; color: var(--ink-3); }
   .app.talking .ba-line, .app.listening .ba-line { display: none !important; }
   .sc-top { display: flex; align-items: center; gap: 12px; margin: 2px 0 12px; }
@@ -3603,7 +3604,7 @@ const NOTES = {
   training: ["A library page", "A lesson page holds its moves and why, your best take and Go deeper; a Tough door says what it sharpens. Add to my next Warmup puts it into the next Warmup. Anything not built yet says so and asks for a vote."],
   me: ["Me", "Status like an airline\u2019s: a tier earned by ready shifts (worked within a day of a Warmup), the Door-ready badge, the five skills with their levels (Learning, Solid, Sharp, Mentor), then campaigns and record. Mentor replaced Coach, so coach only ever means the AI."],
   try: ["Your 1st try, before any teaching", "The volunteer answers out loud before any teaching. Trying first, even wrong, makes the lesson that follows stick (the pretesting effect). Feedback is positive only and never a grade: what they got right and what to watch for. All four moves on the first try goes straight to Your 2nd try, the version 67 rule applied to every lesson. Lesson 1\u2019s try also places them. Version 72: one mic button and no box until it\u2019s tapped, so a phone\u2019s keyboard never opens on its own."],
-  spot: ["Spot the miss", "The same door on another day with one realistic miss. Lesson 1 picks it from the volunteer\u2019s own try: the neighbor move, or the permission question. The volunteer taps the miss, sees why it matters and goes straight to the 2nd try to use it at the next door."],
+  spot: ["Catch the mistake", "The same door on another day with one realistic miss. Lesson 1 picks it from the volunteer\u2019s own try: the neighbor move, or the permission question. The volunteer taps the miss, sees why it matters and goes straight to the 2nd try to use it at the next door."],
   coach: ["Practice: the coach\u2019s home", "Extra doors anytime, no new teaching: the coach\u2019s pick (from the Cooldown or the last scorecard\u2019s miss), the five lesson doors, the eight Tough doors and Surprise me. In the demo the angry voter is playable (Gloria); the other Tough doors are honest placeholders that ask for a vote."],
   warm: ["The Warmup before every shift", "Five minutes within a day of the shift: one line from the campaign (the campaign minute lives here and in the library now), door 1 from memory with no chips, door 2 with a different kind of voter picked by the coach, then one tip said out loud. A Warmup within 24 hours of a shift is what makes it a ready shift, the same rule for the ring, the badges and the director\u2019s count."],
   warmtip: ["One tip, out loud", "The tip comes from the weaker of the two doors. Saying it once out loud is the last rep before the real doors."],
@@ -4489,7 +4490,7 @@ function vVideo() {
       <div class="vid-head"><span class="seal" aria-hidden="true">${t.org.seal}</span><b>${t.org.name}</b>
         ${ended ? "" : `<button class="vid-pp" data-act="video-toggle" aria-label="${V.playing ? "Pause" : "Play"}">${pp}</button>`}${ended ? "" : `<button data-act="video-skip">Skip</button>`}</div></div>
     ${ended
-      ? `<div class="vid-end"><p>Lesson 1 of 5 is ${titleIn(LESSONS5[0].title)}. You\u2019ll take a first try, listen in on a good conversation, spot the miss and then take your second try. It takes about ${lessonMin(1)} minutes.</p><button class="btn" data-act="video-skip">Start lesson 1</button><button class="link" data-act="video-again">Watch again</button></div>`
+      ? `<div class="vid-end"><p>Lesson 1 of 5: ${LESSONS5[0].title}. Try it, hear it done well, then try again and see how much you improved. About ${lessonMin(1)} minutes.</p><button class="btn" data-act="video-skip">Start lesson 1</button><button class="link" data-act="video-again">Watch again</button></div>`
       : `<div class="vid-cap" aria-live="polite" id="vid-cap"><p>${V.started ? esc(WELCOME.lines[Math.min(V.i, n - 1)].text) : "A welcome from Maya Kaur"}</p></div>`}
     ${!V.started ? `<button class="vid-play" data-act="video-toggle" aria-label="Play the welcome video"><svg width="26" height="26" viewBox="0 0 14 14" aria-hidden="true"><path d="M3.5 1.5 L12.5 7 L3.5 12.5 Z" fill="currentColor"/></svg></button>` : ""}
   </div>`;
@@ -5070,7 +5071,7 @@ function vWatch() {
     <div class="lesson-row"><h2 class="h2">${S.track === "gotv" ? "Here\u2019s how it\u2019s done" : "Watch a strong conversation"}</h2></div>
     <div class="caption" id="cap" aria-live="polite">${S.track === "gotv" ? `<span class="cap-who">Watch for four moves</span><p>${FLOW[skKey()].watchFor}</p>` : `<span class="cap-who">Watch for the four moves</span><p>They all come in the first ten seconds. After that, it\u2019s a friendly close.</p>`}</div>
     <ol class="moves chips" id="l-moves">${sk.moves.map((m, i) => `<li data-i="${i}">${mark()}<span>${m}</span></li>`).join("")}</ol>
-  `, { tag: "", back: "session", primary: [S.track === "gotv" ? "Next: spot the miss" : sk.spot && S.day === 5 ? "Next: spot the miss" : "Start practicing", "watch-next"] });
+  `, { tag: "", back: "session", primary: [S.track === "gotv" ? "Next: catch the mistake" : sk.spot && S.day === 5 ? "Next: spot the miss" : "Start practicing", "watch-next"] });
 }
 
 /* Maria on video (get out the vote): a silent listening loop and six talking clips, drawn on one canvas */
@@ -5682,7 +5683,7 @@ function vDirector() {
    Around the lessons: Today (the plan around the shift), the Warmup before every shift, the Cooldown question after it,
    the Practice tab (extra doors with the coach) and the library's three shelves. Other programs keep the version 70 flow. */
 /* version 72: the parts are named the way an organizer would say them (they were Try, Watch, Spot, Your turn, which read as clipped) */
-const PARTS4 = ["Your 1st try", "Listen in", "Spot the miss", "Your 2nd try"]; /* Maya Kaur version: renamed by Robert, Oct 13 */
+const PARTS4 = ["Your 1st try", "Listen in", "Catch the mistake", "Your 2nd try"]; /* Maya Kaur version: renamed by Robert, Oct 13 */
 const LESSON_OF = { open: 1, listen: 2, noargue: 3, plan: 4, friends: 5 };
 const DOOR_LESSON = { kevin: 1, priya: 2, gloria: 3, denise: 4, brianna: 5 };
 const DAY5 = ["Mon", "Tue", "Wed", "Thu", "Fri"];
@@ -6006,7 +6007,7 @@ function vHow() {
   const parts = [
     [PARTS4[0], "Say what you\u2019d say before any tips. There\u2019s no wrong answer, and trying first helps the lesson stick."],
     [PARTS4[1], "Watch a good conversation at the door, with the four moves called out before and after."],
-    [PARTS4[2], "The same door on another day, with one move missing. Can you spot it?"],
+    [PARTS4[2], "The same door on another day, with one move missing. Can you catch it?"],
     [PARTS4[3], "Take a whole door from the knock, then get feedback and say one tip out loud."],
   ];
   return app(`
@@ -6163,7 +6164,7 @@ function vTrainingG(it) {
       ${hero}
       <p class="kicker">Your five \u00b7 lesson ${n} of 5</p>
       <h1 class="h1">${sk.title}</h1>
-      <p class="lede">About 5 minutes. You take a first try, listen in on a good conversation, spot the miss and then take your second try.${best ? ` Your best take: ${best.filter(Boolean).length} of 4.` : ""}</p>
+      <p class="lede">About 5 minutes. You take a first try, listen in on a good conversation, catch the mistake and then take your second try.${best ? ` Your best take: ${best.filter(Boolean).length} of 4.` : ""}</p>
       <p class="deb-q">The four moves</p>
       <ul class="basics-list">${sk.moves.map((m, i) => li(`<b>${m}</b><small class="mv-why">${sk.whyShort[i]}</small>`)).join("")}</ul>
       ${deeper.length ? `<p class="deb-q">Go deeper</p><ul class="lib-list">${deeper.map((x) => `<li><button data-act="lib-open" data-arg="${x.id}">${trAv(x.by)}<span><b>${x.title}</b><small>${TRAINERS[x.by].name}, ${x.min} min</small></span></button></li>`).join("")}</ul>` : ""}
@@ -6376,7 +6377,7 @@ function watchEnd() {
   if (h2) h2.textContent = "The four moves, and why";
   if (ol) { ol.className = "moves recap wrecap"; ol.innerHTML = SK().moves.map((m, i) => `<li class="lit" data-i="${i}">${mark()}<span><b>${esc(endP(m))}</b><small>${esc((SK().recap || SK().whyShort)[i])}</small></span></li>`).join(""); }
   const ft = $("#screen footer.actions");
-  if (ft && ft.querySelector(".w-skip")) ft.innerHTML = button(["Next: spot the miss", "watch-next"]);
+  if (ft && ft.querySelector(".w-skip")) ft.innerHTML = button(["Next: catch the mistake", "watch-next"]);
   if (row && !row.querySelector(".w-again")) row.insertAdjacentHTML("beforeend", `<button class="link w-again" data-act="lesson-replay">Watch again</button>`);
   if (fr) {
     fr.classList.add("wdone");
@@ -6991,7 +6992,7 @@ function stopCamera() {
 /* ---------- demo menu, toast ---------- */
 const JUMPS = [
   ["Pick a program", "pick"], ["The SMS", "sms"], ["Welcome video", "video"], ["Today", "path"], ["How Warmup works", "how"],
-  ["Lesson opening", "session"], ["Your 1st try", "try"], ["Listen in", "watch"], ["Spot the miss", "spot"], ["Your 2nd try", "main"], ["Wrap-up", "close"],
+  ["Lesson opening", "session"], ["Your 1st try", "try"], ["Listen in", "watch"], ["Catch the mistake", "spot"], ["Your 2nd try", "main"], ["Wrap-up", "close"],
   ["Practice tab", "coach"], ["Warmup", "warm"], ["Cooldown", "sms2"], ["Field director view", "director"], ["Library", "library"], ["Me", "me"],
   ["Campaign note", "note"], ["Ready before the shift", "ready"], ["Old: starting point", "intake"], ["Old: opener check", "placement"], ["Old: practice reps", "practice"],
 ];
