@@ -4427,7 +4427,7 @@ function vVideo() {
     <canvas class="vid-clip" id="vid-clip" width="540" height="960" aria-hidden="true"></canvas><svg class="voter main vid-svg expr-warm" viewBox="0 0 360 640" preserveAspectRatio="xMidYMid slice" data-act="video-toggle" role="img" aria-label="Maya Kaur, the candidate, speaking to the camera at home">${videoScene()}</svg>${videoCut()}
     <div class="vid-top"><div class="vid-seg" id="vid-seg">${segs}</div>
       <div class="vid-head"><span class="seal" aria-hidden="true">${t.org.seal}</span><b>${t.org.name}</b>
-        ${ended ? "" : `<button class="vid-pp" data-act="video-toggle" aria-label="${V.playing ? "Pause" : "Play"}">${pp}</button>`}<button data-act="video-skip">${ended ? "Close" : "Skip"}</button></div></div>
+        ${ended ? "" : `<button class="vid-pp" data-act="video-toggle" aria-label="${V.playing ? "Pause" : "Play"}">${pp}</button>`}${ended ? "" : `<button data-act="video-skip">Skip</button>`}</div></div>
     ${ended
       ? `<div class="vid-end"><p>Lesson 1 of 5 is ${titleIn(LESSONS5[0].title)}. You\u2019ll take a first try, listen in on a good conversation, spot the miss and then take your second try. It takes about ${lessonMin(1)} minutes.</p><button class="btn" data-act="video-skip">Start lesson 1</button><button class="link" data-act="video-again">Watch again</button></div>`
       : `<div class="vid-cap" aria-live="polite" id="vid-cap"><p>${V.started ? esc(WELCOME.lines[Math.min(V.i, n - 1)].text) : "A welcome from Maya Kaur"}</p></div>`}
