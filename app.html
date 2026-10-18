@@ -904,11 +904,11 @@
   .fb.try .four-list li small { display: block; font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-ink); margin-bottom: 1px; }
   .fb.try .four-list li.n small { color: var(--ink-3); }
   .fb.try .try-lead.had { margin: 0; }
-  .fb.try.cascade h3 { animation: rise 0.3s ease 0.25s both; }
-  .fb.try.cascade .four-list li { animation: rise 0.3s ease calc(0.55s + var(--i) * 0.35s) both; }
-  .fb.try.cascade .four-list li.y::before { animation: pop 0.35s ease calc(0.7s + var(--i) * 0.35s) both; }
-  .fb.try.cascade .try-lead.had { animation: rise 0.3s ease 2.05s both; }
-  .actions .btn.late { animation: rise 0.3s ease 2.25s both; }
+  .fb.try.cascade h3 { animation: rise 0.4s ease 0.5s both; } /* version 42 (Robert): half the speed */
+  .fb.try.cascade .four-list li { animation: rise 0.4s ease calc(1.1s + var(--i) * 0.7s) both; }
+  .fb.try.cascade .four-list li.y::before { animation: pop 0.4s ease calc(1.4s + var(--i) * 0.7s) both; }
+  .fb.try.cascade .try-lead.had { animation: rise 0.4s ease 4.1s both; }
+  .actions .btn.late { animation: rise 0.4s ease 4.5s both; }
   @keyframes pop { from { transform: scale(0); } 70% { transform: scale(1.15); } }
   @media (prefers-reduced-motion: reduce) { .fb.try.cascade h3, .fb.try.cascade .four-list li, .fb.try.cascade .four-list li.y::before, .fb.try.cascade .try-lead.had, .actions .btn.late { animation: none; } }
   .watch-list { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 5px; }
@@ -6021,7 +6021,7 @@ function vTry() {
   const hits = R.hits, c = hits.filter(Boolean).length, all = c === 4;
   /* version 41 (Maya Kaur, Robert): the concept before the score. "A good opener does four things." then the four, one by one, as You did or
      Not yet in the scorecard's marks, then the summary. The rows cascade in on the first render (tap the card to skip). */
-  const anim = !!R.at && Date.now() - R.at < 2500;
+  const anim = !!R.at && Date.now() - R.at < 5000;
   const rows = sk.moves.map((m, i) => `<li class="${hits[i] ? "y" : "n"}" style="--i:${i}"><small>${hits[i] ? "You did" : "Not yet"}</small>${esc(m)}</li>`).join("");
   const sum = all ? "Straight to a real door." : c ? `You already had ${NUMW[c]}. Hear it done shows the other ${NUMW[4 - c]}.` : "You tried it first. That\u2019s the hard part. Hear it done shows all four.";
   const card = `<div class="fb try${anim ? " cascade" : ""}"><p class="you-said">You said: \u201c${esc(R.text)}\u201d</p><h3>${all ? "You already have all four." : "A good opener does four things."}</h3><ul class="sc-list four-list">${rows}</ul><p class="try-lead had">${sum}</p></div>`;
