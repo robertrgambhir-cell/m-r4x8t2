@@ -427,6 +427,14 @@
   /* version 40 (Maya Kaur, Robert): the four part names stay on one line ("Catch the mistake" wrapped on every phone) */
   .sbar-names.one-line { letter-spacing: 0; }
   .sbar-names.one-line span { white-space: nowrap; margin: 0 -4px; }
+  /* version 47 (Maya Kaur, Robert): the coming-soon screen behind a locked tab (Practice, Library, Me) */
+  .content.stage > .soon { flex: none; margin: auto 0; padding: 6px 6px 30px; display: grid; justify-items: center; text-align: center; }
+  .soon .soon-ring { width: 112px; height: 112px; margin: 0 0 22px; }
+  .soon .soon-icon { width: 74px; height: 74px; border-radius: 50%; background: var(--accent-soft); display: grid; place-items: center; color: var(--accent-ink); }
+  .soon .soon-icon svg { width: 34px; height: 34px; display: block; }
+  .soon .kicker { margin: 0 0 8px; }
+  .soon .h1 { margin: 0 0 10px; font-size: 30px; max-width: 300px; }
+  .soon .lede { margin: 0; max-width: 300px; }
 .next-lesson { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line); }
 .story { position: relative; margin: 6px 0 4px; border-radius: 24px; background: var(--accent-soft); overflow: hidden; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
 .story-bars { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 12px 14px 0; }
@@ -3635,6 +3643,27 @@ const TAB_ICONS = {
   me: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8.5" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>`,
   practice: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 20.5v-15a1.5 1.5 0 0 1 1.5-1.5h8a1.5 1.5 0 0 1 1.5 1.5v15"/><path d="M4 20.5h16"/><circle cx="14.6" cy="12.6" r="1.1" fill="currentColor" stroke="none"/></svg>`,
 };
+/* version 47 (Maya Kaur, Robert, Oct 18): Practice, Library and Me are locked for users. Each shows a coming-soon screen until Robert asks
+   Claude here to unlock it: set SOON_ON to false (or drop a tab from SOON_TABS) and republish. The demo menu's jumps land on the same screen. */
+const SOON_ON = true;
+const SOON_TABS = { coach: "practice", library: "library", me: "me" };
+const SOON_COPY = {
+  practice: ["Extra doors, any time you want them.", "Practice with the coach between lessons, as many doors as you like. Until then, your lessons live on Today."],
+  library: ["Every lesson, in one place.", "Your five lessons, tough doors and notes from the campaign. Until then, each lesson opens from Today."],
+  me: ["Your shifts, streaks and badges.", "A record of the doors you knock and the lessons you finish. Until then, Today keeps your place."],
+};
+const soonNow = (screen) => SOON_ON && S.track === "gotv" && !!SOON_TABS[screen || S.screen];
+function vSoon() {
+  const k = SOON_TABS[S.screen], c = SOON_COPY[k];
+  return app(`
+    <div class="soon">
+      <span class="ring-wrap soon-ring">${ring(0.75, 112, 9)}<span class="ring-num"><span class="soon-icon">${TAB_ICONS[k]}</span></span></span>
+      <p class="kicker">Coming soon</p>
+      <h1 class="h1">${c[0]}</h1>
+      <p class="lede">${c[1]}</p>
+    </div>
+  `, { tabs: k, stage: true });
+}
 function tabBar(cur) {
   /* version 71: get out the vote has four tabs (Today, Practice, Library, Me); Practice gives the coach a home */
   const tabs = S.track === "gotv" ? [["today", "welcome", "Today"], ["practice", "coach", "Practice"], ["library", "library", "Library"], ["me", "me", "Me"]] : [["today", "welcome", "Today"], ["library", "library", "Library"], ["me", "me", "Me"]];
@@ -5634,6 +5663,7 @@ let closeSeen = "";
 function oneOffer(n, d5, R) {
   const b = d5[n] ? d5[n].filter(Boolean).length : 0, a = R && !R.pending && R.hits ? R.hits.filter(Boolean).length : null;
   const again = b < 4 && (a == null || b <= a);
+  if (!again && soonNow("coach")) return "";
   return `<div class="wrap-links one">${again ? `<button class="link" data-act="door-again">Try this door again</button>` : `<button class="link" data-act="go" data-arg="coach">Another door</button>`}</div>`;
 }
 function vClose5() {
@@ -6452,7 +6482,7 @@ function render() {
   } else {
     wide.hidden = true;
     device.hidden = false;
-    screenEl.innerHTML = VIEWS[S.screen]();
+    screenEl.innerHTML = soonNow() ? vSoon() : VIEWS[S.screen]();
     if (S.beat && S.beat === S.screen) { const c = $("#screen .app"); if (c) c.insertAdjacentHTML("afterbegin", beatHtml(S.beat)); }
     S.beat = null;
   }
@@ -6460,7 +6490,7 @@ function render() {
   afterRender();
 }
 function renderNotes() {
-  const box = $("#notes"), n = NOTES[S.screen];
+  const box = $("#notes"), n = soonNow() ? null : NOTES[S.screen];
   if (!settings.notes || !n) { box.hidden = true; return; }
   box.hidden = false;
   box.innerHTML = `<svg width="30" height="30" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="32" fill="none" stroke="#E6DFD3" stroke-width="12"/><circle cx="42" cy="42" r="32" fill="none" stroke="#35B57C" stroke-width="12" stroke-linecap="round" stroke-dasharray="151 202" transform="rotate(-90 42 42)"/></svg><h4>${n[0]}</h4><p>${n[1]}</p>`;
