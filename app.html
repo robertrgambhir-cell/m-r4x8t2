@@ -1111,6 +1111,7 @@
   .actions .time-chips button, .actions .time-chips select { min-width: 0; padding: 9px 2px; font-size: 12.5px; white-space: nowrap; text-align: center; text-align-last: center; }
   .wrap-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 14px; margin: 6px 0 0; }
   .wrap-links .link { font-size: 13px; color: var(--ink-2); }
+  .wrap-links.one .link { font-size: 14.5px; } /* version 44: the one offer */
   @media (max-height: 640px) { .done-hero .ring-wrap { zoom: .8; } .wrap-bar .sbar-names { display: none; } .done-hero .h1 { font-size: 26px; } }
   /* version 77: the cutaway's lesson, sized so each screen's content sits above the caption band */
   .cut-screen .sbar { margin-bottom: 10px; }
@@ -5628,6 +5629,13 @@ function satCard(k, cnt, prev, anim) {
   return `<div class="sat-card"><h2 class="sat-h">40 doors Saturday.</h2><p class="sat-sub">Each one gets ${gets}.</p><div class="sat-doors${f > 0 ? " lit" : ""}${anim ? " grow" : ""}${anim && f0 === 0 ? " first" : ""}" style="--f:${f};--f0:${f0}" aria-hidden="true">${doors}</div><p class="sat-note">They\u2019re supporters who need a reminder to vote.</p></div>`;
 }
 let closeSeen = "";
+/* version 44 (Maya Kaur, Robert): one offer under the scores, by how the tries went. A gain, or all four: another door. Held or dropped with a
+   move still missing: this door again (the best score is kept). No first try: the 2nd try's score decides. */
+function oneOffer(n, d5, R) {
+  const b = d5[n] ? d5[n].filter(Boolean).length : 0, a = R && !R.pending && R.hits ? R.hits.filter(Boolean).length : null;
+  const again = b < 4 && (a == null || b <= a);
+  return `<div class="wrap-links one">${again ? `<button class="link" data-act="door-again">Try this door again</button>` : `<button class="link" data-act="go" data-arg="coach">Another door</button>`}</div>`;
+}
 function vClose5() {
   const d5 = S.done5 || {}, cnt = Math.min(5, Object.keys(d5).length), n = lessonNo(), nx = LESSONS5.find((x) => !d5[x.n]);
   const pick = nx ? S.nextAt[nx.n] : null, key = `${n}:${(S.doneAt || {})[n] || 0}`, anim = closeSeen !== key;
@@ -5642,7 +5650,7 @@ function vClose5() {
     <div class="wrap-bar">${progressBar(99)}</div>
     ${R && !R.pending && d5[n] ? doneScores(n, cnt, R.hits, d5[n], anim) : doneHero(n, cnt, gain, anim)}
     <div class="next-two">${nx ? `<p><b>Lesson ${nx.n} comes by text tomorrow.</b></p><p>Then <b>40 doors Saturday</b>, each one getting ${DOOR_NEW[skKey()] || "what you just learned"}.</p>` : `<p><b>Next is your Warmup</b>, two doors and one tip, right before your canvass.</p><p>Then <b>40 doors Saturday</b>, each one getting all five moves.</p>`}</div>
-    <div class="wrap-links"><button class="link" data-act="retake">Retake lesson ${n}</button><button class="link" data-act="go" data-arg="coach">Another door</button></div>
+    ${oneOffer(n, d5, R)}
   `, { noBack: true, footer: button(["Done for today", "go", "welcome"]) }); /* Maya Kaur version: no time chips; the path shows what comes next (Robert) */
 }
 function vClose() {
