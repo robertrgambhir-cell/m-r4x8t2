@@ -1148,6 +1148,10 @@
   .door-chips { margin: 0 0 8px; }
   .door-chips span { font-size: 13.5px; padding: 6px 11px; }
   /* version 29 (Maya Kaur): the 2nd try's feedback in one card */
+  .ba-line { margin: -4px 0 12px; font-size: 14px; line-height: 1.4; color: var(--ink-3); }
+  .ba-line b { color: var(--ink); font-weight: 700; }
+  .done-hero .ba-line { margin: 0; font-size: 14px; font-weight: 600; color: var(--ink-3); }
+  .app.talking .ba-line, .app.listening .ba-line { display: none !important; }
   .sc-top { display: flex; align-items: center; gap: 12px; margin: 2px 0 12px; }
   .sc-top .h1 { font-size: 28px; }
   .sc-top .emo { font-size: 24px; }
@@ -1441,7 +1445,7 @@ const TRACKS = {
     blurb: "Help supporters make a specific plan to vote.",
     org: { name: "Maya Kaur for Woodbridge City Council", sub: "Saturday canvass", seal: "M" }, video: true,
     shift: "Saturday\u2019s canvass", place: "in your assigned turf", mine: "your canvass", when: "Saturday at 9 AM",
-    sms: "Hey {name}, it\u2019s Robert with Maya Kaur for City Council. Thanks for signing up to canvass! Before your in-person training, can you try this 5-minute canvass warmup by Monday? It starts with a welcome from Maya. (reply stop to opt out)",
+    sms: "Hi! Thanks for signing up to knock doors for Maya Kaur. Your 5-minute Warmup for Saturday\u2019s canvass is ready.",
     cadence: "In the final two weeks, every shift gets its own short practice the day before.",
     placement: {
       persona: "maria", scene: "door", who: "At a supporter\u2019s door",
@@ -4992,11 +4996,11 @@ function vPath5() {
     <p class="cadence">We\u2019ll text you a new lesson every couple of days. After that, you can practice as much as you like and explore the library. It\u2019s all optional.</p>
   `, { primary });
 }
-function startLesson5(n) {
+function startLesson5(n, straight) {
   S.lesson = n; S.day = 5;
   if (n !== 1) S.skipWatch = false;
   /* version 71: every lesson starts on its opening, then Try */
-  if (S.track === "gotv") { S.drill = null; S.drillBack = null; S.skipWatch = false; S.tryRes = null; S.tryKnocked = false; S.trySaid = false; S.spot = null; S.sayNow = null; S.intakeDone = true; if (!S.mode) S.mode = "voice"; go("session"); return; }
+  if (S.track === "gotv") { S.drill = null; S.drillBack = null; S.skipWatch = false; S.tryRes = null; S.tryKnocked = false; S.trySaid = false; S.spot = null; S.sayNow = null; S.intakeDone = true; if (!S.mode) S.mode = "voice"; S.tryFull = false; go(straight ? "try" : "session"); return; }
   if (n === 1 && !S.intakeDone) { go("welcome"); return; }
   go("session");
 }
@@ -5059,7 +5063,7 @@ function vWatch() {
     <div class="frame wframe wv2">${scene(L.scene, L.persona, { main: true, crop: "tight", sign: L.sign })}<button class="w-pp" data-act="lesson-toggle" id="l-toggle" data-state="Pause" aria-label="Pause">${PP_ICON.pause}</button><div class="hl" id="hl" hidden></div></div>
     <div class="wcap" id="cap" aria-live="polite"><span class="cap-who">${DEMO}</span><p>A volunteer like you. Listen for her four moves.</p></div>
     <ol class="moves wgrid" id="l-moves">${sk.moves.map((m, i) => `<li data-i="${i}"><span class="wn" aria-hidden="true"><em>${i + 1}</em>${CHECK}</span><span>${m}</span></li>`).join("")}</ol>
-  `, { tag: "", back: "session", primary: ["Next: spot the miss", "watch-next"] });
+  `, { tag: "", back: "session", footer: `<button class="link center w-skip" data-act="watch-next">Skip</button>` }); /* version 33 (Maya Kaur): the big Next waits for the recap */
   return app(`
     ${progressBar(0, S.lessonAt / Math.max(1, SK().lesson.lines.length))}
     <div class="frame wframe">${mariaOn(L) ? mariaVid() : scene(L.scene, L.persona, { main: true, crop: "tight", sign: L.sign })}<span class="who-tag"><b>${L.name}</b> ${L.tag || (L.scene === "store" ? "at the table" : "supporter on the list")}</span><span class="ctrl in-frame"><button data-act="lesson-toggle" id="l-toggle">Pause</button><button data-act="lesson-replay">Replay</button></span><div class="hl" id="hl" hidden></div></div>
@@ -5386,6 +5390,13 @@ function scorePreview(L) {
   return `<p class="score-next">${graded}${nx ? ` Lesson ${nx.n}, \u201c${nx.title},\u201d comes next.` : ""}</p>`;
 }
 /* version 63: three blocks (what you did right, what to fix, my tip), every line a result; the retry is a link so the card fits above the button */
+/* version 33 (Maya Kaur, the daily review's pick): the two scores side by side, the product's claim in one line */
+function baLine(after) {
+  const R = tryNow();
+  if (S.track !== "gotv" || S.drill || !R || R.pending || !after) return "";
+  const a = R.hits.filter(Boolean).length, b = after.filter(Boolean).length;
+  return `<p class="ba-line">1st try <b>${a} of 4</b>. 2nd try <b>${b} of 4</b>.</p>`;
+}
 function vScore() {
   const L = S.last, sk = SKILLS[L.skill], g = S.track === "gotv", drill = g ? S.drill : null, warm = !!drill && drill.kind === "warm";
   const hits = L.moves.filter(Boolean).length;
@@ -5409,6 +5420,7 @@ function vScore() {
   if (g) return app(`
     ${progressBar(repMoves().length + 2, 1)}
     <div class="sc-top"><div class="ring-wrap" style="width:52px;height:52px">${ring(hits / 4, 52, 7)}<span class="ring-num num" style="font-size:15px">${hits}/4</span></div><h1 class="h1 verdict-h" style="margin:0"><span class="emo" aria-hidden="true">${emo}</span>${word}</h1></div>
+    ${baLine(L.moves)}
     <div class="sc-card"><ul class="sc-list">${sk.moves.map((m, i) => `<li class="${L.moves[i] ? "y" : "n"}">${esc(L.moves[i] ? sk.hitNames[i] : (sk.missNames || [])[i] || m)}</li>`).join("")}</ul>
       ${tip ? `<div class="sc-tip"><b>${sayStep && !said ? "My tip. Say it out loud now." : "My tip"}</b><p>${esc(tip)}</p></div>` : ""}</div>
     ${sayCard}
@@ -5444,11 +5456,11 @@ function gainLine(a, b) {
   const g = b.filter((h, i) => h && !a[i]).length;
   return g ? `<p class="gain-line">You picked up ${LEFTW[g]} new move${g > 1 ? "s" : ""} since your first try.</p>` : "";
 }
-function doneHero(n, cnt, gain, anim) {
+function doneHero(n, cnt, gain, anim, ba) {
   const all = cnt >= 5, left = Math.max(0, 5 - cnt);
   const sub = all ? "All five moves, from memory." : `${left} to go`;
   const r = anim && cnt > 0 ? ringGrow((cnt - 1) / 5, cnt / 5, 76, 10) : ring(cnt / 5, 76, 10);
-  return `<div class="done-hero"><div class="ring-wrap" style="width:76px;height:76px">${r}<span class="ring-num num" style="font-size:20px">${cnt}/5</span></div><h1 class="h1">${all ? "You\u2019re door-ready." : `Lesson ${n} done.`}</h1><p class="${all ? "lede" : "togo"}">${sub}</p></div>`;
+  return `<div class="done-hero"><div class="ring-wrap" style="width:76px;height:76px">${r}<span class="ring-num num" style="font-size:20px">${cnt}/5</span></div><h1 class="h1">${all ? "You\u2019re door-ready." : `Lesson ${n} done.`}</h1>${ba && !all ? ba : `<p class="${all ? "lede" : "togo"}">${sub}</p>`}</div>`; /* version 33 (Maya Kaur): the before-and-after line takes the "N to go" slot */
 }
 /* Saturday's 40 doors (the list from How your list gets made), each filled by the lessons done so far */
 /* What's next (Maya Kaur version, Robert): the lessons left, the next one tomorrow and the rest one a day, then the Warmup Saturday at 8 AM;
@@ -5481,7 +5493,7 @@ function vClose5() {
   const links = `<div class="wrap-links"><button class="link" data-act="go" data-arg="coach">Another door</button><button class="link" data-act="retake">Retake lesson ${n}</button><button class="link" data-act="note-open" data-arg="${fits ? "fits" : "list"}">${fits ? "Where Saturday fits" : "How your list gets made"}</button></div>`;
   return app(`
     <div class="wrap-bar">${progressBar(99)}</div>
-    ${doneHero(n, cnt, gain, anim)}
+    ${doneHero(n, cnt, gain, anim, baLine(d5[n]))}
     ${nextPath(skKey(), d5)}
     ${links}
   `, { noBack: true, footer: button(["Done for today", "go", "welcome"]) }); /* Maya Kaur version: no time chips; the path shows what comes next (Robert) */
@@ -5782,7 +5794,7 @@ const COOL_MAP = [
 
 const lessonNo = () => S.lesson || 1;
 const tryNow = () => (S.tryRes && S.tryRes.lesson === lessonNo() ? S.tryRes : null);
-const skipNow = () => { const R = tryNow(); return !!(R && !R.pending && R.hits.every(Boolean)); };
+const skipNow = () => { const R = tryNow(); return !S.tryFull && !!(R && !R.pending && R.hits.every(Boolean)); };
 /* minutes per part, from the doc's minute-by-minute: Try, Watch, Spot, Your turn (lesson 1's door is the opener only); plus the opening and the wrap. Maya version 15: Spot is 0.5, since nothing is said out loud there */
 function partMins(n = lessonNo()) { const skip = skipNow(); return [0.75, skip ? 0 : 1, skip ? 0 : 0.5, n === 1 ? 1.5 : 2]; }
 const lessonMin = (n) => Math.max(1, Math.round(0.25 + [0.75, 1, 0.5, n === 1 ? 1.5 : 2].reduce((a, b) => a + b, 0) + 0.5));
@@ -5862,7 +5874,7 @@ function vTry() {
   const did = c ? `You ${andList(f.did.filter((_, i) => hits[i]))}.` : "You tried it first. That\u2019s the hard part.";
   const watch = all ? "Straight to a real door." : c ? `You\u2019ve got ${c} of 4. Watch for the other ${NUMW[4 - c]}.` : "You tried it first. That\u2019s the hard part. Watch for all four.";
   const card = `<div class="fb try"><p class="you-said">You said: \u201c${esc(R.text)}\u201d</p><h3>${all ? "You already have all four." : "Nice start."}</h3><p class="try-lead">${watch}</p><ul class="try-list">${sk.moves.map((m, i) => hits[i] ? `<li class="got"><span class="ti" aria-hidden="true">\u2705</span><span>${sk.hitNames[i]}</span></li>` : `<li class="watch"><span class="ti" aria-hidden="true">\uD83D\uDC40</span><span>${m}</span></li>`).join("")}</ul></div>`;
-  return app(`${head}${card}`, { tag: "", primary: [all ? "Next: your 2nd try" : "Next: listen in", "try-next"] });
+  return app(`${head}${card}`, { tag: "", footer: `${button([all ? "Next: your 2nd try" : "Next: listen in", "try-next"])}${all ? `<button class="link center" data-act="try-full">See the full lesson</button>` : ""}` });
 }
 async function tryKnock() {
   if (S.tryKnocked) return;
@@ -5926,15 +5938,17 @@ function vSpotG() {
   const sk = SK(), L = sk.lesson, sp = S.spot || { item: 0, picked: null, said: null }, it = spotData();
   const picked = sp.picked, done = picked != null, right = picked === it.miss;
   const anim = done && sp.at && Date.now() - sp.at < 1500;
-  const lines = it.lines.map(([w, t]) => `<p class="sq ${w}"><b>${w === "you" ? "You" : L.name}:</b> \u201c${esc(fill(t))}\u201d</p>`).join("");
+  const lines = it.lines.map(([w, t]) => `<p class="sq ${w}"><b>${w === "you" ? DEMO : L.name}:</b> \u201c${esc(demoFill(t))}\u201d</p>`).join("");
   const card = `<div class="rep-card spot-card${it.lines.length > 2 ? " long" : ""}">${done ? "" : `<div class="frame small mini spot-frame">${scene("door", L.persona, { label: `${L.name} at the door` })}</div>`}<div class="spot-lines">${lines}</div></div>`;
   const tiles = `<p class="spot-ask">This time, one of the four moves is missing. Which one?</p><ol class="spot-tiles" aria-label="The four moves">${sk.moves.map((m, i) => `<li><button class="tile" data-act="spot-pick" data-arg="${i}" aria-pressed="false"><span class="tile-t">${m}</span></button></li>`).join("")}</ol>`;
-  const youDid = (x) => `You ${x.charAt(0).toLowerCase()}${x.slice(1)}${/[.?!\u201d]$/.test(x) ? "" : "."}`;
+  /* version 33 (Maya Kaur): the miss is Monica's, in the third person (lesson 1's names say "your" and "you're") */
+  const herMiss = (x) => x.replace("your name", "her name").split("you\u2019re").join("she\u2019s");
+  const youDid = (x) => { const m = herMiss(x); return `${DEMO} ${m.charAt(0).toLowerCase()}${m.slice(1)}${/[.?!\u201d]$/.test(m) ? "" : "."}`; };
   const ans = !done ? "" : `<div class="fb spot-ans ${right ? "strong" : "ok"}${anim ? " anim" : ""}"><h3>${right ? "Right." : "Not quite."}</h3><p class="ans-miss">${esc(youDid(sk.missNames[it.miss]))}</p><p class="why-s">${esc((sk.recap || sk.whyShort)[it.miss])}</p></div>`;
   const footer = !done ? "" : `<button class="btn" data-act="go" data-arg="main">Next: your 2nd try</button>`;
   return app(`
     ${lessonBar(2, done ? 1 : 0.2)}
-    <h2 class="h2 tight spot-title">Here\u2019s ${L.name}\u2019s door again.</h2>
+    <h2 class="h2 tight spot-title">${DEMO} at ${L.name}\u2019s door again.</h2>
     ${card}
     ${done ? ans : tiles}
   `, footer ? { tag: "", footer } : { tag: "" });
@@ -6361,6 +6375,8 @@ function watchEnd() {
   if (cap) cap.hidden = true;
   if (h2) h2.textContent = "The four moves, and why";
   if (ol) { ol.className = "moves recap wrecap"; ol.innerHTML = SK().moves.map((m, i) => `<li class="lit" data-i="${i}">${mark()}<span><b>${esc(endP(m))}</b><small>${esc((SK().recap || SK().whyShort)[i])}</small></span></li>`).join(""); }
+  const ft = $("#screen footer.actions");
+  if (ft && ft.querySelector(".w-skip")) ft.innerHTML = button(["Next: spot the miss", "watch-next"]);
   if (row && !row.querySelector(".w-again")) row.insertAdjacentHTML("beforeend", `<button class="link w-again" data-act="lesson-replay">Watch again</button>`);
   if (fr) {
     fr.classList.add("wdone");
@@ -7089,7 +7105,7 @@ document.addEventListener("click", (e) => {
       if (!S.video.started || (!S.video.playing && S.video.i < WELCOME.lines.length)) playVideo(S.video.started ? S.video.i : 0, S.video.started ? (S.video.offset || 0) : 0);
       else if (S.video.playing) pauseVideo();
       break;
-    case "video-skip": if (S.track === "gotv" && !(S.done5 || {})[1]) startLesson5(1); else go("welcome"); break;
+    case "video-skip": if (S.track === "gotv" && !(S.done5 || {})[1]) startLesson5(1, true); else go("welcome"); break; /* version 33 (Maya Kaur): straight to the 1st try, the end card already named the lesson */
     case "video-seek": {
       const j = Number(arg);
       if (!S.video) break;
@@ -7230,6 +7246,7 @@ case "talk": talkTap(); break;
     case "try-knock": tryKnock(); break;
     case "try-check": if (!(S.tryRes && S.tryRes.pending)) checkTry(); break;
     case "try-next": go(skipNow() ? "main" : "watch"); break;
+    case "try-full": S.tryFull = true; go("watch"); break; /* version 33 (Maya Kaur): a 4 of 4 first try can still play Listen in and Spot the miss */
     case "spot-fix": checkSpotFix(); break;
     case "spot-again": if (S.spot) { S.spot.said = null; render(); } break;
     case "say-now": checkSayNow(); break;
