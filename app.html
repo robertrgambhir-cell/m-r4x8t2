@@ -6031,7 +6031,7 @@ function vSpotG() {
   /* version 33 (Maya Kaur): the miss is Monica's, in the third person (lesson 1's names say "your" and "you're") */
   const herMiss = (x) => x.replace("your name", "her name").split("you\u2019re").join("she\u2019s");
   const youDid = (x) => { const m = herMiss(x); return `${DEMO} ${m.charAt(0).toLowerCase()}${m.slice(1)}${/[.?!\u201d]$/.test(m) ? "" : "."}`; };
-  const ans = !done ? "" : `<div class="fb spot-ans ${right ? "strong" : "ok"}${anim ? " anim" : ""}"><h3>${right ? "Right." : "Not quite."}</h3><p class="ans-miss">${esc(youDid(sk.missNames[it.miss]))}</p><p class="why-s">${esc((sk.recap || sk.whyShort)[it.miss])}</p></div>`;
+  const ans = !done ? "" : `<div class="fb spot-ans ${right ? "strong" : "ok"}${anim ? " anim" : ""}"><h3>${right ? "Right." : "Not quite."}</h3><p class="ans-miss">${esc(youDid(sk.missNames[it.miss]))}</p></div>`; /* version 38 (Maya Kaur, Robert): no why line on the answer card */
   const footer = done ? `<button class="btn" data-act="go" data-arg="main">Next: your 2nd try</button>` : played ? "" : `<button class="link center w-skip" data-act="spot-skip">Skip</button>`;
   return app(`
     ${lessonBar(2, done ? 1 : played ? 0.8 : 0.2)}
