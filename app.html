@@ -1145,6 +1145,25 @@
   .frame.full svg.voter { transition: margin-top .9s cubic-bezier(.3,.7,.2,1); }
   @media (max-height: 640px) { .content .frame.full { height: 190px; } .content .frame.full svg.voter { margin-top: -34px; } }
   @media (max-height: 580px) { .content .frame.full { height: 142px; } .content .frame.full svg.voter { margin-top: -54px; } }
+  /* version 29 (Maya Kaur): the 2nd try's feedback in one card */
+  .sc-top { display: flex; align-items: center; gap: 12px; margin: 2px 0 12px; }
+  .sc-top .h1 { font-size: 28px; }
+  .sc-top .emo { font-size: 24px; }
+  .sc-card { padding: 14px 16px; border-radius: 20px; background: var(--card); border: 1.5px solid var(--line); }
+  .sc-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+  .sc-list li { position: relative; padding-left: 28px; font-size: 15.5px; line-height: 1.35; }
+  .sc-list li.y { color: var(--ink); font-weight: 600; }
+  .sc-list li.n { color: var(--ink-3); }
+  .sc-list li::before { content: ""; position: absolute; left: 0; top: 1px; width: 18px; height: 18px; border-radius: 50%; box-sizing: border-box; }
+  .sc-list li.y::before { background: var(--accent) url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5 L6.6 11.5 L12.5 5' fill='none' stroke='%23FFFFFF' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 11px 11px no-repeat; }
+  .sc-list li.n::before { border: 2px solid var(--ink-3); }
+  .sc-list li.n::after { content: ""; position: absolute; left: 5px; top: 9px; width: 8px; height: 2px; background: var(--ink-3); }
+  .sc-tip { margin-top: 12px; padding: 11px 13px; border-radius: 14px; background: var(--accent-soft); }
+  .sc-tip b { display: block; font-size: 12.5px; font-weight: 700; color: var(--accent-ink); margin-bottom: 3px; }
+  .sc-tip p { margin: 0; font-family: var(--head-font); font-weight: var(--head-weight); font-size: 17px; line-height: 1.32; }
+  .app.talking .sc-list, .app.listening .sc-list, .app.talking .sc-top, .app.listening .sc-top { display: none !important; }
+  .app.talking .sc-card, .app.listening .sc-card { padding: 0; border: 0; background: none; }
+  .app.talking .sc-tip, .app.listening .sc-tip { margin-top: 0; }
   /* version 28 (Maya Kaur): Listen in: the title above the door, one play/pause glyph, the lines as a transcript, the four moves in one soft card that fills in */
   .frame.wframe.wv2 { border-radius: 22px; }
   .w-pp { position: absolute; right: 10px; top: 10px; z-index: 2; width: 34px; height: 34px; border-radius: 50%; border: 0; padding: 0; background: rgba(255, 253, 249, .92); color: var(--ink); display: grid; place-items: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, .14); }
@@ -5373,10 +5392,19 @@ function vScore() {
   const sayCard = sayStep && said && !said.skipped ? `<div class="fb ${said.ok ? "strong" : "ok"}"><div class="fb-sec ${said.ok ? "right" : "fix"}"><b>${said.ok ? "That\u2019s the one." : "Almost."}</b><p>${said.ok ? "Say it like that at the door." : "Say it once more, closer to the tip."}</p></div></div>` : "";
   const again = said && !said.skipped && !said.ok ? `<button class="link center" data-act="say-again">Say it again</button>` : "";
   let footer;
-  if (sayStep && !said) footer = `<p class="say-label">Say it now: your tip, out loud.</p>${composer("say-now", "Type what you\u2019d say", "Say it")}<button class="link center" data-act="say-skip">Skip for now</button>`;
+  if (sayStep && !said) footer = `${g ? "" : `<p class="say-label">Say it now: your tip, out loud.</p>`}${composer("say-now", "Type what you\u2019d say", "Say it")}<button class="link center" data-act="say-skip">Skip for now</button>`;
   else if (warm) footer = drill.step === 1 ? `<button class="btn" data-act="warm-door" data-arg="2">Next: door 2</button>` : `<button class="btn" data-act="go" data-arg="warmtip">Next: one tip</button>`;
   else if (drill) footer = `<button class="btn" data-act="coach-back">Back to practice</button>${again || `<button class="link center" data-act="coach-surprise">Another door</button>`}`;
   else footer = `<button class="btn" data-act="go" data-arg="close">Finish lesson ${lessonNo}</button>${again || `<button class="link center" data-act="door-again">${g ? "Try this door again" : "Try the conversation again"}</button>`}`;
+  /* version 29 (Maya Kaur): one card, the four moves in order, then the tip; fits a phone with no scroll */
+  if (g) return app(`
+    ${progressBar(repMoves().length + 2, 1)}
+    <div class="sc-top"><div class="ring-wrap" style="width:52px;height:52px">${ring(hits / 4, 52, 7)}<span class="ring-num num" style="font-size:15px">${hits}/4</span></div><h1 class="h1 verdict-h" style="margin:0"><span class="emo" aria-hidden="true">${emo}</span>${word}</h1></div>
+    <div class="sc-card"><ul class="sc-list">${sk.moves.map((m, i) => `<li class="${L.moves[i] ? "y" : "n"}">${esc(L.moves[i] ? sk.hitNames[i] : (sk.missNames || [])[i] || m)}</li>`).join("")}</ul>
+      ${tip ? `<div class="sc-tip"><b>${sayStep && !said ? "My tip. Say it out loud now." : "My tip"}</b><p>${esc(tip)}</p></div>` : ""}</div>
+    ${sayCard}
+    ${prior}
+  `, { tag: drill ? (warm ? "Warmup" : "Practice") : "Feedback", noBack: true, footer });
   return app(`
     ${progressBar(repMoves().length + 2, 1)}
     <div class="score-top compact"><div class="ring-wrap" style="width:64px;height:64px">${ring(hits / 4, 64, 9)}<span class="ring-num num" style="font-size:18px">${hits}/4</span></div>
