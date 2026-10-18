@@ -1253,7 +1253,7 @@
   .moves.wgrid li.lit .wn em { opacity: 0; }
   .moves.wgrid li.lit .wn svg { opacity: 1; }
   .moves.wrecap { gap: 0; padding: 2px 12px; border-radius: 18px; background: var(--soft); }
-  .moves.wrecap li { background: transparent; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 9px 0; }
+  .moves.wrecap li { background: transparent; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 11px 0; font-size: 15px; } /* version 43: the moves alone */
   .moves.wrecap li:last-child { border-bottom: 0; }
   @media (max-height: 700px) { .content .frame.wframe.wv2:not(.wdone) { height: 168px; } .content .frame.wframe.wv2:not(.wdone) svg.voter { margin-top: -12px; } }
   @media (max-height: 640px) { .content .frame.wframe.wv2:not(.wdone) { height: 118px; } .content .frame.wframe.wv2:not(.wdone) svg.voter { margin-top: -70px; } .lesson-row.wrow .h2 { display: none; } }
@@ -6597,8 +6597,8 @@ async function playLesson() {
 function watchEnd() {
   const cap = $("#cap"), ol = $("#l-moves"), row = $("#screen .lesson-row"), h2 = row && row.querySelector(".h2"), fr = $("#screen .frame.wframe"), c = $("#content");
   if (cap) cap.hidden = true;
-  if (h2) h2.textContent = "The four moves, and why";
-  if (ol) { ol.className = "moves recap wrecap"; ol.innerHTML = SK().moves.map((m, i) => `<li class="lit" data-i="${i}">${mark()}<span><b>${esc(endP(m))}</b><small>${esc((SK().recap || SK().whyShort)[i])}</small></span></li>`).join(""); }
+  if (h2) h2.textContent = "The four moves"; /* version 43 (Robert): no why line under each move */
+  if (ol) { ol.className = "moves recap wrecap"; ol.innerHTML = SK().moves.map((m, i) => `<li class="lit" data-i="${i}">${mark()}<span><b>${esc(endP(m))}</b></span></li>`).join(""); }
   const ft = $("#screen footer.actions");
   if (ft && ft.querySelector(".w-skip")) ft.innerHTML = button(["Next: catch the mistake", "watch-next"]);
   if (row && !row.querySelector(".w-again")) row.insertAdjacentHTML("beforeend", `<button class="link w-again" data-act="lesson-replay">Watch again</button>`);
