@@ -5964,7 +5964,7 @@ function lessonBarHtml(n, m, part, fill, skipped, live, here) {
   const label = done ? `Lesson ${n} complete` : part < 0 ? `Lesson ${n}` : `Lesson ${n}: ${PARTS4[part]}`;
   const right = done ? "Done" : `About ${left} min left`;
   const segs = m.map((_, i) => `<i${live && i === part ? ' id="sbar-now"' : ""}${i === here ? ' class="now"' : ""}><span style="width:${fills[i]}%"></span></i>`).join("");
-  return `<div class="sbar" aria-label="${label}, ${right}"><div class="sbar-segs" style="grid-template-columns:repeat(4,1fr)">${segs}</div>${barNames(PARTS4, part < 0 && here != null ? here : part).replace('class="sbar-names"', 'class="sbar-names one-line"')}<div class="sbar-row"><span>${label}</span><span>${right}</span></div></div>`;
+  return `<div class="sbar" aria-label="${label}, ${right}"><div class="sbar-segs" style="grid-template-columns:repeat(4,1fr)">${segs}</div>${barNames(PARTS4, part < 0 && here != null ? here : part).replace('class="sbar-names"', 'class="sbar-names one-line"')}</div>`;
 }
 const barHtml = (n, part, fill) => lessonBarHtml(n, [0.75, 1, 0.5, n === 1 ? 1.5 : 2], part, fill, false, false);
 function warmBar(part, fill = 0) {
