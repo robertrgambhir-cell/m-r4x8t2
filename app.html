@@ -1376,7 +1376,7 @@ const TRACKS = {
     blurb: "Collect valid signatures to put a measure on the ballot.",
     org: { name: "Libraries for All", sub: "Yes on the Neighborhood Libraries Act", seal: "L" },
     shift: "Saturday\u2019s signature shift", place: "outside Westside Market", mine: "your signature shift", when: "Saturday at 10 AM",
-    sms: "Hey {name}, it\u2019s Robert with Libraries for All. Thanks for signing up for Saturday\u2019s signature shift! Here\u2019s a 5-minute practice to get ready. Can you try it by Monday? (reply stop to opt out)",
+    sms: "Hey {name}, it\u2019s Mia with Libraries for All. Thanks for signing up for Saturday\u2019s signature shift! Here\u2019s a 5-minute practice to get ready. Can you try it by Monday? (reply stop to opt out)",
     cadence: "Drives run for months, so after Saturday a 2-minute refresher arrives every three weeks to keep it sharp.",
     placement: {
       persona: "mei", scene: "store", sign: "Libraries Act", who: "At the signature table",
@@ -1398,7 +1398,7 @@ const TRACKS = {
     blurb: "Register people on the spot at busy community sites.",
     org: { name: "Neighbors Who Vote", sub: "Saturday registration drive", seal: "N" },
     shift: "Saturday\u2019s registration drive", place: "at the farmers market", mine: "your registration drive", when: "Saturday at 10 AM",
-    sms: "Hey {name}, it\u2019s Robert with Neighbors Who Vote. Thanks for signing up for Saturday\u2019s registration drive! Here\u2019s a 5-minute practice to get ready. Can you try it by Monday? (reply stop to opt out)",
+    sms: "Hey {name}, it\u2019s Mia with Neighbors Who Vote. Thanks for signing up for Saturday\u2019s registration drive! Here\u2019s a 5-minute practice to get ready. Can you try it by Monday? (reply stop to opt out)",
     cadence: "After Saturday, a 2-minute refresher arrives before each monthly drive, so the address question stays automatic.",
     placement: {
       persona: "ana", scene: "store", sign: "Register here", who: "At the registration table",
@@ -1424,7 +1424,7 @@ const TRACKS = {
     blurb: "Change minds by listening and trading stories, not arguing.",
     org: { name: "Front Porch Conversations", sub: "Saturday deep canvass", seal: "P" },
     shift: "Saturday\u2019s deep canvass", place: "in your assigned turf", mine: "your deep canvass", when: "Saturday at 10 AM",
-    sms: "Hey {name}, it\u2019s Robert with Front Porch Conversations. Thanks for signing up for Saturday\u2019s deep canvass! Here\u2019s a 5-minute practice to get ready. Can you try it by Monday? (reply stop to opt out)",
+    sms: "Hey {name}, it\u2019s Mia with Front Porch Conversations. Thanks for signing up for Saturday\u2019s deep canvass! Here\u2019s a 5-minute practice to get ready. Can you try it by Monday? (reply stop to opt out)",
     cadence: "Deep canvasses run for months, so a short refresher comes before every weekend shift.",
     placement: {
       persona: "gary", scene: "door", who: "At an undecided voter\u2019s door",
@@ -1469,7 +1469,7 @@ const TRACKS = {
     blurb: "At a busy site, ask people to text three friends a reminder to vote.",
     org: { name: "Text Three", sub: "Saturday tripling shift", seal: "3" }, site: ["Midtown", "Transit"],
     shift: "Saturday\u2019s tripling shift", place: "at the Midtown transit center", mine: "your tripling shift", when: "Saturday at 11 AM",
-    sms: "Hey {name}, it\u2019s Robert with Text Three. Thanks for signing up for Saturday\u2019s tripling shift! Here\u2019s a 5-minute practice to get ready. Can you try it by Monday? (reply stop to opt out)",
+    sms: "Hey {name}, it\u2019s Mia with Text Three. Thanks for signing up for Saturday\u2019s tripling shift! Here\u2019s a 5-minute practice to get ready. Can you try it by Monday? (reply stop to opt out)",
     cadence: "In the final two weeks, a 2-minute refresher arrives the day before each shift, so the ask stays quick and confident.",
     placement: {
       persona: "maya", scene: "store", sign: "Text three", who: "At the tripling table",
@@ -3477,7 +3477,7 @@ const CREW_LAST = ["Not started", "Not started", "Monday", "Monday", "Tuesday", 
 
 /* ---------- the library: trainings from the best canvassers (placeholders until filmed) ---------- */
 const TRAINERS = {
-  mia: { name: "Robert G.", role: "field director", color: "#35B57C" },
+  mia: { name: "Mia R.", role: "field director", color: "#35B57C" },
   deshawn: { name: "DeShawn T.", role: "11,000 doors, Philadelphia", color: "#2E6A50" },
   rosa: { name: "Rosa G.", role: "deep canvassing lead, Phoenix", color: "#E07A5F" },
   june: { name: "June K.", role: "site lead, nine registration drives", color: "#283573" },
@@ -3524,7 +3524,7 @@ function libOurs() {
   const t = T(), door = t.placement.scene === "door";
   const items = [
     { id: "listmade", note: true, title: door ? "How your list gets made" : "How we picked this site", by: "sam", min: 1, learn: ["Behind the scenes with our data director", door ? "Why these 40 doors and not others" : "Why this spot and not another"] },
-    { id: "meetmia", title: "Meet Robert, our field director", by: "mia", min: 1, learn: ["What he does all week so Saturday works", "The one thing he wishes every canvasser knew"] },
+    { id: "meetmia", title: "Meet Mia, our field director", by: "mia", min: 1, learn: ["What she does all week so Saturday works", "The one thing she wishes every canvasser knew"] },
     { id: "turf", title: door ? "Our turf, block by block" : "Our site, and where to stand", by: "mia", min: 3, learn: [door ? "The three blocks that matter most" : "The entrance, the flow and the shade", "Where the team meets if you get split up"] },
     { id: "codes", title: door ? "What our list codes mean" : "What our tally means", by: "mia", min: 2, learn: ["Every code, and what we do with it next", "The note that helps most"] },
   ];
@@ -3587,16 +3587,16 @@ const NOTES = {
   talk: ["Right before they speak (off the main path since version 64)", "The talk-or-type question waits until the first moment it matters, so first-timers aren\u2019t asked about practicing out loud before they know what Saturday looks like."],
   placement: ["Everyone shows their opener", "Since version 64 (Robert, Oct 11) there is no experience question and no talk-or-type question: the first try places you. A Knock first, so nobody is put on the spot; the box says typing works if you can\u2019t talk. A strong opener skips Watch. The first-timer cards still exist for the presenter menu and \u201cHow Saturday works\u201d: Saturday as a story: six tap-through cards (tap or swipe, auto-advancing like Instagram Stories), each a small animation and one line, ending on a pass with when, where, how long and what to bring. First-timers learn how a canvass works before any technique, and a concrete where and when makes people likelier to show up. Four cards, no test, so their first graded moment is a likely win. Veterans show their opener and get feedback on it right away, on the same screen that opens the lesson; a strong one skips the demo. No level on screen: placement changes what comes next, not a label. The heading says why we ask (version 65): the opener tells us where to start the lesson. The card shows the four moves as checks and the misses as what happened, like the scorecard (version 66). One rule, two paths (version 67): all four moves goes straight to Your turn, nothing re-taught; anything less gets the full lesson, with the reps picked from the moves they missed."],
   path: ["Today: the plan around the shift", "Get out the vote opens Today here (version 71): the five lessons on their days, the Warmup, the canvass and the Cooldown in one list. Other programs keep their three-lesson week."],
-  session: ["One lesson, four parts", "Version 80 (Suman Gidwani\u2019s feedback): the opening says only what the lesson is and why it matters. The bar names the four parts in their order (Your 1st try, Listen in, Spot the miss, Your 2nd try) with Your 1st try lit, and the door the first try opens on sits below, so Start feels like walking up to it. A lesson is one 5-minute sitting. Other programs keep Watch, Practice, Your turn."],
+  session: ["One lesson, four parts", "Version 80 (Suman Gidwani\u2019s feedback): the opening says only what the lesson is and why it matters. The bar names the four parts in their order (Your 1st try, Hear it done, Catch the mistake, Your 2nd try) with Your 1st try lit, and the door the first try opens on sits below, so Start feels like walking up to it. A lesson is one 5-minute sitting. Other programs keep Watch, Practice, Your turn."],
   note: ["A word from the campaign", "Version 71: for get out the vote the campaign minute left the lessons. Where Saturday fits and How your list gets made are one-minute notes in the library and an optional card on the wrap, and the Warmup carries one line from the campaign. The one-tap question still feeds the split test on the director\u2019s view."],
-  watch: ["Listen in, with the moves outside the clip", "The four moves are named before the door plays and recapped after with the why. During the door only a quiet tick lands on each move, so attention stays on the conversation; people can\u2019t read and listen closely at once. The live strip along the frame\u2019s bottom edge is a menu toggle (Watch strip), so both versions can be tested. When the door ends, the frame folds down (or away on a short screen) so the recap fits a phone without scrolling. Every voter is a cartoon; in lesson 4, Maria keeps her recorded voice."],
+  watch: ["Hear it done, with the moves outside the clip", "The four moves are named before the door plays and recapped after with the why. During the door only a quiet tick lands on each move, so attention stays on the conversation; people can\u2019t read and listen closely at once. The live strip along the frame\u2019s bottom edge is a menu toggle (Watch strip), so both versions can be tested. When the door ends, the frame folds down (or away on a short screen) so the recap fits a phone without scrolling. Every voter is a cartoon; in lesson 4, Maria keeps her recorded voice."],
   why: ["Why it works", "Each best practice comes with the research, rule or field experience behind it, labeled honestly."],
   recap: ["Quick refresher", "Later lessons skip the demo and go straight to recall."],
   practice: ["Two reps a day", "Monday drills the two moves crews miss most, Wednesday the other two and Friday whatever this volunteer missed on Wednesday. The box stays on screen; feedback comes in three blocks (what you did right, what to fix, my tip) with the why behind the move. Your turn still uses all four."],
   main: ["Your 2nd try", "A whole door from the knock. Today\u2019s moves sit on screen as chips; earlier lessons come from memory and get a light check on the scorecard. Lesson 1 is the opener only: Kevin answers and the door closes. A perfect first try lands here straight away."],
   door: ["Your 2nd try", "Claude plays the person and grades the conversation. Version 72: one mic button and no typing prompt. In claude.ai the page can\u2019t use the mic, so the button opens the keyboard\u2019s own dictation, and on a phone the screen folds up so the voter stays in view above the keyboard. A page opened on its own (a hosted copy, or the backup file in a browser) listens directly, with no keyboard. Ask the campaign: a voter\u2019s question the volunteer can\u2019t answer gets a line from the campaign\u2019s notes, and the campaign logs it."],
   score: ["Feedback, then say it now", "Three blocks: what you did right, what to fix and my tip, with earlier lessons under From memory. Then the volunteer says the tip out loud once, so the lesson ends on a clean rep."],
-  close: ["The lesson\u2019s end", "Lesson N done, with the ring growing to N of 5 (You\u2019re 1/5 warmed up) and, when the door beat the first try, how many new moves the volunteer picked up. Below it, Saturday\u2019s 40 doors fill by the lessons done, so one lesson visibly reaches every door on the list. Then When\u2019s lesson N? with time chips pinned above the button, so spacing becomes the plan Robert\u2019s next text follows, plus links to another door, a retake and a one-minute campaign note. After lesson 5, You\u2019re door-ready."],
+  close: ["The lesson\u2019s end", "Lesson N done, with the ring growing to N of 5 (You\u2019re 1/5 warmed up) and, when the door beat the first try, how many new moves the volunteer picked up. Below it, Saturday\u2019s 40 doors fill by the lessons done, so one lesson visibly reaches every door on the list. Then When\u2019s lesson N? with time chips pinned above the button, so spacing becomes the plan Mia\u2019s next text follows, plus links to another door, a retake and a one-minute campaign note. After lesson 5, You\u2019re door-ready."],
   ready: ["Visible readiness", "Preparation shows up as a badge and a record that carries across shifts."],
   sms2: ["The cooldown text", "One text, sent when the shift ends, opens the cooldown while it\u2019s fresh."],
   debrief: ["Cooldown", "The stars and the four ratings stay for the campaign. New in version 71: one spoken question, Tell me about one door you\u2019ll remember. The coach names the Tough door it points to and adds one like it to the next Warmup. It ends on Sign up for your next shift?"],
@@ -5473,7 +5473,7 @@ function nextPath(k, d5, at) {
   rows.push([left.length ? "" : "on", "\u2605", "Your Warmup", "Sat 8 AM"]);
   if (!left.length) rows.push(["", "", "Your canvass", "Sat 9 AM"]);
   const rv = (j) => (at && at[j] != null ? ` cut-rev" data-at="${at[j]}` : "");
-  const lead = left.length ? "Robert texts you one lesson a day. Each takes 5 minutes." : "Next is your Warmup, two doors and one tip, right before your canvass.";
+  const lead = left.length ? "Mia texts you one lesson a day. Each takes 5 minutes." : "Next is your Warmup, two doors and one tip, right before your canvass.";
   return `<div class="next-path"><p class="np-k">What\u2019s next</p><p class="np-lead">${lead}</p><ol>${rows.map((r, j) => `<li class="${r[0]}${rv(j)}"><span class="np-d">${r[1]}</span><span>${r[2]}</span><small>${r[3]}</small></li>`).join("")}</ol></div><p class="sat-mini">Then <b>40 doors Saturday</b>, each one getting ${gets}.</p>`;
 }
 function satCard(k, cnt, prev, anim) {
@@ -5489,7 +5489,7 @@ function vClose5() {
   closeSeen = key;
   const gain = ""; /* Maya Kaur version: no gain line at the lesson's end (Robert) */
   /* version 71: spacing becomes a plan. "When's lesson N?" with time chips schedules Robert's next text; version 77 pins it above the button */
-  const when = !nx ? "" : `<p class="when-q"><b>When\u2019s lesson ${nx.n}?</b> Spacing them out is how they stick.</p><div class="time-chips" role="group" aria-label="When to send lesson ${nx.n}">${NEXT_TIMES.slice(0, 2).map(([label], j) => `<button data-act="next-at" data-arg="${j}" aria-pressed="${!!pick && pick.label === label}">${label}</button>`).join("")}<select id="next-pick" aria-label="Pick a time"><option value="">Pick a time</option>${NEXT_TIMES.slice(2).map(([label], j) => `<option value="${j + 2}"${pick && pick.label === label ? " selected" : ""}>${label}</option>`).join("")}</select></div>${pick ? `<p class="set-line">Set. Robert will text you ${pick.say}.</p>` : ""}`;
+  const when = !nx ? "" : `<p class="when-q"><b>When\u2019s lesson ${nx.n}?</b> Spacing them out is how they stick.</p><div class="time-chips" role="group" aria-label="When to send lesson ${nx.n}">${NEXT_TIMES.slice(0, 2).map(([label], j) => `<button data-act="next-at" data-arg="${j}" aria-pressed="${!!pick && pick.label === label}">${label}</button>`).join("")}<select id="next-pick" aria-label="Pick a time"><option value="">Pick a time</option>${NEXT_TIMES.slice(2).map(([label], j) => `<option value="${j + 2}"${pick && pick.label === label ? " selected" : ""}>${label}</option>`).join("")}</select></div>${pick ? `<p class="set-line">Set. Mia will text you ${pick.say}.</p>` : ""}`;
   const fits = n % 2 === 1;
   const links = `<div class="wrap-links"><button class="link" data-act="go" data-arg="coach">Another door</button><button class="link" data-act="retake">Retake lesson ${n}</button><button class="link" data-act="note-open" data-arg="${fits ? "fits" : "list"}">${fits ? "Where Saturday fits" : "How your list gets made"}</button></div>`;
   return app(`
@@ -5683,7 +5683,7 @@ function vDirector() {
    Around the lessons: Today (the plan around the shift), the Warmup before every shift, the Cooldown question after it,
    the Practice tab (extra doors with the coach) and the library's three shelves. Other programs keep the version 70 flow. */
 /* version 72: the parts are named the way an organizer would say them (they were Try, Watch, Spot, Your turn, which read as clipped) */
-const PARTS4 = ["Your 1st try", "Listen in", "Catch the mistake", "Your 2nd try"]; /* Maya Kaur version: renamed by Robert, Oct 13 */
+const PARTS4 = ["Your 1st try", "Hear it done", "Catch the mistake", "Your 2nd try"]; /* Maya Kaur version: renamed by Robert, Oct 13 */
 const LESSON_OF = { open: 1, listen: 2, noargue: 3, plan: 4, friends: 5 };
 const DOOR_LESSON = { kevin: 1, priya: 2, gloria: 3, denise: 4, brianna: 5 };
 const DAY5 = ["Mon", "Tue", "Wed", "Thu", "Fri"];
@@ -5875,7 +5875,7 @@ function vTry() {
   const did = c ? `You ${andList(f.did.filter((_, i) => hits[i]))}.` : "You tried it first. That\u2019s the hard part.";
   const watch = all ? "Straight to a real door." : c ? `You\u2019ve got ${c} of 4. Watch for the other ${NUMW[4 - c]}.` : "You tried it first. That\u2019s the hard part. Watch for all four.";
   const card = `<div class="fb try"><p class="you-said">You said: \u201c${esc(R.text)}\u201d</p><h3>${all ? "You already have all four." : "Nice start."}</h3><p class="try-lead">${watch}</p><ul class="try-list">${sk.moves.map((m, i) => hits[i] ? `<li class="got"><span class="ti" aria-hidden="true">\u2705</span><span>${sk.hitNames[i]}</span></li>` : `<li class="watch"><span class="ti" aria-hidden="true">\uD83D\uDC40</span><span>${m}</span></li>`).join("")}</ul></div>`;
-  return app(`${head}${card}`, { tag: "", footer: `${button([all ? "Next: your 2nd try" : "Next: listen in", "try-next"])}${all ? `<button class="link center" data-act="try-full">See the full lesson</button>` : ""}` });
+  return app(`${head}${card}`, { tag: "", footer: `${button([all ? "Next: your 2nd try" : "Next: hear it done", "try-next"])}${all ? `<button class="link center" data-act="try-full">See the full lesson</button>` : ""}` });
 }
 async function tryKnock() {
   if (S.tryKnocked) return;
@@ -6164,7 +6164,7 @@ function vTrainingG(it) {
       ${hero}
       <p class="kicker">Your five \u00b7 lesson ${n} of 5</p>
       <h1 class="h1">${sk.title}</h1>
-      <p class="lede">About 5 minutes. You take a first try, listen in on a good conversation, catch the mistake and then take your second try.${best ? ` Your best take: ${best.filter(Boolean).length} of 4.` : ""}</p>
+      <p class="lede">About 5 minutes. You take a first try, hear it done well, catch the mistake and then take your second try.${best ? ` Your best take: ${best.filter(Boolean).length} of 4.` : ""}</p>
       <p class="deb-q">The four moves</p>
       <ul class="basics-list">${sk.moves.map((m, i) => li(`<b>${m}</b><small class="mv-why">${sk.whyShort[i]}</small>`)).join("")}</ul>
       ${deeper.length ? `<p class="deb-q">Go deeper</p><ul class="lib-list">${deeper.map((x) => `<li><button data-act="lib-open" data-arg="${x.id}">${trAv(x.by)}<span><b>${x.title}</b><small>${TRAINERS[x.by].name}, ${x.min} min</small></span></button></li>`).join("")}</ul>` : ""}
@@ -6992,7 +6992,7 @@ function stopCamera() {
 /* ---------- demo menu, toast ---------- */
 const JUMPS = [
   ["Pick a program", "pick"], ["The SMS", "sms"], ["Welcome video", "video"], ["Today", "path"], ["How Warmup works", "how"],
-  ["Lesson opening", "session"], ["Your 1st try", "try"], ["Listen in", "watch"], ["Catch the mistake", "spot"], ["Your 2nd try", "main"], ["Wrap-up", "close"],
+  ["Lesson opening", "session"], ["Your 1st try", "try"], ["Hear it done", "watch"], ["Catch the mistake", "spot"], ["Your 2nd try", "main"], ["Wrap-up", "close"],
   ["Practice tab", "coach"], ["Warmup", "warm"], ["Cooldown", "sms2"], ["Field director view", "director"], ["Library", "library"], ["Me", "me"],
   ["Campaign note", "note"], ["Ready before the shift", "ready"], ["Old: starting point", "intake"], ["Old: opener check", "placement"], ["Old: practice reps", "practice"],
 ];
