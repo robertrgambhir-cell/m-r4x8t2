@@ -1080,6 +1080,7 @@
   .done-hero .lede { margin: 0 auto; max-width: 340px; font-size: 15px; line-height: 1.45; }
   .gain-line { margin: 4px 0 0; font-size: 14px; line-height: 1.4; font-weight: 700; color: var(--accent-ink); }
   .ring-arc.grow { animation: ringgrow 1s cubic-bezier(.3,.7,.2,1) .25s both; }
+  .ring-arc.grow[data-late] { animation-delay: 3.5s; }
   @keyframes ringgrow { from { stroke-dasharray: var(--d0) var(--c); } }
   .sat-card { margin-top: 10px; padding: 11px 14px 12px; border-radius: 20px; background: var(--card); border: 1.5px solid var(--line); }
   .sat-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
@@ -4206,7 +4207,7 @@ const CHECK = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.
 const mark = () => `<span class="mark" aria-hidden="true">${CHECK}</span>`;
 /* version 37 (Maya Kaur, Robert): the beat, a 2.4 s card at the start of each part. A mini bar with the part lit, an icon for the mode
    (talk, listen, catch), the part's name as the bar names it and one sentence with the verb. Tap to skip. */
-const BEAT = { try: 0, watch: 1, spot: 2, door: 3, score: 4 }; /* version 56 (Robert): fifths; the last fifth fills on the feedback, after step 4 */
+const BEAT = { try: 0, watch: 1, spot: 2, door: 3, close: 4 }; /* version 76 (Robert): the fifth beat plays after the feedback, opening Lesson N done */ /* version 56 (Robert): fifths; the last fifth fills on the feedback, after step 4 */
 const BEAT_ICON = {
   mic: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>`,
   ear: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 3-2 4-3 5.5s-1 2.5-1.5 4A2.5 2.5 0 0 1 9 18"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.2-.8 1.8-1.4 2.6"/></svg>`,
@@ -4219,7 +4220,7 @@ const BEAT_LINE = {
   watch: ["ear", "Listen to {demo}, a trained volunteer."], /* DEMO is declared further down */
   spot: ["catch", "What part is the volunteer missing?"],
   door: ["mic", "Practice your opener with a new voter."],
-  score: ["mic", "Here\u2019s how your 2nd try went."],
+  close: ["mic", "Nice work."],
 };
 function beatHtml(screen) {
   const i = BEAT[screen], ico = BEAT_LINE[screen][0], line = screen === "try" && lessonNo() === 1 ? BEAT_TRY1 : BEAT_LINE[screen][1];
@@ -5833,7 +5834,7 @@ function closeStory(n, cnt, nx, R, after, anim, key) {
   let body, footer;
   if (card === 0) {
     const what = LESSONS5[n - 1].title.replace(/^How to /, "").replace(/^(\w+)/, (v) => ({ introduce: "introducing", get: "getting", leave: "leaving", help: "helping" }[v] || v)); /* version 65 (Robert): "You\u2019ve mastered introducing yourself at the door." */
-    const r = anim ? ringGrow((cnt - 1) / 5, cnt / 5, 132, ringW(132)) : ring(cnt / 5, 132, ringW(132));
+    const r = (anim ? ringGrow((cnt - 1) / 5, cnt / 5, 132, ringW(132)) : ring(cnt / 5, 132, ringW(132))).replace('class="ring-arc grow"', S.beat === "close" ? 'class="ring-arc grow" data-late="1"' : 'class="ring-arc grow"');
     body = `<div class="cs-one"><div class="ring-wrap" style="width:132px;height:132px">${r}<span class="ring-num num" style="font-size:34px">${cnt}/5</span></div><p class="kicker">Lesson ${n} of 5</p><h1 class="h1">${all ? "You\u2019re door-ready." : `Lesson ${n} done.`}</h1><p class="lede">${all ? "All five moves, from memory." : `Good work ${what}.`}</p></div>`;
     footer = button(["How you grew", "done-card", "1"]);
   } else if (card === 1) {
@@ -6773,7 +6774,7 @@ function go(screen, opts = {}) {
   if (screen === "watch") S.lessonAt = 0;
   if (screen === "close" && S.screen !== "close") S.doneCard = 0; /* version 55: Lesson N done starts on its first card */
   /* version 37 (Maya Kaur, Robert): a beat opens each of the four parts; render() draws it once */
-  S.beat = !opts.noPush && S.track === "gotv" && !S.drill && BEAT[screen] != null ? screen : null; /* not on the way back */
+  S.beat = !opts.noPush && S.track === "gotv" && !S.drill && BEAT[screen] != null && (screen !== "close" || S.screen === "score") ? screen : null; /* not on the way back; the close beat only right after the feedback */
   S.screen = screen;
   render();
   const c = $("#content");
