@@ -5700,7 +5700,7 @@ function vClose5() {
   return app(`
     <div class="wrap-bar">${progressBar(99)}</div>
     ${R && !R.pending && d5[n] ? doneScores(n, cnt, R.hits, d5[n], anim) : doneHero(n, cnt, gain, anim)}
-    <div class="next-two">${nx && lessonLocked(nx.n) ? `<p><b>Your next lesson is locked for now.</b></p><p>${LOCK_LINE(nx.n)}</p>` : nx ? `<p><b>Lesson ${nx.n} comes by text tomorrow.</b></p><p>Then <b>40 doors Saturday</b>, each one getting ${DOOR_NEW[skKey()] || "what you just learned"}.</p>` : `<p><b>Next is your Warmup</b>, two doors and one tip, right before your canvass.</p><p>Then <b>40 doors Saturday</b>, each one getting all five moves.</p>`}</div>
+    <div class="next-two">${nx && lessonLocked(nx.n) ? `<p><b>Your next lesson is locked for now.</b></p><p>${LOCK_LINE(nx.n)}</p>` : nx ? `<p><b>Lesson ${nx.n} comes by text tomorrow.</b></p>` : `<p><b>Next is your Warmup</b>, two doors and one tip, right before your canvass.</p>`}</div>
     ${oneOffer(n, d5, R)}
   `, { noBack: true, footer: button(["Done for today", "go", "welcome"]) }); /* Maya Kaur version: no time chips; the path shows what comes next (Robert) */
 }
