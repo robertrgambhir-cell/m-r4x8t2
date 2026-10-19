@@ -4091,10 +4091,10 @@ const BEAT_LINE = {
 };
 function beatHtml(screen) {
   const i = BEAT[screen], ico = BEAT_LINE[screen][0], line = screen === "try" && lessonNo() === 1 ? BEAT_TRY1 : BEAT_LINE[screen][1];
-  /* version 39 (Maya Kaur, Robert): the Warmup ring around the mode icon fills a quarter per part; the new quarter sweeps in */
+  /* version 39 (Maya Kaur, Robert): the Warmup ring fills a quarter per part; the new quarter sweeps in. version 51 (Robert): no mode icon inside it, just the ring */
   const s = 104, w = 9, r = (s - w) / 2, c = 2 * Math.PI * r, from = (c * (1 - i / 4)).toFixed(1), to = (c * (1 - (i + 1) / 4)).toFixed(1);
   const ring = `<svg viewBox="0 0 ${s} ${s}" aria-hidden="true"><circle cx="${s / 2}" cy="${s / 2}" r="${r}" fill="none" stroke="var(--track)" stroke-width="${w}"/><circle class="beat-arc" cx="${s / 2}" cy="${s / 2}" r="${r}" fill="none" stroke="var(--accent)" stroke-width="${w}" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${to}" style="--from:${from};--to:${to}" transform="rotate(-90 ${s / 2} ${s / 2})"/></svg>`;
-  return `<div class="beat" role="status"><div class="beat-ring" aria-hidden="true">${ring}<span class="beat-ico">${BEAT_ICON[ico]}</span></div><b class="beat-name">${PARTS4[i]}</b><p>${line.split("{demo}").join(DEMO)}</p></div>`;
+  return `<div class="beat" role="status"><div class="beat-ring" aria-hidden="true">${ring}</div><b class="beat-name">${PARTS4[i]}</b><p>${line.split("{demo}").join(DEMO)}</p></div>`;
 }
 function beatArm() {
   const b = $("#screen .beat");
