@@ -1260,6 +1260,26 @@
   .next-two p { margin: 0; font-size: 15.5px; line-height: 1.45; color: var(--ink-2); }
   .next-two p + p { margin-top: 6px; }
   .actions .next-two.lock-note { margin: 0; padding: 12px 15px; } .actions .lock-note p { font-size: 14.5px; }
+  /* version 65: Today without a header, a padlock on locked lessons, the 24-hour clock and the why screen */
+  .plan.plan-g { margin-top: 6px; gap: 8px; }
+  .plan.plan-g li > button { padding: 12px 14px; min-height: 60px; }
+  .plan.plan-g b { font-size: 16px; }
+  .plan li.locked .tick { color: var(--ink-3); }
+  .plan li.locked.next .tick { color: var(--on-ink); }
+  .plan li.locked b { color: var(--ink-2); }
+  .lock-timer { text-align: center; padding: 2px 0 0; }
+  .lt-k { margin: 0; font-size: 12.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+  .lt-clock { margin: 2px 0 0; font-family: "Newsreader", Georgia, serif; font-weight: 500; font-size: 40px; line-height: 1.1; letter-spacing: .01em; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .lt-sub { margin: 4px 0 0; font-size: 14.5px; color: var(--ink-2); }
+  .lock-timer .link { margin-top: 6px; font-size: 14.5px; }
+  .why-lock { padding-top: 10px; }
+  .wl-dots { display: flex; align-items: center; margin: 4px 0 24px; }
+  .wl-dot { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13.5px; color: var(--ink-3); background: var(--soft); }
+  .wl-dot.on { background: var(--accent); color: #FFFFFF; }
+  .wl-gap { flex: 1; height: 2px; margin: 0 7px; background: repeating-linear-gradient(90deg, var(--line) 0 4px, transparent 4px 8px); }
+  .why-lock .h1 { margin: 0 0 14px; }
+  .why-lock .lede { margin: 0 0 12px; }
+  @media (max-height: 700px) { .plan.plan-g li > button { min-height: 54px; padding: 9px 14px; } .lt-clock { font-size: 34px; } }
   .next-two b { color: var(--ink); }
   .beat { position: absolute; inset: 0; z-index: 6; background: var(--paper); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 12px; padding: 0 30px; cursor: pointer; animation: beatout 0.4s ease 3s forwards; } /* version 39: holds 3 s */
   .beat-ring { position: relative; width: 104px; height: 104px; display: grid; place-items: center; margin-bottom: 2px; animation: beatin 0.3s ease both; }
@@ -3737,7 +3757,7 @@ function vSoon() {
    Today's button, the library) lands on one locked screen; Lesson 1 done and Today say the next lesson is locked. To unlock: set LOCK_ON to false and republish. */
 const LOCK_ON = true;
 const lessonLocked = (n) => LOCK_ON && S.track === "gotv" && Number(n) >= 2;
-const LOCK_LINE = (n) => `A new lesson unlocks every 48 hours. You\u2019ll get a text as soon as lesson ${n} is ready.`;
+const LOCK_LINE = (n) => `A new lesson unlocks every 24 hours. You\u2019ll get a text as soon as lesson ${n} is ready.`;
 function vLocked() {
   const n = S.lockN || 2;
   return app(`
@@ -5675,7 +5695,8 @@ function vScore() {
   const L = S.last, sk = SKILLS[L.skill], g = S.track === "gotv", drill = g ? S.drill : null, warm = !!drill && drill.kind === "warm";
   const hits = L.moves.filter(Boolean).length;
   const miss = L.moves.findIndex((m) => !m);
-  const [emo, word] = VERDICT[hits === 4 ? "strong" : hits >= 2 ? "ok" : "weak"];
+  const [emo, word0] = VERDICT[hits === 4 ? "strong" : hits >= 2 ? "ok" : "weak"];
+  const word = g && hits === 3 ? "You\u2019re getting there" : word0; /* version 65 (Robert): 3 of 4 on the 2nd try reads You're getting there, not Okay */
   const tip = miss >= 0 ? (L.tip || sk.tips[miss]) : "";
   const rightList = sk.hitNames.filter((_, i) => L.moves[i]);
   const fixList = (sk.missNames || sk.moves.map((m) => "Missed: " + m)).filter((_, i) => !L.moves[i]);
@@ -5783,9 +5804,9 @@ function closeStory(n, cnt, nx, R, after, anim, key) {
   const bars = [0, 1, 2].map((i) => `<button class="cs-seg${i <= card ? " on" : ""}" data-act="done-card" data-arg="${i}" aria-label="Card ${i + 1} of 3"><i></i></button>`).join("");
   let body, footer;
   if (card === 0) {
-    const what = LESSONS5[n - 1].title.replace(/^How to /, "");
+    const what = LESSONS5[n - 1].title.replace(/^How to /, "").replace(/^(\w+)/, (v) => ({ introduce: "introducing", get: "getting", leave: "leaving", help: "helping" }[v] || v)); /* version 65 (Robert): "You\u2019ve mastered introducing yourself at the door." */
     const r = anim ? ringGrow((cnt - 1) / 5, cnt / 5, 132, ringW(132)) : ring(cnt / 5, 132, ringW(132));
-    body = `<div class="cs-one"><div class="ring-wrap" style="width:132px;height:132px">${r}<span class="ring-num num" style="font-size:34px">${cnt}/5</span></div><p class="kicker">Lesson ${n} of 5</p><h1 class="h1">${all ? "You\u2019re door-ready." : `Lesson ${n} done.`}</h1><p class="lede">${all ? "All five moves, from memory." : `You can ${what}.`}</p></div>`;
+    body = `<div class="cs-one"><div class="ring-wrap" style="width:132px;height:132px">${r}<span class="ring-num num" style="font-size:34px">${cnt}/5</span></div><p class="kicker">Lesson ${n} of 5</p><h1 class="h1">${all ? "You\u2019re door-ready." : `Lesson ${n} done.`}</h1><p class="lede">${all ? "All five moves, from memory." : `You\u2019ve mastered ${what}.`}</p></div>`;
     footer = button(["How you grew", "done-card", "1"]);
   } else if (card === 1) {
     const grow = S.dgSeen !== key; S.dgSeen = key;
@@ -5793,7 +5814,7 @@ function closeStory(n, cnt, nx, R, after, anim, key) {
     const sub = g > 0 ? "Your 2nd try said more of a good opener than your 1st." : g === 0 ? (b === 4 ? "That\u2019s the whole opener, twice." : "Same as your 1st try. The tip on your feedback card is the next step.") : "Every door is different. Your best try is the one that counts.";
     const rows = sk.moves.map((m, i) => {
       const was = !!before[i], is = !!after[i], isNew = is && !was;
-      const c1 = was ? DG_CK("", "Said it") : `<span class="dg-ck ghost" role="img" aria-label="Not yet"></span>`;
+      const c1 = was ? DG_CK("", "Said it") : `<span class="dg-eye" role="img" aria-label="Not yet">\ud83d\udc40</span>`; /* version 65 (Robert): the eye marks a missed part in both columns */
       const c2 = is ? DG_CK(isNew ? "new" : "", isNew ? "New: said it" : "Said it") : `<span class="dg-eye" role="img" aria-label="Not yet">\ud83d\udc40</span>`;
       return `<div class="dg-row${isNew ? " new" : ""}${!is ? " miss" : ""}" style="--i:${i}"><span class="dg-t">${esc(m)}${isNew ? `<b class="dg-tag">NEW</b>` : ""}${!is ? `<small>Still to practice</small>` : ""}</span><span class="dg-m">${c1}</span><span class="dg-m dg-2">${c2}</span></div>`;
     }).join("");
@@ -5803,8 +5824,8 @@ function closeStory(n, cnt, nx, R, after, anim, key) {
     const d5 = S.done5 || {};
     const path = LESSONS5.map((L, j) => { const done = !!d5[L.n], isNext = !!nx && L.n === nx.n; return `<div class="dn-pw${isNext ? " on" : ""}"><span class="dn-pt${done ? " done" : isNext ? " next" : ""}">${done ? CHECK : L.n}</span>${CLOSE_NAMES[j]}</div>`; }).join("");
     const locked = !!nx && lessonLocked(nx.n);
-    const h = !nx ? "Next is your Warmup." : locked ? `Lesson ${nx.n} unlocks in 48 hours.` : `Lesson ${nx.n} comes by text tomorrow.`;
-    const lede = !nx ? "Two doors and one tip, right before your canvass." : locked ? "Then a new lesson every 48 hours. You\u2019ll get a text the moment each one is ready." : "One new lesson a day, five minutes each.";
+    const h = !nx ? "Next is your Warmup." : locked ? `Lesson ${nx.n} unlocks in 24 hours.` : `Lesson ${nx.n} comes by text tomorrow.`;
+    const lede = !nx ? "Two doors and one tip, right before your canvass." : locked ? "Then a new lesson every 24 hours. You\u2019ll get a text the moment each one is ready." : "One new lesson a day, five minutes each.";
     const nextCard = nx ? `<div class="dn-next"><p><b>Lesson ${nx.n}: ${nx.title}.</b></p><p>Five lessons, five minutes each, one part of the door at a time.</p></div>` : "";
     const arc = nx ? "Finish all five and you\u2019ll have a strong foundation for great conversations at the door." : "You have all five moves for your canvass.";
     body = `<div class="dn3"><p class="kicker">What\u2019s next</p><h1 class="h1">${h}</h1><p class="lede">${lede}</p><div class="dn-path">${path}</div>${nextCard}<p class="dn-arc">${arc}</p>${oneOffer(n, d5, R)}</div>`;
@@ -6378,7 +6399,53 @@ function setNextAt(j) {
   S.nextAt[nx.n] = { label: NEXT_TIMES[j][0], say: NEXT_TIMES[j][1] };
   render();
 }
+/* version 65 (Robert, Oct 19): get out the vote Today is only the five lessons. Each locked lesson wears a padlock; below them a 24-hour clock counts down to the next
+   lesson, with a link to a short screen on why lessons are spaced. Gone: the Today title, the ring, "N of 5 lessons done", the canvass line, the ring caption and the
+   How Warmup works link, and the old lock note. The clock runs from the last finished lesson (or from the first time Today shows it). Other programs keep their Today. */
+const LOCK_MS = 24 * 3600 * 1000;
+const LOCK_SVG = `<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+function lockEnd() {
+  const ts = Object.values(S.doneAt || {});
+  if (ts.length) return Math.max(...ts) + LOCK_MS;
+  if (!S.lockT0) S.lockT0 = Date.now();
+  return S.lockT0 + LOCK_MS;
+}
+const clockText = (ms) => { const s = Math.floor(Math.max(0, ms) / 1000); return [Math.floor(s / 3600), Math.floor(s / 60) % 60, s % 60].map((x) => String(x).padStart(2, "0")).join(":"); };
+let lockTick = 0;
+function lockTimerArm() {
+  clearInterval(lockTick); lockTick = 0;
+  if (!document.getElementById("lock-timer")) return;
+  const paint = () => { const e = document.getElementById("lock-timer"); if (!e) { clearInterval(lockTick); lockTick = 0; return; } e.textContent = clockText(lockEnd() - Date.now()); };
+  paint(); lockTick = setInterval(paint, 1000);
+}
+function vTodayG() {
+  const d5 = S.done5 || {}, nx = LESSONS5.find((x) => !d5[x.n]), gated = !!nx && lessonGated();
+  const check = `<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const rows = LESSONS5.map((L, j) => {
+    const done = d5[L.n], next = !!nx && L.n === nx.n, lk = !done && lessonLocked(L.n), at = S.nextAt[L.n];
+    const sub = done ? `Done \u00b7 ${done.filter(Boolean).length} of 4 at the door` : lk ? "" : next && gated ? `Opens ${at ? at.say : "in a few hours"}` : `${at ? at.label : DAY5[j]} \u00b7 5 min`;
+    return `<li class="${done ? "done" : next ? "next" : ""}${lk ? " locked" : ""}"><button data-act="lesson5" data-arg="${L.n}"><span class="tick">${done ? check : lk ? LOCK_SVG : L.n}</span><span><b>${L.title}</b>${sub ? `<small>${sub}</small>` : ""}</span>${next ? `<span class="next-tag">Next</span>` : ""}</button></li>`;
+  }).join("");
+  const locked = !!nx && lessonLocked(nx.n);
+  const primary = locked ? null : nx ? [gated ? "Do it now anyway" : `Start lesson ${nx.n}`, "lesson5", String(nx.n)]
+    : !S.warmDone ? ["Start your Warmup", "warm-start"]
+    : ["Practice a door", "go", "coach"];
+  const footer = locked ? `<div class="lock-timer"><p class="lt-k">Lesson ${nx.n} unlocks in</p><p class="lt-clock" id="lock-timer">${clockText(lockEnd() - Date.now())}</p><p class="lt-sub">You\u2019ll get a text the moment it\u2019s ready.</p><button class="link" data-act="go" data-arg="whylock">Why your lesson is locked</button></div>` : "";
+  return app(`<ol class="plan plan-g">${rows}</ol>`, { primary, tabs: "today", footer });
+}
+function vWhyLock() {
+  const dots = [1, 2, 3, 4, 5].map((n) => `<span class="wl-dot${n === 1 ? " on" : ""}">${n === 1 ? `<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>` : n}</span>`).join(`<i class="wl-gap"></i>`);
+  return app(`
+    <div class="why-lock">
+      <div class="wl-dots" aria-hidden="true">${dots}</div>
+      <h1 class="h1">Lessons stick when you space them out.</h1>
+      <p class="lede">Warmup is built on behavioral science. One of its most reliable findings: we remember far more when we learn a little at a time, with a pause in between, than when we cram.</p>
+      <p class="lede">So each lesson takes five minutes, and the next one opens 24 hours later. By your canvass, all five will feel like second nature at the door.</p>
+    </div>
+  `, { back: "welcome", footer: `<button class="btn" data-act="go" data-arg="welcome">Got it</button>` });
+}
 function vToday() {
+  if (S.track === "gotv") return vTodayG();
   const t = T(), d5 = S.done5 || {}, cnt = Object.keys(d5).length, nx = LESSONS5.find((x) => !d5[x.n]);
   const ready = Math.min(5, cnt) + (S.warmDone ? 1 : 0), gated = !!nx && lessonGated();
   const check = `<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -6617,7 +6684,7 @@ function meTrainingG() {
 }
 
 /* ---------- rendering and navigation ---------- */
-const VIEWS = { pick: vPick, sms: vSMS, sms2: vSMS2, video: vVideo, welcome: vWelcome, intake: vIntake, placement: vPlacement, howworks: vHowWorks, talk: vTalk, note: vNote, library: vLibrary, training: vTraining, me: vMe, path: vPath, session: vSession, watch: vWatch, spot: vSpot, why: vWhy, recap: vRecap, practice: vPractice, main: vMain, door: vDoor, score: vScore, close: vClose, ready: vReady, debrief: vDebrief, try: vTry, warm: vWarm, warmtip: vWarmTip, warmready: vWarmReady, coach: vCoach, how: vHow, locked: vLocked };
+const VIEWS = { pick: vPick, sms: vSMS, sms2: vSMS2, video: vVideo, welcome: vWelcome, intake: vIntake, placement: vPlacement, howworks: vHowWorks, talk: vTalk, note: vNote, library: vLibrary, training: vTraining, me: vMe, path: vPath, session: vSession, watch: vWatch, spot: vSpot, why: vWhy, recap: vRecap, practice: vPractice, main: vMain, door: vDoor, score: vScore, close: vClose, ready: vReady, debrief: vDebrief, try: vTry, warm: vWarm, warmtip: vWarmTip, warmready: vWarmReady, coach: vCoach, how: vHow, locked: vLocked, whylock: vWhyLock };
 let lessonRun = 0;
 
 function render() {
@@ -6693,6 +6760,7 @@ function goBack(fallback) {
 function afterRender() {
   realLoop();
   storyArm();
+  lockTimerArm(); /* version 65 */
   if (S.screen === "watch") { if (mariaOn(SK().lesson)) mariaLoop(); playLesson(); }
   if (S.screen === "spot" && S.track === "gotv" && S.spot && !S.spot.played && S.spot.picked == null) playSpot();
   beatArm();
@@ -7403,7 +7471,7 @@ function stopCamera() {
 
 /* ---------- demo menu, toast ---------- */
 const JUMPS = [
-  ["Pick a program", "pick"], ["The SMS", "sms"], ["Welcome video", "video"], ["Today", "path"], ["How Warmup works", "how"],
+  ["Pick a program", "pick"], ["The SMS", "sms"], ["Welcome video", "video"], ["Today", "path"], ["How Warmup works", "how"], ["Why your lesson is locked", "whylock"],
   ["Lesson opening", "session"], ["Your 1st try", "try"], ["Hear it done", "watch"], ["Catch the mistake", "spot"], ["Your 2nd try", "main"], ["Wrap-up", "close"],
   ["Practice tab", "coach"], ["Warmup", "warm"], ["Cooldown", "sms2"], ["Field director view", "director"], ["Library", "library"], ["Me", "me"],
   ["Campaign note", "note"], ["Ready before the shift", "ready"], ["Old: starting point", "intake"], ["Old: opener check", "placement"], ["Old: practice reps", "practice"],
@@ -7468,7 +7536,7 @@ function sampleFill(upTo) {
 }
 function jump(arg) {
   closeMenu();
-  if (S.track !== "gotv" && ["try", "warm", "coach", "how"].includes(arg)) { toast("That screen is built for get out the vote."); return; }
+  if (S.track !== "gotv" && ["try", "warm", "coach", "how", "whylock"].includes(arg)) { toast("That screen is built for get out the vote."); return; }
   if (S.track === "gotv") {
     endDrillState();
     if (["session", "try", "watch", "spot", "main", "door", "close"].includes(arg)) { S.lesson = S.lesson || 1; S.intakeDone = true; if (arg === "try" || arg === "session") { S.tryRes = null; S.tryKnocked = false; S.trySaid = false; } }
