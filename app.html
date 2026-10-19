@@ -5685,6 +5685,7 @@ function scorePreview(L) {
 }
 /* version 63: three blocks (what you did right, what to fix, my tip), every line a result; the retry is a link so the card fits above the button */
 /* version 33 (Maya Kaur, the daily review's pick): the two scores side by side, the product's claim in one line */
+/* version 66 (Robert): the 2nd try feedback no longer shows "1st try N of 4. 2nd try N of 4."; How you grew says it on a later screen. baLine stays, unused. */
 function baLine(after) {
   const R = tryNow();
   if (S.track !== "gotv" || S.drill || !R || R.pending || !after) return "";
@@ -5715,7 +5716,6 @@ function vScore() {
   if (g) return app(`
     ${progressBar(repMoves().length + 2, 1)}
     <div class="sc-top"><div class="ring-wrap" style="width:52px;height:52px">${ring(hits / 4, 52, 7)}<span class="ring-num num" style="font-size:15px">${hits}/4</span></div><h1 class="h1 verdict-h" style="margin:0"><span class="emo" aria-hidden="true">${emo}</span>${word}</h1></div>
-    ${baLine(L.moves)}
     <div class="sc-card"><ul class="sc-list">${sk.moves.map((m, i) => `<li class="${L.moves[i] ? "y" : "n"}">${esc(L.moves[i] ? sk.hitNames[i] : (sk.missNames || [])[i] || m)}</li>`).join("")}</ul>
       ${tip ? `<div class="sc-tip"><b>${sayStep && !said ? "My tip. Say it out loud now." : "My tip"}</b><p>${esc(tip)}</p></div>` : ""}</div>
     ${sayCard}
