@@ -5832,12 +5832,13 @@ function closeStory(n, cnt, nx, R, after, anim, key) {
   const a = before.filter(Boolean).length, b = after.filter(Boolean).length, g = b - a, all = cnt >= 5;
   const bars = [0, 1, 2].map((i) => `<button class="cs-seg${i <= card ? " on" : ""}" data-act="done-card" data-arg="${i}" aria-label="Card ${i + 1} of 3"><i></i></button>`).join("");
   let body, footer;
-  if (card === 0) {
+  if (card === 1) { /* version 77: the ring card is second, after How you grew and the beat */
     const what = LESSONS5[n - 1].title.replace(/^How to /, "").replace(/^(\w+)/, (v) => ({ introduce: "introducing", get: "getting", leave: "leaving", help: "helping" }[v] || v)); /* version 65 (Robert): "You\u2019ve mastered introducing yourself at the door." */
-    const r = (anim ? ringGrow((cnt - 1) / 5, cnt / 5, 132, ringW(132)) : ring(cnt / 5, 132, ringW(132))).replace('class="ring-arc grow"', S.beat === "close" ? 'class="ring-arc grow" data-late="1"' : 'class="ring-arc grow"');
+    const ringNew = S.ringSeen !== key; S.ringSeen = key;
+    const r = (ringNew ? ringGrow((cnt - 1) / 5, cnt / 5, 132, ringW(132)) : ring(cnt / 5, 132, ringW(132))).replace('class="ring-arc grow"', S.beat === "close" ? 'class="ring-arc grow" data-late="1"' : 'class="ring-arc grow"');
     body = `<div class="cs-one"><div class="ring-wrap" style="width:132px;height:132px">${r}<span class="ring-num num" style="font-size:34px">${cnt}/5</span></div><p class="kicker">Lesson ${n} of 5</p><h1 class="h1">${all ? "You\u2019re door-ready." : `Lesson ${n} done.`}</h1><p class="lede">${all ? "All five moves, from memory." : `Good work ${what}.`}</p></div>`;
-    footer = button(["How you grew", "done-card", "1"]);
-  } else if (card === 1) {
+    footer = button(["What\u2019s next", "done-card", "2"]);
+  } else if (card === 0) { /* version 77: How you grew opens Lesson N done */
     const grow = S.dgSeen !== key; S.dgSeen = key;
     const gained = sk.moves.filter((m, i) => after[i] && !before[i]).map((m) => m.replace(/^Say /, "saying ").replace(/^Don\u2019t ask /, "not asking ").replace(/^\w/, (c) => c.toLowerCase()));
     const head = g > 0 ? (b === 4 ? "You hit all four parts." : `Up to ${b} of 4 parts.`) : g === 0 ? (b === 4 ? "You\u2019re a pro!" : b === 0 ? "Still at 0 of 4." : `Held at ${b} of 4.`) : `${b} of 4 this time.`;
@@ -5849,7 +5850,7 @@ function closeStory(n, cnt, nx, R, after, anim, key) {
       return `<div class="dg-row${isNew ? " new" : ""}${!is ? " miss" : ""}" style="--i:${i}"><span class="dg-t">${esc(m)}${isNew ? `<b class="dg-tag">NEW</b>` : ""}${!is ? `<small>Still to practice</small>` : ""}</span><span class="dg-m">${c1}</span><span class="dg-m dg-2">${c2}</span></div>`;
     }).join("");
     body = `<div class="dg-hero"><div><small>1st try</small><b>${a}<em>/4</em></b></div><span class="dg-arrow">${ARROW}</span><div class="on"><small>2nd try</small><b>${b}<em>/4</em></b></div></div><h1 class="h1 dg-h">${head}</h1><p class="dg-sub">${sub}</p><div class="dg${grow ? " grow" : ""}"><div class="dg-hd"><span>The four parts</span><span>1st try</span><span>2nd try</span></div>${rows}</div>`;
-    footer = button(["What\u2019s next", "done-card", "2"]);
+    footer = button(["Continue", "done-card", "1"]);
   } else {
     const d5 = S.done5 || {};
     const path = LESSONS5.map((L, j) => { const done = !!d5[L.n], isNext = !!nx && L.n === nx.n; return `<div class="dn-pw${isNext ? " on" : ""}"><span class="dn-pt${done ? " done" : isNext ? " next" : ""}">${done ? CHECK : L.n}</span>${CLOSE_NAMES[j]}</div>`; }).join("");
@@ -6774,7 +6775,7 @@ function go(screen, opts = {}) {
   if (screen === "watch") S.lessonAt = 0;
   if (screen === "close" && S.screen !== "close") S.doneCard = 0; /* version 55: Lesson N done starts on its first card */
   /* version 37 (Maya Kaur, Robert): a beat opens each of the four parts; render() draws it once */
-  S.beat = !opts.noPush && S.track === "gotv" && !S.drill && BEAT[screen] != null && (screen !== "close" || S.screen === "score") ? screen : null; /* not on the way back; the close beat only right after the feedback */
+  S.beat = !opts.noPush && S.track === "gotv" && !S.drill && BEAT[screen] != null && screen !== "close" ? screen : null; /* not on the way back; the close beat only right after the feedback */
   S.screen = screen;
   render();
   const c = $("#content");
@@ -7661,7 +7662,7 @@ document.addEventListener("click", (e) => {
       break;
     case "lesson-one": S.day = 5; S.lesson = 1; go(strongPath() ? "main" : "session"); break;
     case "lesson5": startLesson5(Number(arg)); break;
-    case "done-card": S.doneCard = Math.max(0, Math.min(2, Number(arg) || 0)); render(); break; /* version 55 */
+    case "done-card": { const was = S.doneCard || 0; S.doneCard = Math.max(0, Math.min(2, Number(arg) || 0)); if (S.track === "gotv" && was === 0 && S.doneCard === 1) S.beat = "close"; render(); break; } /* version 77: the done beat plays on the way to the ring card */ /* version 55 */
     case "day": S.day = Number(arg); go("welcome"); break;
     case "day-note": S.noteFrom = "today"; go("note"); break;
     case "day-rep": S.dayDone[`${S.track}-${S.day}-note`] = true; startOptional(SK().optional[S.day === 3 ? 0 : 1], "today"); break;
