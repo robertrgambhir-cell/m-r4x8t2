@@ -413,6 +413,9 @@
   .sbar-segs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
   .sbar-segs i { height: 6px; border-radius: 3px; background: var(--track); overflow: hidden; }
   .sbar-segs i span { display: block; height: 100%; width: 0; background: var(--accent); border-radius: inherit; transition: width .6s ease; }
+  .sbar.nav .sbar-segs i { overflow: visible; position: relative; cursor: pointer; }
+  .sbar.nav .sbar-segs i::after { content: ""; position: absolute; left: -2px; right: -2px; top: -12px; bottom: -6px; }
+  .sbar.nav .sbar-names span { cursor: pointer; padding: 6px 0; margin: -6px 0; }
   .sbar-segs i.done { background: var(--accent); }
   .sbar-segs i.now { background: var(--accent); opacity: 0.45; }
 .sbar-segs i.split { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; background: transparent; overflow: visible; }
@@ -4724,7 +4727,7 @@ function videoCut() {
   /* Your door: Kevin answers, the volunteer speaks out loud and Kevin talks back with his real scripted reply */
   const door = `<div class="cut-screen cut-door">${barHtml(1, 3, 0.5)}<div class="frame" data-at="${C[3] + 0.05}">${scene("door", "kevin", { crop: true, label: "Kevin at the door of apartment 3B" })}</div><div class="thread"><div class="bub them cut-rev" data-at="${C[3] + 0.2}">${esc(d.first.say)}</div><div class="bub you cut-rev" data-at="${C[3] + 0.45}"><span class="cut-said" aria-hidden="true">${ICON.mic}</span>${said(C[3] + 0.45, 1.25, doorLine)}</div><div class="bub them cut-rev" data-at="${CUT_WARM}">${esc(kev.say)}</div></div>${voice(C[3] + 0.3, C[3] + 0.45, 1.25, CUT_WARM, "Listening. Say it your way.")}</div>`;
   /* the feedback, the scorecard this line really earns */
-  const score = `<div class="cut-screen cut-score" data-at="${C[4] + 0.15}">${barHtml(1, 3, 0.9)}<div class="score-top compact"><div class="ring-wrap" style="width:64px;height:64px">${ring(got / 4, 64, 9)}<span class="ring-num num" style="font-size:18px">${got}/4</span></div><h2 class="h1 verdict-h" style="margin:0"><span class="emo" aria-hidden="true">${VERDICT[level][0]}</span>${VERDICT[level][1]}</h2></div><div class="card3">${fbSections({ rightList: sk.hitNames.filter((_, i) => hits[i]), fixList: sk.missNames.map((m, i) => (i === 1 ? "Didn\u2019t say you live in the neighborhood" : m)).filter((_, i) => !hits[i]) })}${miss >= 0 ? `<div class="fb-sec tip cut-rev" data-at="${C[4] + 2.55}"><b>My tip</b><p>${esc(sk.tips[miss])}</p></div>` : ""}</div></div>`;
+  const score = `<div class="cut-screen cut-score" data-at="${C[4] + 0.15}">${barHtml(1, 3, 0.9)}<div class="score-top compact"><div class="ring-wrap" style="width:64px;height:64px">${ring(got / 4, 64, 9)}<span class="ring-num num" style="font-size:18px">${got}/4</span></div><h2 class="h1 verdict-h" style="margin:0"><span class="emo" aria-hidden="true">${got === 3 ? ["\u{1F4AA}", "You\u2019re getting there"][0] : VERDICT[level][0]}</span>${got === 3 ? ["\u{1F4AA}", "You\u2019re getting there"][1] : VERDICT[level][1]}</h2></div><div class="card3">${fbSections({ rightList: sk.hitNames.filter((_, i) => hits[i]), fixList: sk.missNames.map((m, i) => (i === 1 ? "Didn\u2019t say you live in the neighborhood" : m)).filter((_, i) => !hits[i]) })}${miss >= 0 ? `<div class="fb-sec tip cut-rev" data-at="${C[4] + 2.55}"><b>My tip</b><p>${esc(sk.tips[miss])}</p></div>` : ""}</div></div>`;
   /* Lesson 1 done: the lesson's end as the app draws it, the ring growing to 1/5 and Saturday's 40 doors filling */
   const done = `<div class="cut-screen cut-done"><div class="wrap-bar">${barHtml(1, 4, 0)}</div><div class="cut-hero" data-at="${C[5] + 0.2}">${doneHero(1, 1, "", false)}</div><div class="cut-next">${nextPath("open", { 1: true }, CUT_TODAY)}</div></div>`;
   /* Today, as vToday draws it after lesson 1 (Maya Kaur version): the ring at 1 of 6, lesson 1 done and lessons 2 to 5 sliding in on \u201cover the next few days\u201d */
@@ -5726,8 +5729,7 @@ function vScore() {
   const L = S.last, sk = SKILLS[L.skill], g = S.track === "gotv", drill = g ? S.drill : null, warm = !!drill && drill.kind === "warm";
   const hits = L.moves.filter(Boolean).length;
   const miss = L.moves.findIndex((m) => !m);
-  const [emo, word0] = VERDICT[hits === 4 ? "strong" : hits >= 2 ? "ok" : "weak"];
-  const word = g && hits === 3 ? "You\u2019re getting there" : word0; /* version 65 (Robert): 3 of 4 on the 2nd try reads You're getting there, not Okay */
+  const [emo, word] = hits === 3 ? ["\u{1F4AA}", "You\u2019re getting there"] : VERDICT[hits === 4 ? "strong" : hits >= 2 ? "ok" : "weak"]; /* version 83 (Robert): 3 of 4 is the flexed arm and You're getting there on both tries */
   const tip = miss >= 0 ? (L.tip || sk.tips[miss]) : "";
   const rightList = sk.hitNames.filter((_, i) => L.moves[i]);
   const fixList = (sk.missNames || sk.moves.map((m) => "Missed: " + m)).filter((_, i) => !L.moves[i]);
@@ -6187,6 +6189,8 @@ function partMins(n = lessonNo()) { const skip = skipNow(); return [0.75, skip ?
 const lessonMin = (n) => Math.max(1, Math.round(0.25 + [0.75, 1, 0.5, n === 1 ? 1.5 : 2].reduce((a, b) => a + b, 0) + 0.5));
 function lessonBar(part, fill = 0) { const n = lessonNo(); return lessonBarHtml(n, partMins(n), part, fill, skipNow(), true); }
 /* version 77: the bar's markup on its own, so the video's phone draws lesson 1's bar without reading the volunteer's state (and without the live id) */
+/* version 82 (Robert): every part of the lesson bar is a button, forward as well as back; the names carry the same jump */
+function navNames(html, live) { if (!live) return html; let i = 0; return html.replace(/<span( class="on")?>/g, (m, c) => `<span${c || ""} data-act="part" data-arg="${i++}" role="button">`); }
 function lessonBarHtml(n, m, part, fill, skipped, live, here) {
   const done = part >= 4, f = Math.max(0, Math.min(1, fill || 0));
   const fills = m.map((_, i) => (i < part ? 100 : i === part ? Math.round(f * 100) : 0));
@@ -6195,8 +6199,8 @@ function lessonBarHtml(n, m, part, fill, skipped, live, here) {
   const left = Math.max(1, Math.round(rest));
   const label = done ? `Lesson ${n} complete` : part < 0 ? `Lesson ${n}` : `Lesson ${n}: ${PARTS4[part]}`;
   const right = done ? "Done" : `About ${left} min left`;
-  const segs = m.map((_, i) => `<i${live && i === part ? ' id="sbar-now"' : ""}${i === here ? ' class="now"' : ""}><span style="width:${fills[i]}%"></span></i>`).join("");
-  return `<div class="sbar" aria-label="${label}, ${right}"><div class="sbar-segs" style="grid-template-columns:repeat(4,1fr)">${segs}</div>${barNames(PARTS4, part < 0 && here != null ? here : part).replace('class="sbar-names"', 'class="sbar-names one-line"')}</div>`;
+  const segs = m.map((_, i) => `<i${live && i === part ? ' id="sbar-now"' : ""}${i === here ? ' class="now"' : ""}${live ? ` data-act="part" data-arg="${i}" role="button" aria-label="Go to ${PARTS4[i]}"` : ""}><span style="width:${fills[i]}%"></span></i>`).join("");
+  return `<div class="sbar${live ? " nav" : ""}" aria-label="${label}, ${right}"><div class="sbar-segs" style="grid-template-columns:repeat(4,1fr)">${segs}</div>${navNames(barNames(PARTS4, part < 0 && here != null ? here : part).replace('class="sbar-names"', 'class="sbar-names one-line"'), live)}</div>`;
 }
 const barHtml = (n, part, fill) => lessonBarHtml(n, [0.75, 1, 0.5, n === 1 ? 1.5 : 2], part, fill, false, false);
 function warmBar(part, fill = 0) {
@@ -6782,7 +6786,7 @@ function go(screen, opts = {}) {
   if (screen === "watch") S.lessonAt = 0;
   if (screen === "close" && S.screen !== "close") S.doneCard = 0; /* version 55: Lesson N done starts on its first card */
   /* version 37 (Maya Kaur, Robert): a beat opens each of the four parts; render() draws it once */
-  S.beat = !opts.noPush && S.track === "gotv" && !S.drill && BEAT[screen] != null && screen !== "close" ? screen : null; /* not on the way back; the close beat only right after the feedback */
+  S.beat = !opts.noPush && !opts.noBeat && S.track === "gotv" && !S.drill && BEAT[screen] != null && screen !== "close" ? screen : null; /* not on the way back; the close beat only right after the feedback */
   S.screen = screen;
   render();
   const c = $("#content");
@@ -7623,6 +7627,13 @@ document.addEventListener("click", (e) => {
       break;
     case "pick-track": S.track = arg; S.placement = null; S.placeKnocked = false; S.skipWatch = false; S.basicsI = 0; S.storyI = 0; S.practice = null; S.hist = []; go("sms"); break;
     case "back": goBack(arg); break;
+    case "part": { /* version 82: jump to any part of the lesson, no beat */
+      if (S.track !== "gotv" || S.drill) break;
+      const k = Number(arg), target = ["try", "watch", "spot", "door"][k], cur = S.screen === "main" ? "door" : S.screen;
+      if (!target || cur === target) break;
+      go(target, { noBeat: true });
+      break;
+    }
     case "watch-next": if (S.track === "gotv") go("spot"); else if (SK().spot && S.day === 5 && !S.skipWatch) go("spot"); else startMicro(); break;
     case "spot-next": if (S.spot) { S.spot = { i: 1, picked: null }; render(); } break;
     case "spot-skip": spotStop(); if (S.spot) { S.spot.played = true; S.spot.replay = false; } render(); break;
