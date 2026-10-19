@@ -5634,8 +5634,8 @@ function doorChips() {
 function doorIntro(d, sk) {
   const n = lessonNo(), open = skKey() === "open", R = tryNow(), miss = R && !R.pending && R.hits ? R.hits.map((h) => !h) : [];
   const title = open ? "Greet this voter with all four parts." : "Take this door with all four moves.";
-  const lede = open ? "Knock and practice your greeting live. See if you can get all four in." : "Knock and practice it live. See if you can get all four in.";
-  const rows = sk.moves.map((m, i) => `<li${miss[i] ? ' class="eye"' : ""}><span class="dn">${i + 1}</span><span class="dm">${m}</span>${miss[i] ? `<span class="de" role="img" aria-label="Missed on your 1st try">\ud83d\udc40</span>` : ""}</li>`).join("");
+  const lede = open ? "Knock and practice your greeting live." : "Knock and practice it live."; /* version 64 (Robert): no "See if you can get all four in." and no eyes in the list */
+  const rows = sk.moves.map((m, i) => `<li><span class="dn">${i + 1}</span><span class="dm">${m}</span></li>`).join("");
   const mem = n > 1 ? `<p class="mem-line"><b>From memory:</b> ${LESSONS5.slice(0, n - 1).map((x) => x.title).join(" \u00b7 ")}</p>` : "";
   const rule = !open && sk.headsUp ? `<p class="rule-line"><b>Heads up:</b> ${sk.headsUp}</p>` : "";
   return app(`${progressBar(repMoves().length + 1, 0)}<h2 class="h2 tight">${title}</h2><p class="try-lede">${lede}</p>
