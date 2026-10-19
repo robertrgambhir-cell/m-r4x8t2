@@ -1311,7 +1311,10 @@
      the scene is cropped to the band around the door and scaled to the frame, whatever the phone's height. The caption keeps three lines of room so the frame holds still. */
   .content.stage { display: flex; flex-direction: column; }
   .content.stage > .rep-card.stage { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-  .content.stage > .rep-card.whole { flex: none; margin: auto 0; } /* version 41: before the knock, the house centers in the space under the lede */
+  .content.stage > .rep-card.whole { flex: 1 1 auto; margin: 0; display: flex; flex-direction: column; min-height: 0; } /* version 78: the house fills the space */
+  .content.stage > .rep-card.whole .frame.full { flex: 1 1 auto; position: relative; height: auto; min-height: 170px; margin: 0; overflow: hidden; container-type: size; transition: none; }
+  .content.stage > .rep-card.whole .frame.full::before { content: ""; position: absolute; inset: 0; --hsw: clamp(100cqw, 133cqh, 125cqw); background: linear-gradient(to bottom, var(--hl, #C3CED3) 0 calc(var(--hsw) * 0.0047), transparent calc(var(--hsw) * 0.0047)) 0 100% / 100% calc(var(--hsw) * 0.075) repeat-y, var(--hw, #D7E0E4); }
+  .content.stage > .rep-card.whole .frame.full svg.voter { position: absolute; left: 50%; bottom: 0; top: auto; width: clamp(100cqw, 133cqh, 125cqw); height: auto; margin: 0; transform: translateX(-50%); transition: none; } /* the whole house sits at the bottom; its siding carries on above it */ /* version 41: before the knock, the house centers in the space under the lede */
   .content.stage .frame.stage-frame { position: relative; flex: 1; min-height: 164px; height: auto; margin: 0; }
   .content.stage .frame.stage-frame svg.voter { position: absolute; left: 50%; top: 50%; width: auto; height: calc(100% * 240 / 200); margin: 0; transform: translate(-50%, -56%); }
   .rep-card.stage .rep-quote { margin: 10px 6px 2px; font-size: 17px; }
@@ -6242,7 +6245,7 @@ function vTry() {
   const n = lessonNo(), k = skKey(), f = FLOW[k], sk = SK(), L = sk.lesson, R = tryNow();
   const knock = n === 1, knocked = !knock || !!S.tryKnocked;
   /* version 39 (Maya Kaur, Robert): after the knock the door fills the screen (the stage) and the question sits with the mic */
-  const scenePart = `<div class="rep-card${knocked ? " stage" : " whole"}"><div class="frame small ${knocked ? "stage-frame" : "full"}">${scene("door", f.persona, { main: true, shut: knock && (!knocked || !!S.swing), label: `${L.name} at the door` })}</div>
+  const scenePart = `<div class="rep-card${knocked ? " stage" : " whole"}"><div class="frame small ${knocked ? "stage-frame" : "full"}"${knocked || !HOME[f.persona] ? "" : ` style="--hw:${HOME[f.persona].wall};--hl:${HOME[f.persona].line}"`}>${scene("door", f.persona, { main: true, shut: knock && (!knocked || !!S.swing), label: `${L.name} at the door` })}</div>
       ${knock ? "" : `<p class="rep-who">After your opener</p>`}
       ${knocked ? `<p class="rep-quote${S.swing ? " late" : ""}"><b>${L.name}:</b> \u201c${f.line}\u201d</p>` : ""}</div>`;
   const title = R && !R.pending ? "Your 1st try" : knock ? (knocked ? "The door opens. How would you start?" : "How would you greet this voter?") : "Try it before the lesson. What would you say?";
@@ -6274,6 +6277,8 @@ async function tryKnock() {
   }
   if (S.screen !== "try") return;
   /* version 39 (Maya Kaur, Robert): the next screen is the stage; it draws the door shut and then swings it open while the house zooms in (stageZoom) */
+  const pre = $("#screen .frame.full svg.voter");
+  S.zoomFrom = pre ? (() => { const b = pre.getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2, h: b.height }; })() : null; /* version 78 */
   S.swing = true;
   render();
 }
@@ -6288,6 +6293,8 @@ function stageZoom() {
     const fw = fr.clientWidth, fh = fr.clientHeight, r = svg.getBoundingClientRect(), W1 = r.width, H1 = r.height;
     if (!fw || !W1) return;
     /* from the whole house at the frame's width, its top at the frame's top (how the knock screen drew it), to the stage's crop */
+    const zf = S.zoomFrom; S.zoomFrom = null;
+    if (zf && zf.h) { const dx = zf.x - (r.left + W1 / 2), dy = zf.y - (r.top + H1 / 2), k = zf.h / H1; svg.animate([{ transform: `translate(-50%, -56%) translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${k.toFixed(4)})` }, { transform: "translate(-50%, -56%)" }], { duration: 900, easing: "cubic-bezier(.3,.7,.2,1)" }); return; } /* version 78: from where the house sat on the knock screen */
     const k0 = fw / W1, ty0 = 0.375 * fw - fh / 2 - H1 / 2;
     svg.animate([{ transform: `translate(-50%, ${ty0.toFixed(1)}px) scale(${k0.toFixed(4)})` }, { transform: `translate(-50%, ${(-0.56 * H1).toFixed(1)}px) scale(1)` }], { duration: 900, easing: "cubic-bezier(.3,.7,.2,1)" });
   });
