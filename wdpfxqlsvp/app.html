@@ -1314,7 +1314,7 @@
   .content.stage > .rep-card.whole { flex: 1 1 auto; margin: 0; display: flex; flex-direction: column; min-height: 0; } /* version 78: the house fills the space */
   .content.stage > .rep-card.whole .frame.full { flex: 1 1 auto; position: relative; height: auto; min-height: 170px; margin: 0; overflow: hidden; container-type: size; transition: none; }
   .content.stage > .rep-card.whole .frame.full::before { content: ""; position: absolute; inset: 0; --hsw: clamp(100cqw, 133cqh, 125cqw); background: linear-gradient(to bottom, var(--hl, #C3CED3) 0 calc(var(--hsw) * 0.0047), transparent calc(var(--hsw) * 0.0047)) 0 100% / 100% calc(var(--hsw) * 0.075) repeat-y, var(--hw, #D7E0E4); }
-  .content.stage > .rep-card.whole .frame.full svg.voter { position: absolute; left: 50%; bottom: 0; top: auto; width: clamp(100cqw, 133cqh, 125cqw); height: auto; margin: 0; transform: translateX(-50%); transition: none; } /* the whole house sits at the bottom; its siding carries on above it */ /* version 41: before the knock, the house centers in the space under the lede */
+  .content.stage > .rep-card.whole .frame.full svg.voter { position: absolute; left: 50%; bottom: 0; top: auto; width: clamp(100cqw, 133cqh, 125cqw); height: auto; margin: 0 0 0 calc(clamp(100cqw, 133cqh, 125cqw) / -2); transform: none; transition: none; } /* version 80: centered by margin, so the knock shake (a transform) can't move it */ /* the whole house sits at the bottom; its siding carries on above it */ /* version 41: before the knock, the house centers in the space under the lede */
   .content.stage .frame.stage-frame { position: relative; flex: 1; min-height: 164px; height: auto; margin: 0; }
   .content.stage .frame.stage-frame svg.voter { position: absolute; left: 50%; top: 50%; width: auto; height: calc(100% * 240 / 200); margin: 0; transform: translate(-50%, -56%); }
   .rep-card.stage .rep-quote { margin: 10px 6px 2px; font-size: 17px; }
@@ -1874,10 +1874,10 @@ const SKILLS = {
     headsUp: "Never ask \u201cDo you have a minute?\u201d",
     stretch: 1,
     context: "The volunteer knocks on doors for Maya Kaur, who is running for Woodbridge City Council, a few days before Election Day on Tuesday. Everyone on the list is a supporter. This lesson covers only the opener, the first ten seconds at the door: the volunteer's name, that they are a neighbor volunteering for Maya Kaur and that Election Day is Tuesday, without asking 'Do you have a minute?'",
-    moves: ["Say your name", "Say you\u2019re a neighbor volunteering for Maya Kaur", "Say you\u2019re here because Election Day is Tuesday", "Don\u2019t ask \u201cDo you have a minute?\u201d"],
-    hitNames: ["Said your name", "Said you\u2019re a neighbor volunteering for Maya Kaur", "Said you\u2019re here because Election Day is Tuesday", "Didn\u2019t ask \u201cDo you have a minute?\u201d"],
-    missNames: ["Didn\u2019t say your name", "Didn\u2019t say you\u2019re a neighbor volunteering for Maya Kaur", "Didn\u2019t say why you\u2019re here", "Asked \u201cDo you have a minute?\u201d"],
-    short: ["say your name", "say you\u2019re a neighbor volunteering for Maya Kaur", "say you\u2019re here because Election Day is Tuesday", "don\u2019t ask \u201cDo you have a minute?\u201d"],
+    moves: ["Say your name", "Say you\u2019re volunteering for Maya Kaur", "Remind them Election Day is Tuesday", "Don\u2019t ask \u201cDo you have a minute?\u201d"],
+    hitNames: ["Said your name", "Said you\u2019re volunteering for Maya Kaur", "Reminded them Election Day is Tuesday", "Didn\u2019t ask \u201cDo you have a minute?\u201d"],
+    missNames: ["Didn\u2019t say your name", "Didn\u2019t say you\u2019re volunteering for Maya Kaur", "Didn\u2019t remind them Election Day is Tuesday", "Asked \u201cDo you have a minute?\u201d"],
+    short: ["say your name", "say you\u2019re volunteering for Maya Kaur", "remind them Election Day is Tuesday", "don\u2019t ask \u201cDo you have a minute?\u201d"],
     recap: ["Turns a stranger into a person.", "Neighbors beat mail and robocalls.", "Answers their first question.", "It makes no the easy answer."], /* version 28 (Maya Kaur): Listen in's short why */
     whyShort: [
       "A name turns a stranger at the door into a person.",
@@ -1887,8 +1887,8 @@ const SKILLS = {
     ],
     moveDefs: [
       "Say your name: says their own first name, early.",
-      "Say you're a neighbor volunteering for Maya Kaur: says both that they live nearby (or are a neighbor) and that they are volunteering for Maya Kaur's campaign.",
-      "Say why you\u2019re here: says they are there because Election Day is coming (Election Day, voting, Tuesday).",
+      "Say you're volunteering for Maya Kaur: says they are volunteering for Maya Kaur's campaign (living nearby or being a neighbor is a bonus, not required).",
+      "Remind them Election Day is Tuesday: says Election Day is coming (Election Day, voting, Tuesday).",
       "Don't ask 'Do you have a minute?': never asks for the voter's time or permission to talk, such as 'Do you have a minute?' or 'Is this a bad time?'",
     ],
     why: [
@@ -1899,11 +1899,11 @@ const SKILLS = {
     ],
     tips: [
       "Start with your first name: \u201cHi there, I\u2019m Sam.\u201d",
-      "Say you\u2019re a neighbor with Maya: \u201cI live a few blocks over, and I\u2019m volunteering for Maya Kaur.\u201d",
-      "Say why in one breath: \u201cElection Day is Tuesday, so I\u2019m checking in with neighbors.\u201d",
+      "Say you\u2019re volunteering for Maya Kaur: \u201cI live a few blocks over, and I\u2019m volunteering for Maya Kaur.\u201d",
+      "Remind them in one breath: \u201cElection Day is Tuesday, so I\u2019m checking in with neighbors.\u201d",
       "Skip \u201cDo you have a minute?\u201d and start with your name, that you live nearby and why you\u2019re there.",
     ],
-    praise: ["You said your name.", "You said you\u2019re a neighbor volunteering for Maya Kaur.", "You said why you were there.", "You didn\u2019t ask for a minute."],
+    praise: ["You said your name.", "You said you\u2019re volunteering for Maya Kaur.", "You reminded them Election Day is Tuesday.", "You didn\u2019t ask for a minute."],
     lesson: {
       persona: "walter", scene: "door", name: "Walter", tag: "supporter on the list",
       lines: [
@@ -1919,7 +1919,7 @@ const SKILLS = {
     },
     micro: [
       { prompt: "You knock, and Walter opens the door. What do you say first?", rubric: "Says their name, that they live nearby and are volunteering for Maya Kaur, and why they are there (Election Day is Tuesday), without asking for the voter's time.", model: "Hi there! I\u2019m {name}. I live a few blocks over, and with Election Day on Tuesday, I\u2019m checking in with neighbors.",
-        grade(t) { const h = openHits(t), n = h.filter(Boolean).length; const said = ["your name", "that you\u2019re a neighbor volunteering for Maya Kaur", "why you\u2019re there"], did = said.filter((_, i) => h[i]), left = ["your name", "that you\u2019re a neighbor volunteering for Maya Kaur", "that you\u2019re here because Election Day is Tuesday"].filter((_, i) => !h[i]); const right = did.length ? "You said " + andList(did) + "." : ""; if (!h[3]) return ["weak", { right, fix: "You asked for his time. Skip that and start with your name, that you\u2019re a neighbor volunteering for Maya Kaur and why you\u2019re there." }]; if (n === 4) return ["strong", { right: "You got your name, that you live nearby and why you\u2019re there into one breath.", fix: "" }]; return [n === 3 ? "ok" : "weak", { right, fix: "Add " + andList(left) + "." }]; } },
+        grade(t) { const h = openHits(t), n = h.filter(Boolean).length; const said = ["your name", "that you\u2019re volunteering for Maya Kaur", "that Election Day is Tuesday"], did = said.filter((_, i) => h[i]), left = ["your name", "that you\u2019re volunteering for Maya Kaur", "a reminder that Election Day is Tuesday"].filter((_, i) => !h[i]); const right = did.length ? "You said " + andList(did) + "." : ""; if (!h[3]) return ["weak", { right, fix: "You asked for his time. Skip that and start with your name, that you\u2019re volunteering for Maya Kaur and that Election Day is Tuesday." }]; if (n === 4) return ["strong", { right: "You got your name, that you live nearby and why you\u2019re there into one breath.", fix: "" }]; return [n === 3 ? "ok" : "weak", { right, fix: "Add " + andList(left) + "." }]; } },
       { prompt: "Walter says, \u201cCan I help you?\u201d Now say your name and that you live nearby.", rubric: "Says their first name and that they live nearby or are a neighbor.", model: "Hi! I\u2019m {name}, and I live a few blocks over. I\u2019m volunteering for Maya Kaur.",
         grade(t) { const name = saysName(t), local = has(t, LOCALW); if (name && local) return ["strong", { right: "Saying your name and that you\u2019re a neighbor makes you someone he can trust.", fix: "" }]; if (local) return ["ok", { right: "You said you live nearby.", fix: "Lead with your name." }]; if (name) return ["ok", { right: "You said your name.", fix: "Add that you live nearby." }]; return ["weak", { right: "", fix: "Say your name, then that you live nearby." }]; } },
       { prompt: "Walter says, \u201cOkay. What\u2019s this about?\u201d Now say why you\u2019re here, in one breath.", rubric: "Says they are there about the upcoming election, briefly, without asking for his time.", model: "Election Day is Tuesday, so I\u2019m checking in with neighbors who support Maya Kaur.",
@@ -5843,7 +5843,7 @@ function closeStory(n, cnt, nx, R, after, anim, key) {
     footer = button(["What\u2019s next", "done-card", "2"]);
   } else if (card === 0) { /* version 77: How you grew opens Lesson N done */
     const grow = S.dgSeen !== key; S.dgSeen = key;
-    const gained = sk.moves.filter((m, i) => after[i] && !before[i]).map((m) => m.replace(/^Say /, "saying ").replace(/^Don\u2019t ask /, "not asking ").replace(/^\w/, (c) => c.toLowerCase()));
+    const gained = sk.moves.filter((m, i) => after[i] && !before[i]).map((m) => m.replace(/^Say /, "saying ").replace(/^Remind /, "reminding ").replace(/^Don\u2019t ask /, "not asking ").replace(/^\w/, (c) => c.toLowerCase()));
     const head = g > 0 ? (b === 4 ? "You hit all four parts." : `Up to ${b} of 4 parts.`) : g === 0 ? (b === 4 ? "You\u2019re a pro!" : b === 0 ? "Still at 0 of 4." : `Held at ${b} of 4.`) : `${b} of 4 this time.`;
     const sub = g > 0 ? (b === 4 ? `Up from ${a} on your 1st try.` : g === 1 ? `New this time: ${gained[0]}.` : `New this time: ${LEFTW[g]} parts, marked below.`) : g === 0 ? (b === 4 ? "You hit all the important parts of a good opener on both tries." : b === 0 ? "You can repeat the lesson to master all parts." : "This is a good start. You can repeat the lesson to master all parts.") : "Every door is different. We\u2019ll log your best try.";
     const rows = sk.moves.map((m, i) => {
@@ -6287,8 +6287,8 @@ function stageZoom() {
   if (!svg || !fr) return;
   const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   void svg.offsetWidth;
-  requestAnimationFrame(() => {
-    svg.classList.remove("shut");
+  requestAnimationFrame(() => svg.classList.remove("shut")); /* version 80: the door swings next frame; the zoom starts now */
+  {
     if (reduce || !svg.animate) return;
     const fw = fr.clientWidth, fh = fr.clientHeight, r = svg.getBoundingClientRect(), W1 = r.width, H1 = r.height;
     if (!fw || !W1) return;
@@ -6297,7 +6297,7 @@ function stageZoom() {
     if (zf && zf.h) { const dx = zf.x - (r.left + W1 / 2), dy = zf.y - (r.top + H1 / 2), k = zf.h / H1; svg.animate([{ transform: `translate(-50%, -56%) translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${k.toFixed(4)})` }, { transform: "translate(-50%, -56%)" }], { duration: 900, easing: "cubic-bezier(.3,.7,.2,1)" }); return; } /* version 78: from where the house sat on the knock screen */
     const k0 = fw / W1, ty0 = 0.375 * fw - fh / 2 - H1 / 2;
     svg.animate([{ transform: `translate(-50%, ${ty0.toFixed(1)}px) scale(${k0.toFixed(4)})` }, { transform: `translate(-50%, ${(-0.56 * H1).toFixed(1)}px) scale(1)` }], { duration: 900, easing: "cubic-bezier(.3,.7,.2,1)" });
-  });
+  }
 }
 async function aiGradeTry(text) {
   const sk = SK(), f = FLOW[skKey()];
