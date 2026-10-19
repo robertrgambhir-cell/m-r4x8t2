@@ -5812,7 +5812,7 @@ function oneOffer(n, d5, R) {
   const b = d5[n] ? d5[n].filter(Boolean).length : 0, a = R && !R.pending && R.hits ? R.hits.filter(Boolean).length : null;
   const again = b < 4 && (a == null || b <= a);
   if (!again && soonNow("coach")) return "";
-  return `<div class="wrap-links one">${again ? `<button class="link" data-act="door-again">Try this door again</button>` : `<button class="link" data-act="go" data-arg="coach">Another door</button>`}</div>`;
+  return `<div class="wrap-links one">${again ? `<button class="link" data-act="door-again">Try the last door again</button>` : `<button class="link" data-act="go" data-arg="coach">Another door</button>`}</div>`;
 }
 /* version 55 (Maya Kaur, Robert, Oct 19): Lesson N done is three cards behind a stepper, like the welcome video. 1: you finished (the ring at N/5).
    2: how you grew (the four parts, your 1st try beside your 2nd, the new part lit). 3: what's next (the 48-hour lock, the five lessons, what
@@ -5845,10 +5845,10 @@ function closeStory(n, cnt, nx, R, after, anim, key) {
     const d5 = S.done5 || {};
     const path = LESSONS5.map((L, j) => { const done = !!d5[L.n], isNext = !!nx && L.n === nx.n; return `<div class="dn-pw${isNext ? " on" : ""}"><span class="dn-pt${done ? " done" : isNext ? " next" : ""}">${done ? CHECK : L.n}</span>${CLOSE_NAMES[j]}</div>`; }).join("");
     const locked = !!nx && lessonLocked(nx.n);
-    const h = !nx ? "Next is your Warmup." : locked ? `Lesson ${nx.n} unlocks in 24 hours.` : `Lesson ${nx.n} comes by text tomorrow.`;
-    const lede = !nx ? "Two doors and one tip, right before your canvass." : locked ? "Then a new lesson every 24 hours. You\u2019ll get a text the moment each one is ready." : "One new lesson a day, five minutes each.";
-    const nextCard = nx ? `<div class="dn-next"><p><b>Lesson ${nx.n}: ${nx.title}.</b></p><p>Five lessons, five minutes each, one part of the door at a time.</p></div>` : "";
-    const arc = nx ? "Finish all five and you\u2019ll have a strong foundation for great conversations at the door." : "You have all five moves for your canvass.";
+    const h = !nx ? "Next is your Warmup." : locked ? `Lesson ${nx.n} unlocks tomorrow.` : `Lesson ${nx.n} comes by text tomorrow.`;
+    const lede = !nx ? "Two doors and one tip, right before your canvass." : locked ? "There will be a new 5 minute lesson every 24 hours. You\u2019ll get a text the moment each one is ready." : "One new lesson a day, five minutes each.";
+    const nextCard = nx ? `<div class="dn-next"><p><b>Lesson ${nx.n}: ${nx.title}.</b></p></div>` : "";
+    const arc = nx ? "Finish all five lessons and you\u2019ll have a strong foundation for great conversations at the door." : "You have all five moves for your canvass.";
     body = `<div class="dn3"><p class="kicker">What\u2019s next</p><h1 class="h1">${h}</h1><p class="lede">${lede}</p><div class="dn-path">${path}</div>${nextCard}<p class="dn-arc">${arc}</p>${oneOffer(n, d5, R)}</div>`;
     footer = button(["Done for today", "go", "welcome"]);
   }
