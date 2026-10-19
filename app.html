@@ -912,6 +912,7 @@
   .fb.try .four-list li small { display: block; font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-ink); margin-bottom: 1px; }
   .fb.try .four-list li.n small { color: var(--ink-3); }
   .fb.try .try-lead.had { margin: 0; }
+  @media (max-height: 820px) { .fb.try { padding: 13px 15px; } .fb.try .four-list { gap: 7px; margin: 0 0 10px; } .fb.try .four-list li { font-size: 15.5px; } .fb.try .you-said { margin: 0 0 6px; } .fb.try .try-lead.had { font-size: 15px; } } /* version 50 */
   .fb.try.cascade h3 { animation: rise 0.4s ease 0.5s both; } /* version 42 (Robert): half the speed */
   .fb.try.cascade .four-list li { animation: rise 0.4s ease calc(1.1s + var(--i) * 0.7s) both; }
   .fb.try.cascade .four-list li.y::before { animation: pop 0.4s ease calc(1.4s + var(--i) * 0.7s) both; }
@@ -6063,7 +6064,8 @@ function vTry() {
      Not yet in the scorecard's marks, then the summary. The rows cascade in on the first render (tap the card to skip). */
   const anim = !!R.at && Date.now() - R.at < 5000;
   const rows = sk.moves.map((m, i) => `<li class="${hits[i] ? "y" : "n"}" style="--i:${i}"><small>${hits[i] ? "You did" : "Not yet"}</small>${esc(m)}</li>`).join("");
-  const sum = all ? "Straight to a real door." : c ? `You already had ${NUMW[c]}. Hear it done shows the other ${NUMW[4 - c]}.` : "You tried it first. That\u2019s the hard part. Hear it done shows all four.";
+  /* version 50 (Maya Kaur, Robert): the summary by score */
+  const sum = all ? "Amazing job! Let\u2019s practice one more time." : (c >= 2 ? "That\u2019s a good start." : "Nice try.") + " Now listen to an interaction that hits all four parts of a good opener.";
   const card = `<div class="fb try${anim ? " cascade" : ""}"><p class="you-said">You said: \u201c${esc(R.text)}\u201d</p><h3>${all ? "You already have all four." : "A good opener does four things."}</h3><ul class="sc-list four-list">${rows}</ul><p class="try-lead had">${sum}</p></div>`;
   return app(`${head}${card}`, { tag: "", footer: `${button([all ? "Next: your 2nd try" : "Next: hear it done", "try-next"]).replace('class="btn ', anim ? 'class="btn late ' : 'class="btn ')}${all ? `<button class="link center" data-act="try-full">See the full lesson</button>` : ""}` });
 }
