@@ -6048,14 +6048,14 @@ function vTry() {
   const scenePart = `<div class="rep-card${knocked ? " stage" : " whole"}"><div class="frame small ${knocked ? "stage-frame" : "full"}">${scene("door", f.persona, { main: true, shut: knock && (!knocked || !!S.swing), label: `${L.name} at the door` })}</div>
       ${knock ? "" : `<p class="rep-who">After your opener</p>`}
       ${knocked ? `<p class="rep-quote${S.swing ? " late" : ""}"><b>${L.name}:</b> \u201c${f.line}\u201d</p>` : ""}</div>`;
-  const title = R && !R.pending ? "Your 1st try" : knock ? (knocked ? "The door opens. How would you start?" : "How would you open the door?") : "Try it before the lesson. What would you say?";
+  const title = R && !R.pending ? "Your 1st try" : knock ? (knocked ? "The door opens. How would you start?" : "How would you greet this voter?") : "Try it before the lesson. What would you say?";
   const head = `${lessonBar(0, R && !R.pending ? 1 : knocked ? 0.4 : 0.1)}<h2 class="h2 tight">${title}</h2>`;
   if (R && R.pending) return app(`${head}${scenePart}${pendingCard("Reading your answer\u2026")}`, { tag: "", stage: knocked });
   if (!R) {
     const footer = knocked
       ? `<p class="say-note say-ask">${knock ? "What do you say first?" : "What do you say next?"}<small>There\u2019s no wrong answer.</small></p>${composer("try-check", "", "Check my try")}`
       : `<button class="btn" data-act="try-knock">Knock</button>`;
-    const lede = knocked ? "" : `<p class="try-lede">Knock, and say what you\u2019d say first, out loud.</p>`; /* version 41 (Robert): fewer words; the beat said the rest */
+    const lede = knocked ? "" : `<p class="try-lede">Knock and try out your opening greeting.</p>`; /* version 41 (Robert): fewer words; the beat said the rest */
     return app(`${head}${lede}${scenePart}`, { tag: "", footer, stage: true });
   }
   const hits = R.hits, c = hits.filter(Boolean).length, all = c === 4;
