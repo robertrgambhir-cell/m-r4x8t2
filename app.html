@@ -1389,6 +1389,13 @@
   .fund-h { font-family: var(--head-font); font-weight: var(--head-weight); font-size: 22px; line-height: 1.1; letter-spacing: -0.01em; margin: 0 0 6px; }
   .fund-sub { margin: 0; color: var(--ink-3); font-size: 14.5px; line-height: 1.35; }
   @media (max-height: 840px) { .fund-sub { font-size: 13.5px; } .fund-h { font-size: 20px; } .plan.plan-g { gap: 6px; margin-top: 2px; } .plan.plan-g li > button { min-height: 48px; padding: 6px 14px; } .plan.plan-g b { font-size: 15px; } .lt-clock { font-size: 30px; } .lt-sub { margin-top: 2px; font-size: 13.5px; } .lock-timer .link { margin-top: 2px; } }
+  .content.stage > .dn3 { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-bottom: 8px; }
+  .dn3 .lede { font-size: 16px; line-height: 1.4; }
+  .dn3 .dn-path { margin: 26px 2px 8px; }
+  .dn3 .dn-next { margin-top: 22px; }
+  .dn3 .dn-arc { margin-top: 18px; }
+  .dn3 .wrap-links { margin-top: 10px; }
+  @media (max-height: 700px) { .dn3 .dn-path { margin: 16px 2px 4px; } .dn3 .dn-next { margin-top: 14px; } .dn3 .dn-arc { margin-top: 12px; } }
 </style>
 </head>
 <body>
@@ -5811,8 +5818,8 @@ let closeSeen = "";
 function oneOffer(n, d5, R) {
   const b = d5[n] ? d5[n].filter(Boolean).length : 0, a = R && !R.pending && R.hits ? R.hits.filter(Boolean).length : null;
   const again = b < 4 && (a == null || b <= a);
-  if (!again && soonNow("coach")) return "";
-  return `<div class="wrap-links one">${again ? `<button class="link" data-act="door-again">Try the last door again</button>` : `<button class="link" data-act="go" data-arg="coach">Another door</button>`}</div>`;
+  const retry = again || soonNow("coach");
+  return `<div class="wrap-links one">${retry ? `<button class="link" data-act="door-again">Try the last door again</button>` : `<button class="link" data-act="go" data-arg="coach">Another door</button>`}</div>`;
 }
 /* version 55 (Maya Kaur, Robert, Oct 19): Lesson N done is three cards behind a stepper, like the welcome video. 1: you finished (the ring at N/5).
    2: how you grew (the four parts, your 1st try beside your 2nd, the new part lit). 3: what's next (the 48-hour lock, the five lessons, what
@@ -5846,7 +5853,7 @@ function closeStory(n, cnt, nx, R, after, anim, key) {
     const path = LESSONS5.map((L, j) => { const done = !!d5[L.n], isNext = !!nx && L.n === nx.n; return `<div class="dn-pw${isNext ? " on" : ""}"><span class="dn-pt${done ? " done" : isNext ? " next" : ""}">${done ? CHECK : L.n}</span>${CLOSE_NAMES[j]}</div>`; }).join("");
     const locked = !!nx && lessonLocked(nx.n);
     const h = !nx ? "Next is your Warmup." : locked ? `Lesson ${nx.n} unlocks tomorrow.` : `Lesson ${nx.n} comes by text tomorrow.`;
-    const lede = !nx ? "Two doors and one tip, right before your canvass." : locked ? "There will be a new 5 minute lesson every 24 hours. You\u2019ll get a text the moment each one is ready." : "One new lesson a day, five minutes each.";
+    const lede = !nx ? "Two doors and one tip, right before your canvass." : locked ? "There\u2019ll be a new 5 minute lesson every 24 hours. You\u2019ll get a text when it\u2019s ready." : "One new lesson a day, five minutes each.";
     const nextCard = nx ? `<div class="dn-next"><p><b>Lesson ${nx.n}: ${nx.title}.</b></p></div>` : "";
     const arc = nx ? "Finish all five lessons and you\u2019ll have a strong foundation for great conversations at the door." : "You have all five moves for your canvass.";
     body = `<div class="dn3"><p class="kicker">What\u2019s next</p><h1 class="h1">${h}</h1><p class="lede">${lede}</p><div class="dn-path">${path}</div>${nextCard}<p class="dn-arc">${arc}</p>${oneOffer(n, d5, R)}</div>`;
@@ -6446,7 +6453,7 @@ function vTodayG() {
   const check = `<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const rows = LESSONS5.map((L, j) => {
     const done = d5[L.n], next = !!nx && L.n === nx.n, lk = !done && lessonLocked(L.n), at = S.nextAt[L.n];
-    const sub = done ? `Done \u00b7 ${done.filter(Boolean).length} of 4 at the door` : lk ? "" : next && gated ? `Opens ${at ? at.say : "in a few hours"}` : `${at ? at.label : DAY5[j]} \u00b7 5 min`;
+    const sub = done ? `Done \u00b7 Score ${done.filter(Boolean).length}/4` : lk ? "" : next && gated ? `Opens ${at ? at.say : "in a few hours"}` : `${at ? at.label : DAY5[j]} \u00b7 5 min`;
     return `<li class="${done ? "done" : next ? "next" : ""}${lk ? " locked" : ""}"><button data-act="lesson5" data-arg="${L.n}"><span class="tick">${done ? check : lk ? LOCK_SVG : L.n}</span><span><b>${L.title}</b>${sub ? `<small>${sub}</small>` : ""}</span>${next ? `<span class="next-tag">Next</span>` : ""}</button></li>`;
   }).join("");
   const locked = !!nx && lessonLocked(nx.n);
@@ -6455,7 +6462,7 @@ function vTodayG() {
     : ["Practice a door", "go", "coach"];
   const footer = locked ? `<div class="lock-timer"><p class="lt-k">Lesson ${nx.n} unlocks in</p><p class="lt-clock" id="lock-timer">${clockText(lockEnd() - Date.now())}</p><p class="lt-sub">You\u2019ll get a text the moment it\u2019s ready.</p><button class="link" data-act="go" data-arg="whylock">Why your lesson is locked</button></div>` : "";
   const nDone = LESSONS5.filter((x) => d5[x.n]).length;
-  const head = `<div class="fund-head"><h1 class="fund-h">Your five canvassing fundamentals</h1><p class="fund-sub">${nDone === 0 ? "Five short lessons, one a day, to get you door-ready." : nDone === 5 ? "All five done. You have the fundamentals." : `${nDone} of 5 down. One a day gets you door-ready.`}</p></div>`;
+  const head = `<div class="fund-head"><h1 class="fund-h">Your five canvassing fundamentals</h1><p class="fund-sub">${nDone === 0 ? "Five short lessons, one a day, to get you door-ready." : nDone === 5 ? "All five done. You have the fundamentals." : `${nDone} of 5 down. One lesson a day gets you door-ready.`}</p></div>`;
   return app(`${head}<ol class="plan plan-g">${rows}</ol>`, { primary, tabs: "today", footer });
 }
 function vWhyLock() {
