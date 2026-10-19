@@ -6283,14 +6283,14 @@ function spotData() {
 }
 function vSpotG() {
   /* version 37 (Maya Kaur, Robert): hear it, then catch it. The door plays first (a beat, then one caption at a time with the voter's mouth
-     moving), and only then do the four tiles appear under "Which move was missing?". Nothing to read ahead. After the pick, one answer card
+     moving), and only then do the four tiles appear under "Which part was missing?". Nothing to read ahead. After the pick, one answer card
      (version 14) and one button to the 2nd try (version 15). */
   const sk = SK(), L = sk.lesson, sp = S.spot || { item: 0, picked: null, said: null, played: false }, it = spotData();
   const picked = sp.picked, done = picked != null, right = picked === it.miss, played = !!sp.played;
   const anim = done && sp.at && Date.now() - sp.at < 1500;
   const frame = done ? "" : `<div class="frame stage-frame spot-stage">${scene(L.scene, L.persona, { main: true, sign: L.sign })}</div>`; /* version 39: the stage */
   const cap = done || played ? "" : `<div class="wcap" id="cap" aria-live="polite"><span class="cap-who">Another day</span><p>One of the four moves is missing. Listen for it.</p></div>`;
-  const tiles = `<p class="spot-ask">Which move was missing?</p><ol class="spot-tiles" aria-label="The four moves">${sk.moves.map((m, i) => `<li><button class="tile" data-act="spot-pick" data-arg="${i}" aria-pressed="false"><span class="tile-t">${m}</span></button></li>`).join("")}</ol><button class="link center" data-act="spot-replay">Hear it again</button>`;
+  const tiles = `<p class="spot-ask">Which part was missing?</p><ol class="spot-tiles" aria-label="The four moves">${sk.moves.map((m, i) => `<li><button class="tile" data-act="spot-pick" data-arg="${i}" aria-pressed="false"><span class="tile-t">${m}</span></button></li>`).join("")}</ol><button class="link center" data-act="spot-replay">Hear it again</button>`;
   /* version 33 (Maya Kaur): the miss is Monica's, in the third person (lesson 1's names say "your" and "you're") */
   const herMiss = (x) => x.replace("your name", "her name").split("you\u2019re").join("she\u2019s");
   const youDid = (x) => { const m = herMiss(x); return `${DEMO} ${m.charAt(0).toLowerCase()}${m.slice(1)}${/[.?!\u201d]$/.test(m) ? "" : "."}`; };
