@@ -5811,7 +5811,7 @@ function closeStory(n, cnt, nx, R, after, anim, key) {
   } else if (card === 1) {
     const grow = S.dgSeen !== key; S.dgSeen = key;
     const head = g > 0 ? `You picked up ${g === 1 ? "a new part" : LEFTW[g] + " new parts"}.` : g === 0 ? (b === 4 ? "All four, both tries." : `Held at ${b} of 4.`) : `${b} of 4 this time.`;
-    const sub = g > 0 ? "Your 2nd try said more of a good opener than your 1st." : g === 0 ? (b === 4 ? "That\u2019s the whole opener, twice." : "Same as your 1st try. The tip on your feedback card is the next step.") : "Every door is different. Your best try is the one that counts.";
+    const sub = g > 0 ? "You improved your opener on your 2nd try." : g === 0 ? (b === 4 ? "That\u2019s the whole opener, twice." : "Same as your 1st try. The tip on your feedback card is the next step.") : "Every door is different. Your best try is the one that counts.";
     const rows = sk.moves.map((m, i) => {
       const was = !!before[i], is = !!after[i], isNew = is && !was;
       const c1 = was ? DG_CK("", "Said it") : `<span class="dg-eye" role="img" aria-label="Not yet">\ud83d\udc40</span>`; /* version 65 (Robert): the eye marks a missed part in both columns */
