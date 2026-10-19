@@ -1170,6 +1170,18 @@
   @media (max-height: 580px) { .content .frame.open-door { height: 178px; } .content .frame.open-door svg.voter { margin-top: -48px; } }
   /* version 27 (Maya Kaur): the 1st try before the knock: the instruction under the title, then the whole house; it closes in on the door when you knock */
   .try-lede { margin: 0 2px 14px; font-size: 15.5px; line-height: 1.45; color: var(--ink-2); }
+  .door-four { flex: none; margin: 12px 0 0; padding: 12px 14px 13px; border-radius: 18px; background: var(--soft); } /* version 54 */
+  .door-four .df-h { margin: 0 0 9px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-ink); }
+  .door-four ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .door-four li { display: grid; grid-template-columns: 22px 1fr auto; align-items: center; gap: 10px; font-size: 15px; line-height: 1.3; font-weight: 600; color: var(--ink); }
+  .door-four .dn { width: 22px; height: 22px; border-radius: 50%; background: var(--card); color: var(--ink-2); font-size: 12px; font-weight: 700; display: grid; place-items: center; }
+  .door-four .de { font-size: 17px; line-height: 1; }
+  .content.stage > .frame.door-stage { border-radius: 22px; min-height: 150px; }
+  .content.stage > .mem-line, .content.stage > .rule-line { flex: none; margin-top: 10px; }
+  @media (max-height: 700px) { .content.stage > .frame.door-stage { min-height: 136px; } .content.stage > .door-four { margin-top: 10px; padding: 10px 14px 11px; } .door-four ol { gap: 6px; } .door-four .df-h { margin-bottom: 7px; } .content.stage > .try-lede { margin-bottom: 10px; } }
+  /* version 54 (Robert): the eye is back on the 1st try's result for each part not yet said (the 2nd try's feedback keeps the dash) */
+  .fb.try .four-list li.n::before { content: "\1F440"; border: 0; background: none; font-size: 16px; line-height: 18px; text-align: center; }
+  .fb.try .four-list li.n::after { display: none; }
   .frame.full { flex: none; transition: height .9s cubic-bezier(.3,.7,.2,1); }
   .frame.full svg.voter { transition: margin-top .9s cubic-bezier(.3,.7,.2,1); }
   @media (max-height: 640px) { .content .frame.full { height: 190px; } .content .frame.full svg.voter { margin-top: -34px; } }
@@ -5559,8 +5571,24 @@ function doorChips() {
   const mem = n > 1 ? `<p class="mem-line"><b>From memory:</b> ${LESSONS5.slice(0, n - 1).map((x) => x.title).join(" \u00b7 ")}</p>` : "";
   return `<div class="move-chips big door-chips" aria-label="The moves">${chips.map((m, i) => `<span>${i + 1}. ${m}</span>`).join("")}</div>${mem}`;
 }
+/* version 54 (Maya Kaur, Robert): the 2nd try's door before the knock mirrors the 1st try's knock screen. A title and lede say what happens
+   next, the door fills the spare height, and one card lists the four parts numbered 1 to 4 as a reminder (lesson 1's Heads up is row 4).
+   The parts missed on the 1st try get the eye. On the knock, knock() re-renders into the door conversation as before. */
+function doorIntro(d, sk) {
+  const n = lessonNo(), open = skKey() === "open", R = tryNow(), miss = R && !R.pending && R.hits ? R.hits.map((h) => !h) : [];
+  const title = open ? "Greet this voter with all four parts." : "Take this door with all four moves.";
+  const lede = open ? "Knock and practice your greeting live. See if you can get all four in." : "Knock and practice it live. See if you can get all four in.";
+  const rows = sk.moves.map((m, i) => `<li${miss[i] ? ' class="eye"' : ""}><span class="dn">${i + 1}</span><span class="dm">${m}</span>${miss[i] ? `<span class="de" role="img" aria-label="Missed on your 1st try">\ud83d\udc40</span>` : ""}</li>`).join("");
+  const mem = n > 1 ? `<p class="mem-line"><b>From memory:</b> ${LESSONS5.slice(0, n - 1).map((x) => x.title).join(" \u00b7 ")}</p>` : "";
+  const rule = !open && sk.headsUp ? `<p class="rule-line"><b>Heads up:</b> ${sk.headsUp}</p>` : "";
+  return app(`${progressBar(repMoves().length + 1, 0)}<h2 class="h2 tight">${title}</h2><p class="try-lede">${lede}</p>
+    <div class="frame small stage-frame door-stage">${scene(d.scene, d.persona, { main: true, shut: d.scene === "door", label: `${d.name}, ${d.sub}` })}</div>
+    <div class="door-four"><p class="df-h">${open ? "The four parts of a good opener" : "The four moves"}</p><ol>${rows}</ol></div>${mem}${rule}
+  `, { tag: "", back: "path", stage: true, footer: `<button class="btn" data-act="knock">${d.scene === "door" ? "Knock" : "Start"}</button>` });
+}
 function vDoor() {
   const d = DOORS[SK().door], sk = SK();
+  if (S.track === "gotv" && !S.drill && !(S.convo && S.convo.knocked)) return doorIntro(d, sk); /* version 54 */
   const rule = sk.headsUp ? `<p class="rule-line"><b>Heads up:</b> ${sk.headsUp}</p>` : "";
   const footer = `${S.convo && S.convo.knocked ? composer("send", "Type what you\u2019d say") : `${S.drill && S.drill.kind === "warm" ? `<p class="door-goal"><b>From memory.</b> No chips this time.</p>` : (S.track === "gotv" && !S.drill ? doorChips() : `<p class="door-goal"><b>Your goal:</b> ${goalLine()}.</p>`)}${rule}<button class="btn" data-act="knock">${d.scene === "door" ? "Knock" : "Start"}</button>`}
     ${S.track === "gotv" ? "" : `<div class="door-links"><button class="link" data-act="suggest">Need a line?</button><button class="link" data-act="ask-open">Ask the campaign</button><button class="link" data-act="end-convo">End conversation</button></div>`}`;
@@ -5569,7 +5597,7 @@ function vDoor() {
       ${S.track === "gotv" ? "" : `<span class="who-tag"><b>${d.name}</b> ${d.sub}</span>`}
       <video class="selfie" id="selfie" playsinline muted autoplay hidden></video>
     </div></div>
-    <div class="thread" id="thread"><p class="note">${d.intro}</p></div>
+    <div class="thread" id="thread">${S.track === "gotv" && !S.drill ? "" : `<p class="note">${d.intro}</p>`}</div>
   `, { tag: S.drill ? (S.drill.kind === "warm" ? "Warmup" : "Practice") : "", back: "path", footer });
 }
 
@@ -6991,8 +7019,9 @@ function setComposer(on) {
 }
 async function knock() {
   const d = DOORS[SK().door];
-  const svg = $("#screen .voter.main");
   S.convo.knocked = true;
+  if (S.track === "gotv" && !S.drill) render(); /* version 54: from the door intro into the conversation */
+  const svg = $("#screen .voter.main");
   S.convo.mode = aiOn() ? "live" : "scripted";
   const footer = $("#screen .actions");
   if (footer) footer.innerHTML = `${composer("send", "Type what you\u2019d say")}${S.track === "gotv" ? "" : `<div class="door-links"><button class="link" data-act="suggest">Need a line?</button><button class="link" data-act="ask-open">Ask the campaign</button><button class="link" data-act="end-convo">End conversation</button></div>`}`;
