@@ -1874,10 +1874,10 @@ const SKILLS = {
     headsUp: "Never ask \u201cDo you have a minute?\u201d",
     stretch: 1,
     context: "The volunteer knocks on doors for Maya Kaur, who is running for Woodbridge City Council, a few days before Election Day on Tuesday. Everyone on the list is a supporter. This lesson covers only the opener, the first ten seconds at the door: the volunteer's name, that they are a neighbor volunteering for Maya Kaur and that Election Day is Tuesday, without asking 'Do you have a minute?'",
-    moves: ["Say your name", "Say you\u2019re a neighbor volunteering for Maya", "Say why you\u2019re here: Election Day is Tuesday", "Don\u2019t ask \u201cDo you have a minute?\u201d"],
-    hitNames: ["Said your name", "Said you\u2019re a neighbor volunteering for Maya", "Said why you\u2019re here: Election Day is Tuesday", "Didn\u2019t ask \u201cDo you have a minute?\u201d"],
-    missNames: ["Didn\u2019t say your name", "Didn\u2019t say you\u2019re a neighbor volunteering for Maya", "Didn\u2019t say why you\u2019re here", "Asked \u201cDo you have a minute?\u201d"],
-    short: ["say your name", "say you\u2019re a neighbor volunteering for Maya", "say why you\u2019re here: Election Day is Tuesday", "don\u2019t ask \u201cDo you have a minute?\u201d"],
+    moves: ["Say your name", "Say you\u2019re a neighbor volunteering for Maya Kaur", "Say you\u2019re here because Election Day is Tuesday", "Don\u2019t ask \u201cDo you have a minute?\u201d"],
+    hitNames: ["Said your name", "Said you\u2019re a neighbor volunteering for Maya Kaur", "Said you\u2019re here because Election Day is Tuesday", "Didn\u2019t ask \u201cDo you have a minute?\u201d"],
+    missNames: ["Didn\u2019t say your name", "Didn\u2019t say you\u2019re a neighbor volunteering for Maya Kaur", "Didn\u2019t say why you\u2019re here", "Asked \u201cDo you have a minute?\u201d"],
+    short: ["say your name", "say you\u2019re a neighbor volunteering for Maya Kaur", "say you\u2019re here because Election Day is Tuesday", "don\u2019t ask \u201cDo you have a minute?\u201d"],
     recap: ["Turns a stranger into a person.", "Neighbors beat mail and robocalls.", "Answers their first question.", "It makes no the easy answer."], /* version 28 (Maya Kaur): Listen in's short why */
     whyShort: [
       "A name turns a stranger at the door into a person.",
@@ -1887,7 +1887,7 @@ const SKILLS = {
     ],
     moveDefs: [
       "Say your name: says their own first name, early.",
-      "Say you're a neighbor volunteering for Maya: says both that they live nearby (or are a neighbor) and that they are volunteering for Maya Kaur's campaign.",
+      "Say you're a neighbor volunteering for Maya Kaur: says both that they live nearby (or are a neighbor) and that they are volunteering for Maya Kaur's campaign.",
       "Say why you\u2019re here: says they are there because Election Day is coming (Election Day, voting, Tuesday).",
       "Don't ask 'Do you have a minute?': never asks for the voter's time or permission to talk, such as 'Do you have a minute?' or 'Is this a bad time?'",
     ],
@@ -1903,7 +1903,7 @@ const SKILLS = {
       "Say why in one breath: \u201cElection Day is Tuesday, so I\u2019m checking in with neighbors.\u201d",
       "Skip \u201cDo you have a minute?\u201d and start with your name, that you live nearby and why you\u2019re there.",
     ],
-    praise: ["You said your name.", "You said you\u2019re a neighbor volunteering for Maya.", "You said why you were there.", "You didn\u2019t ask for a minute."],
+    praise: ["You said your name.", "You said you\u2019re a neighbor volunteering for Maya Kaur.", "You said why you were there.", "You didn\u2019t ask for a minute."],
     lesson: {
       persona: "walter", scene: "door", name: "Walter", tag: "supporter on the list",
       lines: [
@@ -1919,7 +1919,7 @@ const SKILLS = {
     },
     micro: [
       { prompt: "You knock, and Walter opens the door. What do you say first?", rubric: "Says their name, that they live nearby and are volunteering for Maya Kaur, and why they are there (Election Day is Tuesday), without asking for the voter's time.", model: "Hi there! I\u2019m {name}. I live a few blocks over, and with Election Day on Tuesday, I\u2019m checking in with neighbors.",
-        grade(t) { const h = openHits(t), n = h.filter(Boolean).length; const said = ["your name", "that you\u2019re a neighbor volunteering for Maya", "why you\u2019re there"], did = said.filter((_, i) => h[i]), left = ["your name", "that you\u2019re a neighbor volunteering for Maya", "why you\u2019re here: Election Day is Tuesday"].filter((_, i) => !h[i]); const right = did.length ? "You said " + andList(did) + "." : ""; if (!h[3]) return ["weak", { right, fix: "You asked for his time. Skip that and start with your name, that you\u2019re a neighbor volunteering for Maya and why you\u2019re there." }]; if (n === 4) return ["strong", { right: "You got your name, that you live nearby and why you\u2019re there into one breath.", fix: "" }]; return [n === 3 ? "ok" : "weak", { right, fix: "Add " + andList(left) + "." }]; } },
+        grade(t) { const h = openHits(t), n = h.filter(Boolean).length; const said = ["your name", "that you\u2019re a neighbor volunteering for Maya Kaur", "why you\u2019re there"], did = said.filter((_, i) => h[i]), left = ["your name", "that you\u2019re a neighbor volunteering for Maya Kaur", "that you\u2019re here because Election Day is Tuesday"].filter((_, i) => !h[i]); const right = did.length ? "You said " + andList(did) + "." : ""; if (!h[3]) return ["weak", { right, fix: "You asked for his time. Skip that and start with your name, that you\u2019re a neighbor volunteering for Maya Kaur and why you\u2019re there." }]; if (n === 4) return ["strong", { right: "You got your name, that you live nearby and why you\u2019re there into one breath.", fix: "" }]; return [n === 3 ? "ok" : "weak", { right, fix: "Add " + andList(left) + "." }]; } },
       { prompt: "Walter says, \u201cCan I help you?\u201d Now say your name and that you live nearby.", rubric: "Says their first name and that they live nearby or are a neighbor.", model: "Hi! I\u2019m {name}, and I live a few blocks over. I\u2019m volunteering for Maya Kaur.",
         grade(t) { const name = saysName(t), local = has(t, LOCALW); if (name && local) return ["strong", { right: "Saying your name and that you\u2019re a neighbor makes you someone he can trust.", fix: "" }]; if (local) return ["ok", { right: "You said you live nearby.", fix: "Lead with your name." }]; if (name) return ["ok", { right: "You said your name.", fix: "Add that you live nearby." }]; return ["weak", { right: "", fix: "Say your name, then that you live nearby." }]; } },
       { prompt: "Walter says, \u201cOkay. What\u2019s this about?\u201d Now say why you\u2019re here, in one breath.", rubric: "Says they are there about the upcoming election, briefly, without asking for his time.", model: "Election Day is Tuesday, so I\u2019m checking in with neighbors who support Maya Kaur.",
@@ -3502,7 +3502,7 @@ const DOORS = {
   kevin: {
     persona: "kevin", scene: "door", name: "Kevin", sub: "Supporter on your list, 29", brief: "a supporter on your list who works from home in apartment 3B", rate: 1.04,
     bio: "29, a software tester who works from home in apartment 3B, a supporter of Maya Kaur, who is running for Woodbridge City Council. Friendly but a little wary of knocks, since he gets a lot of deliveries and sales pitches.",
-    behavior: "Open the door cautiously. If the volunteer says their name, that they live nearby, that they're volunteering for Maya and why they are there, relax and say you are voting for Maya. If they ask 'Do you have a minute?', say 'Uh, sure, I guess. What's up?' a little warily. If they don't say who they are or why they are there, ask who they're with. Once you know why they're there, be friendly, answer any question briefly (you'll probably vote Tuesday after work at the library drop box) and let them wrap up. Thank them when they say goodbye.",
+    behavior: "Open the door cautiously. If the volunteer says their name, that they live nearby, that they're volunteering for Maya Kaur and why they are there, relax and say you are voting for Maya. If they ask 'Do you have a minute?', say 'Uh, sure, I guess. What's up?' a little warily. If they don't say who they are or why they are there, ask who they're with. Once you know why they're there, be friendly, answer any question briefly (you'll probably vote Tuesday after work at the library drop box) and let them wrap up. Thank them when they say goodbye.",
     end: "the volunteer has said their opener: one line, two at most", place: "at the door of apartment 3B", short: true,
     intro: "You\u2019re outside apartment 3B. Knock when you\u2019re ready.",
     first: { say: "Hey. Can I help you?", expr: "neutral" },
