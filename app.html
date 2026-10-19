@@ -1355,7 +1355,7 @@
 <body>
 <div class="stage">
   <div class="stage-top">
-    <button class="wordmark" id="wordmark" aria-label="Warmup"><svg width="26" height="26" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="32" fill="none" stroke="#E6DFD3" stroke-width="12"/><circle cx="42" cy="42" r="32" fill="none" stroke="#35B57C" stroke-width="12" stroke-linecap="round" stroke-dasharray="151 202" transform="rotate(-90 42 42)"/></svg><span>Warmup.</span></button>
+    <button class="wordmark" id="wordmark" aria-label="Warmup"><svg width="26" height="26" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="32" fill="none" stroke="#E6DFD3" stroke-width="12"/><circle cx="42" cy="42" r="32" fill="none" stroke="#35B57C" stroke-width="12" stroke-linecap="round" stroke-dasharray="151 202" transform="rotate(-90 42 42)"/></svg><span>Warmup</span></button>
   </div>
   <div class="stage-main">
     <div class="device" id="device"><div class="screen" id="screen" data-skin="recognize"></div></div>
@@ -3730,9 +3730,8 @@ function vSoon() {
       <span class="ring-wrap soon-ring">${ring(0.75, 112, ringW(112))}<span class="ring-num"><span class="soon-icon">${TAB_ICONS[k]}</span></span></span>
       <p class="kicker">Coming soon</p>
       <h1 class="h1">${c[0]}</h1>
-      <p class="lede">${c[1]}</p>
     </div>
-  `, { tabs: k, stage: true });
+  `, { tabs: k, stage: true }); /* version 57 (Robert): no body line on the coming-soon screens; SOON_COPY[k][1] stays unused */
 }
 /* version 52 (Maya Kaur, Robert, Oct 19): lessons 2 to 5 are locked for users until Robert reviews them. Every route into them (Today's rows,
    Today's button, the library) lands on one locked screen; Lesson 1 done and Today say the next lesson is locked. To unlock: set LOCK_ON to false and republish. */
@@ -4161,7 +4160,7 @@ const CHECK = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.
 const mark = () => `<span class="mark" aria-hidden="true">${CHECK}</span>`;
 /* version 37 (Maya Kaur, Robert): the beat, a 2.4 s card at the start of each part. A mini bar with the part lit, an icon for the mode
    (talk, listen, catch), the part's name as the bar names it and one sentence with the verb. Tap to skip. */
-const BEAT = { try: 0, watch: 1, spot: 2, door: 3 };
+const BEAT = { try: 0, watch: 1, spot: 2, door: 3, score: 4 }; /* version 56 (Robert): fifths; the last fifth fills on the feedback, after step 4 */
 const BEAT_ICON = {
   mic: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>`,
   ear: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 3-2 4-3 5.5s-1 2.5-1.5 4A2.5 2.5 0 0 1 9 18"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.2-.8 1.8-1.4 2.6"/></svg>`,
@@ -4171,16 +4170,17 @@ const BEAT_ICON = {
 const BEAT_TRY1 = "Try out your opening greeting at a voter\u2019s door.";
 const BEAT_LINE = {
   try: ["mic", "Now you talk. Say what you\u2019d say first."],
-  watch: ["ear", "Now just listen. {demo} does all four."], /* DEMO is declared further down */
+  watch: ["ear", "Listen to {demo}, a trained volunteer."], /* DEMO is declared further down */
   spot: ["catch", "Now catch it. One move is missing."],
   door: ["mic", "Now you talk, with all four."],
+  score: ["mic", "Here\u2019s how your 2nd try went."],
 };
 function beatHtml(screen) {
   const i = BEAT[screen], ico = BEAT_LINE[screen][0], line = screen === "try" && lessonNo() === 1 ? BEAT_TRY1 : BEAT_LINE[screen][1];
   /* version 39 (Maya Kaur, Robert): the Warmup ring fills a quarter per part; the new quarter sweeps in. version 51 (Robert): no mode icon inside it, just the ring */
-  const s = 104, w = ringW(104), r = (s - w) / 2, c = 2 * Math.PI * r, from = (c * (1 - i / 4)).toFixed(1), to = (c * (1 - (i + 1) / 4)).toFixed(1);
+  const s = 104, w = s * 5 / 24, r = (s - w) / 2, c = 2 * Math.PI * r, from = (c * (1 - i / 5)).toFixed(1), to = (c * (1 - (i + 1) / 5)).toFixed(1); /* version 56: the top-left logo ring is 5 thick on 24, so the beat ring matches it */
   const ring = `<svg viewBox="0 0 ${s} ${s}" aria-hidden="true"><circle cx="${s / 2}" cy="${s / 2}" r="${r}" fill="none" stroke="var(--track)" stroke-width="${w}"/><circle class="beat-arc" cx="${s / 2}" cy="${s / 2}" r="${r}" fill="none" stroke="var(--accent)" stroke-width="${w}" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${to}" style="--from:${from};--to:${to}" transform="rotate(-90 ${s / 2} ${s / 2})"/></svg>`;
-  return `<div class="beat" role="status"><div class="beat-ring" aria-hidden="true">${ring}</div><b class="beat-name">${PARTS4[i]}</b><p>${line.split("{demo}").join(DEMO)}</p></div>`;
+  return `<div class="beat" role="status"><div class="beat-ring" aria-hidden="true">${ring}</div><b class="beat-name">${i === 4 ? "All four parts done" : PARTS4[i]}</b><p>${line.split("{demo}").join(DEMO)}</p></div>`;
 }
 function beatArm() {
   const b = $("#screen .beat");
@@ -4200,7 +4200,7 @@ const ICON = {
 function brandMark(forceRecognize) {
   const skin = forceRecognize ? "recognize" : skinNow();
   const inner = skin === "recognize"
-    ? `<span class="brand brand-rec">${ring(0.75, 24, 5)}<b>Warmup.</b></span>`
+    ? `<span class="brand brand-rec">${ring(0.75, 24, 5)}<b>Warmup</b></span>`
     : `<span class="brand brand-org"><span class="seal" aria-hidden="true">${T().org.seal}</span><span><b>${T().org.name}</b><small>${T().org.sub}</small></span></span>`;
   return `<span class="brand-btn">${inner}</span>`; /* version 82: no demo menu for users */
 }
@@ -6398,7 +6398,7 @@ function vToday() {
   return app(`
     <div class="today-head"><div class="ring-wrap" style="width:60px;height:60px">${ring(ready / 6, 60, 9)}</div>
       <div><h1 class="h1" style="margin:0">Today</h1><p class="today-left">${cnt >= 5 ? "You\u2019re door-ready." : `${cnt} of 5 lessons done.`} Your canvass is ${t.when}.</p></div></div>
-    <ol class="plan">${rows}${shift}${cool}</ol>
+    <ol class="plan">${rows}${S.track === "gotv" ? "" : shift + cool}</ol> <!-- version 56 (Robert): no canvass or Cooldown rows on the get out the vote Today -->
     <p class="week-line">The ring fills with your five lessons, then your Warmup. <button class="link inline" data-act="go" data-arg="how">How Warmup works</button></p>
   `, { primary, tabs: "today", footer: locked ? `<div class="next-two lock-note"><p><b>Lesson ${nx.n} is locked for now.</b></p><p>${LOCK_LINE(nx.n)}</p></div>` : "" }); /* version 52: the note sits where the button was */
 }
