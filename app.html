@@ -3840,7 +3840,7 @@ const NOTES = {
 /* ---------- state ---------- */
 /* version 68 (Robert, Oct 11): the demo opens on the first text for get out the vote; the program picker stays in the presenter menu */
 const fresh = () => ({
-  screen: "sms", track: "gotv", step: 1, name: store.get("volunteerName5", "Becca"), experience: null, why: "", hardest: null, mode: "voice", intakeDone: false, basicsI: 0, skipWatch: false, hist: [], spot: null,
+  screen: "sms", track: "gotv", step: 1, name: store.get("volunteerName5", "Rosa"), experience: null, why: "", hardest: null, mode: "voice", intakeDone: false, basicsI: 0, skipWatch: false, hist: [], spot: null,
   level: 2, placement: null, placementText: "", day: 5, unlocked: { sig: 5, reg: 5, deep: 5, gotv: 5, trip: 5 },
   sessions: { sig: {}, reg: {}, deep: {}, gotv: {}, trip: {} }, reps: null, convo: null, last: null, placeKnocked: false, ask: null, asked: [], lessonAt: 0, cameraOn: false, lastAt: {}, rosterAll: false,
   streakBase: 2, debrief: { mood: null, change: "", why: "", sent: false }, whyI: 0, practice: null,
@@ -3860,7 +3860,7 @@ const settings = {
   watchStrip: store.get("watchStrip", "quiet"),
 };
 const REC_NAME = "Becca"; /* the name the volunteer's recorded lines say (Maya Kaur version 19: the five lines with a name, re-made with Kokoro af_heart); the demo's default volunteer is Becca */
-const me = () => S.name || "Becca";
+const me = () => S.name || "Rosa";
 const T = () => TRACKS[S.track];
 /* get out the vote runs the 5 by 5 series: lesson 4 is the plan lesson, everything else uses lesson 1 (the opener) for now */
 const LESSON_SKILL = { 1: "open", 2: "listen", 3: "noargue", 4: "plan", 5: "friends" };
@@ -7816,7 +7816,7 @@ document.addEventListener("input", (e) => {
   if (t.id === "lib-q") { S.lib.q = t.value; const r = $("#lib-rows"); if (r) r.innerHTML = libRows(); }
   if (t.id === "d-change") S.review.change = t.value;
   if (t.id === "d-why") S.review.why = t.value;
-  if (t.id === "v-name") { S.name = t.value.trim() || "Becca"; store.set("volunteerName5", S.name); S.nameDirty = true; }
+  if (t.id === "v-name") { S.name = t.value.trim() || "Rosa"; store.set("volunteerName5", S.name); S.nameDirty = true; }
 });
 document.addEventListener("change", (e) => {
   const t = e.target;
