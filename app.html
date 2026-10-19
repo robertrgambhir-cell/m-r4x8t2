@@ -6785,7 +6785,7 @@ async function playLesson() {
 function watchEnd() {
   const cap = $("#cap"), ol = $("#l-moves"), row = $("#screen .lesson-row"), h2 = row && row.querySelector(".h2"), fr = $("#screen .frame.wframe"), c = $("#content");
   if (cap) cap.hidden = true;
-  if (h2) h2.textContent = "The four moves"; /* version 43 (Robert): no why line under each move */
+  if (h2) h2.textContent = "The four parts"; /* version 43 (Robert): no why line under each move */
   if (ol) { ol.className = "moves recap wrecap"; ol.innerHTML = SK().moves.map((m, i) => `<li class="lit" data-i="${i}">${mark()}<span><b>${esc(endP(m))}</b></span></li>`).join(""); }
   const ft = $("#screen footer.actions");
   if (ft && ft.querySelector(".w-skip")) ft.innerHTML = button(["Next: catch the mistake", "watch-next"]);
