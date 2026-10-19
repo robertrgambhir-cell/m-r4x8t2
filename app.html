@@ -5838,15 +5838,16 @@ function closeStory(n, cnt, nx, R, after, anim, key) {
     footer = button(["How you grew", "done-card", "1"]);
   } else if (card === 1) {
     const grow = S.dgSeen !== key; S.dgSeen = key;
-    const head = g > 0 ? `You picked up ${g === 1 ? "a new part" : LEFTW[g] + " new parts"}.` : g === 0 ? (b === 4 ? "You\u2019re a pro!" : b === 0 ? "Still at 0 of 4." : `Held at ${b} of 4.`) : `${b} of 4 this time.`;
-    const sub = g > 0 ? "You improved your opener on your 2nd try." : g === 0 ? (b === 4 ? "You hit all the important parts of a good opener on both tries." : b === 0 ? "You can repeat the lesson to master all parts." : "This is a good start. You can repeat the lesson to master all parts.") : "Every door is different. We\u2019ll log your best try.";
+    const gained = sk.moves.filter((m, i) => after[i] && !before[i]).map((m) => m.replace(/^Say /, "saying ").replace(/^Don\u2019t ask /, "not asking ").replace(/^\w/, (c) => c.toLowerCase()));
+    const head = g > 0 ? (b === 4 ? "You hit all four parts." : `Up to ${b} of 4 parts.`) : g === 0 ? (b === 4 ? "You\u2019re a pro!" : b === 0 ? "Still at 0 of 4." : `Held at ${b} of 4.`) : `${b} of 4 this time.`;
+    const sub = g > 0 ? (b === 4 ? `Up from ${a} on your 1st try.` : g === 1 ? `New this time: ${gained[0]}.` : `New this time: ${LEFTW[g]} parts, marked below.`) : g === 0 ? (b === 4 ? "You hit all the important parts of a good opener on both tries." : b === 0 ? "You can repeat the lesson to master all parts." : "This is a good start. You can repeat the lesson to master all parts.") : "Every door is different. We\u2019ll log your best try.";
     const rows = sk.moves.map((m, i) => {
       const was = !!before[i], is = !!after[i], isNew = is && !was;
       const c1 = was ? DG_CK("", "Said it") : `<span class="dg-eye" role="img" aria-label="Not yet">\ud83d\udc40</span>`; /* version 65 (Robert): the eye marks a missed part in both columns */
       const c2 = is ? DG_CK(isNew ? "new" : "", isNew ? "New: said it" : "Said it") : `<span class="dg-eye" role="img" aria-label="Not yet">\ud83d\udc40</span>`;
       return `<div class="dg-row${isNew ? " new" : ""}${!is ? " miss" : ""}" style="--i:${i}"><span class="dg-t">${esc(m)}${isNew ? `<b class="dg-tag">NEW</b>` : ""}${!is ? `<small>Still to practice</small>` : ""}</span><span class="dg-m">${c1}</span><span class="dg-m dg-2">${c2}</span></div>`;
     }).join("");
-    body = `<p class="kicker cs-k">How you grew</p><div class="dg-hero"><div><small>1st try</small><b>${a}<em>/4</em></b></div><span class="dg-arrow">${ARROW}</span><div class="on"><small>2nd try</small><b>${b}<em>/4</em></b></div></div><h1 class="h1 dg-h">${head}</h1><p class="dg-sub">${sub}</p><div class="dg${grow ? " grow" : ""}"><div class="dg-hd"><span>The four parts</span><span>1st try</span><span>2nd try</span></div>${rows}</div>`;
+    body = `<div class="dg-hero"><div><small>1st try</small><b>${a}<em>/4</em></b></div><span class="dg-arrow">${ARROW}</span><div class="on"><small>2nd try</small><b>${b}<em>/4</em></b></div></div><h1 class="h1 dg-h">${head}</h1><p class="dg-sub">${sub}</p><div class="dg${grow ? " grow" : ""}"><div class="dg-hd"><span>The four parts</span><span>1st try</span><span>2nd try</span></div>${rows}</div>`;
     footer = button(["What\u2019s next", "done-card", "2"]);
   } else {
     const d5 = S.done5 || {};
