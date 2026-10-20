@@ -7341,7 +7341,7 @@ async function playLesson() {
   setToggle("Pause");
   /* version 71: the caption and the chips name the four moves first, then the door plays */
   await wait(S.track === "gotv" && S.lessonAt === 0 ? 3600 : 500); /* version 39: the beat holds 3 s */
-  let pendMove = null; /* version 99: a part the voter's answer shows waits for the next line to start */
+  let pendMove = null, soonMove = null; /* version 99: a part the voter's answer shows waits for the next line to start; version 110: or 0.8 s after the row before it */
   for (let i = S.lessonAt; i < L.lines.length; i += 1) {
     if (run !== lessonRun) return;
     S.lessonAt = i;
@@ -7351,7 +7351,7 @@ async function playLesson() {
     { const bar = $("#sbar-now span"); if (bar) bar.style.width = Math.round(((i + 1) / L.lines.length) * 100) + "%"; }
     const liveRows = S.track === "gotv" && !!$("#l-moves.wlive"); /* version 86: the parts pop in as Monica says them */
     if (line.move != null) {
-      if (liveRows) { if (line.who === "them") pendMove = line.move; } /* version 99: lands just after Monica starts her next line */
+      if (liveRows) { if (line.who === "them" && line.move !== soonMove) pendMove = line.move; } /* version 99: lands just after Monica starts her next line (unless version 110 already timed it) */
       else document.querySelectorAll("#l-moves li").forEach((li) => li.classList.toggle("lit", Number(li.dataset.i) <= line.move));
       const hl = $("#hl");
       if (hl && hl.dataset.move !== String(line.move) && (S.track !== "gotv" || settings.watchStrip === "live")) {
@@ -7380,7 +7380,11 @@ async function playLesson() {
       onend: () => talk(false),
     });
     if (run !== lessonRun) return;
-    if (liveRows && line.move != null && line.who === "you") watchLit(line.move); /* version 86: the part lands once it has been said */
+    if (liveRows && line.move != null && line.who === "you") {
+    watchLit(line.move); /* version 86: the part lands once it has been said */
+    const nx = L.lines[i + 1];
+    if (nx && nx.who === "them" && nx.move != null) { const mv = nx.move; soonMove = mv; setTimeout(() => { if (run === lessonRun) watchLit(mv); }, 800); } /* version 110 (Robert): the voter's part 0.8 s after this one */
+  }
     /* version 69: the same speaker's next line follows right away (it was one breath in the recording); a short pause when the speaker changes */
     await wait(L.lines[i + 1] && L.lines[i + 1].who === line.who ? 40 : 240);
   }
