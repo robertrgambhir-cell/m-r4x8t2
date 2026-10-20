@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Warmup">
-<meta property="og:title" content="Your canvass warmup. Nothing to download.">
+<meta property="og:title" content="Tap this link to open your canvass warmup.">
 <meta property="og:description" content="A welcome from Maya Kaur, then your first five-minute lesson.">
 <meta property="og:url" content="https://robertrgambhir-cell.github.io/m-r4x8t2/">
 <meta property="og:image" content="https://robertrgambhir-cell.github.io/m-r4x8t2/preview.jpg">
@@ -125,6 +125,9 @@
   .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 54px; border-radius: 16px; border: 1.5px solid var(--ink); background: var(--ink); color: var(--on-ink); font-weight: 700; font-size: 16.5px; cursor: pointer; transition: transform 0.08s ease; }
   .btn:active { transform: translateY(1px); }
   .btn.secondary { background: transparent; color: var(--ink); border-color: var(--line); }
+  .btn-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; } /* version 91: two equal buttons, the default filled on the right */
+  .btn-pair .btn { min-width: 0; padding: 0 10px; }
+  .btn-pair .btn.secondary { color: var(--ink-2); font-weight: 600; border-color: var(--line); background: var(--card); }
   .btn:disabled { opacity: 0.38; cursor: not-allowed; }
   .link { background: none; border: 0; padding: 6px 0; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; font-size: 14px; cursor: pointer; }
   .screen :focus-visible, .wide :focus-visible, .menu :focus-visible, .wordmark:focus-visible { outline: 3px solid var(--accent, #35B57C); outline-offset: 2px; }
@@ -1221,9 +1224,10 @@
   .dg-h { text-align: center; font-size: 30px; margin: 10px 0 2px; }
   .dg-sub { text-align: center; margin: 0 0 10px; font-size: 15px; line-height: 1.4; color: var(--ink-2); }
   .dg { flex: none; border-radius: 18px; background: var(--soft); padding: 10px 10px 8px; }
-  .dg-hd, .dg-row { display: grid; grid-template-columns: 1fr 48px 48px; gap: 4px; align-items: center; }
+  .dg-hd, .dg-row { display: grid; grid-template-columns: 1fr 64px 64px; gap: 4px; align-items: center; }
   .dg-hd { font-size: 10.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); text-align: center; padding: 0 6px 6px; }
   .dg-hd span:first-child { text-align: left; }
+  .dg-hd span { white-space: nowrap; } /* version 90: 1st intro and 2nd intro stay on one line */
   .dg-row { padding: 7px 6px; border-radius: 12px; font-size: 14.5px; line-height: 1.3; font-weight: 600; }
   .dg-row.new { background: var(--accent-soft); }
   .dg-row small { display: block; font-weight: 500; font-size: 12px; color: var(--ink-3); }
@@ -4241,7 +4245,7 @@ const BEAT_LINE = {
   try: ["mic", "Now you talk. Say what you\u2019d say first."],
   watch: ["ear", "Listen to {demo}, a trained volunteer."], /* DEMO is declared further down */
   spot: ["catch", "What part is the volunteer missing?"],
-  door: ["mic", "Practice your opener with a new voter."],
+  door: ["mic", "Practice your introduction with a new voter."],
   close: ["mic", "Nice work."],
 };
 function beatHtml(screen) {
@@ -4766,7 +4770,7 @@ function vVideo() {
   return `<div class="vid${V.playing ? "" : " paused"}" id="vid">
     <canvas class="vid-clip" id="vid-clip" width="540" height="960" aria-hidden="true"></canvas><svg class="voter main vid-svg expr-warm" viewBox="0 0 360 640" preserveAspectRatio="xMidYMid slice" data-act="video-toggle" role="img" aria-label="Maya Kaur, the candidate, speaking to the camera at home">${videoScene()}</svg>${videoCut()}
     <div class="vid-top"><div class="vid-seg" id="vid-seg">${segs}</div>
-      <div class="vid-head"><span class="seal" aria-hidden="true">${t.org.seal}</span><b>${t.org.name}</b>
+      <div class="vid-head"><span class="seal" aria-hidden="true">${t.org.seal}</span><b>${t.org.name.replace(" for ", " for<br>")}</b>
         ${ended ? "" : `<button class="vid-pp" data-act="video-toggle" aria-label="${V.playing ? "Pause" : "Play"}">${pp}</button>`}${ended ? "" : `<button data-act="video-skip">Skip</button>`}</div></div>
     ${ended
       ? `<div class="vid-end"><button class="btn" data-act="video-skip">Start lesson 1: Introduce yourself</button><button class="link" data-act="video-again">Watch again</button></div>`
@@ -5693,7 +5697,7 @@ function vMain() {
   const mem = g && !drill && n > 1 ? `<p class="mem-line"><b>From memory:</b> ${LESSONS5.slice(0, n - 1).map((x) => x.title).join(" \u00b7 ")}</p>` : "";
   return app(`
     ${progressBar(repMoves().length + 1, 0)}
-    ${drill ? `<p class="kicker">${warm ? "Warmup" : "Practice"}</p>` : ""}<h1 class="h1">${warm ? `Door ${drill.step} of 2` : drill ? `${d.name}\u2019s door` : g ? "Your 2nd try" : "Your turn"}</h1>
+    ${drill ? `<p class="kicker">${warm ? "Warmup" : "Practice"}</p>` : ""}<h1 class="h1">${warm ? `Door ${drill.step} of 2` : drill ? `${d.name}\u2019s door` : g ? "Your 2nd intro" : "Your turn"}</h1>
     <p class="lede">${lede}</p>
     ${warm ? "" : `<div class="move-chips big" aria-label="The moves">${chips.map((m, i) => `<span>${i + 1}. ${m}</span>`).join("")}</div>`}
     ${mem}
@@ -5777,6 +5781,7 @@ function vScore() {
   if (sayStep && !said) footer = `${g ? "" : `<p class="say-label">Say it now: your tip, out loud.</p>`}${composer("say-now", "Type what you\u2019d say", "Say it")}<button class="link center" data-act="say-skip">Skip for now</button>`;
   else if (warm) footer = drill.step === 1 ? `<button class="btn" data-act="warm-door" data-arg="2">Next: door 2</button>` : `<button class="btn" data-act="go" data-arg="warmtip">Next: one tip</button>`;
   else if (drill) footer = `<button class="btn" data-act="coach-back">Back to practice</button>${again || `<button class="link center" data-act="coach-surprise">Another door</button>`}`;
+  else if (g && !drill && hits < 4 && !again) footer = `<div class="btn-pair"><button class="btn secondary" data-act="go" data-arg="close">Finish lesson ${lessonNo}</button><button class="btn" data-act="door-again">Retry your intro</button></div>`; /* version 91 (Robert): retrying is the default under 4 of 4 */
   else footer = `<button class="btn" data-act="go" data-arg="close">Finish lesson ${lessonNo}</button>${again || (g && hits === 4 ? "" : `<button class="link center" data-act="door-again">${g ? "Try this door again" : "Try the conversation again"}</button>`)}`; /* version 69 (Robert): 4 of 4 offers only Finish lesson */
   /* version 29 (Maya Kaur): one card, the four moves in order, then the tip; fits a phone with no scroll */
   const sd = g ? DOORS[drill ? drill.door : SK().door] : null; /* version 69 (Robert): the voter fills the space, the verdict sits over the bottom of the frame */
@@ -5812,7 +5817,7 @@ function doneScores(n, cnt, before, after, anim) {
   const a = before.filter(Boolean).length, b = after.filter(Boolean).length, g = b - a, all = cnt >= 5;
   const head = all ? "You\u2019re door-ready." : g > 0 ? `You picked up ${LEFTW[g]} move${g > 1 ? "s" : ""}.` : g === 0 ? (b === 4 ? "You\u2019re a pro!" : b === 0 ? "Still at 0 of 4." : `Held at ${b} of 4.`) : `${b} of 4 this time.`;
   const sub = all ? "All five moves, from memory." : `Lesson ${n} done. ${cnt} of 5.`;
-  return `<div class="done-scores${anim ? " anim" : ""}"><div class="ds-row"><div class="ds-col"><small>1st try</small><b>${a}<span>/4</span></b></div><div class="ds-arrow">${ARROW}</div><div class="ds-col on"><small>2nd try</small><b>${b}<span>/4</span></b></div></div><h1 class="h1">${head}</h1><p class="togo">${sub}</p></div>`;
+  return `<div class="done-scores${anim ? " anim" : ""}"><div class="ds-row"><div class="ds-col"><small>1st intro</small><b>${a}<span>/4</span></b></div><div class="ds-arrow">${ARROW}</div><div class="ds-col on"><small>2nd intro</small><b>${b}<span>/4</span></b></div></div><h1 class="h1">${head}</h1><p class="togo">${sub}</p></div>`;
 }
 const LEFTW = ["no", "one", "two", "three", "four", "five"];
 /* the ring, growing from one value to another (a CSS animation from the old arc to the new one) */
@@ -5880,14 +5885,14 @@ function closeStory(n, cnt, nx, R, after, anim, key) {
     const grow = S.dgSeen !== key; S.dgSeen = key;
     const gained = sk.moves.filter((m, i) => after[i] && !before[i]).map((m) => m.replace(/^Say /, "saying ").replace(/^Remind /, "reminding ").replace(/^Don\u2019t ask /, "not asking ").replace(/^\w/, (c) => c.toLowerCase()));
     const head = g > 0 ? (b === 4 ? "You hit all four parts." : `Up to ${b} of 4 parts.`) : g === 0 ? (b === 4 ? "You\u2019re a pro!" : b === 0 ? "Still at 0 of 4." : `Held at ${b} of 4.`) : `${b} of 4 this time.`;
-    const sub = g > 0 ? (b === 4 ? `Up from ${a} on your 1st try.` : g === 1 ? `New this time: ${gained[0]}.` : `New this time: ${LEFTW[g]} parts, marked below.`) : g === 0 ? (b === 4 ? "You hit all the important parts of a good opener on both tries." : b === 0 ? "You can repeat the lesson to master all parts." : "This is a good start. You can repeat the lesson to master all parts.") : "Every door is different. We\u2019ll log your best try.";
+    const sub = g > 0 ? (b === 4 ? `Up from ${a} on your 1st intro.` : g === 1 ? `New this time: ${gained[0]}.` : `New this time: ${LEFTW[g]} parts, marked below.`) : g === 0 ? (b === 4 ? "You hit all the important parts of a good introduction on both tries." : b === 0 ? "You can repeat the lesson to master all parts." : "This is a good start. You can repeat the lesson to master all parts.") : "Every door is different. We\u2019ll log your best try.";
     const rows = sk.moves.map((m, i) => {
       const was = !!before[i], is = !!after[i], isNew = is && !was;
       const c1 = was ? DG_CK("", "Said it") : `<span class="dg-eye" role="img" aria-label="Not yet">\ud83d\udc40</span>`; /* version 65 (Robert): the eye marks a missed part in both columns */
       const c2 = is ? DG_CK(isNew ? "new" : "", isNew ? "New: said it" : "Said it") : `<span class="dg-eye" role="img" aria-label="Not yet">\ud83d\udc40</span>`;
       return `<div class="dg-row${isNew ? " new" : ""}${!is ? " miss" : ""}" style="--i:${i}"><span class="dg-t">${esc(m)}${isNew ? `<b class="dg-tag">NEW</b>` : ""}${!is ? `<small>Still to practice</small>` : ""}</span><span class="dg-m">${c1}</span><span class="dg-m dg-2">${c2}</span></div>`;
     }).join("");
-    body = `<div class="dg-hero"><div><small>1st try</small><b>${a}<em>/4</em></b></div><span class="dg-arrow">${ARROW}</span><div class="on"><small>2nd try</small><b>${b}<em>/4</em></b></div></div><h1 class="h1 dg-h">${head}</h1><p class="dg-sub">${sub}</p><div class="dg${grow ? " grow" : ""}"><div class="dg-hd"><span>The four parts</span><span>1st try</span><span>2nd try</span></div>${rows}</div>`;
+    body = `<div class="dg-hero"><div><small>1st intro</small><b>${a}<em>/4</em></b></div><span class="dg-arrow">${ARROW}</span><div class="on"><small>2nd intro</small><b>${b}<em>/4</em></b></div></div><h1 class="h1 dg-h">${head}</h1><p class="dg-sub">${sub}</p><div class="dg${grow ? " grow" : ""}"><div class="dg-hd"><span>The four parts</span><span>1st intro</span><span>2nd intro</span></div>${rows}</div>`;
     footer = button(["Continue", "done-card", "1"]);
   } else {
     const d5 = S.done5 || {};
@@ -6274,7 +6279,7 @@ function vSessionG() {
     <h1 class="h1">${sk.title}</h1>
     <p class="why-line open-why">${LINE5[k] || sk.whyLine}</p>
     <div class="frame small open-door">${scene("door", f.persona, { shut: true, label: `${L.name}\u2019s front door, still shut` })}</div>
-  `, { tag: "", back: "welcome", primary: ["Start your 1st try", "try-start"] });
+  `, { tag: "", back: "welcome", primary: ["Start your 1st intro", "try-start"] });
 }
 /* Try: one line before any teaching. Feedback is positive only, never a grade; all four moves skips Watch and Spot (version 67's rule, every lesson) */
 function vTry() {
@@ -6285,7 +6290,7 @@ function vTry() {
   const scenePart = `<div class="rep-card${knocked ? " stage" : " whole"}"><div class="frame small ${knocked ? "stage-frame" : "full"}"${knocked || !HOME[f.persona] ? "" : ` style="--hw:${HOME[f.persona].wall};--hl:${HOME[f.persona].line}"`}>${scene("door", f.persona, { main: true, shut: knock && (!knocked || !!S.swing), label: `${L.name} at the door` })}</div>
       ${knock ? "" : `<p class="rep-who">After your opener</p>`}
       ${knocked ? `<p class="rep-quote${S.swing ? " late" : ""}"><b>${L.name}:</b> \u201c${f.line}\u201d</p>` : ""}</div>`;
-  const title = R && !R.pending ? "Your 1st try" : knock ? (knocked ? "The door opens. How would you start?" : "How would you greet this voter?") : "Try it before the lesson. What would you say?";
+  const title = R && !R.pending ? "Your 1st intro" : knock ? (knocked ? "The door opens. How would you start?" : "How would you greet this voter?") : "Try it before the lesson. What would you say?";
   const head = `${lessonBar(0, R && !R.pending ? 1 : knocked ? 0.4 : 0.1)}<h2 class="h2 tight">${title}</h2>`;
   if (R && R.pending) return app(`${head}${scenePart}${pendingCard("Reading your answer\u2026")}`, { tag: "", stage: knocked });
   if (!R) {
@@ -6302,8 +6307,8 @@ function vTry() {
   const rows = sk.moves.map((m, i) => `<li class="${hits[i] ? "y" : "n"}" style="--i:${i}"><small>${hits[i] ? "You did" : "Not yet"}</small>${esc(m)}</li>`).join("");
   /* version 50 (Maya Kaur, Robert): the summary by score */
   const sum = all ? "Amazing job! Let\u2019s practice one more time." : (c >= 2 ? "That\u2019s a good start." : "Nice try.") + " Now listen to an opener that hits all four parts of a good introduction."; /* version 85 (Robert) */
-  const card = `<div class="fb try${anim ? " cascade" : ""}"><p class="you-said">You said: \u201c${esc(R.text)}\u201d</p><h3>${all ? "You already have all four." : "A good opener does four things."}</h3><ul class="sc-list four-list">${rows}</ul><p class="try-lead had">${sum}</p></div>`;
-  return app(`${head}${card}`, { tag: "", footer: `${button([all ? "Next: your 2nd try" : "Next: hear it done", "try-next"]).replace('class="btn ', anim ? 'class="btn late ' : 'class="btn ')}${all ? `<button class="link center" data-act="try-full">See the full lesson</button>` : ""}` });
+  const card = `<div class="fb try${anim ? " cascade" : ""}"><p class="you-said">You said: \u201c${esc(R.text)}\u201d</p><h3>${all ? "You already have all four." : "A good introduction does four things."}</h3><ul class="sc-list four-list">${rows}</ul><p class="try-lead had">${sum}</p></div>`;
+  return app(`${head}${card}`, { tag: "", footer: `${button([all ? "Next: your 2nd intro" : "Next: hear it done", "try-next"]).replace('class="btn ', anim ? 'class="btn late ' : 'class="btn ')}${all ? `<button class="link center" data-act="try-full">See the full lesson</button>` : ""}` });
 }
 async function tryKnock() {
   if (S.tryKnocked) return;
@@ -6392,7 +6397,7 @@ function vSpotG() {
   const youDid = (x) => { const m = herMiss(x); return `${DEMO} ${m.charAt(0).toLowerCase()}${m.slice(1)}${/[.?!\u201d]$/.test(m) ? "" : "."}`; };
   const ans = !done ? "" : `<div class="fb spot-ans ${right ? "strong" : "ok"}${anim ? " anim" : ""}"><h3>${right ? "\u{1F389} Nailed it!" : "Not quite."}</h3><p class="ans-miss">${esc(youDid(sk.missNames[it.miss]))}</p></div>`; /* version 38 (Maya Kaur, Robert): no why line on the answer card */
   const frame = `<div class="frame stage-frame spot-stage${showAns ? " spot-done" : ""}">${scene(L.scene, L.persona, { main: true, sign: L.sign })}${showAns ? ans : ""}</div>`;
-  const footer = showAns ? `<button class="btn" data-act="go" data-arg="main">Next: your 2nd try</button>` : replay || !played ? `<button class="link center w-skip" data-act="spot-skip">Skip</button>` : "";
+  const footer = showAns ? `<button class="btn" data-act="go" data-arg="main">Next: your 2nd intro</button>` : replay || !played ? `<button class="link center w-skip" data-act="spot-skip">Skip</button>` : "";
   return app(`
     ${lessonBar(2, done ? 1 : played ? 0.8 : 0.2)}
     <h2 class="h2 tight spot-title">${skKey() === "open" ? "Which part of the intro was missed?" : "Which part was missed?"}</h2>
@@ -7598,7 +7603,7 @@ function stopCamera() {
 /* ---------- demo menu, toast ---------- */
 const JUMPS = [
   ["Pick a program", "pick"], ["The SMS", "sms"], ["Welcome video", "video"], ["Today", "path"], ["How Warmup works", "how"], ["Why your lesson is locked", "whylock"],
-  ["Lesson opening", "session"], ["Your 1st try", "try"], ["Hear it done", "watch"], ["Catch the mistake", "spot"], ["Your 2nd try", "main"], ["Wrap-up", "close"],
+  ["Lesson opening", "session"], ["Your 1st intro", "try"], ["Hear it done", "watch"], ["Catch the mistake", "spot"], ["Your 2nd intro", "main"], ["Wrap-up", "close"],
   ["Practice tab", "coach"], ["Warmup", "warm"], ["Cooldown", "sms2"], ["Field director view", "director"], ["Library", "library"], ["Me", "me"],
   ["Campaign note", "note"], ["Ready before the shift", "ready"], ["Old: starting point", "intake"], ["Old: opener check", "placement"], ["Old: practice reps", "practice"],
 ];
