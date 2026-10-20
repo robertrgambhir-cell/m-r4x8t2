@@ -1395,9 +1395,9 @@
   .sc-top { display: flex; align-items: center; gap: 12px; margin: 2px 0 12px; }
   .sc-top .h1 { font-size: 28px; }
   .sc-top .emo { font-size: 24px; }
-  .sc-card { padding: 14px 16px; border-radius: 20px; background: var(--card); border: 1.5px solid var(--line); }
+  .sc-card { padding: 14px 16px; border-radius: 20px; background: var(--card); border: 1.5px solid var(--line); container-type: inline-size; } /* version 104: rows size to the card */
   .sc-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
-  .sc-list li { position: relative; padding-left: 28px; font-size: 15.5px; line-height: 1.35; }
+  .sc-list li { position: relative; padding-left: 28px; font-size: max(13px, min(15.5px, calc((100cqw - 28px) / 20.2))); line-height: 1.35; }
   .sc-list li.y { color: var(--ink); font-weight: 600; }
   .sc-list li.n { color: var(--ink-3); }
   .sc-list li::before { content: ""; position: absolute; left: 0; top: 1px; width: 18px; height: 18px; border-radius: 50%; box-sizing: border-box; }
@@ -1459,7 +1459,7 @@
     .spot-tiles.anim .tile, .spot-ans.anim { animation: none !important; }
   }
   .content.stage .frame.sc-voter { min-height: 72px; }
-  @media (max-height: 800px) { .sc-card { padding: 10px 14px; } .sc-list { gap: 6px; } .sc-list li { font-size: 14.5px; line-height: 1.3; } .sc-tip { margin-top: 8px; padding: 8px 11px; } .sc-tip p { font-size: 15.5px; line-height: 1.28; } }
+  @media (max-height: 800px) { .sc-card { padding: 10px 14px; } .sc-list { gap: 6px; } .sc-list li { font-size: max(13px, min(14.5px, calc((100cqw - 28px) / 20.2))); line-height: 1.3; } .sc-tip { margin-top: 8px; padding: 8px 11px; } .sc-tip p { font-size: 15.5px; line-height: 1.28; } }
   .fund-head { margin: 0 2px 10px; }
   .fund-h { font-family: var(--head-font); font-weight: var(--head-weight); font-size: 22px; line-height: 1.1; letter-spacing: -0.01em; margin: 0 0 6px; }
   .fund-sub { margin: 0; color: var(--ink-3); font-size: 14.5px; line-height: 1.35; }
@@ -5550,7 +5550,7 @@ function vWatch() {
     const lit = L.lines.slice(0, S.lessonAt).reduce((a, l) => (l.move == null ? a : Math.max(a, l.move)), -1); /* rows already said, if the screen redraws mid-play */
     return app(`
     ${progressBar(0, S.lessonAt / Math.max(1, L.lines.length))}
-    <div class="lesson-row wrow"><h2 class="h2">${skKey() === "open" ? "Watch a great introduction" : `${DEMO} at ${esc(L.name)}\u2019s door`}</h2></div>
+    <div class="lesson-row wrow"><h2 class="h2">${skKey() === "open" ? "Hear an intro that hits each part of a good opener" : `${DEMO} at ${esc(L.name)}\u2019s door`}</h2></div>
     <div class="frame wframe wv2 stage-frame">${scene(L.scene, L.persona, { main: true, crop: "tight", sign: L.sign })}<button class="w-pp" data-act="lesson-toggle" id="l-toggle" data-state="Pause" aria-label="Pause">${PP_ICON.pause}</button><div class="hl" id="hl" hidden></div></div>
     <div class="wlive-wrap"><ol class="moves wrecap wlive" id="l-moves" aria-label="The four parts">${sk.moves.map((m, i) => (i <= lit ? watchRow(m, i) : "")).join("")}</ol><ol class="moves wrecap wghost" aria-hidden="true">${sk.moves.map((m, i) => watchRow(m, i)).join("")}</ol></div>
   `, { tag: "", back: "session", stage: true, footer: `<button class="link center w-skip" data-act="watch-next">Skip</button>` }); /* version 33 (Maya Kaur): the big Next waits for the recap */
@@ -6648,7 +6648,10 @@ function vSpotG() {
   const herMiss = (x) => x.replace("your name", "her name").split("you\u2019re").join("she\u2019s");
   const youDid = (x) => { const m = herMiss(x); return `${DEMO} ${m.charAt(0).toLowerCase()}${m.slice(1)}${/[.?!\u201d]$/.test(m) ? "" : "."}`; };
   const ans = !done ? "" : `<div class="fb spot-ans ${right ? "strong" : "ok"}${anim ? " anim" : ""}"><h3>${right ? "\u{1F389} Nailed it!" : "Not quite."}</h3><p class="ans-miss">${esc(youDid(sk.missNames[it.miss]))}</p></div>`; /* version 38 (Maya Kaur, Robert): no why line on the answer card */
-  const frame = `<div class="frame stage-frame spot-stage${showAns ? " spot-done" : ""}">${scene(L.scene, L.persona, { main: true, sign: L.sign })}${showAns ? ans : ""}</div>`;
+  const ppOn = !done ? !played : replay; /* version 103: the pause button shows while the door plays or replays */
+  const ppSt = sp.paused ? "Play" : "Pause";
+  const pp = ppOn ? `<button class="w-pp" data-act="spot-toggle" id="s-toggle" data-state="${ppSt}" aria-label="${ppSt}">${PP_ICON[ppSt.toLowerCase()]}</button>` : "";
+  const frame = `<div class="frame stage-frame spot-stage${showAns ? " spot-done" : ""}">${scene(L.scene, L.persona, { main: true, sign: L.sign })}${pp}${showAns ? ans : ""}</div>`;
   const footer = showAns ? `<button class="btn" data-act="go" data-arg="main">Next: your 2nd intro</button>` : replay || !played ? `<button class="link center w-skip" data-act="spot-skip">Skip</button>` : "";
   return app(`
     ${lessonBar(2, done ? 1 : played ? 0.8 : 0.2)}
@@ -6680,9 +6683,12 @@ async function playSpot() {
   if (!S.spot || S.spot.playing) return;
   const run = ++spotRun, sk = SK(), L = sk.lesson, lines = spotData().lines;
   S.spot.playing = true;
-  await wait(S.spot.again ? 500 : 3500);
-  for (let i = 0; i < lines.length; i += 1) {
+  const from = S.spot.lineI || 0, resumed = !!S.spot.resume; /* version 103: a resume picks up at the line it paused on */
+  S.spot.resume = false;
+  await wait(resumed ? 300 : S.spot.again ? 500 : 3500);
+  for (let i = from; i < lines.length; i += 1) {
     if (run !== spotRun || S.screen !== "spot") return;
+    S.spot.lineI = i;
     const [who, text] = lines[i];
     const cap = $("#cap"), words = demoFill(text).split(/\s+/);
     /* version 39 (Maya Kaur, Robert): the line is drawn in full but invisible, and each word shows as it is spoken (SPOT_WORDS), so nothing can be read ahead */
@@ -6704,6 +6710,7 @@ async function playSpot() {
   S.spot.playing = false;
   S.spot.played = true;
   S.spot.replay = false;
+  S.spot.lineI = 0; S.spot.paused = false;
   render();
 }
 function spotStop() { spotRun += 1; spotClearTimers(); stopWatchAudio(); stopSpeech(); talk(false); if (S.spot) S.spot.playing = false; }
@@ -7126,7 +7133,7 @@ function afterRender() {
   grewArm(); /* version 98 */
   lockTimerArm(); /* version 65 */
   if (S.screen === "watch") { if (mariaOn(SK().lesson)) mariaLoop(); playLesson(); }
-  if (S.screen === "spot" && S.track === "gotv" && S.spot && ((!S.spot.played && S.spot.picked == null) || S.spot.replay)) playSpot();
+  if (S.screen === "spot" && S.track === "gotv" && S.spot && !S.spot.paused && ((!S.spot.played && S.spot.picked == null) || S.spot.replay)) playSpot(); /* version 103: not while paused */
   if (S.screen === "spot" && S.track === "gotv" && S.spot && S.spot.picked != null && !S.spot.replay) setExpr(S.spot.picked === spotData().miss ? "warm" : "skeptical"); /* version 69: Walter smiles at a right pick */
   if (S.screen === "score" && S.track === "gotv" && S.last && S.last.moves) { const h = S.last.moves.filter(Boolean).length; setExpr(h >= 3 ? "warm" : h === 2 ? "neutral" : "skeptical"); } /* version 69: the voter reacts to the 2nd try */
   beatArm();
@@ -7979,9 +7986,15 @@ document.addEventListener("click", (e) => {
     }
     case "watch-next": if (S.track === "gotv") go("spot"); else if (SK().spot && S.day === 5 && !S.skipWatch) go("spot"); else startMicro(); break;
     case "spot-next": if (S.spot) { S.spot = { i: 1, picked: null }; render(); } break;
-    case "spot-skip": spotStop(); if (S.spot) { S.spot.played = true; S.spot.replay = false; } render(); break;
-    case "spot-hear": spotStop(); if (S.spot) { S.spot.replay = true; S.spot.again = true; } render(); break;
-    case "spot-replay": spotStop(); if (S.spot) { S.spot.played = false; S.spot.again = true; } render(); break;
+    case "spot-skip": spotStop(); if (S.spot) { S.spot.played = true; S.spot.replay = false; S.spot.lineI = 0; S.spot.paused = false; } render(); break;
+    case "spot-hear": spotStop(); if (S.spot) { S.spot.replay = true; S.spot.again = true; S.spot.lineI = 0; S.spot.paused = false; } render(); break;
+    case "spot-replay": spotStop(); if (S.spot) { S.spot.played = false; S.spot.again = true; S.spot.lineI = 0; S.spot.paused = false; } render(); break;
+    case "spot-toggle": /* version 103 */
+      if (!S.spot) break;
+      if (!S.spot.paused) { spotStop(); S.spot.paused = true; setExpr("neutral"); }
+      else { S.spot.paused = false; S.spot.resume = true; playSpot(); }
+      { const t = $("#s-toggle"), st = S.spot.paused ? "Play" : "Pause"; if (t) { t.dataset.state = st; t.setAttribute("aria-label", st); t.innerHTML = PP_ICON[st.toLowerCase()]; } }
+      break;
     case "spot-pick": if (S.spot && S.spot.picked == null) { S.spot.picked = Number(arg); S.spot.at = Date.now(); render(); scrollDown(); } break;
     case "video-toggle":
       if (!S.video) break;
