@@ -161,6 +161,7 @@
   .mm-ico svg { width: 26px; height: 26px; }
   .mm-card h2 { font-family: var(--head-font); font-weight: var(--head-weight); font-size: 22px; line-height: 1.15; margin: 2px 0 0; }
   .mm-card p { margin: 0 0 6px; font-size: 15px; line-height: 1.45; color: var(--ink-2); }
+  .mm-card p.mm-why { margin: 2px 0 0; font-size: 11px; line-height: 1.3; color: var(--ink-3); } /* version 109: the browser's own reason */
   .link { background: none; border: 0; padding: 6px 0; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; font-size: 14px; cursor: pointer; }
   .screen :focus-visible, .wide :focus-visible, .menu :focus-visible, .wordmark:focus-visible { outline: 3px solid var(--accent, #35B57C); outline-offset: 2px; }
 
@@ -4550,7 +4551,23 @@ function micHelp() {
    so the voter stays in view above the keyboard. */
 const isTouch = () => !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
 const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition || null;
-let micBlocked = false, micWhy = "", micPrimed = false, micPriming = false, rec = null, recStop = false, recDog = 0, recCap = 0;
+let micBlocked = false, micWhy = "", micPrimed = false, micPriming = false, rec = null, recStop = false, recDog = 0, recCap = 0, micErr = "", micNoStart = 0;
+/* version 109: ask for the mic in the audio mode made for playing and recording, then give the voices their playback mode back */
+async function micAsk() {
+  try { if (navigator.audioSession) navigator.audioSession.type = "play-and-record"; } catch (e) { /* ignore */ }
+  try {
+    const st0 = await navigator.mediaDevices.getUserMedia({ audio: true });
+    st0.getTracks().forEach((t) => { try { t.stop(); } catch (e) { /* ignore */ } });
+    micErr = "";
+    return "ok";
+  } catch (e) {
+    const nm = (e && e.name) || "Error";
+    micErr = nm + (e && e.message ? ": " + e.message : "");
+    return nm === "NotAllowedError" || nm === "SecurityError" ? "denied" : "busy";
+  } finally {
+    try { if (navigator.audioSession && !rec) navigator.audioSession.type = "playback"; } catch (e) { /* ignore */ }
+  }
+}
 function pageMic() { try { return !!SpeechRec && window.isSecureContext !== false && window.top === window.self; } catch (e) { return false; } } /* version 94: a blocked mic no longer falls back to the keyboard; it shows the mic card instead */
 const talkLabel = () => (isTouch() ? "Tap to talk" : "Click to talk");
 const keyHint = () => (isTouch() ? "Tap the mic on your keyboard and talk." : "Use your dictation key (like Wispr Flow) and talk.");
@@ -4739,10 +4756,10 @@ function micToggle() {
   if (send0) send0.hidden = true;
   listenFold(true);
   const goCue = () => { if (started) return; started = true; const c0 = $("#talk-live"); if (c0 && c0.classList.contains("warm")) { c0.classList.remove("warm"); c0.classList.add("go"); setTimeout(() => { const c1 = $("#talk-live"); if (c1) c1.classList.remove("go"); }, 1600); } }; /* version 96: the green go cue */
-  r.onstart = goCue;
-  r.onaudiostart = goCue;
+  r.onstart = () => { micNoStart = 0; goCue(); };
+  r.onaudiostart = () => { micNoStart = 0; goCue(); };
   r.onresult = (e) => { goCue(); heard = heardFrom(e.results); const box = $("#say"); if (box) { box.value = heard; autoGrow(box); } liveCardWords(heard); };
-  r.onerror = (e) => { const k = e && e.error; if (["not-allowed", "service-not-allowed", "audio-capture"].includes(k)) { micBlocked = true; micWhy = k === "audio-capture" ? "busy" : "denied"; } };
+  r.onerror = (e) => { const k = e && e.error; if (["not-allowed", "service-not-allowed", "audio-capture"].includes(k)) { micBlocked = true; micWhy = k === "audio-capture" ? "busy" : "denied"; micErr = "speech: " + k; } };
   r.onend = () => {
     if (rec !== r) return;
     rec = null;
@@ -4769,7 +4786,7 @@ function micToggle() {
   };
   try { if (navigator.audioSession) navigator.audioSession.type = "play-and-record"; } catch (e) { /* ignore */ }
   clearTimeout(recDog); clearTimeout(recCap);
-  recDog = setTimeout(() => { if (rec === r && !started) { micBlocked = true; micWhy = micWhy || "busy"; try { r.abort(); } catch (e2) { /* ignore */ } if (rec === r && r.onend) r.onend(); } }, 7000); /* version 94: a recognizer that never starts means the mic is held elsewhere */
+  recDog = setTimeout(() => { if (rec === r && !started) { micNoStart += 1; if (micNoStart >= 2) { micBlocked = true; micWhy = micWhy || "busy"; micErr = micErr || "the recognizer never started, twice"; } try { r.abort(); } catch (e2) { /* ignore */ } if (rec === r && r.onend) r.onend(); } }, 7000); /* version 94: a recognizer that never starts means the mic is held elsewhere; version 109: only on the second time in a row */
   recCap = setTimeout(() => { if (rec === r) { try { r.stop(); } catch (e) { /* ignore */ } } }, 30000);
   try { r.start(); } catch (e) {
     rec = null; clearTimeout(recDog); clearTimeout(recCap); micBlocked = true; micWhy = "busy";
@@ -4794,18 +4811,19 @@ function micModal(kind) {
   wrap.id = "mic-modal";
   wrap.setAttribute("role", "alertdialog");
   wrap.setAttribute("aria-label", "Microphone needed");
-  wrap.innerHTML = `<div class="mm-card"><div class="mm-ico" aria-hidden="true">${ICON.mic}</div><h2>${busy ? "We can\u2019t reach your microphone." : "Warmup needs your microphone."}</h2><p>${busy ? "Another app is probably using it, like FaceTime or a call. Close or mute that app, then tap Try again." : "This lesson is spoken, not typed. Allow the microphone for this site in your browser settings, then tap Try again."}</p><button class="btn" data-act="mic-retry">Try again</button></div>`;
+  wrap.innerHTML = `<div class="mm-card"><div class="mm-ico" aria-hidden="true">${ICON.mic}</div><h2>${busy ? "We can\u2019t reach your microphone." : "Warmup needs your microphone."}</h2><p>${busy ? "Another app is probably using it, like FaceTime or a call. Close or mute that app, then tap Try again." : "This lesson is spoken, not typed. Allow the microphone for this site in your browser settings, then tap Try again."}</p><button class="btn" data-act="mic-retry">Try again</button>${micErr ? `<p class="mm-why">${esc(micErr)}</p>` : ""}</div>`;
   host.appendChild(wrap);
 }
 function micOff() { const m = $("#mic-modal"); if (m) m.remove(); }
 async function micRetry() {
-  micBlocked = false; micWhy = ""; micPrimed = false;
-  let ok = true;
+  micBlocked = false; micWhy = ""; micPrimed = false; micNoStart = 0;
   if (pageMic() && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    try { const st0 = await navigator.mediaDevices.getUserMedia({ audio: true }); st0.getTracks().forEach((t) => { try { t.stop(); } catch (e) { /* ignore */ } }); micPrimed = true; }
-    catch (e) { ok = false; const nm = e && e.name; micWhy = nm === "NotAllowedError" || nm === "SecurityError" ? "denied" : "busy"; micModal(micWhy); }
+    const got = await micAsk();
+    if (got === "denied") { micWhy = "denied"; micModal("denied"); return; }
+    micPrimed = got === "ok";
   }
-  if (ok) { micOff(); toast("Your mic is free. Tap to talk when you\u2019re ready."); }
+  micOff(); /* version 109: Try again never traps; if the mic is truly held, the tap will say so */
+  toast("Tap to talk when you\u2019re ready.");
 }
 /* version 96 (Robert): prime the mic as soon as a talking screen opens. The permission prompt lands while the volunteer
    reads the door, not mid-intro, and a mic another app holds stops the lesson right away behind the version 94 card. */
@@ -4813,18 +4831,11 @@ async function primeMic() {
   if (!pageMic() || window.__T || micPrimed || micPriming) return micPrimed;
   if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) { micPrimed = true; return true; }
   micPriming = true;
-  try {
-    const st0 = await navigator.mediaDevices.getUserMedia({ audio: true });
-    st0.getTracks().forEach((t) => { try { t.stop(); } catch (e) { /* ignore */ } });
-    micPrimed = true; micPriming = false;
-    return true;
-  } catch (e) {
-    micPriming = false;
-    const nm = e && e.name;
-    micWhy = nm === "NotAllowedError" || nm === "SecurityError" ? "denied" : "busy";
-    micModal(micWhy);
-    return false;
-  }
+  const got = await micAsk();
+  micPriming = false;
+  if (got === "ok") { micPrimed = true; return true; }
+  if (got === "denied") { micWhy = "denied"; micModal("denied"); } /* version 109: only a real denial stops the lesson here; anything else waits for the tap */
+  return false;
 }
 
 /* ---------- screens ---------- */
