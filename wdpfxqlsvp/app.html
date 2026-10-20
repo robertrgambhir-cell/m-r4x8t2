@@ -1545,6 +1545,11 @@
   .hn-k { margin: 0 0 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-ink); }
   .hn-t { margin: 0 0 12px; font-family: var(--head-font); font-weight: var(--head-weight); font-size: 23px; line-height: 1.15; letter-spacing: -0.01em; text-wrap: balance; }
   .hero-next .btn { margin: 0; }
+  /* version 120: the hero pulses once on the way in from the ring card; a quiet Retake link under a done row */
+  .hero-next.pulse { animation: heroPulse 1.3s ease-out 0.35s 2; }
+  @keyframes heroPulse { 0% { box-shadow: 0 0 0 0 rgba(53, 181, 124, 0.5), 0 12px 26px -14px rgba(27, 122, 77, 0.45); transform: scale(1); } 30% { transform: scale(1.015); } 100% { box-shadow: 0 0 0 14px rgba(53, 181, 124, 0), 0 12px 26px -14px rgba(27, 122, 77, 0.45); transform: scale(1); } }
+  @media (prefers-reduced-motion: reduce) { .hero-next.pulse { animation: none; } }
+  .plan.plan-quiet .retake5 { display: block; margin: -6px 0 4px 44px; padding: 2px 0 6px; font-size: 13.5px; color: var(--ink-2); }
   .hn-lock { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 14px; background: var(--soft); }
   .hn-ico { flex: none; width: 32px; height: 32px; border-radius: 50%; background: var(--card); display: grid; place-items: center; color: var(--ink-3); }
   .hn-ico svg { display: block; }
@@ -2532,8 +2537,8 @@ const CUT_DOOR = "Hi, I\u2019m {name}. I\u2019m volunteering for Maya Kaur.";
    (seconds from the start of the welcome, from her word times): the 1st intro's knock screen on "starting with how to introduce
    yourself", the open door on "practicing your natural way", Hear it done from "Next," (version 112: the 1st intro's result shot is gone, Robert) on "see what an excellent
    introduction looks like" (the four parts landing on her words), the 2nd intro's door on "practice out loud with an animated voter
-   who talks back", the feedback on "hear what you did well", Lesson 1 done on "When you're done", What's next on "we'll text you four
-   more trainings" and Today on "Five quick trainings". The story is scored by the real graders: a 1st intro with a name and the
+   who talks back", the feedback on "hear what you did well", Lesson 1 done on "When you're done", and Today from "we'll text you four
+   more trainings" through "Five quick trainings" (version 120: What's next merged into Today). The story is scored by the real graders: a 1st intro with a name and the
    minute question (1 of 4), then a 2nd intro with three of the four. Catch the mistake and How you grew are not narrated, so the
    video leaves them out. When a lesson 1 screen changes, the video changes with it; when the lesson's order changes, change this list
    and its times, and test108 must pass. */
@@ -2549,8 +2554,7 @@ const VID_SHOTS = [
     } },
   { at: 43.53, screen: "score", name: "2nd intro: feedback", set(st, x) { vidDone(st, x); } },
   { at: 47.47, screen: "close", name: "Lesson 1 done", set(st, x) { vidDone(st, x); st.doneCard = 1; } },
-  { at: 49.3, screen: "close", name: "What" + String.fromCharCode(8217) + "s next", set(st, x) { vidDone(st, x); st.doneCard = 2; } },
-  { at: 53.9, screen: "welcome", name: "Today", set(st, x) { vidDone(st, x); } },
+  { at: 49.3, screen: "welcome", name: "Today", set(st, x) { vidDone(st, x); } },
 ];
 const CUT_T = VID_SHOTS.map((v) => v.at);
 /* the story both tries tell, scored by the graders the volunteer meets */
@@ -5525,11 +5529,13 @@ function vBasics() {
 const STORY_MS = 4500;
 let storyTimer = 0;
 let doneTimer = 0; /* version 88: the ring card moves on by itself */
+/* version 120 (Robert): What's next merged into Today; the ring card hands off to Today, whose hero card pulses once */
+function toTodayFromDone() { clearTimeout(doneTimer); S.heroPulse = true; S.hist = []; go("welcome"); }
 function doneArm() {
   clearTimeout(doneTimer);
   if (S.screen !== "close" || S.track !== "gotv" || !$("#screen .cs-auto")) return;
   const late = !!$("#screen .beat"); /* the beat covers the card for 3.4 s and the ring grows at 3.5 s; the card then holds about as long as the beat did */
-  doneTimer = setTimeout(() => { if (S.screen === "close" && (S.doneCard || 0) === 1 && $("#screen .cs-auto")) { S.doneCard = 2; render(); } }, late ? 7000 : 3500);
+  doneTimer = setTimeout(() => { if (S.screen === "close" && (S.doneCard || 0) === 1 && $("#screen .cs-auto")) toTodayFromDone(); }, late ? 7000 : 3500); /* version 120: on to Today */
 }
 /* version 98: the How you grew reveal. Pieces carry their show time (data-gat rise, data-gch chip pop, data-ghl highlight,
    data-grec recede); the first view plays them, a tap anywhere shows everything, reduced motion and any later view show the
@@ -6414,7 +6420,7 @@ function closeStory(n, cnt, nx, R, after, anim, key) {
     const what = LESSONS5[n - 1].title.replace(/^How to /, "").replace(/^(\w+)/, (v) => ({ introduce: "introducing", get: "getting", leave: "leaving", help: "helping" }[v] || v)); /* version 65 (Robert): "You\u2019ve mastered introducing yourself at the door." */
     const ringNew = S.ringSeen !== key; S.ringSeen = key;
     const r = (ringNew ? ringGrow((cnt - 1) / 5, cnt / 5, 132, ringW(132)) : ring(cnt / 5, 132, ringW(132))).replace('class="ring-arc grow"', S.beat === "close" ? 'class="ring-arc grow" data-late="1"' : 'class="ring-arc grow"');
-    body = `${ringNew ? confettiHtml(S.beat === "close") : ""}<div class="cs-one cs-auto" data-act="done-card" data-arg="2" role="button" tabindex="0" aria-label="Next: what\u2019s next"><div class="ring-wrap" style="width:132px;height:132px">${r}<span class="ring-num num" style="font-size:34px">${cnt}/5</span></div><p class="kicker">Lesson ${n} of 5</p><h1 class="h1">${all ? "You\u2019re door-ready." : `Lesson ${n} done.`}</h1><p class="lede">${all ? "All five moves, from memory." : `Good work ${what}.`}</p></div>`;
+    body = `${ringNew ? confettiHtml(S.beat === "close") : ""}<div class="cs-one cs-auto" data-act="done-card" data-arg="2" role="button" tabindex="0" aria-label="Next: Today"><div class="ring-wrap" style="width:132px;height:132px">${r}<span class="ring-num num" style="font-size:34px">${cnt}/5</span></div><p class="kicker">Lesson ${n} of 5</p><h1 class="h1">${all ? "You\u2019re door-ready." : `Lesson ${n} done.`}</h1><p class="lede">${all ? "All five moves, from memory." : `Good work ${what}.`}</p></div>`;
     footer = ""; /* version 88 (Robert): an interstitial, like the beat before it. It holds about as long as the beat did, then What's next opens on its own (doneArm); a tap skips ahead */
   } else if (card === 0) { /* version 98 (Robert): How you grew, the volunteer's own words; the held and lower copy is gone (version 97 routes every non-improver back through the door) */
     const bestRec = (S.best5 || {})[n] || null;
@@ -6439,7 +6445,7 @@ function closeStory(n, cnt, nx, R, after, anim, key) {
 }
 function vClose5() {
   const d5 = S.done5 || {}, cnt = Math.min(5, Object.keys(d5).length), n = lessonNo(), nx = LESSONS5.find((x) => !d5[x.n]);
-  const pick = nx ? S.nextAt[nx.n] : null, key = `${n}:${(S.doneAt || {})[n] || 0}`, anim = closeSeen !== key;
+  const pick = nx ? S.nextAt[nx.n] : null, key = `${n}:${(S.doneAt || {})[n] || 0}:${S.take5 || 0}`, anim = closeSeen !== key;
   closeSeen = key;
   const gain = ""; /* Maya Kaur version: no gain line at the lesson's end (Robert) */
   /* version 71: spacing becomes a plan. "When's lesson N?" with time chips schedules Robert's next text; version 77 pins it above the button */
@@ -7051,13 +7057,14 @@ function vTodayG() {
   const check = `<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const row = (L) => {
     const done = d5[L.n], lk = !done && lessonLocked(L.n);
-    return `<li class="${done ? "done" : ""}${lk ? " locked" : ""}"><button data-act="lesson5" data-arg="${L.n}"><span class="tick">${done ? check : lk ? LOCK_SVG : L.n}</span><span><b>${L.title}</b>${done ? `<small>Done \u00b7 Score ${done.filter(Boolean).length}/4</small>` : ""}</span></button></li>`;
+    return `<li class="${done ? "done" : ""}${lk ? " locked" : ""}"><button data-act="lesson5" data-arg="${L.n}"><span class="tick">${done ? check : lk ? LOCK_SVG : L.n}</span><span><b>${L.title}</b>${done ? `<small>Done \u00b7 Score ${done.filter(Boolean).length}/4</small>` : ""}</span></button>${done ? `<button class="link retake5" data-act="retake5" data-arg="${L.n}">Retake lesson ${L.n}</button>` : ""}</li>`; /* version 120 (Robert): a quiet full retake while the next lesson is locked */
   };
   const locked = !!nx && lessonLocked(nx.n), at = nx ? S.nextAt[nx.n] : null;
   const primary = locked ? null : nx ? [gated ? "Do it now anyway" : `Start lesson ${nx.n}`, "lesson5", String(nx.n)]
     : !S.warmDone ? ["Start your Warmup", "warm-start"]
     : ["Practice a door", "go", "coach"];
-  const hero = !nx ? "" : `<div class="hero-next${locked ? " locked" : ""}"><p class="hn-k">Up next \u00b7 5 min</p><h2 class="hn-t">Lesson ${nx.n}: ${nx.title}</h2>${locked
+  const pulse = !!S.heroPulse; S.heroPulse = false; /* version 120: once, on the way in from the ring card */
+  const hero = !nx ? "" : `<div class="hero-next${locked ? " locked" : ""}${pulse ? " pulse" : ""}"><p class="hn-k">Up next \u00b7 5 min</p><h2 class="hn-t">Lesson ${nx.n}: ${nx.title}</h2>${locked
     ? `<div class="hn-lock"><span class="hn-ico">${LOCK_SVG}</span><p class="hn-in">Unlocks in</p><p class="lt-clock" id="lock-timer" role="timer">${clockText(lockEnd() - Date.now())}</p></div><p class="lt-sub">You\u2019ll get a text the moment it\u2019s ready.</p><button class="link" data-act="go" data-arg="whylock">Why your lesson is locked</button>`
     : `${gated && at ? `<p class="lt-sub">Opens ${at.say}</p>` : ""}${button(primary)}`}</div>`;
   const list = (xs) => (xs.length ? `<ol class="plan plan-g plan-quiet">${xs.map(row).join("")}</ol>` : "");
@@ -7987,7 +7994,7 @@ async function finishConvo(d) {
     if (S.drill.kind === "warm") { S.warm = S.warm || { res: {} }; S.warm.res = S.warm.res || {}; S.warm.res["d" + S.drill.step] = { skill: skKey(), moves: result.hits, tip: result.tip, door: S.drill.door }; }
   } else {
     S.sessions[S.track][S.track === "gotv" && (S.lesson || 1) !== 1 ? "L" + S.lesson : S.day] = { moves: result.hits };
-    if (S.track === "gotv") { S.done5 = S.done5 || {}; const n5 = S.lesson || 1, prev = S.done5[n5], keep = prev && prev.filter(Boolean).length > result.hits.filter(Boolean).length; S.done5[n5] = keep ? prev : result.hits; S.best5 = S.best5 || {}; if (!keep || !S.best5[n5]) S.best5[n5] = { text: youText, phr, hits: result.hits }; S.doneAt[n5] = Date.now(); } /* version 39: a retried door keeps the best of the tries; version 98: and its words, for How you grew */
+    if (S.track === "gotv") { S.done5 = S.done5 || {}; const n5 = S.lesson || 1, prev = S.done5[n5], keep = prev && prev.filter(Boolean).length > result.hits.filter(Boolean).length; S.done5[n5] = keep ? prev : result.hits; S.best5 = S.best5 || {}; if (!keep || !S.best5[n5]) S.best5[n5] = { text: youText, phr, hits: result.hits }; if (!S.doneAt[n5]) S.doneAt[n5] = Date.now(); } /* version 120: the clock runs from the first finish, so a retake never moves it */ /* version 39: a retried door keeps the best of the tries; version 98: and its words, for How you grew */
   }
   S.sayNow = null;
   S.lastAt[S.track] = Date.now();
@@ -8336,7 +8343,7 @@ document.addEventListener("click", (e) => {
       break;
     case "lesson-one": S.day = 5; S.lesson = 1; go(strongPath() ? "main" : "session"); break;
     case "lesson5": startLesson5(Number(arg)); break;
-    case "done-card": { const was = S.doneCard || 0; S.doneCard = Math.max(0, Math.min(2, Number(arg) || 0)); if (S.track === "gotv" && was === 0 && S.doneCard === 1) S.beat = "close"; render(); break; } /* version 77: the done beat plays on the way to the ring card */ /* version 55 */
+    case "done-card": { if (S.track === "gotv" && Number(arg) >= 2) { toTodayFromDone(); break; } /* version 120: What's next merged into Today */ const was = S.doneCard || 0; S.doneCard = Math.max(0, Math.min(2, Number(arg) || 0)); if (S.track === "gotv" && was === 0 && S.doneCard === 1) S.beat = "close"; render(); break; } /* version 77: the done beat plays on the way to the ring card */ /* version 55 */
     case "day": S.day = Number(arg); go("welcome"); break;
     case "day-note": S.noteFrom = "today"; go("note"); break;
     case "day-rep": S.dayDone[`${S.track}-${S.day}-note`] = true; startOptional(SK().optional[S.day === 3 ? 0 : 1], "today"); break;
@@ -8362,6 +8369,7 @@ document.addEventListener("click", (e) => {
     case "practice-check": if (!S.practice.pending) checkPractice(); break;
     case "practice-next": nextPractice(); break;
     case "optional": startOptional(arg); break;
+    case "retake5": S.take5 = (S.take5 || 0) + 1; startLesson5(Number(arg), true); break; /* version 120: the whole lesson again from the knock screen */
     case "retake": if (S.track === "gotv") startLesson5(lessonNo()); else go("session"); break;
     case "jump-day": jumpDay(Number(arg)); break;
     case "lesson-toggle":
@@ -8517,6 +8525,7 @@ render();
 </script>
 </body>
 </html>
+
 
 
 
