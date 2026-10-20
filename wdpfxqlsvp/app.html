@@ -1279,6 +1279,36 @@
   .gw-h { font-size: 30px; line-height: 1.17; margin: 0; text-wrap: balance; }
   .gw-sub { font-size: 16px; line-height: 1.4; color: var(--ink-2); margin: 8px 0 0; }
   .gw-skip [data-gat], .gw-skip [data-gch], .gw-skip [data-ghl], .gw-skip .gw-say, .gw-skip .gw-hl, .gw-skip .gw-chip { transition: none !important; }
+  /* version 102 (Robert): How you grew shows the voters, a smiling one for the 1st intro and a beaming one for the best */
+  .gv { text-align: center; align-items: center; }
+  .gv-faces { display: flex; align-items: flex-end; justify-content: center; gap: 12px; margin: 0 0 26px; }
+  .gv-col { display: flex; flex-direction: column; align-items: center; gap: 9px; }
+  .gv-pic { position: relative; }
+  .gv-face { display: block; }
+  .gv-face.small { width: 104px; height: 104px; }
+  .gv-face.big { width: 150px; height: 150px; }
+  .gv-faces.solo .gv-face.big { width: 168px; height: 168px; }
+  .gv-lab { font-size: 11.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); }
+  .gv-now .gv-lab { color: var(--accent-ink); }
+  .gv-arrow { color: var(--ink-3); opacity: 0.55; width: 24px; height: 24px; margin: 0 0 68px; display: block; }
+  .gv-arrow svg { width: 24px; height: 24px; display: block; }
+  .gv-smile, .gv-beam { transition: opacity 0.45s ease; }
+  .gv-beam { opacity: 0; }
+  .gv-beam.in { opacity: 1; }
+  .gv-pic:has(.gv-beam.in) .gv-smile { opacity: 0; }
+  .gv-pic:has(.gv-beam.in) .gv-face { animation: gvpop 0.55s cubic-bezier(0.34, 1.5, 0.4, 1); }
+  @keyframes gvpop { 40% { transform: scale(1.06); } }
+  .gv-spark { position: absolute; opacity: 0; transform: scale(0.3) rotate(-30deg); transition: opacity 0.35s, transform 0.5s cubic-bezier(0.34, 1.6, 0.4, 1); }
+  .gv-spark.in { opacity: 1; transform: none; }
+  .gv .gv-bubble { position: absolute; right: -14px; top: -22px; white-space: nowrap; background: var(--card); border: 1px solid var(--line); border-radius: 14px 14px 14px 4px; padding: 7px 11px; font-size: 13.5px; font-weight: 600; color: var(--ink); box-shadow: 0 6px 16px -10px rgba(40, 30, 10, 0.35); }
+  .gv-tail { display: flex; flex-direction: column; align-items: center; }
+  .gv .gw-h { max-width: 330px; }
+  .gv .gw-sub { max-width: 320px; text-wrap: balance; }
+  .gv-parts { display: flex; flex-direction: column; align-items: center; gap: 7px; margin: 16px 0 0; padding: 0; list-style: none; }
+  .gv-parts .gw-chip { font-size: 13.5px; padding: 8px 12px; font-weight: 600; }
+  .gw-skip .gv-smile, .gw-skip .gv-beam, .gw-skip .gv-spark, .gw-skip .gv-face { transition: none !important; animation: none !important; }
+  @media (max-height: 700px) { .gv-faces { margin-bottom: 16px; } .gv-face.big { width: 124px; height: 124px; } .gv-face.small { width: 80px; height: 80px; } .gv-arrow { margin-bottom: 56px; } .gv-parts { margin-top: 10px; } }
+  @media (prefers-reduced-motion: reduce) { .gv-smile, .gv-beam, .gv-spark { transition: none !important; } .gv-face { animation: none !important; } }
   @media (max-height: 699px) {
     .gw-say { padding: 12px 14px 11px; }
     .gw-say q { font-size: 18px; }
@@ -6040,42 +6070,53 @@ function grewQuote(text, phr, hits, at0, step) {
   html += esc(raw.slice(pos));
   return { html, n: flat.length };
 }
+/* version 102 (Robert): How you grew is the voter's side of the door. Two portraits drawn with the lesson's own voters: the
+   1st intro's voter smiling (positive, never a frown), then the best intro's voter beaming, the better experience Warmup is for. */
+const GV_LINE = { 1: "Oh, hi! Thanks for coming by.", 2: "Thanks for asking me that.", 3: "Appreciate you being so kind.", 4: "Okay, that's my plan.", 5: "I'll text my friends tonight." };
+function grewFace(p, mood, cls, beamAt) {
+  const L = LOOKS[p] || LOOKS.kevin, wall = (HOME[p] && HOME[p].wall) || "#E4DED3", id = "gv" + (svgSeq += 1);
+  const smile = figure(L).replace('class="fig"', 'class="gv-fig"').replace(`d="${MOUTH.neutral}"`, `d="${MOUTH.smile}"`);
+  const brows = (dy) => `transform="translate(0 ${dy})"`;
+  const warm = smile.replace('<g stroke=', `<g ${brows(-2)} stroke=`);
+  let beam = "";
+  if (mood === "beam") {
+    const eyesOld = /<g class="look"><g class="eyes">[\s\S]*?<\/g><\/g>/;
+    const happyEyes = `<g fill="none" stroke="#1C1A24" stroke-width="2.6" stroke-linecap="round"><path d="M145.5 143.5 Q150 137.5 154.5 143.5"/><path d="M165.5 143.5 Q170 137.5 174.5 143.5"/></g>`;
+    const grin = `<path d="M147.5 159.5 Q160 180 172.5 159.5 Q160 163.5 147.5 159.5 Z" fill="#45261F"/><path d="M149.5 160.3 Q160 163.8 170.5 160.3 L169.6 162.6 Q160 165.8 150.4 162.6 Z" fill="#FFFFFF"/>`;
+    const cheeks = `<ellipse cx="141.5" cy="153" rx="6" ry="3.6" fill="#E8907A" fill-opacity="0.5"/><ellipse cx="178.5" cy="153" rx="6" ry="3.6" fill="#E8907A" fill-opacity="0.5"/>`;
+    beam = smile.replace('<g stroke=', `<g ${brows(-4)} stroke=`).replace(eyesOld, happyEyes).replace(/<path class="mouth"[^>]*\/>/, cheeks + grin);
+  }
+  const body = mood === "beam"
+    ? `<g class="gv-smile">${warm}</g><g class="gv-beam" data-gch="${beamAt}">${beam}</g>`
+    : warm;
+  return `<svg class="gv-face ${cls}" viewBox="114 100 92 92" aria-hidden="true"><defs><clipPath id="${id}"><circle cx="160" cy="146" r="46"/></clipPath></defs><circle cx="160" cy="146" r="46" fill="${wall}"/><g clip-path="url(#${id})">${body}</g></svg>`;
+}
+const GV_SPARK = (x, y, s, at) => `<svg class="gv-spark" data-gch="${at}" style="left:${x}%;top:${y}%;width:${s}px;height:${s}px" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 0 C11 7 13 9 20 10 C13 11 11 13 10 20 C9 13 7 11 0 10 C7 9 9 7 10 0 Z" fill="var(--accent)"/></svg>`;
 function grewCard(n, key, before, after, firstTx, firstPhr, bestTx, bestPhr) {
-  const sk = SKILLS[LESSON_SKILL[n]] || SK();
+  const k5 = LESSON_SKILL[n] || "open", sk = SKILLS[k5] || SK();
   const SAID = n === 1 ? GREW_SAID : sk.hitNames;
   const a = before.filter(Boolean).length, b = after.filter(Boolean).length;
-  const added = [], had = [];
-  for (let i = 0; i < 4; i += 1) { if (after[i] && !before[i]) added.push(i); if (before[i]) had.push(i); }
+  const added = [];
+  for (let i = 0; i < 4; i += 1) if (after[i] && !before[i]) added.push(i);
   const only = a === 4;
   const thing = n === 1 ? "intro" : "try";
-  const head = only ? `Your ${thing} has all four parts.` : b === 4 ? `Your ${thing} now has all four parts.` : `You added ${GREW_NUM[Math.min(4, Math.max(1, added.length))]}\u00a0part${added.length > 1 ? "s" : ""} to your ${thing}.`;
-  const sub = n === 1 ? "You\u2019re better at a canvassing intro than you were five minutes ago." : "You\u2019re better at this than you were five minutes ago.";
-  const long = (t) => { const L = String(t || "").length; return L > 110 ? " xlong" : L > 58 ? " long" : ""; };
-  const chips = (list, newer, at0, step, noneLine) => {
-    if (!list.length) return `<li class="gw-chip none" data-gch="${at0}">${noneLine}</li>`;
-    return list.map((i, k) => `<li class="gw-chip${newer ? " new" : ""}" data-gch="${at0 + k * step}">${esc(SAID[i])}</li>`).join("");
-  };
-  const say = (tx, q, extra, at, rec) => `<div class="gw-say${long(tx)}" data-gat="${at}"${rec ? ` data-grec="${rec}"` : ""}>${tx ? `<q>${q.html}</q>` : ""}${extra}</div>`;
-  if (only) {
-    const useBest = b === 4 && bestTx;
-    const tx = useBest ? bestTx : firstTx, ph = useBest ? bestPhr : firstPhr, hh = useBest ? after : before;
-    const q = grewQuote(tx, ph, hh, 500, 350);
-    const at1 = 500 + Math.max(1, q.n) * 350 + 250;
-    return { body: `<div class="gw" data-gkey="${esc(key)}"><p class="gw-kick" data-gat="0">Your ${thing}</p>${say(tx, q, "", 60)}<div class="gw-tail"><h1 class="h1 gw-h" data-gat="${at1}">${head}</h1><p class="gw-sub" data-gat="${at1 + 350}">${sub}</p></div></div>`, btnAt: at1 + 900 };
-  }
-  const qA = grewQuote(firstTx, firstPhr, before, 600, 300);
-  const start2 = 1300, hl2 = start2 + 600, chip2 = hl2 + 150, step = 420;
-  const qB = grewQuote(bestTx, bestPhr, after, hl2, step);
-  const lastAt = chip2 + Math.max(qB.n, Math.max(1, added.length)) * step + 200;
-  const body = `<div class="gw" data-gkey="${esc(key)}">
-    <p class="gw-kick" data-gat="0">Your 1st ${thing}</p>
-    ${say(firstTx, qA, `<ul class="gw-parts">${chips(had, false, 700, 250, "None of the four parts yet")}</ul>`, 60, start2)}
-    <div class="gw-gap"></div>
-    <p class="gw-kick" data-gat="${start2}">Your best ${thing}</p>
-    ${say(bestTx, qB, `<ul class="gw-parts">${chips(added, true, chip2, step, "Same parts as your 1st " + thing)}</ul>`, start2 + 60)}
-    <div class="gw-tail"><h1 class="h1 gw-h" data-gat="${lastAt}">${head}</h1><p class="gw-sub" data-gat="${lastAt + 350}">${sub}</p></div>
+  const head = only ? `Your ${thing} has all four parts.` : b === 4 ? `Your ${thing} now has all four parts.` : `You added ${GREW_NUM[Math.min(4, Math.max(1, added.length))]} part${added.length > 1 ? "s" : ""} to your ${thing}.`;
+  const sub = n === 1 ? "You’re better at a canvassing intro than you were five minutes ago." : "You’re better at this than you were five minutes ago.";
+  const pFirst = (FLOW[k5] && FLOW[k5].persona) || "walter";
+  const pBest = (DOORS[sk.door] && DOORS[sk.door].persona) || "kevin";
+  const beamAt = only ? 900 : 1700;
+  const sparks = [GV_SPARK(-4, 8, 18, beamAt + 80), GV_SPARK(90, 2, 14, beamAt + 200), GV_SPARK(96, 58, 11, beamAt + 320), GV_SPARK(-8, 62, 12, beamAt + 260)].join("");
+  const bubble = `<span class="gv-bubble" data-gat="${beamAt + 350}">${esc(GV_LINE[n] || GV_LINE[1])}</span>`;
+  const now = `<div class="gv-col gv-now" data-gat="${only ? 100 : 1000}"><div class="gv-pic">${grewFace(pBest, "beam", "big", beamAt)}${sparks}${bubble}</div><span class="gv-lab">${only ? `Your ${thing}` : `Best ${thing}`}</span></div>`;
+  const then = only ? "" : `<div class="gv-col gv-then" data-gat="100"><div class="gv-pic">${grewFace(pFirst, "smile", "small")}</div><span class="gv-lab">1st ${thing}</span></div><span class="gv-arrow" data-gat="650">${ARROW}</span>`;
+  const tailAt = beamAt + 900;
+  const chips = added.map((i, k) => `<li class="gw-chip new" data-gch="${tailAt + 650 + k * 300}">${esc(SAID[i])}</li>`).join("");
+  const lastAt = tailAt + 650 + Math.max(0, added.length - 1) * 300;
+  const body = `<div class="gw gv" data-gkey="${esc(key)}">
+    <div class="gv-faces${only ? " solo" : ""}">${then}${now}</div>
+    <div class="gv-tail"><h1 class="h1 gw-h" data-gat="${tailAt}">${head}</h1><p class="gw-sub" data-gat="${tailAt + 300}">${sub}</p>${chips ? `<ul class="gv-parts">${chips}</ul>` : ""}</div>
   </div>`;
-  return { body, btnAt: lastAt + 650 };
+  return { body, btnAt: lastAt + 600 };
 }
 /* the ring, growing from one value to another (a CSS animation from the old arc to the new one) */
 function ringGrow(f0, f1, size, stroke) {
@@ -8217,3 +8258,4 @@ render();
 </script>
 </body>
 </html>
+
