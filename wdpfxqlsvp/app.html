@@ -1236,7 +1236,7 @@
   .content.stage > .mem-line, .content.stage > .rule-line { flex: none; margin-top: 10px; }
   @media (max-height: 700px) { .content.stage > .frame.door-stage { min-height: 136px; } .content.stage > .door-four { margin-top: 10px; padding: 10px 14px 11px; } .door-four ol { gap: 6px; } .door-four .df-h { margin-bottom: 7px; } .content.stage > .try-lede { margin-bottom: 10px; } }
   /* version 54 (Robert): the eye is back on the 1st try's result for each part not yet said (the 2nd try's feedback keeps the dash) */
-  .fb.try .four-list li.n::before { content: "\1F440"; border: 0; background: none; font-size: 16px; line-height: 18px; text-align: center; }
+  .fb.try .four-list li.n::before { content: ""; border: 0; border-radius: 0; background: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12z' fill='none' stroke='%235B554D' stroke-width='2' stroke-linejoin='round'/%3E%3Ccircle cx='12' cy='12' r='3.1' fill='%235B554D'/%3E%3C/svg%3E") center / 19px 19px no-repeat; width: 20px; height: 20px; left: -1px; top: 0; } /* version 116: a drawn eye, not the emoji */
   .fb.try .four-list li.n::after { display: none; }
   .frame.full { flex: none; transition: height .9s cubic-bezier(.3,.7,.2,1); }
   .frame.full svg.voter { transition: margin-top .9s cubic-bezier(.3,.7,.2,1); }
@@ -1533,6 +1533,66 @@
   .dn3 .dn-arc { margin-top: 18px; }
   .dn3 .wrap-links { margin-top: 10px; }
   @media (max-height: 700px) { .dn3 .dn-path { margin: 16px 2px 4px; } .dn3 .dn-next { margin-top: 14px; } .dn3 .dn-arc { margin-top: 12px; } }
+
+  /* version 113 (Robert, Mobbin audit edit 1): Today's hero card and quiet rows */
+  .plan.plan-quiet { gap: 0; margin: 0; }
+  .plan.plan-quiet li > button { min-height: 0; padding: 9px 2px; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: none; }
+  .plan.plan-quiet li:first-child > button { border-top: 0; }
+  .plan.plan-quiet li.done > button { background: none; }
+  .plan.plan-quiet b { font-size: 15px; font-weight: 600; color: var(--ink-2); }
+  .plan.plan-quiet .tick { width: 26px; height: 26px; }
+  .hero-next { margin: 8px 0 10px; padding: 16px 16px 14px; border-radius: 20px; background: var(--card); border: 1.5px solid var(--accent); box-shadow: 0 12px 26px -14px rgba(27, 122, 77, 0.45); }
+  .hn-k { margin: 0 0 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-ink); }
+  .hn-t { margin: 0 0 12px; font-family: var(--head-font); font-weight: var(--head-weight); font-size: 23px; line-height: 1.15; letter-spacing: -0.01em; text-wrap: balance; }
+  .hero-next .btn { margin: 0; }
+  .hn-lock { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 14px; background: var(--soft); }
+  .hn-ico { flex: none; width: 32px; height: 32px; border-radius: 50%; background: var(--card); display: grid; place-items: center; color: var(--ink-3); }
+  .hn-ico svg { display: block; }
+  .hn-in { flex: 1; margin: 0; font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+  .hero-next .lt-clock { margin: 0; font-size: 30px; }
+  .hero-next .lt-sub { margin: 10px 0 0; font-size: 14px; }
+  .hero-next .link { display: block; padding: 4px 0 0; font-size: 14px; }
+  @media (max-height: 840px) { .hero-next { padding: 14px 15px 12px; margin: 6px 0 8px; } .hn-t { font-size: 21px; margin-bottom: 10px; } .hero-next .lt-clock { font-size: 27px; } .plan.plan-quiet li > button { padding: 7px 2px; } }
+  @media (max-height: 700px) { .hero-next .lt-sub { margin-top: 7px; font-size: 13.5px; } .hn-lock { padding: 7px 10px; } }
+
+  /* version 114: Lesson N done confetti */
+  .confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+  .confetti i { position: absolute; top: -24px; display: block; opacity: 0; animation: cffall var(--t) cubic-bezier(.25, .6, .4, 1) var(--d) both; }
+  @keyframes cffall { 0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); } 78% { opacity: 1; } 100% { opacity: 0; transform: translate3d(var(--dx), var(--fy), 0) rotate(var(--r)); } }
+  .cs-one { position: relative; z-index: 1; }
+  @media (prefers-reduced-motion: reduce) { .confetti { display: none; } }
+
+  /* version 115: Catch the mistake's answer under the door */
+  .content.stage .frame.stage-frame.spot-done { min-height: 80px; } /* the door gives up height so the four parts fit under it */
+  .content.stage > .spot-ans { flex: none; margin: 8px 0 6px; padding: 9px 13px 10px; }
+  .content.stage > .spot-ans h3 { display: flex; align-items: center; gap: 7px; margin: 0 0 1px; font-size: 18px; }
+  .content.stage > .spot-ans .ans-miss { margin: 0; font-size: 15.5px; }
+  .content.stage > .spot-tiles.done { flex: none; margin-top: 0; }
+  .content.stage > .spot-again { flex: none; }
+  .spot-tiles.done .tile { cursor: default; opacity: 0.5; min-height: 44px; padding: 5px 11px; flex-direction: row; align-items: center; justify-content: flex-start; gap: 9px; font-size: 14.5px; line-height: 1.25; }
+  .spot-tiles.done .tile.missing { opacity: 1; border: 2px solid var(--accent-ink); background: var(--accent-soft); font-weight: 600; }
+  .spot-tiles.done .tile.wrong { opacity: 1; border: 2px solid #C0564B; border-style: solid; background: #FBEDEA; }
+  .spot-tiles .tile .sp-mk { flex: none; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; color: #FFFFFF; }
+  .spot-tiles .tile.missing .sp-mk { background: var(--accent-ink); }
+  .spot-tiles .tile.wrong .sp-mk { background: #C0564B; }
+  .spot-tiles .tile .sp-tx { display: grid; gap: 1px; }
+  .spot-tiles.done .tile small { font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent-ink); }
+  .spot-tiles.done .tile.wrong small { color: #9C3B31; }
+  @media (max-height: 700px) { .content.stage > .spot-ans { margin: 9px 0 8px; padding: 9px 13px 10px; } .content.stage > .spot-ans h3 { font-size: 18px; } .spot-tiles.done .tile { min-height: 46px; padding: 6px 11px; font-size: 13.5px; } }
+
+  /* version 116: drawn glyphs */
+  .emo.emo-svg { display: inline-grid; place-items: center; color: var(--accent-ink); font-family: inherit; }
+  .emo.emo-svg svg { display: block; width: 1.05em; height: 1.05em; } .sc-top .emo.emo-svg { font-size: 26px; }
+  .spot-ans h3 .emo.emo-svg { font-size: 20px; }
+  .fb.try .four-list li.n { color: var(--ink-2); }
+
+  /* version 117: the 1st intro's result card centers between the heading and the button */
+  .content.stage > .fb.try { flex: none; margin-top: auto; margin-bottom: auto; }
+
+  /* version 118: lock badge on locked tabs */
+  .tabs button { position: relative; }
+  .tabs .tab-lock { position: absolute; top: 3px; left: calc(50% + 5px); width: 16px; height: 16px; border-radius: 50%; background: var(--ink-3); color: var(--paper); display: grid; place-items: center; box-shadow: 0 0 0 2px var(--paper); }
+  .tabs .tab-lock svg { width: 9px; height: 9px; display: block; }
 </style>
 </head>
 <body>
@@ -4039,10 +4099,11 @@ function vLocked() {
     </div>
   `, { tabs: "today", stage: true, primary: ["Back to Today", "go", "welcome"] });
 }
+const TAB_LOCK = `<span class="tab-lock" aria-label="Coming soon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span>`;
 function tabBar(cur) {
   /* version 71: get out the vote has four tabs (Today, Practice, Library, Me); Practice gives the coach a home */
   const tabs = S.track === "gotv" ? [["today", "welcome", "Today"], ["practice", "coach", "Practice"], ["library", "library", "Library"], ["me", "me", "Me"]] : [["today", "welcome", "Today"], ["library", "library", "Library"], ["me", "me", "Me"]];
-  return `<nav class="tabs" aria-label="Sections" style="grid-template-columns:repeat(${tabs.length},1fr)">${tabs.map(([k, screen, label]) => `<button class="${cur === k ? "on" : ""}" data-act="go" data-arg="${screen}" aria-current="${cur === k ? "page" : "false"}">${TAB_ICONS[k]}<span>${label}</span></button>`).join("")}</nav>`;
+  return `<nav class="tabs" aria-label="Sections" style="grid-template-columns:repeat(${tabs.length},1fr)">${tabs.map(([k, screen, label]) => `<button class="${cur === k ? "on" : ""}" data-act="go" data-arg="${screen}" aria-current="${cur === k ? "page" : "false"}">${TAB_ICONS[k]}<span>${label}</span>${soonNow(screen) ? TAB_LOCK : ""}</button>`).join("")}</nav>`; /* version 118: locked tabs wear a lock */
 }
 
 /* ---------- presenter notes ---------- */
@@ -4890,6 +4951,15 @@ const REFLECT = {
 };
 const countDone = () => Object.keys(S.sessions[S.track]).length;
 const streakNow = () => S.streakBase + (countDone() >= 3 ? 1 : 0);
+/* version 116 (Robert, Mobbin audit edit 4): drawn glyphs in the brand green instead of OS emoji, so every phone shows the same mark */
+const EMO_SVG = {
+  "\u{1F31F}": `<svg viewBox="0 0 24 24"><path d="M12 2.8l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.3l-5.4 3 1.2-6-4.5-4.2 6.1-.7z" fill="currentColor"/></svg>`,
+  "\u{1F44D}": `<svg viewBox="0 0 24 24"><path d="M7 10.5V20H3.8v-9.5zM9.4 20h7.4c1 0 1.9-.7 2.1-1.7l1.3-5.6a2 2 0 0 0-2-2.5h-4.6l.8-3.7A1.8 1.8 0 0 0 12.6 4.3L9.4 10.5z" fill="currentColor"/></svg>`,
+  "\u{1F4A1}": `<svg viewBox="0 0 24 24"><path d="M12 3a6.5 6.5 0 0 0-3.8 11.8c.7.5 1.1 1.3 1.1 2.2h5.4c0-.9.4-1.7 1.1-2.2A6.5 6.5 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M9.6 20.5h4.8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>`,
+  "\u{1F4AA}": `<svg viewBox="0 0 24 24"><path d="M3.5 16.5l5.5-5.5 4 4 7-7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.5 7.5h5.5V13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  "\u{1F389}": `<svg viewBox="0 0 24 24"><path d="M12 2.5l1.7 4.8 4.8 1.7-4.8 1.7L12 15.5l-1.7-4.8-4.8-1.7 4.8-1.7z" fill="currentColor"/><path d="M18.5 14l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9zM5.5 15l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" fill="currentColor" opacity=".7"/></svg>`
+};
+function emoIcon(e) { const g = EMO_SVG[e]; return g ? `<span class="emo emo-svg" aria-hidden="true">${g}</span>` : `<span class="emo" aria-hidden="true">${e}</span>`; }
 const VERDICT = { strong: ["\u{1F31F}", "Excellent"], ok: ["\u{1F44D}", "Okay"], weak: ["\u{1F4A1}", "Needs work"] };
 /* version 63: every feedback card has the same three blocks, in Robert's words: what you did right, what to fix, my tip.
    note is { right, fix } (the opener's reps and the live grader) or one sentence from an older scripted grader, split when it starts with praise */
@@ -4915,10 +4985,10 @@ function fbCard(level, note, model) {
   if (note && Array.isArray(note.hits)) {
     const sk = SKILLS[note.skill] || SK();
     const rightList = sk.hitNames.filter((_, i) => note.hits[i]), fixList = sk.missNames.filter((_, i) => !note.hits[i]);
-    return `<div class="fb ${level}"><h3 class="verdict"><span class="emo" aria-hidden="true">${emo}</span>${word}</h3>${fbSections({ rightList, right: rightList.length ? "" : "You knocked and spoke. That\u2019s the hard part.", fixList, tip: level !== "strong" ? openerTip(note.hits, sk) : "" })}</div>`;
+    return `<div class="fb ${level}"><h3 class="verdict">${emoIcon(emo)}${word}</h3>${fbSections({ rightList, right: rightList.length ? "" : "You knocked and spoke. That\u2019s the hard part.", fixList, tip: level !== "strong" ? openerTip(note.hits, sk) : "" })}</div>`;
   }
   const { right, fix } = fbParts(level, note);
-  return `<div class="fb ${level}"><h3 class="verdict"><span class="emo" aria-hidden="true">${emo}</span>${word}</h3>${fbSections({ right, fix, tip: level !== "strong" && model ? model : "", quote: true })}</div>`;
+  return `<div class="fb ${level}"><h3 class="verdict">${emoIcon(emo)}${word}</h3>${fbSections({ right, fix, tip: level !== "strong" && model ? model : "", quote: true })}</div>`;
 }
 const pendingCard = (msg) => `<div class="fb pending" aria-live="polite"><span class="dots3" aria-hidden="true"><i></i><i></i><i></i></span>${msg}</div>`;
 const NEXT_DAY = { 5: "Wednesday", 3: "Friday" };
@@ -6170,7 +6240,7 @@ function vScore() {
   else footer = `<button class="btn" data-act="go" data-arg="close">Finish lesson ${lessonNo}</button>${again || (g && hits === 4 ? "" : `<button class="link center" data-act="door-again">${g ? "Try this door again" : "Try the conversation again"}</button>`)}`; /* version 69 (Robert): 4 of 4 offers only Finish lesson */
   /* version 29 (Maya Kaur): one card, the four moves in order, then the tip; fits a phone with no scroll */
   const sd = g ? DOORS[drill ? drill.door : SK().door] : null; /* version 69 (Robert): the voter fills the space, the verdict sits over the bottom of the frame */
-  const scTop = `<div class="sc-top"><div class="ring-wrap" style="width:52px;height:52px">${ring(hits / 4, 52, 7)}<span class="ring-num num" style="font-size:15px">${hits}/4</span></div><h1 class="h1 verdict-h" style="margin:0"><span class="emo" aria-hidden="true">${emo}</span>${word}</h1></div>`;
+  const scTop = `<div class="sc-top"><div class="ring-wrap" style="width:52px;height:52px">${ring(hits / 4, 52, 7)}<span class="ring-num num" style="font-size:15px">${hits}/4</span></div><h1 class="h1 verdict-h" style="margin:0">${emoIcon(emo)}${word}</h1></div>`;
   if (g) return app(`
     ${progressBar(repMoves().length + 2, 1)}
     ${sd ? `<div class="frame stage-frame sc-voter">${scene(sd.scene, sd.persona, { main: true, label: `${sd.name}, ${sd.sub}` })}${scTop}</div>` : scTop}
@@ -6181,7 +6251,7 @@ function vScore() {
   return app(`
     ${progressBar(repMoves().length + 2, 1)}
     <div class="score-top compact"><div class="ring-wrap" style="width:64px;height:64px">${ring(hits / 4, 64, 9)}<span class="ring-num num" style="font-size:18px">${hits}/4</span></div>
-      <h1 class="h1 verdict-h" style="margin:0"><span class="emo" aria-hidden="true">${emo}</span>${word}</h1></div>
+      <h1 class="h1 verdict-h" style="margin:0">${emoIcon(emo)}${word}</h1></div>
     <div class="card3">${fbSections({ rightList, right: rightList.length ? "" : "You knocked and spoke. That\u2019s the hard part.", fixList, tip })}</div>
     ${sayCard}
     ${prior}
@@ -6322,6 +6392,19 @@ function oneOffer(n, d5, R) {
    lesson 2 is). The same dark button on every card names the next card; the stepper segments jump between cards. */
 const CLOSE_NAMES = ["Introduce yourself", "Get a voter talking", "Leave a tough door", "Make a plan to vote", "Remind three friends"];
 const DG_CK = (cls, label) => `<span class="dg-ck${cls ? " " + cls : ""}" role="img" aria-label="${label}">${CHECK}</span>`;
+/* version 114 (Robert, Mobbin audit edit 2): one burst of brand-color confetti as the ring grows on Lesson N done, first view only.
+   It falls behind the card and fades; reduced motion hides it. late: the "All four parts done" beat covers the card for 3.4 s first. */
+function confettiHtml(late) {
+  const cols = ["#35B57C", "#1B7A4D", "#7FD3AB", "#F4C542", "#E3DBCF"];
+  let seed = 11, h = "";
+  const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  const t0 = late ? 3.5 : 0.25;
+  for (let i = 0; i < 46; i += 1) {
+    const w = 5 + rnd() * 5, ht = 8 + rnd() * 8, round = rnd() > 0.72;
+    h += `<i style="left:${(rnd() * 96 + 2).toFixed(1)}%;width:${w.toFixed(1)}px;height:${(round ? w : ht).toFixed(1)}px;background:${cols[i % cols.length]};border-radius:${round ? "50%" : "2px"};--dx:${Math.round(rnd() * 120 - 60)}px;--fy:${Math.round(420 + rnd() * 320)}px;--r:${Math.round(rnd() * 900 - 450)}deg;--d:${(t0 + rnd() * 0.5).toFixed(2)}s;--t:${(2.2 + rnd() * 1.4).toFixed(2)}s"></i>`;
+  }
+  return `<div class="confetti" aria-hidden="true">${h}</div>`;
+}
 function closeStory(n, cnt, nx, R, after, anim, key) {
   const card = Math.max(0, Math.min(2, S.doneCard || 0)), sk = SK(), before = R.hits;
   const a = before.filter(Boolean).length, b = after.filter(Boolean).length, g = b - a, all = cnt >= 5;
@@ -6331,7 +6414,7 @@ function closeStory(n, cnt, nx, R, after, anim, key) {
     const what = LESSONS5[n - 1].title.replace(/^How to /, "").replace(/^(\w+)/, (v) => ({ introduce: "introducing", get: "getting", leave: "leaving", help: "helping" }[v] || v)); /* version 65 (Robert): "You\u2019ve mastered introducing yourself at the door." */
     const ringNew = S.ringSeen !== key; S.ringSeen = key;
     const r = (ringNew ? ringGrow((cnt - 1) / 5, cnt / 5, 132, ringW(132)) : ring(cnt / 5, 132, ringW(132))).replace('class="ring-arc grow"', S.beat === "close" ? 'class="ring-arc grow" data-late="1"' : 'class="ring-arc grow"');
-    body = `<div class="cs-one cs-auto" data-act="done-card" data-arg="2" role="button" tabindex="0" aria-label="Next: what\u2019s next"><div class="ring-wrap" style="width:132px;height:132px">${r}<span class="ring-num num" style="font-size:34px">${cnt}/5</span></div><p class="kicker">Lesson ${n} of 5</p><h1 class="h1">${all ? "You\u2019re door-ready." : `Lesson ${n} done.`}</h1><p class="lede">${all ? "All five moves, from memory." : `Good work ${what}.`}</p></div>`;
+    body = `${ringNew ? confettiHtml(S.beat === "close") : ""}<div class="cs-one cs-auto" data-act="done-card" data-arg="2" role="button" tabindex="0" aria-label="Next: what\u2019s next"><div class="ring-wrap" style="width:132px;height:132px">${r}<span class="ring-num num" style="font-size:34px">${cnt}/5</span></div><p class="kicker">Lesson ${n} of 5</p><h1 class="h1">${all ? "You\u2019re door-ready." : `Lesson ${n} done.`}</h1><p class="lede">${all ? "All five moves, from memory." : `Good work ${what}.`}</p></div>`;
     footer = ""; /* version 88 (Robert): an interstitial, like the beat before it. It holds about as long as the beat did, then What's next opens on its own (doneArm); a tap skips ahead */
   } else if (card === 0) { /* version 98 (Robert): How you grew, the volunteer's own words; the held and lower copy is gone (version 97 routes every non-improver back through the door) */
     const bestRec = (S.best5 || {})[n] || null;
@@ -6755,7 +6838,7 @@ function vTry() {
   /* version 50 (Maya Kaur, Robert): the summary by score */
   const sum = all ? "Amazing job! Let\u2019s practice one more time." : (c >= 2 ? "That\u2019s a good start." : "Nice try.") + " Now listen to an opener that hits all four parts of a good introduction."; /* version 85 (Robert) */
   const card = `<div class="fb try${anim ? " cascade" : ""}"><p class="you-said">You said: \u201c${esc(R.text)}\u201d</p><h3>${all ? "You already have all four." : "A good introduction does four things."}</h3><ul class="sc-list four-list">${rows}</ul><p class="try-lead had">${sum}</p></div>`;
-  return app(`${head}${card}`, { tag: "", footer: `${button([all ? "Next: your 2nd intro" : "Next: hear it done", "try-next"]).replace('class="btn ', anim ? 'class="btn late ' : 'class="btn ')}${all ? `<button class="link center" data-act="try-full">See the full lesson</button>` : ""}` });
+  return app(`${head}${card}`, { tag: "", stage: true, footer: `${button([all ? "Next: your 2nd intro" : "Next: hear it done", "try-next"]).replace('class="btn ', anim ? 'class="btn late ' : 'class="btn ')}${all ? `<button class="link center" data-act="try-full">See the full lesson</button>` : ""}` });
 }
 async function tryKnock() {
   if (S.tryKnocked) return;
@@ -6842,18 +6925,25 @@ function vSpotG() {
   /* version 33 (Maya Kaur): the miss is Monica's, in the third person (lesson 1's names say "your" and "you're") */
   const herMiss = (x) => x.replace("your name", "her name").split("you\u2019re").join("she\u2019s");
   const youDid = (x) => { const m = herMiss(x); return `${DEMO} ${m.charAt(0).toLowerCase()}${m.slice(1)}${/[.?!\u201d]$/.test(m) ? "" : "."}`; };
-  const ans = !done ? "" : `<div class="fb spot-ans ${right ? "strong" : "ok"}${anim ? " anim" : ""}"><h3>${right ? "\u{1F389} Nailed it!" : "Not quite."}</h3><p class="ans-miss">${esc(youDid(sk.missNames[it.miss]))}</p></div>`; /* version 38 (Maya Kaur, Robert): no why line on the answer card */
+  const ans = !done ? "" : `<div class="fb spot-ans ${right ? "strong" : "ok"}${anim ? " anim" : ""}"><h3>${right ? emoIcon("\u{1F389}") + "Nailed it!" : "Not quite."}</h3><p class="ans-miss">${esc(youDid(sk.missNames[it.miss]))}</p></div>`; /* version 38 (Maya Kaur, Robert): no why line on the answer card */
+  /* version 115 (Robert, Mobbin audit edit 3): the four parts stay after the pick; the missing part is green with a check, a wrong pick red with an x */
+  const MK_OK = `<svg width="11" height="11" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 5.5l2.4 2.4L8.6 2.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const MK_NO = `<svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 2l6 6M8 2l-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
+  const doneTiles = !showAns ? "" : `<ol class="spot-tiles done${anim ? " anim" : ""}" aria-label="The four parts">${sk.moves.map((m, i) => {
+    const miss = i === it.miss, wrong = i === picked && !right;
+    return `<li><div class="tile${miss ? " missing" : ""}${wrong ? " mine wrong" : ""}">${miss || wrong ? `<span class="sp-mk">${miss ? MK_OK : MK_NO}</span>` : ""}<span class="sp-tx">${miss ? `<small>${right ? "Your pick" : "The missing part"}</small>` : wrong ? `<small>Your pick</small>` : ""}<span>${m}</span></span></div></li>`;
+  }).join("")}</ol>`;
   const ppOn = !done ? !played : replay; /* version 103: the pause button shows while the door plays or replays */
   const ppSt = sp.paused ? "Play" : "Pause";
   const pp = ppOn ? `<button class="w-pp" data-act="spot-toggle" id="s-toggle" data-state="${ppSt}" aria-label="${ppSt}">${PP_ICON[ppSt.toLowerCase()]}</button>` : "";
-  const frame = `<div class="frame stage-frame spot-stage${showAns ? " spot-done" : ""}">${scene(L.scene, L.persona, { main: true, sign: L.sign })}${pp}${showAns ? ans : ""}</div>`;
+  const frame = `<div class="frame stage-frame spot-stage${showAns ? " spot-done" : ""}">${scene(L.scene, L.persona, { main: true, sign: L.sign })}${pp}</div>`;
   const footer = showAns ? `<button class="btn" data-act="go" data-arg="main">Next: your 2nd intro</button>` : replay || !played ? `<button class="link center w-skip" data-act="spot-skip">Skip</button>` : "";
   return app(`
     ${lessonBar(2, done ? 1 : played ? 0.8 : 0.2)}
     <h2 class="h2 tight spot-title">${skKey() === "open" ? "Which part of the intro was missed?" : "Which part was missed?"}</h2>
     ${frame}
     ${cap}
-    ${showAns ? `<button class="link center spot-again" data-act="spot-hear">Hear it again</button>` : done ? "" : played ? tiles : ""}
+    ${showAns ? `${ans}${doneTiles}<button class="link center spot-again" data-act="spot-hear">Hear it again</button>` : done ? "" : played ? tiles : ""}
   `, { tag: "", footer: footer || undefined, stage: true });
 }
 /* the door plays: Monica's lines and the voter's, recorded (SPOT_AUDIO, else a clip the page already has, else the browser voice) */
@@ -6955,21 +7045,26 @@ function lockTimerArm() {
   paint(); lockTick = setInterval(paint, 1000);
 }
 function vTodayG() {
+  /* version 113 (Robert, Mobbin audit edit 1): one hero card for the next lesson, the rest are quiet rows. After lesson 1 the next lesson is locked,
+     so the hero holds the clock and the why link; before it, the hero holds the one Start button. */
   const d5 = S.done5 || {}, nx = LESSONS5.find((x) => !d5[x.n]), gated = !!nx && lessonGated();
   const check = `<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const rows = LESSONS5.map((L, j) => {
-    const done = d5[L.n], next = !!nx && L.n === nx.n, lk = !done && lessonLocked(L.n), at = S.nextAt[L.n];
-    const sub = done ? `Done \u00b7 Score ${done.filter(Boolean).length}/4` : lk ? "" : next && gated ? `Opens ${at ? at.say : "in a few hours"}` : `${at ? at.label : DAY5[j]} \u00b7 5 min`;
-    return `<li class="${done ? "done" : next ? "next" : ""}${lk ? " locked" : ""}"><button data-act="lesson5" data-arg="${L.n}"><span class="tick">${done ? check : lk ? LOCK_SVG : L.n}</span><span><b>${L.title}</b>${sub ? `<small>${sub}</small>` : ""}</span>${next ? `<span class="next-tag">Next</span>` : ""}</button></li>`;
-  }).join("");
-  const locked = !!nx && lessonLocked(nx.n);
+  const row = (L) => {
+    const done = d5[L.n], lk = !done && lessonLocked(L.n);
+    return `<li class="${done ? "done" : ""}${lk ? " locked" : ""}"><button data-act="lesson5" data-arg="${L.n}"><span class="tick">${done ? check : lk ? LOCK_SVG : L.n}</span><span><b>${L.title}</b>${done ? `<small>Done \u00b7 Score ${done.filter(Boolean).length}/4</small>` : ""}</span></button></li>`;
+  };
+  const locked = !!nx && lessonLocked(nx.n), at = nx ? S.nextAt[nx.n] : null;
   const primary = locked ? null : nx ? [gated ? "Do it now anyway" : `Start lesson ${nx.n}`, "lesson5", String(nx.n)]
     : !S.warmDone ? ["Start your Warmup", "warm-start"]
     : ["Practice a door", "go", "coach"];
-  const footer = locked ? `<div class="lock-timer"><p class="lt-k">Lesson ${nx.n} unlocks in</p><p class="lt-clock" id="lock-timer">${clockText(lockEnd() - Date.now())}</p><p class="lt-sub">You\u2019ll get a text the moment it\u2019s ready.</p><button class="link" data-act="go" data-arg="whylock">Why your lesson is locked</button></div>` : "";
+  const hero = !nx ? "" : `<div class="hero-next${locked ? " locked" : ""}"><p class="hn-k">Up next \u00b7 5 min</p><h2 class="hn-t">Lesson ${nx.n}: ${nx.title}</h2>${locked
+    ? `<div class="hn-lock"><span class="hn-ico">${LOCK_SVG}</span><p class="hn-in">Unlocks in</p><p class="lt-clock" id="lock-timer" role="timer">${clockText(lockEnd() - Date.now())}</p></div><p class="lt-sub">You\u2019ll get a text the moment it\u2019s ready.</p><button class="link" data-act="go" data-arg="whylock">Why your lesson is locked</button>`
+    : `${gated && at ? `<p class="lt-sub">Opens ${at.say}</p>` : ""}${button(primary)}`}</div>`;
+  const list = (xs) => (xs.length ? `<ol class="plan plan-g plan-quiet">${xs.map(row).join("")}</ol>` : "");
+  const before = nx ? LESSONS5.filter((L) => L.n < nx.n) : LESSONS5, after = nx ? LESSONS5.filter((L) => L.n > nx.n) : [];
   const nDone = LESSONS5.filter((x) => d5[x.n]).length;
   const head = `<div class="fund-head"><h1 class="fund-h">Your five canvassing fundamentals</h1><p class="fund-sub">${nDone === 0 ? "Five short lessons, one a day, to get you door-ready." : nDone === 5 ? "All five done. You have the fundamentals." : `${nDone} of 5 down. One lesson a day gets you door-ready.`}</p></div>`;
-  return app(`${head}<ol class="plan plan-g">${rows}</ol>`, { tabs: "today", footer: (footer || button(primary)) + pwLine() }); /* version 105: Powered by Warmup under the clock or the button */
+  return app(`${head}${list(before)}${hero}${list(after)}`, { tabs: "today", footer: (nx ? "" : button(primary)) + pwLine() }); /* version 105: Powered by Warmup at the foot */
 }
 function vWhyLock() {
   const dots = [1, 2, 3, 4, 5].map((n) => `<span class="wl-dot${n === 1 ? " on" : ""}">${n === 1 ? `<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>` : n}</span>`).join(`<i class="wl-gap"></i>`);
@@ -8419,6 +8514,7 @@ render();
 </script>
 </body>
 </html>
+
 
 
 
