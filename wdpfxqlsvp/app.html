@@ -1012,6 +1012,7 @@
   .spot-ask { margin: 18px 2px 10px; font-size: 16px; font-weight: 700; line-height: 1.35; }
   .spot-tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .spot-card + .spot-tiles { margin-top: 14px; }
+  .content.stage > .spot-tiles { margin-top: 14px; } /* version 85: the tiles sit right under the stage */
   .spot-tiles li { display: flex; }
   .spot-tiles .tile { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 3px; min-height: 60px; padding: 10px 13px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--card); font: inherit; font-size: 15px; line-height: 1.3; text-align: left; color: var(--ink); cursor: pointer; transition: transform .12s ease, border-color .2s ease; -webkit-tap-highlight-color: transparent; }
   .spot-tiles .tile:active { transform: scale(.98); border-color: var(--ink); }
@@ -1181,6 +1182,9 @@
   .door-four .dn { width: 22px; height: 22px; border-radius: 50%; background: var(--card); color: var(--ink-2); font-size: 12px; font-weight: 700; display: grid; place-items: center; }
   .door-four .de { font-size: 17px; line-height: 1; }
   .content.stage > .frame.door-stage { border-radius: 22px; min-height: 150px; }
+  .frame.convo-stage.knock { animation: knock 0.5s ease; } /* version 87: the frame shakes on the knock */
+  .content.stage > .thread { flex: none; padding: 12px 0 2px; }
+  .content.stage > .talk-live { flex: none; }
   .content.stage > .mem-line, .content.stage > .rule-line { flex: none; margin-top: 10px; }
   @media (max-height: 700px) { .content.stage > .frame.door-stage { min-height: 136px; } .content.stage > .door-four { margin-top: 10px; padding: 10px 14px 11px; } .door-four ol { gap: 6px; } .door-four .df-h { margin-bottom: 7px; } .content.stage > .try-lede { margin-bottom: 10px; } }
   /* version 54 (Robert): the eye is back on the 1st try's result for each part not yet said (the 2nd try's feedback keeps the dash) */
@@ -1201,6 +1205,7 @@
   .cs-seg.on i { background: var(--accent); }
   .cs-one { margin: auto 0; padding-bottom: 28px; display: grid; justify-items: center; text-align: center; }
   .cs-one .ring-wrap { margin: 0 0 20px; }
+  .cs-one.cs-auto { cursor: pointer; -webkit-tap-highlight-color: transparent; } /* version 88: the whole card is the tap target */
   .cs-one .kicker { margin: 0 0 6px; }
   .cs-one .h1 { font-size: 40px; margin: 0 0 8px; }
   .cs-one .lede { margin: 0; max-width: 300px; }
@@ -1268,7 +1273,7 @@
   .content.stage > .frame.spot-stage.spot-done { overflow: hidden; }
   .frame.spot-stage .spot-ans { position: absolute; left: 12px; right: 12px; bottom: 12px; margin: 0; z-index: 2; box-shadow: 0 8px 24px rgba(30, 24, 18, .16); }
   .spot-again { flex: none; margin: 8px auto 0; }
-  .content.stage .frame.sc-voter { flex: 1 1 0; min-height: 104px; max-height: 320px; border-radius: 22px; margin-bottom: 12px; }
+  .content.stage .frame.sc-voter { flex: 1 1 0; min-height: 104px; max-height: 440px; border-radius: 22px; margin-bottom: 12px; } /* version 85: the tip box is gone, so the voter takes its room */
   .sc-voter .sc-top { position: absolute; left: 10px; bottom: 10px; max-width: calc(100% - 20px); margin: 0; padding: 6px 14px 6px 8px; gap: 8px; border-radius: 999px; background: rgba(255, 253, 249, .95); box-shadow: 0 6px 20px rgba(30, 24, 18, .16); z-index: 2; }
   .sc-voter .sc-top .ring-wrap { width: 38px !important; height: 38px !important; } .sc-voter .sc-top .ring-wrap svg { width: 38px; height: 38px; } .sc-voter .sc-top .ring-num { font-size: 12px !important; }
   .sc-voter .sc-top .h1 { font-size: 21px; white-space: nowrap; } .sc-voter .sc-top .emo { font-size: 19px; }
@@ -1376,6 +1381,17 @@
   .moves.wrecap li:last-child { border-bottom: 0; }
   @media (max-height: 700px) { .content .frame.wframe.wv2:not(.wdone) { height: 168px; } .content .frame.wframe.wv2:not(.wdone) svg.voter { margin-top: -12px; } }
   @media (max-height: 640px) { .content .frame.wframe.wv2:not(.wdone) { height: 118px; } .content .frame.wframe.wv2:not(.wdone) svg.voter { margin-top: -70px; } .lesson-row.wrow .h2 { display: none; } }
+  /* version 86 (Robert): Hear it done is one screen. The door is a stage from the start and the four parts pop into the recap's card under it;
+     a hidden copy of the rows holds their room, so the door holds still, and the Skip link holds the Next button's room for the same reason */
+  .content.stage .frame.wframe.wv2.stage-frame { height: auto; }
+  .content.stage .frame.wframe.wv2.stage-frame svg.voter { margin: 0; }
+  .content.stage > .wlive-wrap { position: relative; flex: none; margin-top: 12px; }
+  .wlive-wrap .wghost { visibility: hidden; }
+  .wlive-wrap .wlive { position: absolute; left: 0; right: 0; top: 0; }
+  .wlive-wrap .wlive:empty { padding: 0; background: none; }
+  .moves.wlive li { animation: rise .4s ease both; }
+  .actions .w-skip { min-height: 54px; }
+  @media (prefers-reduced-motion: reduce) { .moves.wlive li { animation: none; } }
   .cut-open .why-line.open-why { margin-bottom: 12px; }
   .plan b { text-wrap: balance; }
   @media (prefers-reduced-motion: reduce) {
@@ -4691,8 +4707,7 @@ function vSMS() {
     <div class="sms-thread">
       <p class="sms-time">Sunday 6:41 PM</p>
       <div class="sms-bub">${t.sms.replace("{name}", esc(me()))}</div>
-      <button class="sms-card" data-act="go" data-arg="${t.video ? "video" : "welcome"}"><span class="art"><svg width="34" height="34" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="32" fill="none" stroke="#E6DFD3" stroke-width="12"/><circle cx="42" cy="42" r="32" fill="none" stroke="#35B57C" stroke-width="12" stroke-linecap="round" stroke-dasharray="151 202" transform="rotate(-90 42 42)"/></svg></span><span class="txt"><b>${t.video ? "Your canvass warmup. Nothing to download." : "Your first practice"}</b><small>${t.video ? "warmup.mayakaur.com" : "5 minutes, nothing to download"}</small></span></button>
-      <p class="sms-hint">Tap the link to open the lesson</p>
+      <button class="sms-card" data-act="go" data-arg="${t.video ? "video" : "welcome"}"><span class="art"><svg width="34" height="34" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="32" fill="none" stroke="#E6DFD3" stroke-width="12"/><circle cx="42" cy="42" r="32" fill="none" stroke="#35B57C" stroke-width="12" stroke-linecap="round" stroke-dasharray="151 202" transform="rotate(-90 42 42)"/></svg></span><span class="txt"><b>${t.video ? "Tap this link to open your canvass warmup." : "Your first practice"}</b><small>${t.video ? "warmup.mayakaur.com" : "5 minutes, nothing to download"}</small></span></button>
     </div>
     <div class="sms-compose" aria-hidden="true">Text Message</div>
   </div>`;
@@ -5116,6 +5131,13 @@ function vBasics() {
 /* "How Saturday works" as a story: six tap-through cards with a small animation each, then the pass to keep */
 const STORY_MS = 4500;
 let storyTimer = 0;
+let doneTimer = 0; /* version 88: the ring card moves on by itself */
+function doneArm() {
+  clearTimeout(doneTimer);
+  if (S.screen !== "close" || S.track !== "gotv" || !$("#screen .cs-auto")) return;
+  const late = !!$("#screen .beat"); /* the beat covers the card for 3.4 s and the ring grows at 3.5 s; the card then holds about as long as the beat did */
+  doneTimer = setTimeout(() => { if (S.screen === "close" && (S.doneCard || 0) === 1 && $("#screen .cs-auto")) { S.doneCard = 2; render(); } }, late ? 7000 : 3500);
+}
 const STORY_ART = {
   meet: `<path class="st-pin" d="M100 22c-17 0-30 13-30 30 0 23 30 52 30 52s30-29 30-52c0-17-13-30-30-30z" fill="var(--accent)"/><circle class="st-pin" cx="100" cy="52" r="11" fill="#FFFFFF"/><ellipse class="st-shadow" cx="100" cy="122" rx="26" ry="6" fill="var(--ink)" opacity=".12"/><path d="M38 132 H162" stroke="var(--line)" stroke-width="3" stroke-linecap="round"/>`,
   huddle: `<g class="st-bob"><circle cx="78" cy="58" r="16" fill="var(--accent)"/><path d="M50 128c0-22 12-40 28-40s28 18 28 40z" fill="var(--accent)"/></g><g class="st-bob st-d2"><circle cx="124" cy="58" r="16" fill="var(--ink)"/><path d="M96 128c0-22 12-40 28-40s28 18 28 40z" fill="var(--ink)"/></g><path class="st-pop st-d3" d="M92 26 h16 l-8 9z" fill="var(--accent-ink)"/>`,
@@ -5323,13 +5345,18 @@ function vSession() {
 function vWatch() {
   const sk = SK(), L = sk.lesson;
   /* version 28 (Maya Kaur): the title above the door, one play/pause glyph on the frame, the lines as a transcript, the four moves in one card that fills in */
-  if (S.track === "gotv") return app(`
+  /* version 86 (Robert): Hear it done is one screen. The door fills the space like the recap's did, no transcript, and the four parts
+     pop into the recap's card one by one as Monica says them (watchLit). A hidden copy of the four rows holds their room from the start,
+     so the door never moves. The end swaps Skip for Next and adds Watch again beside the heading (watchEnd). */
+  if (S.track === "gotv") {
+    const lit = L.lines.slice(0, S.lessonAt).reduce((a, l) => (l.move == null ? a : Math.max(a, l.move)), -1); /* rows already said, if the screen redraws mid-play */
+    return app(`
     ${progressBar(0, S.lessonAt / Math.max(1, L.lines.length))}
-    <div class="lesson-row wrow"><h2 class="h2">${DEMO} at ${esc(L.name)}\u2019s door</h2></div>
-    <div class="frame wframe wv2">${scene(L.scene, L.persona, { main: true, crop: "tight", sign: L.sign })}<button class="w-pp" data-act="lesson-toggle" id="l-toggle" data-state="Pause" aria-label="Pause">${PP_ICON.pause}</button><div class="hl" id="hl" hidden></div></div>
-    <div class="wcap" id="cap" aria-live="polite"><span class="cap-who">${DEMO}</span><p>A volunteer like you. Listen for her four moves.</p></div>
-    <ol class="moves wgrid" id="l-moves">${sk.moves.map((m, i) => `<li data-i="${i}"><span class="wn" aria-hidden="true"><em>${i + 1}</em>${CHECK}</span><span>${m}</span></li>`).join("")}</ol>
-  `, { tag: "", back: "session", footer: `<button class="link center w-skip" data-act="watch-next">Skip</button>` }); /* version 33 (Maya Kaur): the big Next waits for the recap */
+    <div class="lesson-row wrow"><h2 class="h2">${skKey() === "open" ? "Watch a great introduction" : `${DEMO} at ${esc(L.name)}\u2019s door`}</h2></div>
+    <div class="frame wframe wv2 stage-frame">${scene(L.scene, L.persona, { main: true, crop: "tight", sign: L.sign })}<button class="w-pp" data-act="lesson-toggle" id="l-toggle" data-state="Pause" aria-label="Pause">${PP_ICON.pause}</button><div class="hl" id="hl" hidden></div></div>
+    <div class="wlive-wrap"><ol class="moves wrecap wlive" id="l-moves" aria-label="The four parts">${sk.moves.map((m, i) => (i <= lit ? watchRow(m, i) : "")).join("")}</ol><ol class="moves wrecap wghost" aria-hidden="true">${sk.moves.map((m, i) => watchRow(m, i)).join("")}</ol></div>
+  `, { tag: "", back: "session", stage: true, footer: `<button class="link center w-skip" data-act="watch-next">Skip</button>` }); /* version 33 (Maya Kaur): the big Next waits for the recap */
+  }
   return app(`
     ${progressBar(0, S.lessonAt / Math.max(1, SK().lesson.lines.length))}
     <div class="frame wframe">${mariaOn(L) ? mariaVid() : scene(L.scene, L.persona, { main: true, crop: "tight", sign: L.sign })}<span class="who-tag"><b>${L.name}</b> ${L.tag || (L.scene === "store" ? "at the table" : "supporter on the list")}</span><span class="ctrl in-frame"><button data-act="lesson-toggle" id="l-toggle">Pause</button><button data-act="lesson-replay">Replay</button></span><div class="hl" id="hl" hidden></div></div>
@@ -5686,19 +5713,26 @@ function doorChips() {
    The parts missed on the 1st try get the eye. On the knock, knock() re-renders into the door conversation as before. */
 function doorIntro(d, sk) {
   const n = lessonNo(), open = skKey() === "open", R = tryNow(), miss = R && !R.pending && R.hits ? R.hits.map((h) => !h) : [];
-  const title = open ? "Greet this voter with all four parts." : "Take this door with all four moves.";
-  const lede = open ? "Knock and practice your greeting live." : "Knock and practice it live."; /* version 64 (Robert): no "See if you can get all four in." and no eyes in the list */
+  const title = open ? "Greet this voter with all four parts of a good introduction." : "Take this door with all four moves."; /* version 85 (Robert): no lede under the title */
   const rows = sk.moves.map((m, i) => `<li><span class="dn">${i + 1}</span><span class="dm">${m}</span></li>`).join("");
   const mem = n > 1 ? `<p class="mem-line"><b>From memory:</b> ${LESSONS5.slice(0, n - 1).map((x) => x.title).join(" \u00b7 ")}</p>` : "";
   const rule = !open && sk.headsUp ? `<p class="rule-line"><b>Heads up:</b> ${sk.headsUp}</p>` : "";
-  return app(`${progressBar(repMoves().length + 1, 0)}<h2 class="h2 tight">${title}</h2><p class="try-lede">${lede}</p>
+  return app(`${progressBar(repMoves().length + 1, 0)}<h2 class="h2 tight">${title}</h2>
     <div class="frame small stage-frame door-stage">${scene(d.scene, d.persona, { main: true, shut: d.scene === "door", label: `${d.name}, ${d.sub}` })}</div>
-    <div class="door-four"><p class="df-h">${open ? "The four parts of a good opener" : "The four moves"}</p><ol>${rows}</ol></div>${mem}${rule}
+    <div class="door-four"><p class="df-h">${open ? "The four parts of a good introduction" : "The four moves"}</p><ol>${rows}</ol></div>${mem}${rule}
   `, { tag: "", back: "path", stage: true, footer: `<button class="btn" data-act="knock">${d.scene === "door" ? "Knock" : "Start"}</button>` });
 }
 function vDoor() {
   const d = DOORS[SK().door], sk = SK();
   if (S.track === "gotv" && !S.drill && !(S.convo && S.convo.knocked)) return doorIntro(d, sk); /* version 54 */
+  /* version 87 (Robert): too much empty space after the knock. The lesson's door keeps the stage the intro drew (the frame fills the spare
+     height, as the 1st try's does), the voter's line and yours sit under it as bubbles, and the mic stays pinned below. Drills keep the
+     old thread layout. */
+  if (S.track === "gotv" && !S.drill) return app(`
+    ${progressBar(repMoves().length + 1, S.convo ? Math.min(0.9, S.convo.turns.filter((x) => x.who === "you").length / (shortDoor() ? 2 : 7)) : 0)}
+    <div class="frame stage-frame door-stage convo-stage">${scene(d.scene, d.persona, { main: true, sign: d.sign, shut: d.scene === "door", away: d.scene === "store", label: `${d.name}, ${d.sub}` })}<video class="selfie" id="selfie" playsinline muted autoplay hidden></video></div>
+    <div class="thread" id="thread"></div>
+  `, { tag: "", back: "path", stage: true, footer: composer("send", "Type what you\u2019d say") });
   const rule = sk.headsUp ? `<p class="rule-line"><b>Heads up:</b> ${sk.headsUp}</p>` : "";
   const footer = `${S.convo && S.convo.knocked ? composer("send", "Type what you\u2019d say") : `${S.drill && S.drill.kind === "warm" ? `<p class="door-goal"><b>From memory.</b> No chips this time.</p>` : (S.track === "gotv" && !S.drill ? doorChips() : `<p class="door-goal"><b>Your goal:</b> ${goalLine()}.</p>`)}${rule}<button class="btn" data-act="knock">${d.scene === "door" ? "Knock" : "Start"}</button>`}
     ${S.track === "gotv" ? "" : `<div class="door-links"><button class="link" data-act="suggest">Need a line?</button><button class="link" data-act="ask-open">Ask the campaign</button><button class="link" data-act="end-convo">End conversation</button></div>`}`;
@@ -5750,8 +5784,7 @@ function vScore() {
   if (g) return app(`
     ${progressBar(repMoves().length + 2, 1)}
     ${sd ? `<div class="frame stage-frame sc-voter">${scene(sd.scene, sd.persona, { main: true, label: `${sd.name}, ${sd.sub}` })}${scTop}</div>` : scTop}
-    <div class="sc-card"><ul class="sc-list">${sk.moves.map((m, i) => `<li class="${L.moves[i] ? "y" : "n"}">${esc(L.moves[i] ? sk.hitNames[i] : (sk.missNames || [])[i] || m)}</li>`).join("")}</ul>
-      ${tip ? `<div class="sc-tip"><b>${sayStep && !said ? "My tip. Say it out loud now." : "My tip"}</b><p>${esc(tip)}</p></div>` : ""}</div>
+    <div class="sc-card"><ul class="sc-list">${sk.moves.map((m, i) => `<li class="${L.moves[i] ? "y" : "n"}">${esc(L.moves[i] ? sk.hitNames[i] : (sk.missNames || [])[i] || m)}</li>`).join("")}</ul></div>
     ${sayCard}
     ${prior}
   `, { tag: drill ? (warm ? "Warmup" : "Practice") : "Feedback", noBack: true, footer, stage: !!sd });
@@ -5841,8 +5874,8 @@ function closeStory(n, cnt, nx, R, after, anim, key) {
     const what = LESSONS5[n - 1].title.replace(/^How to /, "").replace(/^(\w+)/, (v) => ({ introduce: "introducing", get: "getting", leave: "leaving", help: "helping" }[v] || v)); /* version 65 (Robert): "You\u2019ve mastered introducing yourself at the door." */
     const ringNew = S.ringSeen !== key; S.ringSeen = key;
     const r = (ringNew ? ringGrow((cnt - 1) / 5, cnt / 5, 132, ringW(132)) : ring(cnt / 5, 132, ringW(132))).replace('class="ring-arc grow"', S.beat === "close" ? 'class="ring-arc grow" data-late="1"' : 'class="ring-arc grow"');
-    body = `<div class="cs-one"><div class="ring-wrap" style="width:132px;height:132px">${r}<span class="ring-num num" style="font-size:34px">${cnt}/5</span></div><p class="kicker">Lesson ${n} of 5</p><h1 class="h1">${all ? "You\u2019re door-ready." : `Lesson ${n} done.`}</h1><p class="lede">${all ? "All five moves, from memory." : `Good work ${what}.`}</p></div>`;
-    footer = button(["What\u2019s next", "done-card", "2"]);
+    body = `<div class="cs-one cs-auto" data-act="done-card" data-arg="2" role="button" tabindex="0" aria-label="Next: what\u2019s next"><div class="ring-wrap" style="width:132px;height:132px">${r}<span class="ring-num num" style="font-size:34px">${cnt}/5</span></div><p class="kicker">Lesson ${n} of 5</p><h1 class="h1">${all ? "You\u2019re door-ready." : `Lesson ${n} done.`}</h1><p class="lede">${all ? "All five moves, from memory." : `Good work ${what}.`}</p></div>`;
+    footer = ""; /* version 88 (Robert): an interstitial, like the beat before it. It holds about as long as the beat did, then What's next opens on its own (doneArm); a tap skips ahead */
   } else if (card === 0) { /* version 77: How you grew opens Lesson N done */
     const grow = S.dgSeen !== key; S.dgSeen = key;
     const gained = sk.moves.filter((m, i) => after[i] && !before[i]).map((m) => m.replace(/^Say /, "saying ").replace(/^Remind /, "reminding ").replace(/^Don\u2019t ask /, "not asking ").replace(/^\w/, (c) => c.toLowerCase()));
@@ -6257,7 +6290,7 @@ function vTry() {
   if (R && R.pending) return app(`${head}${scenePart}${pendingCard("Reading your answer\u2026")}`, { tag: "", stage: knocked });
   if (!R) {
     const footer = knocked
-      ? `<p class="say-note say-ask">${knock ? "What do you say first?" : "What do you say next?"}<small>There\u2019s no wrong answer.</small></p>${composer("try-check", "", "Check my try")}`
+      ? composer("try-check", "", "Check my try") /* version 85 (Robert): the title already asks; no second question with the mic */
       : `<button class="btn" data-act="try-knock">Knock</button>`;
     const lede = knocked ? "" : `<p class="try-lede">Knock and try out your opening greeting.</p>`; /* version 41 (Robert): fewer words; the beat said the rest */
     return app(`${head}${lede}${scenePart}`, { tag: "", footer, stage: true });
@@ -6268,7 +6301,7 @@ function vTry() {
   const anim = !!R.at && Date.now() - R.at < 5000;
   const rows = sk.moves.map((m, i) => `<li class="${hits[i] ? "y" : "n"}" style="--i:${i}"><small>${hits[i] ? "You did" : "Not yet"}</small>${esc(m)}</li>`).join("");
   /* version 50 (Maya Kaur, Robert): the summary by score */
-  const sum = all ? "Amazing job! Let\u2019s practice one more time." : (c >= 2 ? "That\u2019s a good start." : "Nice try.") + " Now listen to an interaction that hits all four parts of a good opener.";
+  const sum = all ? "Amazing job! Let\u2019s practice one more time." : (c >= 2 ? "That\u2019s a good start." : "Nice try.") + " Now listen to an opener that hits all four parts of a good introduction."; /* version 85 (Robert) */
   const card = `<div class="fb try${anim ? " cascade" : ""}"><p class="you-said">You said: \u201c${esc(R.text)}\u201d</p><h3>${all ? "You already have all four." : "A good opener does four things."}</h3><ul class="sc-list four-list">${rows}</ul><p class="try-lead had">${sum}</p></div>`;
   return app(`${head}${card}`, { tag: "", footer: `${button([all ? "Next: your 2nd try" : "Next: hear it done", "try-next"]).replace('class="btn ', anim ? 'class="btn late ' : 'class="btn ')}${all ? `<button class="link center" data-act="try-full">See the full lesson</button>` : ""}` });
 }
@@ -6353,16 +6386,16 @@ function vSpotG() {
   const anim = done && sp.at && Date.now() - sp.at < 1500;
   const replay = done && !!sp.replay, showAns = done && !replay; /* version 69 (Robert): the answer keeps the stage */
   const cap = replay ? `<div class="wcap" id="cap" aria-live="polite"><span class="cap-who">Again</span><p>Listen for the missing part.</p></div>` : done || played ? "" : `<div class="wcap" id="cap" aria-live="polite"><span class="cap-who">Another day</span><p>One of the four moves is missing. Listen for it.</p></div>`;
-  const tiles = `<p class="spot-ask">Which part was missing?</p><ol class="spot-tiles" aria-label="The four moves">${sk.moves.map((m, i) => `<li><button class="tile" data-act="spot-pick" data-arg="${i}" aria-pressed="false"><span class="tile-t">${m}</span></button></li>`).join("")}</ol><button class="link center" data-act="spot-replay">Hear it again</button>`;
+  const tiles = `<ol class="spot-tiles" aria-label="The four moves">${sk.moves.map((m, i) => `<li><button class="tile" data-act="spot-pick" data-arg="${i}" aria-pressed="false"><span class="tile-t">${m}</span></button></li>`).join("")}</ol><button class="link center" data-act="spot-replay">Hear it again</button>`;
   /* version 33 (Maya Kaur): the miss is Monica's, in the third person (lesson 1's names say "your" and "you're") */
   const herMiss = (x) => x.replace("your name", "her name").split("you\u2019re").join("she\u2019s");
   const youDid = (x) => { const m = herMiss(x); return `${DEMO} ${m.charAt(0).toLowerCase()}${m.slice(1)}${/[.?!\u201d]$/.test(m) ? "" : "."}`; };
-  const ans = !done ? "" : `<div class="fb spot-ans ${right ? "strong" : "ok"}${anim ? " anim" : ""}"><h3>${right ? "Right." : "Not quite."}</h3><p class="ans-miss">${esc(youDid(sk.missNames[it.miss]))}</p></div>`; /* version 38 (Maya Kaur, Robert): no why line on the answer card */
+  const ans = !done ? "" : `<div class="fb spot-ans ${right ? "strong" : "ok"}${anim ? " anim" : ""}"><h3>${right ? "\u{1F389} Nailed it!" : "Not quite."}</h3><p class="ans-miss">${esc(youDid(sk.missNames[it.miss]))}</p></div>`; /* version 38 (Maya Kaur, Robert): no why line on the answer card */
   const frame = `<div class="frame stage-frame spot-stage${showAns ? " spot-done" : ""}">${scene(L.scene, L.persona, { main: true, sign: L.sign })}${showAns ? ans : ""}</div>`;
   const footer = showAns ? `<button class="btn" data-act="go" data-arg="main">Next: your 2nd try</button>` : replay || !played ? `<button class="link center w-skip" data-act="spot-skip">Skip</button>` : "";
   return app(`
     ${lessonBar(2, done ? 1 : played ? 0.8 : 0.2)}
-    <h2 class="h2 tight spot-title">${DEMO} at ${esc(L.name)}\u2019s door again.</h2>
+    <h2 class="h2 tight spot-title">${skKey() === "open" ? "Which part of the intro was missed?" : "Which part was missed?"}</h2>
     ${frame}
     ${cap}
     ${showAns ? `<button class="link center spot-again" data-act="spot-hear">Hear it again</button>` : done ? "" : played ? tiles : ""}
@@ -6760,6 +6793,7 @@ function renderNotes() {
 function leaveScreen() {
   if (toastVol) { toastVol = false; clearTimeout(toastTimer); const tv = $("#toast"); if (tv) tv.hidden = true; }
   clearTimeout(storyTimer);
+  clearTimeout(doneTimer); /* version 88 */
   stopMic();
   lessonRun += 1;
   videoRun += 1;
@@ -6792,8 +6826,32 @@ function go(screen, opts = {}) {
   const c = $("#content");
   if (c) c.scrollTop = 0;
 }
+/* version 89 (Robert): inside a lesson the back arrow walks the lesson backwards in its own order (the knock screen, the open door, your 1st try's
+   result, Hear it done, Catch the mistake, the 2nd try's intro, its conversation), never through the screens the volunteer happened to visit,
+   so a jump from the bar or a replay can't send it somewhere surprising. A step inside a part comes first (the result back to the open door,
+   the open door back to the knock, the answer back to the tiles, the conversation back to the intro), then the part before. A 4 of 4 first try
+   skipped Hear it done and Catch the mistake, so the 2nd try steps back to the result. Other screens keep the history-based back below. */
+const LESSON_PREV = { watch: "try", spot: "watch", door: "spot" };
+function lessonBack() {
+  if (S.track !== "gotv" || S.drill) return false;
+  const s = S.screen;
+  if (s === "try") {
+    if (S.tryRes && !S.tryRes.pending) { S.tryRes = null; S.skipWatch = false; render(); return true; }
+    if (lessonNo() === 1 && S.tryKnocked) { S.tryKnocked = false; S.trySaid = false; S.swing = false; render(); return true; }
+    if (T().video && VIEWS.video) { go("video", { noPush: true }); return true; }
+    return false;
+  }
+  if (s === "spot" && S.spot && S.spot.picked != null) { spotStop(); S.spot.picked = null; S.spot.replay = false; S.spot.at = 0; render(); return true; }
+  if (s === "door" && S.convo && S.convo.knocked) { go("door", { noPush: true }); return true; }
+  let p = LESSON_PREV[s];
+  if (!p) return false;
+  if ((p === "spot" || p === "watch") && skipNow()) p = "try";
+  go(p, { noPush: true });
+  return true;
+}
 /* back: a step inside the screen first (a rep, a card, a quiz step), then the screen we came from, then the screen's own fallback */
 function goBack(fallback) {
+  if (lessonBack()) return; /* version 89 */
   if (S.screen === "practice" && S.practice && S.practice.kind === "micro" && S.practice.i > 0) { S.practice.i -= 1; S.practice.result = null; S.practice.text = ""; render(); return; }
   if (S.screen === "spot" && S.spot && S.spot.i > 0) { S.spot = { i: 0, picked: null }; render(); return; }
   if (S.screen === "placement" && S.experience === "never" && (S.basicsI || 0) > 0) { S.basicsI -= 1; render(); return; }
@@ -6806,6 +6864,7 @@ function goBack(fallback) {
 function afterRender() {
   realLoop();
   storyArm();
+  doneArm(); /* version 88 */
   lockTimerArm(); /* version 65 */
   if (S.screen === "watch") { if (mariaOn(SK().lesson)) mariaLoop(); playLesson(); }
   if (S.screen === "spot" && S.track === "gotv" && S.spot && ((!S.spot.played && S.spot.picked == null) || S.spot.replay)) playSpot();
@@ -6856,8 +6915,10 @@ async function playLesson() {
     const line = L.lines[i];
     showCaption(line, L.name);
     { const bar = $("#sbar-now span"); if (bar) bar.style.width = Math.round(((i + 1) / L.lines.length) * 100) + "%"; }
+    const liveRows = S.track === "gotv" && !!$("#l-moves.wlive"); /* version 86: the parts pop in as Monica says them */
     if (line.move != null) {
-      document.querySelectorAll("#l-moves li").forEach((li) => li.classList.toggle("lit", Number(li.dataset.i) <= line.move));
+      if (liveRows) { if (line.who === "them") watchLit(line.move); }
+      else document.querySelectorAll("#l-moves li").forEach((li) => li.classList.toggle("lit", Number(li.dataset.i) <= line.move));
       const hl = $("#hl");
       if (hl && hl.dataset.move !== String(line.move) && (S.track !== "gotv" || settings.watchStrip === "live")) {
         hl.dataset.move = String(line.move);
@@ -6885,6 +6946,7 @@ async function playLesson() {
       onend: () => talk(false),
     });
     if (run !== lessonRun) return;
+    if (liveRows && line.move != null && line.who === "you") watchLit(line.move); /* version 86: the part lands once it has been said */
     /* version 69: the same speaker's next line follows right away (it was one breath in the recording); a short pause when the speaker changes */
     await wait(L.lines[i + 1] && L.lines[i + 1].who === line.who ? 40 : 240);
   }
@@ -6896,13 +6958,24 @@ async function playLesson() {
   setToggle("Play");
 }
 
+/* version 86: one recap row, and the rows popping in as the door plays */
+const watchRow = (m, i) => `<li class="lit" data-i="${i}">${mark()}<span><b>${esc(endP(m))}</b></span></li>`;
+function watchLit(upTo) {
+  const ol = $("#l-moves.wlive");
+  if (!ol) return;
+  const moves = SK().moves;
+  for (let i = 0; i <= upTo && i < moves.length; i += 1) if (!ol.querySelector(`li[data-i="${i}"]`)) ol.insertAdjacentHTML("beforeend", watchRow(moves[i], i));
+}
 /* version 72: when the door ends, the frame folds down (or away on a short screen) and the recap takes its place, so the screen fits a phone without scrolling.
    Each move is a bold lead with its why after it, in one short paragraph. */
 function watchEnd() {
   const cap = $("#cap"), ol = $("#l-moves"), row = $("#screen .lesson-row"), h2 = row && row.querySelector(".h2"), fr = $("#screen .frame.wframe"), c = $("#content");
   if (cap) cap.hidden = true;
-  if (h2) h2.textContent = "The four parts"; /* version 43 (Robert): no why line under each move */
-  if (ol) { ol.className = "moves recap wrecap"; ol.innerHTML = SK().moves.map((m, i) => `<li class="lit" data-i="${i}">${mark()}<span><b>${esc(endP(m))}</b></span></li>`).join(""); }
+  if (ol && ol.classList.contains("wlive")) watchLit(SK().moves.length - 1); /* version 86: the rows popped in as the door played; the heading stays */
+  else {
+    if (h2) h2.textContent = "The four parts"; /* version 43 (Robert): no why line under each move */
+    if (ol) { ol.className = "moves recap wrecap"; ol.innerHTML = SK().moves.map((m, i) => `<li class="lit" data-i="${i}">${mark()}<span><b>${esc(endP(m))}</b></span></li>`).join(""); }
+  }
   const ft = $("#screen footer.actions");
   if (ft && ft.querySelector(".w-skip")) ft.innerHTML = button(["Next: catch the mistake", "watch-next"]);
   if (row && !row.querySelector(".w-again")) row.insertAdjacentHTML("beforeend", `<button class="link w-again" data-act="lesson-replay">Watch again</button>`);
@@ -7236,16 +7309,20 @@ function setComposer(on) {
 async function knock() {
   const d = DOORS[SK().door];
   S.convo.knocked = true;
+  const fr0 = $("#screen .frame.door-stage"), h0 = fr0 ? fr0.getBoundingClientRect().height : 0; /* version 87: where the intro's door sat */
   if (S.track === "gotv" && !S.drill) render(); /* version 54: from the door intro into the conversation */
   const svg = $("#screen .voter.main");
+  const fr1 = $("#screen .frame.convo-stage"), reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (fr1 && h0 && fr1.animate && !reduce) { const h1 = fr1.getBoundingClientRect().height; if (Math.abs(h1 - h0) > 4) fr1.animate([{ flexBasis: h0 + "px", flexGrow: 0 }, { flexBasis: h1 + "px", flexGrow: 0 }], { duration: 550, easing: "cubic-bezier(.3,.7,.2,1)" }); } /* version 87: the door grows into the space the four parts had */
+  const shake = fr1 || svg; /* version 87: on the stage the frame shakes; the scene's own transform is its crop */
   S.convo.mode = aiOn() ? "live" : "scripted";
   const footer = $("#screen .actions");
   if (footer) footer.innerHTML = `${composer("send", "Type what you\u2019d say")}${S.track === "gotv" ? "" : `<div class="door-links"><button class="link" data-act="suggest">Need a line?</button><button class="link" data-act="ask-open">Ask the campaign</button><button class="link" data-act="end-convo">End conversation</button></div>`}`;
   setComposer(false);
   if (d.scene === "door") {
-    svg.classList.add("knock");
+    shake.classList.add("knock");
     await wait(650);
-    svg.classList.remove("knock");
+    shake.classList.remove("knock");
     svg.classList.remove("shut");
     await wait(900);
     await voterSays(d.first.say, d.first.expr, d);
