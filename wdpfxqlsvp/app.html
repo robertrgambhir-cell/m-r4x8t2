@@ -16,10 +16,10 @@
 <meta name="description" content="A welcome from Maya Kaur, then your first five-minute lesson.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<title>Warmup</title>
+<title>Maya Kaur &middot; Warmup</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Figtree:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Figtree:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap">
 <style>
   :root {
     --stage-bg: #F4EEE5;
@@ -36,6 +36,31 @@
   }
   :root[data-theme="dark"] { --stage-bg: #1C1A18; --stage-ink: #F4EEE5; --stage-muted: #B9AE9E; --frame: #0C0B0A; color-scheme: dark; }
   html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  :root { --maya: #1F4C91; --maya-stage: #1F4C91; } /* version 105: the campaign's one color, used only in its lockup */
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --maya-stage: #A9C4EE; } }
+  :root[data-theme="dark"] { --maya-stage: #A9C4EE; }
+  .camp-mark { display: inline-grid; justify-items: stretch; color: var(--maya); font-family: "Figtree", system-ui, sans-serif; text-transform: uppercase; line-height: 1; }
+  .camp-mark b { font-weight: 800; font-size: 24px; letter-spacing: -0.01em; line-height: 0.92; white-space: nowrap; }
+  .camp-mark small { font-weight: 700; font-size: 8px; letter-spacing: 0.04em; line-height: 1; margin-top: 4px; white-space: nowrap; }
+  .camp-mark.row { display: inline-flex; align-items: center; gap: 9px; }
+  .camp-mark.row b { font-size: 21px; }
+  .camp-mark.row small { margin: 0; padding-left: 9px; border-left: 1.5px solid currentColor; font-size: 8.5px; line-height: 1.25; }
+  .wordmark .camp-mark { color: var(--maya-stage); }
+  .wordmark .camp-mark b { font-family: "Figtree", system-ui, sans-serif; font-size: 26px; letter-spacing: -0.01em; }
+  .wordmark .camp-mark small { font-family: "Figtree", system-ui, sans-serif; font-size: 8.7px; }
+  .brand-btn .camp-mark { margin: 2px 0; }
+  .vid-camp { flex: none; background: #FCF8F2; border-radius: 10px; padding: 7px 10px 6px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18); }
+  .vid-camp .camp-mark b { font-size: 20px; }
+  .vid-camp .camp-mark small { font-size: 6.7px; margin-top: 3px; }
+  .vid-camp .camp-mark.row b { font-size: 17px; }
+  .vid-camp .camp-mark.row small { font-size: 7px; }
+  .vid-head .vid-sp { flex: 1; }
+  .pw-line { display: flex; align-items: center; justify-content: center; gap: 5px; margin: 0; font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .pw-line svg { flex: none; }
+  .vid-end .pw-line { color: rgba(255, 253, 249, 0.72); margin-top: 2px; }
+  .lock-timer + .pw-line, .actions .btn + .pw-line { margin-top: 4px; }
+  .actions:has(> .pw-line) { padding-bottom: 9px; } /* the line takes the room the bottom padding had */
+  @media (max-height: 700px) { .lock-timer + .pw-line, .actions .btn + .pw-line { margin-top: 3px; } .pw-line { font-size: 11px; } .lock-timer .link { margin-top: 3px; } }
   *, *::before, *::after { box-sizing: inherit; }
   body { margin: 0; background: var(--stage-bg); color: var(--stage-ink); font-family: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   button { font: inherit; color: inherit; }
@@ -4213,9 +4238,12 @@ function setExpr(expr) {
   const m = v.querySelector(".mouth");
   if (m && !talkTimer) setMouth(m, restMouth);
 }
+let talkWanted = false; /* version 106: a recorded clip that follows talk(true) drives the mouth from its own sound */
 function talk(on) {
   clearInterval(talkTimer);
   talkTimer = null;
+  talkWanted = !!on;
+  if (!on) { cancelAnimationFrame(voLipRAF); voLipRAF = 0; }
   const m = $("#screen .voter.main .mouth");
   if (!m) return;
   if (!on) { setMouth(m, restMouth); return; }
@@ -4396,8 +4424,31 @@ const ICON = {
 };
 
 /* ---------- shell ---------- */
+/* version 105: the campaign skin is one config (name, the line under it, its one color and the lockup style). Get out the vote only. */
+const CAMPAIGN = { gotv: { name: "Maya Kaur", line: "For Woodbridge City Council", lines: ["For Woodbridge", "City Council"], color: "#1F4C91", lockup: "stack" } };
+const campNow = () => (S && CAMPAIGN[S.track]) || null;
+function campMark(c) {
+  c = c || campNow();
+  if (!c) return "";
+  const row = c.lockup === "row";
+  return `<span class="camp-mark${row ? " row" : ""}" role="img" aria-label="${esc(c.name + " " + c.line)}"><b>${esc(c.name)}</b><small>${row ? c.lines.map(esc).join("<br>") : esc(c.line)}</small></span>`;
+}
+const pwLine = () => `<p class="pw-line">${ring(0.75, 13, 3)}Powered by Warmup</p>`;
+let stageMarkWas = "";
+function stageMark() {
+  const w = $("#wordmark");
+  if (!w) return;
+  if (!stageMarkWas) stageMarkWas = w.innerHTML;
+  const c = campNow(), key = c ? "camp" : "warmup";
+  if (w.dataset.mark === key) return;
+  w.dataset.mark = key;
+  w.innerHTML = c ? campMark(c) : stageMarkWas;
+  w.setAttribute("aria-label", c ? c.name + " " + c.line : "Warmup");
+}
 function brandMark(forceRecognize) {
   const skin = forceRecognize ? "recognize" : skinNow();
+  const camp = !forceRecognize && skin === "recognize" ? campNow() : null;
+  if (camp) return `<span class="brand-btn">${campMark(camp)}</span>`; /* version 105: the campaign owns the header */
   const inner = skin === "recognize"
     ? `<span class="brand brand-rec">${ring(0.75, 24, 5)}<b>Warmup</b></span>`
     : `<span class="brand brand-org"><span class="seal" aria-hidden="true">${T().org.seal}</span><span><b>${T().org.name}</b><small>${T().org.sub}</small></span></span>`;
@@ -4961,10 +5012,10 @@ function vVideo() {
   return `<div class="vid${V.playing ? "" : " paused"}" id="vid">
     <canvas class="vid-clip" id="vid-clip" width="540" height="960" aria-hidden="true"></canvas><svg class="voter main vid-svg expr-warm" viewBox="0 0 360 640" preserveAspectRatio="xMidYMid slice" data-act="video-toggle" role="img" aria-label="Maya Kaur, the candidate, speaking to the camera at home">${videoScene()}</svg>${videoCut()}
     <div class="vid-top"><div class="vid-seg" id="vid-seg">${segs}</div>
-      <div class="vid-head"><span class="seal" aria-hidden="true">${t.org.seal}</span><b>${t.org.name.replace(" for ", " for<br>")}</b>
+      <div class="vid-head">${campNow() ? `<span class="vid-camp">${campMark()}</span><span class="vid-sp"></span>` : `<span class="seal" aria-hidden="true">${t.org.seal}</span><b>${t.org.name.replace(" for ", " for<br>")}</b>`}
         ${ended ? "" : `<button class="vid-pp" data-act="video-toggle" aria-label="${V.playing ? "Pause" : "Play"}">${pp}</button>`}${ended ? "" : `<button data-act="video-skip">Skip</button>`}</div></div>
     ${ended
-      ? `<div class="vid-end"><button class="btn" data-act="video-skip">Start lesson 1: Introduce yourself</button><button class="link" data-act="video-again">Watch again</button></div>`
+      ? `<div class="vid-end"><button class="btn" data-act="video-skip">Start lesson 1: Introduce yourself</button><button class="link" data-act="video-again">Watch again</button>${campNow() ? pwLine() : ""}</div>`
       : `<div class="vid-cap" aria-live="polite" id="vid-cap"><p>${V.started ? esc(WELCOME.lines[Math.min(V.i, n - 1)].text) : "A welcome from Maya Kaur"}</p></div>`}
     ${!V.started ? `<button class="vid-play" data-act="video-toggle" aria-label="Play the welcome video"><svg width="26" height="26" viewBox="0 0 14 14" aria-hidden="true"><path d="M3.5 1.5 L12.5 7 L3.5 12.5 Z" fill="currentColor"/></svg></button>` : ""}
   </div>`;
@@ -5798,16 +5849,39 @@ async function watchAudio(p) {
   }
   return watchBufs[p];
 }
+let voAnalyser = null, voLipRAF = 0;
+const voLevels = new Uint8Array(512);
+function voLipSync() {
+  cancelAnimationFrame(voLipRAF);
+  let level = 0, shown = "", lastAt = 0, quietAt = 0;
+  const tick = (now) => {
+    if (!talkWanted || !watchSrc) { voLipRAF = 0; return; }
+    voAnalyser.getByteTimeDomainData(voLevels);
+    let sum = 0;
+    for (let i = 0; i < voLevels.length; i += 1) { const v = (voLevels[i] - 128) / 128; sum += v * v; }
+    const rms = Math.sqrt(sum / voLevels.length);
+    level = rms > level ? level * 0.35 + rms * 0.65 : level * 0.6 + rms * 0.4; /* fast to open, a touch slower to close */
+    let shape = level > 0.085 ? "open" : level > 0.03 ? "mid" : "rest";
+    if (shape === "rest") { if (!quietAt) quietAt = now; if (now - quietAt < 70) shape = shown || "rest"; } else quietAt = 0;
+    const m = $("#screen .voter.main .mouth");
+    if (m && shape !== shown && now - lastAt > 55) { setMouth(m, shape === "rest" ? restMouth : shape); shown = shape; lastAt = now; }
+    voLipRAF = requestAnimationFrame(tick);
+  };
+  voLipRAF = requestAnimationFrame(tick);
+}
 function playWatchBuf(buf) {
   return new Promise((resolve) => {
     const src = vidCtx.createBufferSource();
     src.buffer = buf;
-    src.connect(vidGain);
+    if (!voAnalyser) { voAnalyser = vidCtx.createAnalyser(); voAnalyser.fftSize = 512; voAnalyser.connect(vidGain); }
+    src.connect(voAnalyser); /* version 106: through the voter's own analyser, so the mouth follows the sound */
+    if (talkWanted) { clearInterval(talkTimer); talkTimer = -1; const m0 = $("#screen .voter.main .mouth"); if (m0) setMouth(m0, restMouth); }
     vidGain.gain.value = settings.muted ? 0 : 1;
     watchDone = resolve;
     src.onended = () => { if (watchSrc !== src) return; watchSrc = null; watchDone = null; resolve(true); };
     watchSrc = src;
     src.start(0);
+    if (talkWanted) voLipSync();
   });
 }
 function stopWatchAudio() {
@@ -6815,7 +6889,7 @@ function vTodayG() {
   const footer = locked ? `<div class="lock-timer"><p class="lt-k">Lesson ${nx.n} unlocks in</p><p class="lt-clock" id="lock-timer">${clockText(lockEnd() - Date.now())}</p><p class="lt-sub">You\u2019ll get a text the moment it\u2019s ready.</p><button class="link" data-act="go" data-arg="whylock">Why your lesson is locked</button></div>` : "";
   const nDone = LESSONS5.filter((x) => d5[x.n]).length;
   const head = `<div class="fund-head"><h1 class="fund-h">Your five canvassing fundamentals</h1><p class="fund-sub">${nDone === 0 ? "Five short lessons, one a day, to get you door-ready." : nDone === 5 ? "All five done. You have the fundamentals." : `${nDone} of 5 down. One lesson a day gets you door-ready.`}</p></div>`;
-  return app(`${head}<ol class="plan plan-g">${rows}</ol>`, { primary, tabs: "today", footer });
+  return app(`${head}<ol class="plan plan-g">${rows}</ol>`, { tabs: "today", footer: (footer || button(primary)) + pwLine() }); /* version 105: Powered by Warmup under the clock or the button */
 }
 function vWhyLock() {
   const dots = [1, 2, 3, 4, 5].map((n) => `<span class="wl-dot${n === 1 ? " on" : ""}">${n === 1 ? `<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>` : n}</span>`).join(`<i class="wl-gap"></i>`);
@@ -7073,6 +7147,7 @@ let lessonRun = 0;
 
 function render() {
   stopMic();
+  { const c = campNow(); if (c) document.documentElement.style.setProperty("--maya", c.color); stageMark(); } /* version 105 */
   const screenEl = $("#screen"), wide = $("#wide"), device = $("#device");
   screenEl.dataset.skin = S.screen === "pick" ? "recognize" : skinNow();
   if (S.screen === "director") {
@@ -8258,4 +8333,5 @@ render();
 </script>
 </body>
 </html>
+
 
