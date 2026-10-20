@@ -1003,6 +1003,7 @@
   .mic-btn { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-height: 56px; padding: 0 18px; border-radius: 999px; border: 1.5px solid var(--ink); background: var(--ink); color: var(--on-ink); font: inherit; font-weight: 700; font-size: 17px; cursor: pointer; transition: transform .08s ease, background-color .2s ease; }
   .mic-btn:active { transform: translateY(1px); }
   .mic-btn:disabled { opacity: .38; cursor: not-allowed; }
+  .mic-btn.wait { transition: opacity .3s ease; } /* version 111: off while the voter speaks */
   .mic-dot { position: relative; flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: #FFFFFF; }
   .mic-dot svg { width: 19px; height: 19px; }
   .mic-btn.on { background: var(--accent-ink); border-color: var(--accent-ink); }
@@ -4727,7 +4728,9 @@ function audioBack() {
 /* the page's own mic (a hosted copy or the backup file): tap to talk, then "I'm done" sends it; if it stops on a pause, the words wait for the arrow.
    Watchdogs: a recognizer that never starts is dropped after 4 s, one that never reports its end after "I'm done" is ended after 1.5 s,
    and listening stops by itself after 30 s */
-function micToggle() {
+function micToggle(armOnly) {
+  if (rec && rec.armed && !armOnly) { micGoLive(rec); return; } /* version 111: the armed recognizer is already listening */
+  if (rec && armOnly) return;
   if (rec) {
     const r0 = rec;
     recStop = true;
@@ -4737,11 +4740,12 @@ function micToggle() {
     return;
   }
   let r;
-  try { r = new SpeechRec(); } catch (e) { micWhy = "busy"; micModal("busy"); return; } /* version 94 */
+  try { r = new SpeechRec(); } catch (e) { if (armOnly) return; micWhy = "busy"; micModal("busy"); return; } /* version 94 */
   rec = r; recStop = false;
   let heard = "", started = false;
   r.lang = "en-US"; r.interimResults = true; r.continuous = true;
-  trayOpen(false);
+  r.armed = !!armOnly; r.base = 0; r.seen = 0; /* version 111: an armed recognizer listens without showing anything; results before the tap are dropped */
+  r.live = () => { trayOpen(false);
   const tray0 = $("#talk-tray");
   if (tray0) tray0.hidden = true;
   heldWords = "";
@@ -4755,13 +4759,17 @@ function micToggle() {
   const send0 = $("#talk-tray [data-act]");
   if (send0) send0.hidden = true;
   listenFold(true);
-  const goCue = () => { if (started) return; started = true; const c0 = $("#talk-live"); if (c0 && c0.classList.contains("warm")) { c0.classList.remove("warm"); c0.classList.add("go"); setTimeout(() => { const c1 = $("#talk-live"); if (c1) c1.classList.remove("go"); }, 1600); } }; /* version 96: the green go cue */
-  r.onstart = () => { micNoStart = 0; goCue(); };
-  r.onaudiostart = () => { micNoStart = 0; goCue(); };
-  r.onresult = (e) => { goCue(); heard = heardFrom(e.results); const box = $("#say"); if (box) { box.value = heard; autoGrow(box); } liveCardWords(heard); };
+  };
+  if (!r.armed) r.live();
+  const goCue = () => { if (r.armed) { started = true; return; } if (r.cued) return; r.cued = true; started = true; const c0 = $("#talk-live"); if (c0 && c0.classList.contains("warm")) { c0.classList.remove("warm"); c0.classList.add("go"); setTimeout(() => { const c1 = $("#talk-live"); if (c1) c1.classList.remove("go"); }, 1600); } }; /* version 96: the green go cue */
+  r.onstart = () => { micNoStart = 0; micGranted = true; goCue(); };
+  r.onaudiostart = () => { micNoStart = 0; micGranted = true; goCue(); };
+  r.onresult = (e) => { r.seen = e.results.length; if (r.armed) { r.base = e.results.length; return; } goCue(); const rs = Array.prototype.slice.call(e.results, r.base); heard = heardFrom(rs); const box = $("#say"); if (box) { box.value = heard; autoGrow(box); } liveCardWords(heard); };
+  r.goLive = () => { r.armed = false; r.base = r.seen; r.live(); if (started) goCue(); clearTimeout(recCap); recCap = setTimeout(() => { if (rec === r) { try { r.stop(); } catch (e) { /* ignore */ } } }, 30000); };
   r.onerror = (e) => { const k = e && e.error; if (["not-allowed", "service-not-allowed", "audio-capture"].includes(k)) { micBlocked = true; micWhy = k === "audio-capture" ? "busy" : "denied"; micErr = "speech: " + k; } };
   r.onend = () => {
     if (rec !== r) return;
+    if (r.armed) { rec = null; clearTimeout(recDog); clearTimeout(recCap); micBlocked = false; micWhy = ""; setTimeout(micArm, 300); return; } /* version 111 */
     rec = null;
     clearTimeout(recDog); clearTimeout(recCap);
     try { r.abort(); } catch (e) { /* ignore */ }
@@ -4786,10 +4794,12 @@ function micToggle() {
   };
   try { if (navigator.audioSession) navigator.audioSession.type = "play-and-record"; } catch (e) { /* ignore */ }
   clearTimeout(recDog); clearTimeout(recCap);
-  recDog = setTimeout(() => { if (rec === r && !started) { micNoStart += 1; if (micNoStart >= 2) { micBlocked = true; micWhy = micWhy || "busy"; micErr = micErr || "the recognizer never started, twice"; } try { r.abort(); } catch (e2) { /* ignore */ } if (rec === r && r.onend) r.onend(); } }, 7000); /* version 94: a recognizer that never starts means the mic is held elsewhere; version 109: only on the second time in a row */
+  recDog = setTimeout(() => { if (rec === r && !started && r.armed) { try { r.abort(); } catch (e2) { /* ignore */ } return; } if (rec === r && !started) { micNoStart += 1; if (micNoStart >= 2) { micBlocked = true; micWhy = micWhy || "busy"; micErr = micErr || "the recognizer never started, twice"; } try { r.abort(); } catch (e2) { /* ignore */ } if (rec === r && r.onend) r.onend(); } }, 7000); /* version 94: a recognizer that never starts means the mic is held elsewhere; version 109: only on the second time in a row */
   recCap = setTimeout(() => { if (rec === r) { try { r.stop(); } catch (e) { /* ignore */ } } }, 30000);
   try { r.start(); } catch (e) {
+    if (r.armed) { rec = null; clearTimeout(recDog); clearTimeout(recCap); return; } /* version 111: an armed start the browser refuses is just skipped */
     rec = null; clearTimeout(recDog); clearTimeout(recCap); micBlocked = true; micWhy = "busy";
+    const btn = $('#talk [data-act="talk"]'), lab = $("#talk-label");
     if (btn) btn.classList.remove("on");
     if (lab) lab.textContent = talkLabel();
     liveCardOff();
@@ -4797,6 +4807,25 @@ function micToggle() {
     micModal("busy"); /* version 94 */
   }
 }
+/* version 111: Tap to talk is off while the voter speaks; when it turns on, the audio mode is ready and, once the browser has let the
+   page listen this session, the recognizer starts quietly so a tap is live at once */
+let micGranted = false, armTries = 0;
+let lockTimer = 0;
+function talkLock(on) {
+  document.querySelectorAll('#screen [data-act="talk"]').forEach((b) => { b.disabled = !!on; b.classList.toggle("wait", !!on); });
+  clearTimeout(lockTimer);
+  if (on) { lockTimer = setTimeout(() => { S.tryPend = false; talkLock(false); }, 12000); return; } /* never stuck: a line that never ends frees the button */
+  armTries = 0; micArm();
+}
+function micArm() {
+  if (!pageMic() || rec || micBlocked || window.__noArm) return;
+  if (!(S.screen === "try" || S.screen === "door") || S.track !== "gotv") return;
+  const b = $('#screen [data-act="talk"]');
+  if (!b || b.disabled) return;
+  try { if (navigator.audioSession) navigator.audioSession.type = "play-and-record"; } catch (e) { /* ignore */ }
+  if (micGranted && armTries < 3) { armTries += 1; micToggle(true); }
+}
+function micGoLive(r) { if (r && r.goLive) r.goLive(); }
 function stopMic() { liveCardOff(); clearTimeout(recDog); clearTimeout(recCap); if (rec) { const r = rec; rec = null; try { r.abort(); } catch (e) { /* ignore */ } audioBack(); } }
 /* version 94 (Robert): the mic card. When the page should be able to listen but the mic is held by another app (FaceTime,
    a call) or the permission is denied, the lesson freezes behind this card until Try again finds the mic free. The keyboard
@@ -5616,7 +5645,7 @@ function startLesson5(n, straight) {
   S.lesson = n; S.day = 5;
   if (n !== 1) S.skipWatch = false;
   /* version 71: every lesson starts on its opening, then Try */
-  if (S.track === "gotv") { S.drill = null; S.drillBack = null; S.skipWatch = false; S.tryRes = null; S.tryKnocked = false; S.trySaid = false; S.spot = null; S.sayNow = null; S.intakeDone = true; if (!S.mode) S.mode = "voice"; S.tryFull = false; go(straight ? "try" : "session"); return; }
+  if (S.track === "gotv") { S.drill = null; S.drillBack = null; S.skipWatch = false; S.tryRes = null; S.tryKnocked = false; S.trySaid = false; S.tryHeard = false; S.tryPend = false; S.spot = null; S.sayNow = null; S.intakeDone = true; if (!S.mode) S.mode = "voice"; S.tryFull = false; go(straight ? "try" : "session"); return; }
   if (n === 1 && !S.intakeDone) { go("welcome"); return; }
   go("session");
 }
@@ -5881,9 +5910,12 @@ async function trySays(persona, text) {
   setExpr(same ? first.expr : "neutral");
   let clip = await voterClip(persona, text);
   if (!clip && same) { try { const a = await watchAudio(persona); clip = a ? a.them[0] : null; } catch (e) { clip = null; } }
-  if (S.screen !== "try" || S.tryRes) return;
-  if (clip) { talk(true); await playWatchBuf(clip); talk(false); return; }
-  await speak(text, { gender: GENDER[persona], role: "voter", onstart: () => talk(true), onend: () => talk(false) });
+  if (S.screen !== "try" || S.tryRes) { S.tryPend = false; return; }
+  talkLock(true);
+  if (clip) { talk(true); await playWatchBuf(clip); talk(false); }
+  else await speak(text, { gender: GENDER[persona], role: "voter", onstart: () => talk(true), onend: () => talk(false) });
+  S.tryHeard = true; S.tryPend = false; /* version 111: Tap to talk turns on when Walter is done */
+  if (S.screen === "try" && !S.tryRes) talkLock(false);
 }
 let watchBufs = {}, watchSrc = null, watchDone = null;
 function watchSet(p) { return p === "maria" ? (typeof WATCH_AUDIO !== "undefined" ? WATCH_AUDIO : null) : WATCH_MORE[p] || null; }
@@ -7266,7 +7298,7 @@ function lessonBack() {
   const s = S.screen;
   if (s === "try") {
     if (S.tryRes && !S.tryRes.pending) { S.tryRes = null; S.skipWatch = false; render(); return true; }
-    if (lessonNo() === 1 && S.tryKnocked) { S.tryKnocked = false; S.trySaid = false; S.swing = false; render(); return true; }
+    if (lessonNo() === 1 && S.tryKnocked) { S.tryKnocked = false; S.trySaid = false; S.tryHeard = false; S.tryPend = false; S.swing = false; render(); return true; }
     if (T().video && VIEWS.video) { go("video", { noPush: true }); return true; }
     return false;
   }
@@ -7305,9 +7337,9 @@ function afterRender() {
   if (S.screen === "try" && S.track === "gotv") {
     { const cc = $("#screen .fb.try.cascade"); if (cc) cc.addEventListener("click", () => { cc.classList.remove("cascade"); const lb = $("#screen .btn.late"); if (lb) lb.classList.remove("late"); }, { once: true }); }
     const swing = !!S.swing; if (swing) { S.swing = false; stageZoom(); } /* version 39: the door swings open and the house zooms in */
-    if (!S.tryRes && !S.trySaid && (lessonNo() !== 1 || S.tryKnocked)) { S.trySaid = true; const f = FLOW[skKey()], say = () => { if (S.screen === "try" && !S.tryRes) trySays(f.persona, f.line); }; const d = $("#screen .beat") ? 3400 : swing ? 900 : 0; if (d) setTimeout(say, d); else say(); } /* version 37 (Maya Kaur): the voter waits for the beat, and for the door */
+    if (!S.tryRes && !S.trySaid && (lessonNo() !== 1 || S.tryKnocked)) { S.trySaid = true; S.tryPend = true; const f = FLOW[skKey()], say = () => { if (S.screen === "try" && !S.tryRes) trySays(f.persona, f.line); }; const d = $("#screen .beat") ? 3400 : swing ? 900 : 0; if (d) setTimeout(say, d); else say(); } /* version 37 (Maya Kaur): the voter waits for the beat, and for the door */
   }
-  if ((S.screen === "try" || S.screen === "door") && S.track === "gotv" && !S.drill && $("#talk")) primeMic(); /* version 96 */
+  if (S.screen === "try" && S.track === "gotv" && !S.drill && S.tryKnocked && !S.tryRes && $("#talk")) talkLock(!!S.tryPend); /* version 111: no mic request here; Tap to talk waits for Walter */
   if (S.screen === "video" && S.video) {
     if (!S.video.started) playVideo(0);
     else if (S.video.i < WELCOME.lines.length) applyShot(WELCOME.lines[S.video.i].shot);
@@ -7742,6 +7774,7 @@ function setComposer(on) {
   if (say) say.disabled = !on;
   document.querySelectorAll('#screen [data-act="send"], #screen [data-act="suggest"], #screen [data-act="talk"]').forEach((b) => { b.disabled = !on; });
   if (!on) { stopMic(); return; }
+  setTimeout(() => { armTries = 0; micArm(); }, 0); /* version 111 */
   /* version 72: a new turn starts on the mic button (nothing focuses on its own on a phone); on a computer the box reopens once it was used, ready for dictation */
   if (S.screen === "door" && S.convo && S.convo.talked && !isTouch() && !pageMic()) { trayOpen(true); return; }
   if (!say || !say.value.trim()) trayClose();
@@ -8107,7 +8140,7 @@ function jump(arg) {
   if (S.track !== "gotv" && ["try", "warm", "coach", "how", "whylock"].includes(arg)) { toast("That screen is built for get out the vote."); return; }
   if (S.track === "gotv") {
     endDrillState();
-    if (["session", "try", "watch", "spot", "main", "door", "close"].includes(arg)) { S.lesson = S.lesson || 1; S.intakeDone = true; if (arg === "try" || arg === "session") { S.tryRes = null; S.tryKnocked = false; S.trySaid = false; } }
+    if (["session", "try", "watch", "spot", "main", "door", "close"].includes(arg)) { S.lesson = S.lesson || 1; S.intakeDone = true; if (arg === "try" || arg === "session") { S.tryRes = null; S.tryKnocked = false; S.trySaid = false; S.tryHeard = false; S.tryPend = false; } }
     if (arg === "warm") { fill5(); S.warm = Object.assign(warmDoors(), { res: {}, said: null }); }
   }
   if (arg === "video") S.track = "gotv";
@@ -8309,7 +8342,7 @@ case "talk": talkTap(); break;
     case "sound": settings.muted = arg === "off"; store.set("muted", settings.muted); if (settings.muted) stopSpeech(); if (vidGain) vidGain.gain.value = settings.muted ? 0 : 1; openMenu(); break;
     case "notes": settings.notes = arg === "on"; store.set("notes", settings.notes); renderNotes(); openMenu(); break;
     case "nudge": el.textContent = "Sent"; el.disabled = true; toast(`Nudge sent to ${arg} by SMS.`); break;
-    case "try-start": if (!tryNow()) { S.tryKnocked = false; S.trySaid = false; } go("try"); break;
+    case "try-start": if (!tryNow()) { S.tryKnocked = false; S.trySaid = false; S.tryHeard = false; S.tryPend = false; } go("try"); break;
     case "try-knock": tryKnock(); break;
     case "try-check": if (!(S.tryRes && S.tryRes.pending)) checkTry(); break;
     case "try-next": go(skipNow() ? "main" : "watch"); break;
