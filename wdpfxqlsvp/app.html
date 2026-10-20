@@ -2086,9 +2086,9 @@ const SKILLS = {
     lesson: {
       persona: "walter", scene: "door", name: "Walter", tag: "supporter on the list",
       lines: [
-        { who: "you", text: "Hi there! I\u2019m {name}.", move: 0 },
-        { who: "you", text: "I live a few blocks over, and I\u2019m volunteering with Maya Kaur\u2019s campaign for City Council.", move: 1 },
-        { who: "you", text: "Election Day is Tuesday, so I\u2019m checking in with neighbors.", move: 2 },
+        { who: "you", text: "Hi there! I\u2019m {name}.", move: 0, pop: 0.82 },
+        { who: "you", text: "I live a few blocks over, and I\u2019m volunteering with Maya Kaur\u2019s campaign for City Council.", move: 1, pop: 1.47 },
+        { who: "you", text: "Election Day is Tuesday, so I\u2019m checking in with neighbors.", move: 2, pop: 0.31 },
         { who: "them", text: "Oh, nice to meet you. Yes, I\u2019m voting for her.", expr: "warm", move: 3 },
         { who: "you", text: "That\u2019s great to hear. Do you know when you\u2019ll vote?" },
         { who: "them", text: "Tuesday morning, same as always.", expr: "neutral" },
@@ -2470,7 +2470,7 @@ const CUT_TRY = "Hi, do you have a minute? I\u2019m {name}.";
 const CUT_DOOR = "Hi, I\u2019m {name}. I\u2019m volunteering for Maya Kaur.";
 /* version 108 (Robert): the phone draws the real screens. One shot per beat of Maya's lines 4 to 6, in the order she says them
    (seconds from the start of the welcome, from her word times): the 1st intro's knock screen on "starting with how to introduce
-   yourself", the open door on "practicing your natural way", the 1st intro's result, Hear it done on "see what an excellent
+   yourself", the open door on "practicing your natural way", Hear it done from "Next," (version 112: the 1st intro's result shot is gone, Robert) on "see what an excellent
    introduction looks like" (the four parts landing on her words), the 2nd intro's door on "practice out loud with an animated voter
    who talks back", the feedback on "hear what you did well", Lesson 1 done on "When you're done", What's next on "we'll text you four
    more trainings" and Today on "Five quick trainings". The story is scored by the real graders: a 1st intro with a name and the
@@ -2480,8 +2480,7 @@ const CUT_DOOR = "Hi, I\u2019m {name}. I\u2019m volunteering for Maya Kaur.";
 const VID_SHOTS = [
   { at: 26.63, screen: "try", name: "1st intro: knock", set() {} },
   { at: 30.3, screen: "try", name: "1st intro: the door opens", set(st) { st.tryKnocked = true; } },
-  { at: 33.3, screen: "try", name: "1st intro: the result", set(st, x) { st.tryKnocked = true; st.tryRes = x.tryRes; } },
-  { at: 35.04, screen: "watch", name: "Hear it done", set(st, x) { st.tryRes = x.tryRes; st.lessonAt = 99; }, rev: [[".wlive li", [35.95, 36.55, 37.15, 37.75]]] },
+  { at: 33.3, screen: "watch", name: "Hear it done", set(st, x) { st.tryRes = x.tryRes; st.lessonAt = 99; }, rev: [[".wlive li", [35.95, 36.55, 37.15, 37.75]]] },
   { at: 38.9, screen: "door", name: "2nd intro: the voter talks back", cls: "cut-talk", set(st, x) { st.tryRes = x.tryRes; st.spot = { item: 0, picked: x.spotMiss, said: null, played: true }; st.convo = { st: { moves: new Set(), turns: 0 }, turns: [], busy: false, ended: false, knocked: true, mode: "scripted", warned: false }; },
     post(root, x) {
       const v = root.querySelector("svg.voter.main"); if (v) v.classList.remove("shut");
@@ -7401,6 +7400,7 @@ async function playLesson() {
     const k = L.lines.slice(0, i).filter((l) => l.who === line.who).length;
     // the volunteer's first line was recorded as Becca (version 76; the default volunteer has been Suman since version 79), so another name falls back to the browser voice
     const buf = wb ? (line.who === "them" ? wb.them[k] : (S.track !== "gotv" && /\{name\}/.test(line.text) && me() !== REC_NAME ? null : wb.you[k])) : null;
+    if (buf && liveRows && line.who === "you" && line.move != null && line.pop != null) { const mv = line.move; setTimeout(() => { if (run === lessonRun) watchLit(mv); }, Math.round(line.pop * 1000)); } /* version 112 (Robert): the part pops as Monica starts saying it; the end-of-line call below stays for the browser voice */
     if (buf) {
       if (line.who === "them") talk(true);
       await playWatchBuf(buf);
@@ -8419,5 +8419,6 @@ render();
 </script>
 </body>
 </html>
+
 
 
