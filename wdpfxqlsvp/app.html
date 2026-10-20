@@ -7321,6 +7321,7 @@ const VIEWS = { pick: vPick, sms: vSMS, sms2: vSMS2, video: vVideo, welcome: vWe
 let lessonRun = 0;
 
 function render() {
+  if (S.screen === "sms" && S.track === "gotv") { S.screen = "video"; S.video = { i: 0, playing: false, started: false }; } /* version 119 (Robert): no text screen; the link opens on the video */
   stopMic();
   { const c = campNow(); if (c) document.documentElement.style.setProperty("--maya", c.color); stageMark(); } /* version 105 */
   const screenEl = $("#screen"), wide = $("#wide"), device = $("#device");
@@ -7360,6 +7361,7 @@ function leaveScreen() {
 }
 function go(screen, opts = {}) {
   leaveScreen();
+  if (screen === "sms" && S.track === "gotv") screen = "video"; /* version 119 */
   /* version 30 (Maya Kaur): no 2nd try intro screen; the lesson goes straight to the door (Practice and Warmup doors keep theirs) */
   if (screen === "main" && S.track === "gotv" && !S.drill) screen = "door";
   /* version 71: a drill (a Warmup or Practice door) ends when the volunteer leaves its door screens; the lesson it borrowed comes back */
@@ -7435,7 +7437,7 @@ function afterRender() {
   }
   if (S.screen === "try" && S.track === "gotv" && !S.drill && S.tryKnocked && !S.tryRes && $("#talk")) talkLock(!!S.tryPend); /* version 111: no mic request here; Tap to talk waits for Walter */
   if (S.screen === "video" && S.video) {
-    if (!S.video.started) playVideo(0);
+    if (!S.video.started && !S.video.blocked) playVideo(0); /* version 119: a blocked start waits for the tap */
     else if (S.video.i < WELCOME.lines.length) applyShot(WELCOME.lines[S.video.i].shot);
   }
   /* version 72: nothing focuses the answer box on its own, so a phone's keyboard opens only when the volunteer taps to talk */
@@ -7607,7 +7609,7 @@ async function videoAudio() {
     vidAnalyser.connect(vidGain);
     vidGain.connect(vidCtx.destination);
   }
-  if (vidCtx.state !== "running") { try { await vidCtx.resume(); } catch (e) { /* ignore */ } }
+  if (vidCtx.state !== "running") { try { await Promise.race([vidCtx.resume(), wait(600)]); } catch (e) { /* ignore */ } } /* version 119: a blocked context must not hang the video */
   if (!vidBuffers) vidBuffers = await Promise.all(WELCOME_AUDIO.map((b) => vidCtx.decodeAudioData(b64ToBuffer(b))));
   return vidBuffers;
 }
@@ -7751,6 +7753,7 @@ async function playVideo(from, offset = 0) {
   let bufs = null;
   try { bufs = await videoAudio(); } catch (e) { bufs = null; }
   if (run !== videoRun) return;
+  if (from === 0 && offset === 0 && vidCtx && vidCtx.state !== "running") { V.playing = false; V.started = false; V.blocked = true; if (toastVol) { toastVol = false; clearTimeout(toastTimer); const tv = $("#toast"); if (tv) tv.hidden = true; } render(); return; } /* version 119: the browser held the sound back until a tap; wait on her frame with the play button */
   if (from === 0 && offset === 0) { await wait(500); if (run !== videoRun) return; } /* version 92 (Robert): hold the frozen frame 0.5 s longer before the audio starts */
   for (let i = from; i < WELCOME.lines.length; i += 1) {
     if (run !== videoRun) return;
@@ -8514,6 +8517,7 @@ render();
 </script>
 </body>
 </html>
+
 
 
 
