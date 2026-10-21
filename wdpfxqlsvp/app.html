@@ -1545,6 +1545,18 @@
   .hn-k { margin: 0 0 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-ink); }
   .hn-t { margin: 0 0 12px; font-family: var(--head-font); font-weight: var(--head-weight); font-size: 23px; line-height: 1.15; letter-spacing: -0.01em; text-wrap: balance; }
   .hero-next .btn { margin: 0; }
+  /* version 123: Today fills the screen; the hero card grows and its door art takes the spare height */
+  .content.stage > .fund-head, .content.stage > .plan-quiet { flex: none; }
+  .content.stage > .hero-next { flex: 1 0 auto; display: flex; flex-direction: column; }
+  .hero-next > .hn-k, .hero-next > .hn-t, .hero-next > .hn-lock, .hero-next > .lt-sub, .hero-next > .link, .hero-next > .btn { flex: none; }
+  .hn-art { position: relative; flex: 1 1 0; min-height: 0; max-height: 340px; margin: 0 0 12px; border-radius: 14px; overflow: hidden; background: var(--soft); }
+  .hn-art.tiny { display: none; } /* too little room to read as a door */
+  .hero-next > .link { align-self: flex-start; text-align: left; }
+  .hero-next:has(.hn-art:not(.tiny)) .hn-ico { display: none; } /* one lock: on the door */
+  .cut-shot .hn-art { display: none; } .cut-shot .content.stage > .hero-next { flex: none; } .cut-shot .hero-next .hn-ico { display: grid; } /* the video phone is too small for the door */
+  .hn-art svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .hn-art-lock { position: absolute; left: 50%; top: 54%; transform: translate(-50%, -50%); width: 42px; height: 42px; border-radius: 50%; background: var(--card); color: var(--ink-2); display: grid; place-items: center; box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.35); }
+  .hn-art-lock svg { position: static; width: 18px; height: 18px; }
   /* version 120: the hero pulses once on the way in from the ring card; a quiet Retake link under a done row */
   .hero-next.pulse { animation: heroPulse 1.3s ease-out 0.35s 2; }
   @keyframes heroPulse { 0% { box-shadow: 0 0 0 0 rgba(53, 181, 124, 0.5), 0 12px 26px -14px rgba(27, 122, 77, 0.45); transform: scale(1); } 30% { transform: scale(1.015); } 100% { box-shadow: 0 0 0 14px rgba(53, 181, 124, 0), 0 12px 26px -14px rgba(27, 122, 77, 0.45); transform: scale(1); } }
@@ -7050,6 +7062,13 @@ function lockTimerArm() {
   const paint = () => { const e = document.getElementById("lock-timer"); if (!e) { clearInterval(lockTick); lockTick = 0; return; } e.textContent = clockText(lockEnd() - Date.now()); };
   paint(); lockTick = setInterval(paint, 1000);
 }
+/* version 123 (Robert): the next lesson's front door, shut, inside the hero card; it grows to fill Today's spare height */
+function heroDoor(n, locked) {
+  const f = FLOW[LESSON_SKILL[n]], p = f && f.persona;
+  if (!p || !HOME[p]) return "";
+  const sv = scene("door", p, { shut: true, crop: "tight", label: "The door for lesson " + n }).replace("<svg ", '<svg preserveAspectRatio="xMidYMid slice" ');
+  return `<div class="hn-art" aria-hidden="true">${sv}${locked ? `<span class="hn-art-lock">${LOCK_SVG}</span>` : ""}</div>`;
+}
 function vTodayG() {
   /* version 113 (Robert, Mobbin audit edit 1): one hero card for the next lesson, the rest are quiet rows. After lesson 1 the next lesson is locked,
      so the hero holds the clock and the why link; before it, the hero holds the one Start button. */
@@ -7064,14 +7083,14 @@ function vTodayG() {
     : !S.warmDone ? ["Start your Warmup", "warm-start"]
     : ["Practice a door", "go", "coach"];
   const pulse = !!S.heroPulse; S.heroPulse = false; /* version 120: once, on the way in from the ring card */
-  const hero = !nx ? "" : `<div class="hero-next${locked ? " locked" : ""}${pulse ? " pulse" : ""}"><p class="hn-k">Up next \u00b7 5 min</p><h2 class="hn-t">Lesson ${nx.n}: ${nx.title}</h2>${locked
+  const hero = !nx ? "" : `<div class="hero-next${locked ? " locked" : ""}${pulse ? " pulse" : ""}"><p class="hn-k">Up next \u00b7 5 min</p><h2 class="hn-t">Lesson ${nx.n}: ${nx.title}</h2>${heroDoor(nx.n, locked)}${locked
     ? `<div class="hn-lock"><span class="hn-ico">${LOCK_SVG}</span><p class="hn-in">Unlocks in</p><p class="lt-clock" id="lock-timer" role="timer">${clockText(lockEnd() - Date.now())}</p></div><p class="lt-sub">You\u2019ll get a text the moment it\u2019s ready.</p><button class="link" data-act="go" data-arg="whylock">Why your lesson is locked</button>`
     : `${gated && at ? `<p class="lt-sub">Opens ${at.say}</p>` : ""}${button(primary)}`}</div>`;
   const list = (xs) => (xs.length ? `<ol class="plan plan-g plan-quiet">${xs.map(row).join("")}</ol>` : "");
   const before = nx ? LESSONS5.filter((L) => L.n < nx.n) : LESSONS5, after = nx ? LESSONS5.filter((L) => L.n > nx.n) : [];
   const nDone = LESSONS5.filter((x) => d5[x.n]).length;
   const head = `<div class="fund-head"><h1 class="fund-h">Your five canvassing fundamentals</h1><p class="fund-sub">${nDone === 0 ? "Five short lessons, one a day, to get you door-ready." : nDone === 5 ? "All five done. You have the fundamentals." : `${nDone} of 5 down. One lesson a day gets you door-ready.`}</p></div>`;
-  return app(`${head}${list(before)}${hero}${list(after)}`, { tabs: "today", footer: (nx ? "" : button(primary)) + pwLine() }); /* version 105: Powered by Warmup at the foot */
+  return app(`${head}${list(before)}${hero}${list(after)}`, { tabs: "today", stage: !!nx, footer: (nx ? "" : button(primary)) + pwLine() }); /* version 123: a stage, so the hero can fill the space */ /* version 105: Powered by Warmup at the foot */
 }
 function vWhyLock() {
   const dots = [1, 2, 3, 4, 5].map((n) => `<span class="wl-dot${n === 1 ? " on" : ""}">${n === 1 ? `<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>` : n}</span>`).join(`<i class="wl-gap"></i>`);
@@ -7448,6 +7467,7 @@ function afterRender() {
     else if (S.video.i < WELCOME.lines.length) applyShot(WELCOME.lines[S.video.i].shot);
   }
   /* version 72: nothing focuses the answer box on its own, so a phone's keyboard opens only when the volunteer taps to talk */
+  { const ha = $("#content .hn-art"); if (ha && ha.getBoundingClientRect().height < 64) ha.classList.add("tiny"); } /* version 123: no sliver of a door */
   scrollCue();
   setTimeout(scrollCue, 350);
 }
@@ -8526,6 +8546,7 @@ render();
 </script>
 </body>
 </html>
+
 
 
 
