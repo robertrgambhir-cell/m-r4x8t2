@@ -2554,7 +2554,7 @@ const VID_SHOTS = [
     } },
   { at: 43.53, screen: "score", name: "2nd intro: feedback", set(st, x) { vidDone(st, x); } },
   { at: 47.47, screen: "close", name: "Lesson 1 done", set(st, x) { vidDone(st, x); st.doneCard = 1; } },
-  { at: 49.3, screen: "welcome", name: "Today", set(st, x) { vidDone(st, x); } },
+  { at: 49.3, screen: "welcome", name: "Today", set(st, x) { vidDone(st, x); }, post(root) { root.querySelectorAll(".lt-clock").forEach((c) => { c.dataset.tick = "49.3"; c.textContent = clockText(LOCK_MS); }); } }, /* version 121 (Robert): the countdown runs while the shot is up */
 ];
 const CUT_T = VID_SHOTS.map((v) => v.at);
 /* the story both tries tell, scored by the graders the volunteer meets */
@@ -7666,7 +7666,7 @@ function cutRun(dur, start, run, i) {
   if (!root) return;
   cutShown = false;
   const q = (s) => root.querySelectorAll(s);
-  const screens = q(".cut-screen"), beats = q("[data-at]"), lits = q("[data-lit]"), offs = q("[data-off]"), voices = q(".cut-voice"), saids = q(".cut-said-txt"), door = root.querySelector(".cut-talk svg.voter.main");
+  const screens = q(".cut-screen"), beats = q("[data-at]"), lits = q("[data-lit]"), offs = q("[data-off]"), voices = q(".cut-voice"), saids = q(".cut-said-txt"), door = root.querySelector(".cut-talk svg.voter.main"), ticks = q("[data-tick]");
   const apply = (lt) => {
     const t = LINE_T[i] + lt, on = t >= CUT_ON && t < CUT_OFF;
     root.classList.toggle("on", on);
@@ -7679,6 +7679,7 @@ function cutRun(dur, start, run, i) {
     offs.forEach((el) => el.classList.toggle("off", t >= +el.dataset.off));
     if (door) { door.classList.toggle("expr-warm", t >= CUT_WARM); door.classList.toggle("expr-neutral", t < CUT_WARM); }
     voices.forEach((v) => { const a = +v.dataset.talk, dd = +v.dataset.for; v.classList.toggle("live", t >= +v.dataset.live); v.classList.toggle("talking", t >= a && t < a + dd + 0.15); });
+    ticks.forEach((c) => { const txt = clockText(LOCK_MS - Math.max(0, Math.floor(t - +c.dataset.tick)) * 1000); if (c.textContent !== txt) c.textContent = txt; }); /* version 121: the Today shot clock ticks once a second */
     saids.forEach((s) => {
       const a = +s.dataset.from, dd = +s.dataset.for, words = (s.dataset.full || "").split(" ");
       const k2 = t < a ? 0 : Math.min(words.length, Math.ceil(((t - a) / dd) * words.length));
@@ -8525,6 +8526,7 @@ render();
 </script>
 </body>
 </html>
+
 
 
 
