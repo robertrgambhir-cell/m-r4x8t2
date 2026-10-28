@@ -130,6 +130,7 @@
   .content { flex: 1; overflow-y: auto; padding: 4px 20px 22px; scroll-behavior: smooth; }
   .actions { flex: none; display: grid; gap: 10px; padding: 10px 20px 18px; }
   .powered { margin: 0; padding: 0 0 12px; text-align: center; font-size: 11.5px; color: var(--ink-3); }
+  .app.no-brand > .content { padding-top: 22px; } /* version 128: no header strip, so the screen title sits where the lockup sat */
   .back { border: 0; background: none; font-size: 28px; line-height: 1; padding: 0 8px 3px 0; cursor: pointer; color: var(--ink); }
   .brand-btn { background: none; border: 0; padding: 2px; margin-right: auto; cursor: default; color: inherit; text-align: left; border-radius: 10px; }
   .brand { display: inline-flex; align-items: center; gap: 9px; }
@@ -4668,7 +4669,9 @@ function app(inner, o = {}) {
   else if (o.primary || o.secondary) actions = `<footer class="actions">${button(o.primary)}${button(o.secondary, "secondary")}</footer>`;
   const powered = !o.recognize && skinNow() !== "recognize" ? `<p class="powered">Powered by Warmup</p>` : "";
   const tabs = o.tabs ? tabBar(o.tabs) : "";
-  return `<div class="app"><header class="appbar">${back}${brandMark(o.recognize)}${right}</header><div class="content${o.stage ? " stage" : ""}" id="content">${inner}</div>${actions}${powered}${tabs}</div>`;
+  /* version 128 (Robert): a screen that is the canvasser's own, not the campaign's (Progress), wears no campaign lockup; without a back arrow the header strip goes too */
+  const head = o.noBrand ? (back ? `<header class="appbar">${back}</header>` : "") : `<header class="appbar">${back}${brandMark(o.recognize)}${right}</header>`;
+  return `<div class="app${o.noBrand ? " no-brand" : ""}">${head}<div class="content${o.stage ? " stage" : ""}" id="content">${inner}</div>${actions}${powered}${tabs}</div>`;
 }
 /* Talking inside claude.ai: the page can\u2019t open the mic, so the keyboard\u2019s own dictation types into the box */
 function micHelp() {
@@ -5536,7 +5539,7 @@ function vProgressG() {
     <div class="prog-row"><span><b>Volunteers recruited</b><small>Friends who join through your invite link count here.</small></span><span class="prog-n num">0</span><button class="link" data-act="invite-copy">Share link</button></div>
     <p class="deb-q">Badges</p>
     <div class="badges">${badge("Door-ready", true, nd / 5, nd + "/5")}${badge("Storyteller", false, 0, "")}${badge("Marshal", false, 0, "")}${badge("The science", false, 0, "")}</div>
-  `, { tabs: "me" });
+  `, { tabs: "me", noBrand: true }); /* version 128 (Robert): Progress travels between campaigns, so it wears no campaign lockup */
 }
 function vMe() {
   if (S.track === "gotv") return vProgressG(); /* version 126 (Robert, Oct 27): the Progress tab previews the tier ring */
