@@ -1258,6 +1258,7 @@
   .cs-one .kicker { margin: 0 0 6px; }
   .cs-one .h1 { font-size: 40px; margin: 0 0 8px; }
   .cs-one .lede { margin: 0; max-width: 300px; }
+  .cs-saved { margin: 14px 0 0; display: inline-flex; align-items: center; gap: 7px; font-size: 14.5px; font-weight: 600; color: var(--accent-ink); } /* version 129 (Robert, Oct 27, from Suman): the lesson is saved */
   .cs-k { text-align: center; margin: 6px 0 0; }
   .dg-hero { display: flex; justify-content: center; align-items: flex-end; gap: 18px; margin: 2px 0 0; }
   .dg-hero > div { text-align: center; }
@@ -1570,6 +1571,8 @@
   .hero-next .lt-clock { margin: 0; font-size: 30px; }
   .hero-next .lt-sub { margin: 10px 0 0; font-size: 14px; }
   .hero-next .link { display: block; padding: 4px 0 0; font-size: 14px; }
+  .hero-next > .hn-links { flex: none; display: flex; flex-wrap: wrap; gap: 0 14px; } .hn-links .link { display: inline-block; padding: 4px 0 0; font-size: 14px; } /* version 129 (Robert, Oct 27, from Suman): the second path into Learn, beside the why link */
+  .cut-shot .today-more { display: none; } /* the video phone is too small for it */
   @media (max-height: 840px) { .hero-next { padding: 14px 15px 12px; margin: 6px 0 8px; } .hn-t { font-size: 21px; margin-bottom: 10px; } .hero-next .lt-clock { font-size: 27px; } .plan.plan-quiet li > button { padding: 7px 2px; } }
   @media (max-height: 700px) { .hero-next .lt-sub { margin-top: 7px; font-size: 13.5px; } .hn-lock { padding: 7px 10px; } }
 
@@ -6677,7 +6680,7 @@ function closeStory(n, cnt, nx, R, after, anim, key) {
     const what = LESSONS5[n - 1].title.replace(/^How to /, "").replace(/^(\w+)/, (v) => ({ introduce: "introducing", get: "getting", leave: "leaving", help: "helping" }[v] || v)); /* version 65 (Robert): "You\u2019ve mastered introducing yourself at the door." */
     const ringNew = S.ringSeen !== key; S.ringSeen = key;
     const r = (ringNew ? ringGrow((cnt - 1) / 5, cnt / 5, 132, ringW(132)) : ring(cnt / 5, 132, ringW(132))).replace('class="ring-arc grow"', S.beat === "close" ? 'class="ring-arc grow" data-late="1"' : 'class="ring-arc grow"');
-    body = `${ringNew ? confettiHtml(S.beat === "close") : ""}<div class="cs-one cs-auto" data-act="done-card" data-arg="2" role="button" tabindex="0" aria-label="Next: Today"><div class="ring-wrap" style="width:132px;height:132px">${r}<span class="ring-num num" style="font-size:34px">${cnt}/5</span></div><p class="kicker">Lesson ${n} of 5</p><h1 class="h1">${all ? "You\u2019re door-ready." : `Lesson ${n} done.`}</h1><p class="lede">${all ? "All five moves, from memory." : `Good work ${what}.`}</p></div>`;
+    body = `${ringNew ? confettiHtml(S.beat === "close") : ""}<div class="cs-one cs-auto" data-act="done-card" data-arg="2" role="button" tabindex="0" aria-label="Next: Today"><div class="ring-wrap" style="width:132px;height:132px">${r}<span class="ring-num num" style="font-size:34px">${cnt}/5</span></div><p class="kicker">Lesson ${n} of 5</p><h1 class="h1">${all ? "You\u2019re door-ready." : `Lesson ${n} done.`}</h1><p class="lede">${all ? "All five moves, from memory." : `Good work ${what}.`}</p><p class="cs-saved">${DG_CK("", "Saved")}Saved to your Progress</p></div>`; /* version 129 (Robert, Oct 27, from Suman): was it saved? Yes, and it says so */
     footer = ""; /* version 88 (Robert): an interstitial, like the beat before it. It holds about as long as the beat did, then What's next opens on its own (doneArm); a tap skips ahead */
   } else if (card === 0) { /* version 98 (Robert): How you grew, the volunteer's own words; the held and lower copy is gone (version 97 routes every non-improver back through the door) */
     const bestRec = (S.best5 || {})[n] || null;
@@ -7321,7 +7324,7 @@ function vTodayG() {
   const check = `<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const row = (L) => {
     const done = d5[L.n], lk = !done && lessonLocked(L.n);
-    return `<li class="${done ? "done" : ""}${lk ? " locked" : ""}"><button data-act="lesson5" data-arg="${L.n}"><span class="tick">${done ? check : lk ? LOCK_SVG : L.n}</span><span><b>${L.title}</b>${done ? `<small>Done \u00b7 Score ${done.filter(Boolean).length}/4</small>` : ""}</span></button>${done ? `<button class="link retake5" data-act="retake5" data-arg="${L.n}">Retake lesson ${L.n}</button>` : ""}</li>`; /* version 120 (Robert): a quiet full retake while the next lesson is locked */
+    return `<li class="${done ? "done" : ""}${lk ? " locked" : ""}"><button data-act="lesson5" data-arg="${L.n}"><span class="tick">${done ? check : lk ? LOCK_SVG : L.n}</span><span><b>${L.title}</b>${done ? `<small>Saved \u00b7 Score ${done.filter(Boolean).length}/4</small>` : ""}</span></button>${done ? `<button class="link retake5" data-act="retake5" data-arg="${L.n}">Retake lesson ${L.n}</button>` : ""}</li>`; /* version 120 (Robert): a quiet full retake while the next lesson is locked */
   };
   const locked = !!nx && lessonLocked(nx.n), at = nx ? S.nextAt[nx.n] : null;
   const primary = locked ? null : nx ? [gated ? "Do it now anyway" : `Start lesson ${nx.n}`, "lesson5", String(nx.n)]
@@ -7329,7 +7332,7 @@ function vTodayG() {
     : ["Practice a door", "go", "coach"];
   const pulse = !!S.heroPulse; S.heroPulse = false; /* version 120: once, on the way in from the ring card */
   const hero = !nx ? "" : `<div class="hero-next${locked ? " locked" : ""}${pulse ? " pulse" : ""}"><p class="hn-k">Up next \u00b7 5 min</p><h2 class="hn-t">Lesson ${nx.n}: ${nx.title}</h2>${heroDoor(nx.n, locked)}${locked
-    ? `<div class="hn-lock"><span class="hn-ico">${LOCK_SVG}</span><p class="hn-in">Unlocks in</p><p class="lt-clock" id="lock-timer" role="timer">${clockText(lockEnd() - Date.now())}</p></div><p class="lt-sub">You\u2019ll get a text the moment it\u2019s ready.</p><button class="link" data-act="go" data-arg="whylock">Why your lesson is locked</button>`
+    ? `<div class="hn-lock"><span class="hn-ico">${LOCK_SVG}</span><p class="hn-in">Unlocks in</p><p class="lt-clock" id="lock-timer" role="timer">${clockText(lockEnd() - Date.now())}</p></div><p class="lt-sub">You can close this. We\u2019ll text you lesson ${nx.n}.</p><div class="hn-links"><button class="link" data-act="go" data-arg="whylock">Why your lesson is locked</button><button class="link today-more" data-act="go" data-arg="library">Browse Learn</button></div>` /* version 129 (Robert, Oct 27, from Suman): the second path, Learn; leaving stays the default */
     : `${gated && at ? `<p class="lt-sub">Opens ${at.say}</p>` : ""}${button(primary)}`}</div>`;
   const list = (xs) => (xs.length ? `<ol class="plan plan-g plan-quiet">${xs.map(row).join("")}</ol>` : "");
   const before = nx ? LESSONS5.filter((L) => L.n < nx.n) : LESSONS5, after = nx ? LESSONS5.filter((L) => L.n > nx.n) : [];
@@ -8794,6 +8797,7 @@ render();
 </script>
 </body>
 </html>
+
 
 
 
