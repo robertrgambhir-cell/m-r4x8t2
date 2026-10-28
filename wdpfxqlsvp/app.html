@@ -1572,6 +1572,61 @@
   @media (max-height: 840px) { .hero-next { padding: 14px 15px 12px; margin: 6px 0 8px; } .hn-t { font-size: 21px; margin-bottom: 10px; } .hero-next .lt-clock { font-size: 27px; } .plan.plan-quiet li > button { padding: 7px 2px; } }
   @media (max-height: 700px) { .hero-next .lt-sub { margin-top: 7px; font-size: 13.5px; } .hn-lock { padding: 7px 10px; } }
 
+  /* version 126 (Robert, Oct 27): the Progress tab, the horseshoe tier ring with pending notches */
+  .prog-card { margin: 2px 0 14px; }
+  .prog-top { display: flex; align-items: center; gap: 16px; }
+  .prog-gauge { position: relative; flex: none; width: 128px; height: 112px; display: block; }
+  .prog-gauge svg { display: block; width: 100%; height: 100%; }
+  .pgn { fill: none; stroke: rgba(53, 181, 124, 0.32); stroke-width: 11; stroke-linecap: round; }
+  .pgn.on { stroke: var(--accent); }
+  .prog-gauge .pg-num { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; color: var(--on-ink); }
+  .pg-num b { font-size: 32px; line-height: 1; }
+  .pg-num small { display: block; margin-top: 2px; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.75; }
+  .prog-pend { margin-top: 8px; font-size: 12.5px; opacity: 0.85; }
+  .tiers5 { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 7px; }
+  .tiers5 li { display: grid; grid-template-columns: 82px 76px 1fr; gap: 10px; align-items: baseline; padding: 9px 13px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+  .tiers5 b { font-size: 14.5px; }
+  .tiers5 span { font-size: 12.5px; color: var(--ink-2); font-weight: 700; }
+  .tiers5 small { font-size: 12.5px; color: var(--ink-3); line-height: 1.3; }
+  .prog-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; background: var(--card); border: 1.5px solid var(--line); margin: 0 0 14px; }
+  .prog-row > span:first-child { flex: 1; display: grid; gap: 2px; min-width: 0; }
+  .prog-row b { font-size: 15px; }
+  .prog-row small { font-size: 12px; color: var(--ink-3); line-height: 1.3; }
+  .prog-n { flex: none; font-size: 26px; }
+  .prog-row .link { flex: none; padding: 6px 0; }
+  .badge .pg-frac { font-size: 11px; font-weight: 800; }
+  .badge.off .ring-num { color: var(--ink-3); }
+  @media (max-height: 760px) { .prog-top { gap: 12px; } .prog-gauge { width: 110px; height: 96px; } .pg-num b { font-size: 27px; } .tiers5 li { padding: 7px 12px; } .prog-row { padding: 10px 13px; } }
+  /* version 125 (Robert, Oct 27): the Learn shelf and the course page */
+  .learn-now { display: grid; gap: 3px; padding: 14px 16px; border-radius: 20px; background: var(--accent-soft); margin: 2px 0 14px; }
+  .learn-now b { font-family: var(--head-font); font-weight: var(--head-weight); font-size: 21px; }
+  .ln-notches { display: inline-flex; gap: 5px; margin: 5px 0 3px; }
+  .ln-notch { width: 30px; height: 8px; border-radius: 4px; background: var(--card); border: 1.5px solid var(--accent); opacity: .4; }
+  .ln-notch.on { background: var(--accent); opacity: 1; }
+  .learn-now small { font-size: 13px; color: var(--ink-2); }
+  .shelf-h { margin: 18px 2px 2px; font-family: var(--head-font); font-weight: var(--head-weight); font-size: 19px; }
+  .shelf-sub { margin: 0 2px 8px; font-size: 13px; color: var(--ink-3); line-height: 1.4; }
+  .shelf { list-style: none; margin: 0 0 4px; padding: 0; display: grid; gap: 8px; }
+  .lc { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 11px 14px; border-radius: 16px; background: var(--card); border: 1.5px solid var(--line); font: inherit; color: inherit; }
+  button.lc { cursor: pointer; }
+  .lc.live { border-color: var(--accent); }
+  .lc-main { flex: 1; min-width: 0; display: grid; gap: 2px; }
+  .lc-main b { font-size: 15px; line-height: 1.3; }
+  .lc-main small { font-size: 12.5px; color: var(--ink-3); display: inline-flex; align-items: center; gap: 5px; }
+  .lc-live { color: var(--accent-ink); font-weight: 700; }
+  .lc .go { flex: none; font-size: 22px; line-height: 1; color: var(--ink-3); }
+  .lc-lock svg { flex: none; }
+  .crs-hero { display: flex; align-items: center; gap: 12px; margin: 2px 0 14px; }
+  .crs-av { flex: none; width: 52px; height: 52px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-ink); display: grid; place-items: center; font-weight: 800; font-size: 18px; }
+  .crs-hero b { display: block; font-size: 16.5px; }
+  .crs-hero small { display: block; font-size: 13px; color: var(--ink-3); margin-top: 2px; }
+  .crs-ls { margin: 0 0 14px; padding: 0; list-style: none; counter-reset: crs; display: grid; gap: 8px; }
+  .crs-ls li { display: flex; gap: 11px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); font-size: 14.5px; line-height: 1.35; counter-increment: crs; }
+  .crs-ls li::before { content: counter(crs); flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--soft); color: var(--ink-2); font-weight: 800; font-size: 12.5px; display: grid; place-items: center; }
+  .crs-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 10px; }
+  .crs-meta span { font-size: 12.5px; font-weight: 700; padding: 5px 11px; border-radius: 999px; background: var(--soft); color: var(--ink-2); }
+  .crs-meta .crs-badge { background: var(--accent-soft); color: var(--accent-ink); }
+  @media (max-height: 760px) { .learn-now { padding: 11px 14px; } .shelf-h { margin-top: 14px; } }
   /* version 114: Lesson N done confetti */
   .confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
   .confetti i { position: absolute; top: -24px; display: block; opacity: 0; animation: cffall var(--t) cubic-bezier(.25, .6, .4, 1) var(--d) both; }
@@ -4076,13 +4131,13 @@ function libRows() {
 const TAB_ICONS = {
   today: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5" opacity=".35"/><path d="M12 3.5a8.5 8.5 0 0 1 8.5 8.5"/></svg>`,
   library: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h6a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H4z"/><path d="M20 5.5h-6a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h6z"/></svg>`,
-  me: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8.5" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>`,
+  me: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5.9 17.6 A8.6 8.6 0 1 1 18.1 17.6"/><circle cx="5.9" cy="17.6" r="1.7" fill="currentColor" stroke="none"/></svg>`, /* version 124: Progress wears the horseshoe ring */
   practice: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 20.5v-15a1.5 1.5 0 0 1 1.5-1.5h8a1.5 1.5 0 0 1 1.5 1.5v15"/><path d="M4 20.5h16"/><circle cx="14.6" cy="12.6" r="1.1" fill="currentColor" stroke="none"/></svg>`,
 };
 /* version 47 (Maya Kaur, Robert, Oct 18): Practice, Library and Me are locked for users. Each shows a coming-soon screen until Robert asks
    Claude here to unlock it: set SOON_ON to false (or drop a tab from SOON_TABS) and republish. The demo menu's jumps land on the same screen. */
 const SOON_ON = true;
-const SOON_TABS = { coach: "practice", library: "library", me: "me" };
+const SOON_TABS = { coach: "practice" }; /* version 124 (Robert, Oct 27): Learn (library) and Progress (me) are open; Practice stays locked until Robert asks */
 const SOON_COPY = {
   practice: ["Extra doors, any time you want them.", "Practice with the coach between lessons, as many doors as you like. Until then, your lessons live on Today."],
   library: ["Every lesson, in one place.", "Your five lessons, tough doors and notes from the campaign. Until then, each lesson opens from Today."],
@@ -4118,7 +4173,7 @@ function vLocked() {
 const TAB_LOCK = `<span class="tab-lock" aria-label="Coming soon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span>`;
 function tabBar(cur) {
   /* version 71: get out the vote has four tabs (Today, Practice, Library, Me); Practice gives the coach a home */
-  const tabs = S.track === "gotv" ? [["today", "welcome", "Today"], ["practice", "coach", "Practice"], ["library", "library", "Library"], ["me", "me", "Me"]] : [["today", "welcome", "Today"], ["library", "library", "Library"], ["me", "me", "Me"]];
+  const tabs = S.track === "gotv" ? [["today", "welcome", "Today"], ["library", "library", "Learn"], ["practice", "coach", "Practice"], ["me", "me", "Progress"]] : [["today", "welcome", "Today"], ["library", "library", "Library"], ["me", "me", "Me"]]; /* version 124 (Robert, Oct 27): Today, Learn, Practice, Progress */
   return `<nav class="tabs" aria-label="Sections" style="grid-template-columns:repeat(${tabs.length},1fr)">${tabs.map(([k, screen, label]) => `<button class="${cur === k ? "on" : ""}" data-act="go" data-arg="${screen}" aria-current="${cur === k ? "page" : "false"}">${TAB_ICONS[k]}<span>${label}</span>${soonNow(screen) ? TAB_LOCK : ""}</button>`).join("")}</nav>`; /* version 118: locked tabs wear a lock */
 }
 
@@ -4127,7 +4182,7 @@ const NOTES = {
   pick: ["Every program in the cycle", "Signatures a year or more out, registration six months or more out, deep canvassing for persuasion in the months before and turnout in the final two weeks, at the door or by vote tripling at a busy site."],
   video: ["A welcome from the candidate", "About a minute, filmed on an iPhone. Maya Kaur, the candidate, talks to the camera at home: why the campaign needs you, that the in-person training comes first and that Warmup gets you door-ready before your shift. On \u201cstarting with how to introduce yourself,\u201d her iPhone fills the frame, in her hand, and plays lesson 1 the way the volunteer will meet it, timed to her words: the lesson opening, a first try at Sofia\u2019s door, Listen in with the moves ticking, Kevin\u2019s door with the volunteer speaking out loud and Kevin talking back, the feedback, Lesson 1 done at 1/5 and Today with lessons 2 to 5. Then it cuts back to her for the ask. She\u2019s a real person reading the script in her own words, so this is the version to compare with the AI welcome."],
   sms: ["SMS-delivered", "Nobody has the campaign\u2019s number saved, so a real person signs the text and says who they\u2019re with. At sign-up the campaign says to expect it, so it never reads as spam. The link opens the lesson, with nothing to download. Testing with someone? Tell them first: you\u2019ll play a volunteer and talk out loud with a pretend voter."],
-  welcome: ["Today: the plan around the shift", "Version 71 (How Warmup Teaches, approved Oct 12). One list: each lesson on its day, the Warmup Saturday at 8, the canvass at 9 and the Cooldown after. The ring shows readiness for the next shift: the five lessons, then the Warmup. One button for the next thing; a second lesson the same day opens a few hours later, so the button reads Do it now anyway. Four tabs: Today, Practice, Library, Me."],
+  welcome: ["Today: the plan around the shift", "Version 71 (How Warmup Teaches, approved Oct 12). One list: each lesson on its day, the Warmup Saturday at 8, the canvass at 9 and the Cooldown after. The ring shows readiness for the next shift: the five lessons, then the Warmup. One button for the next thing; a second lesson the same day opens a few hours later, so the button reads Do it now anyway. Four tabs: Today, Learn, Practice, Progress."],
   intake: ["Find your starting point (off the main path since version 64)", "One question: their experience. The heads-up that practice happens out loud comes right before they first speak: before the opener for veterans, after the four cards for first-timers. Each answer is reflected back, and the name comes from the sign-up list."],
   talk: ["Right before they speak (off the main path since version 64)", "The talk-or-type question waits until the first moment it matters, so first-timers aren\u2019t asked about practicing out loud before they know what Saturday looks like."],
   placement: ["Everyone shows their opener", "Since version 64 (Robert, Oct 11) there is no experience question and no talk-or-type question: the first try places you. A Knock first, so nobody is put on the spot; the box says typing works if you can\u2019t talk. A strong opener skips Watch. The first-timer cards still exist for the presenter menu and \u201cHow Saturday works\u201d: Saturday as a story: six tap-through cards (tap or swipe, auto-advancing like Instagram Stories), each a small animation and one line, ending on a pass with when, where, how long and what to bring. First-timers learn how a canvass works before any technique, and a concrete where and when makes people likelier to show up. Four cards, no test, so their first graded moment is a likely win. Veterans show their opener and get feedback on it right away, on the same screen that opens the lesson; a strong one skips the demo. No level on screen: placement changes what comes next, not a label. The heading says why we ask (version 65): the opener tells us where to start the lesson. The card shows the four moves as checks and the misses as what happened, like the scorecard (version 66). One rule, two paths (version 67): all four moves goes straight to Your turn, nothing re-taught; anything less gets the full lesson, with the reps picked from the moves they missed."],
@@ -4145,9 +4200,9 @@ const NOTES = {
   ready: ["Visible readiness", "Preparation shows up as a badge and a record that carries across shifts."],
   sms2: ["The cooldown text", "One text, sent when the shift ends, opens the cooldown while it\u2019s fresh."],
   debrief: ["Cooldown", "The stars and the four ratings stay for the campaign. New in version 71: one spoken question, Tell me about one door you\u2019ll remember. The coach names the Tough door it points to and adds one like it to the next Warmup. It ends on Sign up for your next shift?"],
-  library: ["The library: three shelves", "Your five (redo any lesson; each page holds its four moves with the why, your best take and Go deeper talks from top canvassers), Tough doors (eight curveballs, the coach\u2019s picks on top) and From your campaign (the welcome, Where Saturday fits, How your list gets made, the platform and answers from Ask the campaign). Top canvassers live inside the shelves, so the library never turns into an endless catalog. Other programs keep the version 28 library."],
+  library: ["Learn: the 28-course shelf", "Version 125 (Robert, Oct 27). Every course is five five-minute lessons with checks; finish a course, earn its badge. Locks are honest: finish your current course to open the next, four stay locked until Platinum (What the best canvassers do differently, The one-on-one and the ask, House meetings, From canvasser to team lead; Claude\u2019s proposed set) and the state editions are coming soon. Local leaders teach the tactics, national leaders teach the foundations, one national script and grading standard with a local face. Ganz, Han, Huerta and Fleischer show as Invited until they sign. Tap Public narrative for the one clickable course page. Other programs keep the version 28 library."],
   training: ["A library page", "A lesson page holds its moves and why, your best take and Go deeper; a Tough door says what it sharpens. Add to my next Warmup puts it into the next Warmup. Anything not built yet says so and asks for a vote."],
-  me: ["Me", "Status like an airline\u2019s: a tier earned by ready shifts (worked within a day of a Warmup), the Door-ready badge, the five skills with their levels (Learning, Solid, Sharp, Mentor), then campaigns and record. Mentor replaced Coach, so coach only ever means the AI."],
+  me: ["Progress: the tier preview", "Version 126 (Robert, Oct 27). Two tracks: an annual tier that resets January 1 and lifetime status. The main metric is courses completed; a course counts once all its checks are passed, with unlimited retakes, and a started course shows five pale pending notches on the horseshoe ring, one per lesson, like Delta\u2019s pending MQDs. Tiers (placeholder names): Silver 1 course (a digital memento and a shareable card), Gold 5 (tougher AI voters), Platinum 10 (the full library), Diamond 20 (early access). Second metric: volunteers recruited via a personal invite link; doors knocked and shift confirmation are skipped for now. Supersedes the ready-shift tiers and the never-demotes rule."],
   try: ["Your 1st try, before any teaching", "The volunteer answers out loud before any teaching. Trying first, even wrong, makes the lesson that follows stick (the pretesting effect). Feedback is positive only and never a grade: what they got right and what to watch for. All four moves on the first try goes straight to Your 2nd try, the version 67 rule applied to every lesson. Lesson 1\u2019s try also places them. Version 72: one mic button and no box until it\u2019s tapped, so a phone\u2019s keyboard never opens on its own."],
   spot: ["Catch the mistake", "The same door on another day with one realistic miss. Lesson 1 picks it from the volunteer\u2019s own try: the neighbor move, or the permission question. The volunteer taps the miss, sees why it matters and goes straight to the 2nd try to use it at the next door."],
   coach: ["Practice: the coach\u2019s home", "Extra doors anytime, no new teaching: the coach\u2019s pick (from the Cooldown or the last scorecard\u2019s miss), the five lesson doors, the eight Tough doors and Surprise me. In the demo the angry voter is playable (Gloria); the other Tough doors are honest placeholders that ask for a vote."],
@@ -4728,6 +4783,87 @@ function talkTap() {
   if (pageMic()) { micToggle(); return; }
   trayOpen(true);
 }
+/* version 127 (Robert, Oct 27): hear the candidate's name. Speech recognition rarely knows "Maya Kaur", so it comes back as "my core",
+   "Maya car", "mayor Kaur", "my a core" or "Mayakaur", and the grader then says the volunteer never named her. hearName() rewrites a run of
+   one to three words that sounds like the name (the same consonant and vowel skeleton; one slip allowed when a cue word like "for" or "with"
+   sits before it, or when the first or last name is spelled out in it) as the name itself, so the live card, the quote and the grader all
+   hear "Maya Kaur". Built from the program's CAMPAIGN entry, so another candidate is a swap; programs without one are untouched. */
+const HN_TRIG = ["for", "with", "support", "supporting", "supporter", "supporters", "behalf", "elect", "electing", "reelect", "campaign", "campaigning", "canvassing", "canvass", "volunteering", "volunteer", "vote", "voting", "candidate", "council", "councilwoman", "councilmember", "called", "named", "backing", "endorsing", "endorse", "represent", "representing", "about", "of", "from", "help", "helping", "get", "see", "know", "team", "meet"];
+const HN_FIRST = ["maya", "maia", "mya", "myah", "mayah", "maiya", "maja", "maiah", "mayor", "mayer"];
+const HN_FIRST_ALT = ["maia", "mya", "myah", "mayah", "maiya", "maja", "maiah"];
+const HN_LAST = ["kaur", "kour", "kaurs", "kours"];
+const HN_INTRO = ["i'm", "im", "name's", "names"];
+function hnCollapse(s) { let out = ""; for (let i = 0; i < s.length; i += 1) { if (s.charAt(i) !== out.charAt(out.length - 1)) out += s.charAt(i); } return out; }
+function hnSkel(word) {
+  let w = String(word || "").toLowerCase().replace(/[^a-z]+/g, "");
+  if (!w) return "";
+  w = w.replace(/ph/g, "f").replace(/ck/g, "k").replace(/qu/g, "k").replace(/q/g, "k").replace(/x/g, "ks").replace(/c([eiy])/g, "s$1").replace(/c/g, "k").replace(/gh/g, "").replace(/wh/g, "w");
+  if (w.length > 2 && w.endsWith("e") && /[aeiouy]/.test(w.slice(0, -1))) w = w.slice(0, -1); /* a silent final e: core, like */
+  w = w.charAt(0) + w.slice(1).replace(/h/g, ""); /* an h after the first letter is silent enough: mayah, ch, sh */
+  const lead = w.charAt(0) === "y" ? "y" : "";
+  w = lead + w.slice(lead.length).replace(/[aeiouy]+/g, "A"); /* every vowel run is one A, so core, car, cur and Kaur agree */
+  return hnCollapse(w);
+}
+function hnJoin(cores) { return hnCollapse(cores.map(hnSkel).join("")); }
+function hnDist(a, b) {
+  const m = a.length, n = b.length;
+  if (!m) return n;
+  if (!n) return m;
+  let prev = [];
+  for (let j = 0; j <= n; j += 1) prev.push(j);
+  for (let i = 1; i <= m; i += 1) {
+    const cur = [i];
+    for (let j = 1; j <= n; j += 1) cur.push(Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1)));
+    prev = cur;
+  }
+  return prev[n];
+}
+const HN_Q1 = String.fromCharCode(8217), HN_Q2 = String.fromCharCode(8216);
+function hnTok(raw) {
+  const s = String(raw);
+  const isL = (c) => /[a-z']/.test(c.toLowerCase()) || c === HN_Q1 || c === HN_Q2;
+  let a = 0, b = s.length;
+  while (a < b && !isL(s.charAt(a))) a += 1;
+  while (b > a && !isL(s.charAt(b - 1))) b -= 1;
+  const core = s.slice(a, b).toLowerCase().split(HN_Q1).join("'").split(HN_Q2).join("'");
+  return { raw: s, lead: s.slice(0, a), core, trail: s.slice(b) };
+}
+function hearName(text) {
+  const camp = (typeof CAMPAIGN !== "undefined" && CAMPAIGN[S.track]) || null, name = camp && camp.name;
+  if (!name || !text) return text;
+  const parts = name.trim().split(" ").filter(Boolean), first = parts[0].toLowerCase(), last = parts[parts.length - 1].toLowerCase();
+  const target = hnSkel(parts.join("")), tail = target.charAt(target.length - 1);
+  const T = String(text).split(" ").map(hnTok), out = [];
+  let i = 0;
+  while (i < T.length) {
+    let best = null;
+    if (T[i].core) {
+      const p1 = i > 0 ? T[i - 1].core : "", p2 = i > 1 ? T[i - 2].core : "";
+      const ctx = HN_TRIG.includes(p1) || HN_TRIG.includes(p2);
+      const intro = HN_INTRO.includes(p1) || (p1 === "am" && p2 === "i") || (p1 === "is" && p2 === "name"); /* "I'm Mike, or..." is a volunteer's own name */
+      for (let n = 1; n <= 3 && i + n <= T.length; n += 1) {
+        const win = T.slice(i, i + n);
+        if (win.some((t) => !t.core)) break;
+        const cores = win.map((t) => t.core.split("'").join(""));
+        let sk = hnJoin(cores), d = hnDist(sk, target), poss = false;
+        const lastC = cores[n - 1];
+        if (d > 0 && lastC.length > 2 && lastC.endsWith("s")) { const c2 = cores.slice(0, -1).concat([lastC.slice(0, -1)]), sk2 = hnJoin(c2), d2 = hnDist(sk2, target); if (d2 < d) { d = d2; sk = sk2; poss = true; } } /* Kaur's, core's */
+        const spelled = cores.some((c) => HN_FIRST.includes(c) || c === first || HN_LAST.includes(c) || c === last || c === last + "s");
+        const endsRight = sk.replace(/[dts]$/, "").endsWith(tail);
+        let ok = false;
+        if (d === 0) ok = !intro || spelled;
+        else if (d === 1) ok = spelled || (ctx && endsRight);
+        else if (d === 2 && n === 1 && ctx && (cores[0] === "mayor" || cores[0] === "mayer")) ok = true; /* "volunteering for mayor" */
+        if (ok && (!best || d < best.d)) best = { d, n, poss };
+      }
+    }
+    if (best) { const w0 = T[i], wn = T[i + best.n - 1]; out.push(w0.lead + name + (best.poss ? "'s" : "") + wn.trail); i += best.n; continue; }
+    if (T[i].core && HN_FIRST_ALT.includes(T[i].core)) { out.push(T[i].lead + parts[0] + T[i].trail); i += 1; continue; } /* "Maia" alone is still her */
+    out.push(T[i].raw);
+    i += 1;
+  }
+  return out.join(" ");
+}
 /* version 73: what the recognizer heard. iPhone Safari sometimes sends each result as the whole phrase so far, or the phrase twice,
    so take the last result when each one builds on the one before, and fold an exact repeat back into one */
 function heardFrom(results) {
@@ -4738,8 +4874,8 @@ function heardFrom(results) {
   const builds = xs.length > 1 && low.every((x, i) => i === 0 || x.startsWith(low[i - 1]));
   const said = builds ? xs[xs.length - 1] : xs.join(" ");
   const w = said.split(" ").filter(Boolean), h = w.length / 2;
-  if (w.length >= 4 && w.length % 2 === 0 && w.slice(0, h).join(" ").toLowerCase() === w.slice(h).join(" ").toLowerCase()) return w.slice(0, h).join(" ");
-  return said;
+  if (w.length >= 4 && w.length % 2 === 0 && w.slice(0, h).join(" ").toLowerCase() === w.slice(h).join(" ").toLowerCase()) return hearName(w.slice(0, h).join(" "));
+  return hearName(said); /* version 127: the candidate's name, however the recognizer spelled it */
 }
 /* version 78: an iPhone plays Web Audio like a game sound, so the silent switch mutes every voice. On the first tap, ask for normal playback
    (navigator.audioSession, Safari 16.4 and later); older iPhones get the same effect from a silent media element played once inside the tap.
@@ -5263,7 +5399,86 @@ function opts(field, list, value) {
   return `<div class="opts" role="group">${list.map(([v, label]) => `<button class="opt" data-act="pick" data-field="${field}" data-arg="${v}" aria-pressed="${cur === v}">${mark()}${label}</button>`).join("")}</div>`;
 }
 
+/* version 125 (Robert, Oct 27, decisions 1, 3 and 10): the Learn tab (the old Library) is the full 28-course shelf from
+   claude/warmup-library-courses-oct26.md. Courses sort on two axes, tactic against foundation and local against national:
+   local leaders teach the tactics ("Sarah from Green Bay"), national leaders teach the foundations, one national script and
+   grading standard with a local face. Locks are honest: finish your current course to open the next, four courses wait for
+   Platinum (PLAT_LOCK, Claude\u2019s proposed set, pending Robert) and the state editions are coming soon. One course page is
+   clickable for now, Public narrative (Marshall Ganz, Invited until he signs). */
+const SHELVES = [
+  ["The nine tactics, in campaign order", "Taught by local leaders near you. One national script and grading standard, with a local face."],
+  ["Taught by the movement\u2019s leaders", "National leaders teach the foundations."],
+  ["Why it works", ""],
+  ["The craft", ""],
+  ["The rules", ""],
+  ["The movement", ""],
+  ["You and your team", ""],
+];
+const PLAT_LOCK = { 12: 1, 20: 1, 21: 1, 28: 1 };
+const COURSES = [
+  { n: 1, s: 0, t: "Signature gathering", b: "Table-ready" },
+  { n: 2, s: 0, t: "Site-based voter registration", b: "Table-ready" },
+  { n: 3, s: 0, t: "Supporter ID canvassing", b: "Door-ready" },
+  { n: 4, s: 0, t: "Persuasion canvassing", b: "Door-ready" },
+  { n: 5, s: 0, t: "Deep canvassing", by: "Dave Fleischer", inv: 1, b: "Door-ready (deep)" },
+  { n: 6, s: 0, t: "GOTV canvassing", live: 1, b: "Door-ready" },
+  { n: 7, s: 0, t: "Site-based vote tripling", b: "Site-ready" },
+  { n: 8, s: 0, t: "Voter protection", b: "Protector" },
+  { n: 9, s: 0, t: "Gathering peacefully", b: "Marshal" },
+  { n: 10, s: 1, t: "Public narrative: self, us, now", by: "Marshall Ganz", inv: 1, b: "Storyteller", ls: ["Why story moves people when facts don\u2019t", "Story of self: the choice points that made you a canvasser", "Story of us: the values you share with the voter at the door", "Story of now: the urgent choice and the hopeful path", "Two minutes at the door: your narrative in your own words"] },
+  { n: 11, s: 1, t: "Organizing, not mobilizing", by: "Hahrie Han", inv: 1, b: "Organizer" },
+  { n: 12, s: 1, t: "House meetings: how a movement is built", by: "Dolores Huerta", inv: 1, b: "Host" },
+  { n: 13, s: 2, t: "Why canvassing works", b: "Why" },
+  { n: 14, s: 2, t: "Why people don\u2019t vote, and what moves them", b: "The science" },
+  { n: 15, s: 2, t: "The science of friends", b: "Messenger" },
+  { n: 16, s: 2, t: "How elections are decided", b: "The math" },
+  { n: 17, s: 2, t: "How a field program works", b: "Inside field" },
+  { n: 18, s: 3, t: "Listening at the door", b: "Listener" },
+  { n: 19, s: 3, t: "Hard doors: the judgment order", b: "Steady" },
+  { n: 20, s: 3, t: "What the best canvassers do differently", b: "Pro habits" },
+  { n: 21, s: 3, t: "The one-on-one and the ask", b: "Recruiter" },
+  { n: 22, s: 4, t: "Rules of the road", b: "Trusted" },
+  { n: 23, s: 4, t: "How voting works where you knock", soon: 1, b: "Local expert" },
+  { n: 24, s: 5, t: "A short history of canvassing in America", b: "Historian" },
+  { n: 25, s: 5, t: "The fight for the vote", b: "Keeper" },
+  { n: 26, s: 6, t: "Your first shift, start to finish", b: "Showed up" },
+  { n: 27, s: 6, t: "Staying in it", b: "The long game" },
+  { n: 28, s: 6, t: "From canvasser to team lead", b: "Team lead" },
+];
+const LOCK_S = `<svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`;
+const courseLock = (c) => (c.live ? "" : c.soon ? "Coming soon" : PLAT_LOCK[c.n] ? "Unlocks at Platinum" : "Unlocks after your current course");
+function vLearnG() {
+  const d5 = S.done5 || {}, nd = LESSONS5.filter((x) => d5[x.n]).length;
+  const card = (c) => {
+    const lock = courseLock(c), open = c.n === 10; /* one clickable course page for now (decision 10) */
+    const sub = c.live ? `<small class="lc-live">Your course \u00b7 ${nd} of 5 lessons</small>` : `${c.by ? `<small class="lc-by">${c.by}${c.inv ? " \u00b7 Invited" : ""}</small>` : ""}<small class="lc-lock">${LOCK_S}${lock}</small>`;
+    const inner = `<span class="lc-main"><b>${c.t}</b>${sub}</span>${open ? `<span class="go">\u203a</span>` : ""}`;
+    return open ? `<li><button class="lc" data-act="course-open" data-arg="${c.n}">${inner}</button></li>` : `<li><div class="lc${c.live ? " live" : ""}">${inner}</div></li>`;
+  };
+  const shelf = (s, i) => { const xs = COURSES.filter((c) => c.s === i); return `<h2 class="shelf-h">${s[0]}</h2>${s[1] ? `<p class="shelf-sub">${s[1]}</p>` : ""}<ul class="shelf">${xs.map(card).join("")}</ul>`; };
+  return app(`
+    <h1 class="h1">Learn</h1>
+    <p class="lede">One lesson a day. Finish a course, earn its badge.</p>
+    <div class="learn-now"><p class="kicker">Your course</p><b>GOTV canvassing</b><span class="ln-notches" aria-label="${nd} of 5 lessons done">${[0, 1, 2, 3, 4].map((i) => `<i class="ln-notch${i < nd ? " on" : ""}"></i>`).join("")}</span><small>${nd} of 5 lessons done. Pass every check and the course counts.</small></div>
+    ${SHELVES.map(shelf).join("")}
+  `, { tabs: "library" });
+}
+function vCourseG() {
+  const c = COURSES.find((x) => x.n === (S.courseN || 10)) || COURSES[9];
+  const told = S.courseTold && S.courseTold[c.n];
+  const ini = c.by ? c.by.split(" ").map((w) => w[0]).join("") : "";
+  return app(`
+    <p class="kicker">${SHELVES[c.s][0]}</p>
+    <h1 class="h1">${c.t}</h1>
+    ${c.by ? `<div class="crs-hero"><span class="crs-av" aria-hidden="true">${ini}</span><div><b>${c.by}</b><small>${c.inv ? "Invited \u00b7 filming winter 2026" : "Filming winter 2026"}</small></div></div>` : ""}
+    <p class="deb-q">Five lessons, five minutes each</p>
+    <ol class="crs-ls">${(c.ls || []).map((l) => `<li>${l}</li>`).join("")}</ol>
+    <div class="crs-meta"><span class="crs-badge">Badge: ${c.b}</span><span>${courseLock(c)}</span></div>
+    <p class="small">Not live yet. It\u2019s on our list.</p>
+  `, { back: "library", primary: told ? ["On the list. We\u2019ll text you when it\u2019s ready", "noop", "", true] : ["Tell me when it\u2019s ready", "course-tell"] });
+}
 function vLibrary() {
+  if (S.track === "gotv") return vLearnG(); /* version 125 (Robert, Oct 27): the Learn tab is the course shelf */
   const n = libAll().length;
   return app(`
     <h1 class="h1">Library</h1>
@@ -5297,7 +5512,34 @@ function statusNow() {
   const i = TIERS.reduce((a, x, j) => (ready >= x[1] ? j : a), 0);
   return { ready, tier: TIERS[i][0], next: TIERS[i + 1] };
 }
+/* version 126 (Robert, Oct 27, decisions 5 to 8 and 11): the Progress tab (the old Me) previews the tier system.
+   Two tracks: an annual tier that resets January 1 and lifetime status. Main metric: courses completed; a course
+   counts once all its checks are passed, with unlimited retakes, and a started course shows five pale pending
+   notches on the horseshoe ring, one per lesson, like Delta\u2019s pending MQDs. Tiers (placeholder names): Silver 1
+   course, Gold 5, Platinum 10, Diamond 20. Second metric: volunteers recruited via a personal invite link; doors
+   knocked and shift confirmation are skipped for now. Supersedes the ready-shift tiers of warmup-profile-status-plan.md. */
+const PG_ARCS = ["M31.5 90.5 A46 46 0 0 1 18.1 55.6", "M18.8 49.6 A46 46 0 0 1 40.0 18.8", "M45.3 16.0 A46 46 0 0 1 82.7 16.0", "M88.0 18.8 A46 46 0 0 1 109.2 49.6", "M109.9 55.6 A46 46 0 0 1 96.5 90.5"];
+const TIERS5 = [["Silver", 1, "A digital memento and a shareable card"], ["Gold", 5, "Tougher AI voters to practice against"], ["Platinum", 10, "The full course library unlocks"], ["Diamond", 20, "Early access to new trainings, and your say on them"]];
+function vProgressG() {
+  const d5 = S.done5 || {}, nd = LESSONS5.filter((x) => d5[x.n]).length, done = nd >= 5 ? 1 : 0;
+  const next = TIERS5.find((t) => done < t[1]) || TIERS5[TIERS5.length - 1];
+  const gauge = `<span class="prog-gauge"><svg viewBox="0 0 128 112" aria-label="${done} courses completed; ${nd} of 5 lessons pending toward ${next[0]}">${PG_ARCS.map((d, i) => `<path class="pgn${i < nd ? " on" : ""}" d="${d}"/>`).join("")}</svg><span class="pg-num"><b class="num">${done}</b><small>courses</small></span></span>`;
+  const lockB = `<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`;
+  const badge = (name, on, frac, label) => `<span class="badge${on ? "" : " off"}"><span class="ring-wrap" style="width:46px;height:46px">${ring(frac, 46, 6)}<span class="ring-num">${on ? `<small class="pg-frac num">${label}</small>` : lockB}</span></span>${name}</span>`;
+  return app(`
+    <h1 class="h1">Progress</h1>
+    <div class="status-card prog-card"><div class="prog-top">${gauge}
+      <div><p class="kicker">2026 tier</p><b class="tier">Member</b><small>Finish your first course to reach Silver.</small><small class="prog-pend">Pending: GOTV canvassing, ${nd} of 5 lessons</small></div></div>
+      <p class="small">Your tier resets January 1. Lifetime status is yours for keeps.</p></div>
+    <p class="deb-q">The tiers</p>
+    <ul class="tiers5">${TIERS5.map((t) => `<li><b>${t[0]}</b><span>${t[1]} course${t[1] > 1 ? "s" : ""}</span><small>${t[2]}</small></li>`).join("")}</ul>
+    <div class="prog-row"><span><b>Volunteers recruited</b><small>Friends who join through your invite link count here.</small></span><span class="prog-n num">0</span><button class="link" data-act="invite-copy">Share link</button></div>
+    <p class="deb-q">Badges</p>
+    <div class="badges">${badge("Door-ready", true, nd / 5, nd + "/5")}${badge("Storyteller", false, 0, "")}${badge("Marshal", false, 0, "")}${badge("The science", false, 0, "")}</div>
+  `, { tabs: "me" });
+}
 function vMe() {
+  if (S.track === "gotv") return vProgressG(); /* version 126 (Robert, Oct 27): the Progress tab previews the tier ring */
   const t = T(), done = countDone(), st = statusNow(), nd = DAYS.find((d) => !S.sessions[S.track][d.n]);
   const tick = `<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10.5 L8.5 14 L15 6.5" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const badges = [["First shift", true], ["100 conversations", true], [`Ready streak ${streakNow()}`, streakNow() >= 2], [S.track === "gotv" ? "Door-ready" : BADGE[S.track], S.track === "gotv" ? Object.keys(S.done5 || {}).length >= 5 : !!S.sessions[S.track][5]]];
@@ -6907,7 +7149,7 @@ async function aiGradeTry(text) {
   return j.hits.map((x) => x === true);
 }
 async function checkTry() {
-  const ta = $("#say"), text = ta ? ta.value.trim() : "";
+  const ta = $("#say"), text = hearName(ta ? ta.value.trim() : ""); /* version 127 */
   if (!text) { toast("Say it first, then tap the arrow."); return; }
   const n = lessonNo(), f = FLOW[skKey()];
   let hits = f.hits(norm(text)), phrAI = null;
@@ -7343,7 +7585,7 @@ function meTrainingG() {
 }
 
 /* ---------- rendering and navigation ---------- */
-const VIEWS = { pick: vPick, sms: vSMS, sms2: vSMS2, video: vVideo, welcome: vWelcome, intake: vIntake, placement: vPlacement, howworks: vHowWorks, talk: vTalk, note: vNote, library: vLibrary, training: vTraining, me: vMe, path: vPath, session: vSession, watch: vWatch, spot: vSpot, why: vWhy, recap: vRecap, practice: vPractice, main: vMain, door: vDoor, score: vScore, close: vClose, ready: vReady, debrief: vDebrief, try: vTry, warm: vWarm, warmtip: vWarmTip, warmready: vWarmReady, coach: vCoach, how: vHow, locked: vLocked, whylock: vWhyLock };
+const VIEWS = { pick: vPick, sms: vSMS, sms2: vSMS2, video: vVideo, welcome: vWelcome, intake: vIntake, placement: vPlacement, howworks: vHowWorks, talk: vTalk, note: vNote, library: vLibrary, training: vTraining, me: vMe, path: vPath, session: vSession, watch: vWatch, spot: vSpot, why: vWhy, recap: vRecap, practice: vPractice, main: vMain, door: vDoor, score: vScore, close: vClose, ready: vReady, debrief: vDebrief, try: vTry, warm: vWarm, warmtip: vWarmTip, warmready: vWarmReady, coach: vCoach, how: vHow, locked: vLocked, whylock: vWhyLock, course: vCourseG };
 let lessonRun = 0;
 
 function render() {
@@ -7945,7 +8187,7 @@ async function voterSays(text, expr, d) {
 async function sendTurn() {
   const ta = $("#say");
   if (!ta || !S.convo || S.convo.busy || S.convo.ended) return;
-  const text = ta.value.trim();
+  const text = hearName(ta.value.trim()); /* version 127 */
   if (!text) return;
   const d = DOORS[SK().door];
   ta.value = "";
@@ -8200,7 +8442,7 @@ function stopCamera() {
 const JUMPS = [
   ["Pick a program", "pick"], ["The SMS", "sms"], ["Welcome video", "video"], ["Today", "path"], ["How Warmup works", "how"], ["Why your lesson is locked", "whylock"],
   ["Lesson opening", "session"], ["Your 1st intro", "try"], ["Hear it done", "watch"], ["Catch the mistake", "spot"], ["Your 2nd intro", "main"], ["Wrap-up", "close"],
-  ["Practice tab", "coach"], ["Warmup", "warm"], ["Cooldown", "sms2"], ["Field director view", "director"], ["Library", "library"], ["Me", "me"],
+  ["Practice tab", "coach"], ["Warmup", "warm"], ["Cooldown", "sms2"], ["Field director view", "director"], ["Learn", "library"], ["Progress", "me"],
   ["Campaign note", "note"], ["Ready before the shift", "ready"], ["Old: starting point", "intake"], ["Old: opener check", "placement"], ["Old: practice reps", "practice"],
 ];
 function voiceOptions(sel) {
@@ -8351,6 +8593,9 @@ document.addEventListener("click", (e) => {
     }
     case "story-replay": S.storyI = 0; render(); break;
     case "story-go": S.storyI = Number(arg); render(); break;
+    case "invite-copy": try { navigator.clipboard.writeText("https://yourwarmup.com/kaur"); } catch (e) { /* ignore */ } toast("Invite link copied."); break; /* version 126 */
+    case "course-open": S.courseN = Number(arg); go("course"); break; /* version 125 */
+    case "course-tell": S.courseTold = S.courseTold || {}; S.courseTold[S.courseN || 10] = true; render(); toast("You\u2019re on the list. We\u2019ll text you when it\u2019s ready."); break;
     case "lib-open": S.lib.open = arg; S.lib.sheet = null; go("training"); break;
     case "lib-trainer": S.lib.q = TRAINERS[arg].name; go("library"); break;
     case "lib-start": { const it = libFind(S.lib.open); if (S.track === "gotv") { if (it) libStartG(it); break; } if (it && it.rep) startOptional(it.rep, "library"); else if (it && it.note) { S.lib.done[it.id] = true; S.noteFrom = "library"; go("note"); } else { S.lib.sheet = S.lib.open; render(); } break; }
@@ -8546,6 +8791,8 @@ render();
 </script>
 </body>
 </html>
+
+
 
 
 
