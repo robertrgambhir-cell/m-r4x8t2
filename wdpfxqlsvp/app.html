@@ -8793,7 +8793,7 @@ document.addEventListener("focusout", (e) => {
 /* tapping the arrow keeps the box focused, so nothing moves under the finger before the tap lands */
 document.addEventListener("mousedown", (e) => { if (e.target && e.target.closest && e.target.closest("#talk-tray button")) e.preventDefault(); });
 
-/* version 135 (Robert, Nov 1): ?home opens straight on Today as it looks right after lesson 1, for demos: lesson 1 saved at 3 of 4
+/* version 136 (Robert, Nov 1; built as 135 while another chat took 135): ?home opens straight on Today as it looks right after lesson 1, for demos: lesson 1 saved at 3 of 4
    (the Election Day part still to practice) and lesson 2 locked, its clock starting at 24 hours. Nothing is stored, so the plain link is unchanged. */
 if (new URLSearchParams(location.search).has("home") && S.track === "gotv") {
   const homeText = "Hi, I'm " + me() + ". I'm volunteering for Maya Kaur, and I'm checking in with neighbors.";
