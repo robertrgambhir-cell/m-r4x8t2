@@ -1082,6 +1082,18 @@
   .story.fit .reveal { padding: calc(16px * var(--k)); gap: calc(8px * var(--k)); }
   .story.fit .reveal p { font-size: calc(19px * var(--k)); }
   .story.fit .reveal p.muted { font-size: calc(14.5px * var(--k)); }
+
+  /* v11.7: the cover keeps the issue and what you'll learn; the lesson's parts get their own screen before the first lesson */
+  .cv-learn { display: grid; gap: calc(10px * var(--k, 1)); margin-top: calc(8px * var(--k, 1)); }
+  .cv-learn .cv-here { margin: 0; }
+  .cv-learn ol { list-style: none; margin: 0; padding: 0; display: grid; gap: calc(8px * var(--k, 1)); }
+  .cv-learn li { display: grid; grid-template-columns: calc(30px * var(--k, 1)) 1fr; gap: 12px; align-items: center; padding: calc(12px * var(--k, 1)) 14px; border-radius: 16px; background: rgba(255,255,255,.1); }
+  .cv-learn li i { width: calc(30px * var(--k, 1)); height: calc(30px * var(--k, 1)); border-radius: 50%; display: grid; place-items: center; font: 800 calc(13px * var(--k, 1))/1 var(--sans); font-style: normal; background: #9ee6bf; color: #163a72; }
+  .cv-learn li span { font-size: calc(17px * var(--k, 1)); font-weight: 600; line-height: 1.3; }
+  .how { display: grid; gap: calc(12px * var(--k, 1)); }
+  .how .cv-rm li { grid-template-columns: 22px 1fr auto; }
+  .how .cv-rm li .lo span::before { display: none; }
+  .story.fit .how .cv-rm li .lo span { font-size: calc(13.5px * var(--k)); opacity: .78; }
 </style>
 <div class="wrap">
   <p class="fine">Demo campaign. Maya Kaur is fictional. Each lesson presents a real 2026 Democratic candidate’s public record as Maya’s; the real candidates are named at the end of the lesson. Not affiliated with, endorsed by or approved by any campaign.</p>
@@ -1173,11 +1185,10 @@
   function hrows(rows, max) { return '<div class="hr">' + rows.map(function (r, k) { return '<div class="row"><span>' + r[0] + '</span><div class="trk"><i style="--w:' + (r[2] / max * 100).toFixed(1) + '%;background:' + r[3] + ';transition-delay:' + (k * 200) + 'ms"></i><b>' + r[1] + '</b></div></div>'; }).join("") + '</div>'; }
 
   /* cover: the issue, one line, then the five parts; Learn lists what you'll learn (the same three moves the practice checks) */
+  /* cover (Robert, Oct 31, 11:33 PM): only the issue and what you'll learn; how a lesson works moved to its own screen before the first lesson */
   function cover(issue, moves, next) { return { bg: BLUE_BG, dark: true, next: next, html: function () {
     return '<h2 class="cv-h">' + issue + '</h2><p class="cv-sub">One of the top 5 issues voters are raising at the door.</p>' +
-      '<p class="cv-here">You’re here · about 5 minutes in all</p><ol class="cv-rm">' + PARTS.map(function (p, k) {
-        return '<li class="' + (k === 0 ? "on" : "") + '"><i>' + (k + 1) + '</i><b>' + p + '</b><em>' + PART_MIN[k] + '</em>' + (k === 0 ? '<div class="lo">' + moves.map(function (m) { return '<span>' + m[0] + '</span>'; }).join("") + '</div>' : "") + '</li>';
-      }).join("") + '</ol>'; } }; }
+      '<div class="cv-learn"><p class="cv-here">What you’ll learn</p><ol>' + moves.map(function (m, k) { return '<li><i>' + (k + 1) + '</i><span>' + m[0] + '</span></li>'; }).join("") + '</ol></div>'; } }; }
   function stance(h, items, note, src) { return { bg: "#EEF3FB", next: "How her opponent’s plan differs", src: src, html: function () {
     return '<h2 class="mya"><span class="mk">Where Maya stands</span>' + h + '</h2><ol class="m3">' + items.map(function (it, k) { return '<li class="' + (it[0] || "") + '"><i>' + (k + 1) + '</i><div><b>' + it[1] + '</b><span>' + it[2] + '</span></div></li>'; }).join("") + '</ol>' + (note ? '<p class="m3n">' + note + '</p>' : ""); } }; }
   function plans(h, base, k, j, note, src) { return { bg: "#FBF6EE", next: "What your vote decides", src: src, html: function () {
@@ -1580,7 +1591,7 @@
   function shell(o) {
     var x = X();
     var top = '<div class="st-top"><img src="' + MAYA_PHOTO + '" alt=""><b>Maya Kaur</b><span>' + esc(x.issue) + '</span><button class="st-x" type="button" id="home" aria-label="Close lesson">✕</button></div>';
-    $("body").innerHTML = '<div class="story' + (o.dark ? " dark" : "") + (o.cls ? " " + o.cls : "") + (o.tap ? " tap fit" : o.fit ? " fit" : "") + '" id="story" style="background:' + o.bg + '">' + top + stepper() + '<div class="st-body' + (o.bcls ? " " + o.bcls : "") + '">' + o.body + '</div>' + (o.btns || "") + '</div>';
+    $("body").innerHTML = '<div class="story' + (o.dark ? " dark" : "") + (o.cls ? " " + o.cls : "") + (o.tap ? " tap fit" : o.fit ? " fit" : "") + '" id="story" style="background:' + o.bg + '">' + top + (o.nostep ? "" : stepper()) + '<div class="st-body' + (o.bcls ? " " + o.bcls : "") + '">' + o.body + '</div>' + (o.btns || "") + '</div>';
     foot("");
     var st = $("story"), reduce = false; try { reduce = matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
     requestAnimationFrame(function () { requestAnimationFrame(function () { if (st) st.classList.add("go"); }); });
@@ -1599,6 +1610,7 @@
     $("phone").classList.toggle("story-on", S.lesson != null);
     if (S.lesson == null) { renderHome(); return; }
     if (S.sources) { renderSources(); return; }
+    if (S.how) { renderHow(); return; }
     if (S.ph === 0) renderLearn();
     else if (S.ph === 1 || S.ph === 4) renderDoor();
     else if (S.ph === 2 || S.ph === 3) renderPlay();
@@ -1618,6 +1630,13 @@
     void b.offsetHeight; st.classList.remove("measuring");
   }
   window.addEventListener("resize", function () { if (S.lesson != null && S.ph === 0 && !S.sources) fitCard(); });
+  /* before the first lesson: how every lesson works, once (Robert, Oct 31, 11:33 PM) */
+  function renderHow() {
+    var x = X(), D = ["Quick cards on the issue", "Answer a voter your way. No grades.", "A canvasser shows how it’s done.", "Spot what she gets wrong.", "Answer again, with feedback."];
+    var body = '<div class="how"><span class="st-kick">Before your first lesson</span><h2 class="st-h lg">Every lesson has five parts.</h2><p class="st-p dim">About 5 minutes in all, at a voter’s door for most of it.</p><ol class="cv-rm">' +
+      PARTS.map(function (p, k) { return '<li><i>' + (k + 1) + '</i><b>' + p + '</b><em>' + PART_MIN[k] + '</em><div class="lo"><span>' + D[k] + '</span></div></li>'; }).join("") + '</ol></div>';
+    shell({ bg: BLUE_BG, dark: true, nostep: true, fit: true, body: body, btns: NEXTB("Start: " + x.issue.toLowerCase(), "howgo") }); fitCard();
+  }
   function renderSources() { var x = X(); shell({ bg: "#FBF6EE", body: '<span class="st-kick">Sources for this lesson</span><ul class="srclist">' + x.sources.map(function (s) { return '<li><a href="' + esc(s[1]) + '" target="_blank" rel="noopener">' + esc(s[0]) + '</a></li>'; }).join("") + '</ul>', btns: NEXTB("Back to the lesson", "srcback") }); }
   function renderDone() {
     var x = X(); S.done[S.lesson] = true;
@@ -1722,12 +1741,13 @@
     if (stEl && !e.target.closest("button")) { var rc = stEl.getBoundingClientRect(); learnStep((e.clientX - rc.left) < rc.width * 0.3 ? -1 : 1); return; }
     var t = e.target.closest("button"); if (!t) return;
     if (t.dataset.part != null) { var p = +t.dataset.part; if (p === 0) goLearn(S.ph === 0 ? 0 : X().story.length - 1); else goPart(p); return; }
-    if (t.dataset.lesson != null) { S.lesson = +t.dataset.lesson; S.d = null; S.res = null; goLearn(0); return; }
+    if (t.dataset.lesson != null) { S.lesson = +t.dataset.lesson; S.d = null; S.res = null; if (!S.seenHow) { stopAll(); S.how = true; render(); return; } goLearn(0); return; }
     if (t.dataset.spot != null) { if (S.spot.pick != null) return; S.spot.pick = +t.dataset.spot; render(); return; }
     var r = S.d && S.d.r;
     switch (t.id) {
       case "stnext": learnStep(1); break;
-      case "home": home(); break;
+      case "home": S.how = false; home(); break;
+      case "howgo": S.how = false; S.seenHow = true; goLearn(0); break;
       case "knock": knock(); break;
       case "pp": if (S.play.paused) { var at = S.play.i; S.play.paused = false; render(); playScript(Math.max(0, at)); } else { stopAll(); S.play.paused = true; render(); } break;
       case "talk":
