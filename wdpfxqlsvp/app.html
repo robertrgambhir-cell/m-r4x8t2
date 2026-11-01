@@ -8824,6 +8824,11 @@ function issuesOpen() {
   host.appendChild(ov);
 }
 window.addEventListener("message", function (e) { if (e && e.data && e.data.warmup === "issues-close") { var ov = document.getElementById("issues-ov"); if (ov) ov.remove(); } });
+/* version 134 (Robert, Nov 1): yourwarmup.com/wdpfxqlsvp/?issues opens straight to the issue lessons, over the Learn tab */
+if (/[?&]issues\b/.test(location.search)) setTimeout(function () {
+  var b = document.createElement("button"); b.dataset.act = "go"; b.dataset.arg = "library"; b.hidden = true; document.body.appendChild(b); b.click(); b.remove();
+  issuesOpen();
+}, 250);
 </script>
 </body>
 </html>
