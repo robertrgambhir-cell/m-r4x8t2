@@ -1116,6 +1116,34 @@
   .hw-dk span { width: calc(18px * var(--k, 1)); height: calc(18px * var(--k, 1)); display: inline-grid; }
   .hw-dk svg { width: 100%; height: 100%; }
   @media (prefers-reduced-motion: reduce) { .hw-s { animation: none; } }
+
+  /* v11.9 (Robert, Nov 1): two bars. Learn is a story bar, one segment per card; practice is the warm-up's four named segments with a Learn ✓ chip */
+  .sb2 { margin: 4px 0 8px; }
+  .sb2.learn { display: flex; gap: 4px; }
+  .sb2.learn button { all: unset; cursor: pointer; flex: 1; padding: 6px 0; }
+  .sb2.learn button i { display: block; height: 4px; border-radius: 4px; background: currentColor; opacity: .18; transition: opacity .3s; }
+  .sb2.learn button.f i { opacity: .9; }
+  .sb2.prac { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; }
+  .sb2 .lchip { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 9px 0 4px; margin-top: 1px; border-radius: 99px; background: var(--accent-soft); color: var(--accent-ink); font: 700 11.5px/1 var(--sans); }
+  .sb2 .lchip span { width: 15px; height: 15px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 9px; }
+  .story.dark .sb2 .lchip { background: rgba(158,230,191,.2); color: #9ee6bf; }
+  .sb2 .pseg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+  .sb2 .pseg button { all: unset; cursor: pointer; display: grid; gap: 5px; min-width: 0; padding-top: 8px; }
+  .sb2 .pseg .seg { height: 6px; border-radius: 6px; background: currentColor; opacity: .16; position: relative; overflow: hidden; }
+  .sb2 .pseg button.cur .seg, .sb2 .pseg button.done .seg { opacity: 1; background: rgba(0,0,0,.1); }
+  .story.dark .sb2 .pseg button.cur .seg, .story.dark .sb2 .pseg button.done .seg { background: rgba(255,255,255,.22); }
+  .sb2 .pseg .seg i { position: absolute; inset: 0 auto 0 0; border-radius: 6px; background: var(--accent); transition: width .45s cubic-bezier(.2,.8,.2,1); }
+  .sb2 .pseg .nm { font: 700 10px/1.1 var(--sans); white-space: nowrap; text-align: center; opacity: .5; letter-spacing: -.01em; }
+  .sb2 .pseg button.cur .nm { opacity: 1; color: var(--accent-ink); }
+  .story.dark .sb2 .pseg button.cur .nm { color: #9ee6bf; }
+  .sb2 .pseg button.done .nm { opacity: .75; }
+  .sb2 button:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; border-radius: 4px; }
+  .sb2.enter .lchip { animation: chipIn .55s cubic-bezier(.2,.8,.2,1) both; }
+  .sb2.enter .pseg button { animation: segIn .5s cubic-bezier(.2,.8,.2,1) both; }
+  .sb2.enter .pseg button:nth-child(1) { animation-delay: .35s; } .sb2.enter .pseg button:nth-child(2) { animation-delay: .45s; } .sb2.enter .pseg button:nth-child(3) { animation-delay: .55s; } .sb2.enter .pseg button:nth-child(4) { animation-delay: .65s; }
+  @keyframes chipIn { from { transform: scaleX(3.2); transform-origin: left center; opacity: .3; } to { transform: none; opacity: 1; } }
+  @keyframes segIn { from { transform: translateX(14px); opacity: 0; } to { transform: none; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .sb2.enter .lchip, .sb2.enter .pseg button { animation: none; } }
 </style>
 <div class="wrap">
   <p class="fine">Demo campaign. Maya Kaur is fictional. Each lesson presents a real 2026 Democratic candidate’s public record as Maya’s; the real candidates are named at the end of the lesson. Not affiliated with, endorsed by or approved by any campaign.</p>
@@ -1596,19 +1624,20 @@
     var n = p === 2 ? x.hearLines.length : x.missLines.length;
     return S.play && S.play.finished ? (p === 3 && !(S.spot && S.spot.pick != null) ? 0.7 : 1) : Math.max(0.08, (S.play ? S.play.i + 1 : 0) / n * 0.6);
   }
+  /* the stepper (Robert, Nov 1): during Learn, a story bar with one segment per card; at the switch to practice the Learn bar folds into a
+     "Learn ✓" chip and the warm-up's four named practice segments slide in beside it */
   function stepper() {
-    var x = X(), N = x.story.length, left = 0;
-    PART_W.forEach(function (w, p) { left += p === 0 ? w * (S.ph > 0 ? 0 : 1 - (S.idx + 1) / N) : w * (1 - partFill(p)); });
-    if (S.ph >= 5) left = 0;
-    var mins = left < 0.75 ? (left > 0.05 ? "Under a minute left" : "Done") : "About " + Math.round(left) + " min left";
-    var label = S.ph >= 5 ? "Lesson done" : S.ph === 0 ? "Learn · " + (S.idx + 1) + " of " + N : PARTS[S.ph];
-    var segs = PART_W.map(function (w, p) {
-      var st = S.ph > p ? "done" : S.ph === p ? "cur" : "", inner;
-      if (p === 0) { inner = ""; for (var k = 0; k < N; k++) inner += '<i class="' + (S.ph > 0 || k < S.idx ? "f" : k === S.idx ? "f c" : "") + '"></i>'; inner = '<span class="ticks">' + inner + '</span>'; }
-      else inner = '<span class="seg"><i style="width:' + Math.round(partFill(p) * 100) + '%"></i></span>';
-      return '<button type="button" class="' + st + '" data-part="' + p + '" style="flex:' + w + '" aria-label="' + PARTS[p] + ", " + PART_MIN[p] + (st === "done" ? ", done" : st === "cur" ? ", current part" : "") + '">' + inner + '</button>';
+    var x = X(), N = x.story.length;
+    if (S.ph === 0) {
+      var s = ""; for (var k = 0; k < N; k++) s += '<button type="button" class="' + (k < S.idx ? "f" : k === S.idx ? "f c" : "") + '" data-card="' + k + '" aria-label="Card ' + (k + 1) + ' of ' + N + '"><i></i></button>';
+      return '<div class="sb2 learn" role="navigation" aria-label="Learn, card ' + (S.idx + 1) + ' of ' + N + '">' + s + '</div>';
+    }
+    var enter = S.ph === 1 && S.d && S.d.stage === "intro" && !S.sbEntered; if (enter) S.sbEntered = true;
+    var segs = PARTS.slice(1).map(function (name, j) {
+      var p = j + 1, st = S.ph > p ? "done" : S.ph === p ? "cur" : "", w = st === "done" ? 100 : st === "cur" ? Math.round(partFill(p) * 100) : 0;
+      return '<button type="button" class="' + st + '" data-part="' + p + '" aria-label="' + name + (st === "done" ? ", done" : st === "cur" ? ", current part" : "") + '"><span class="seg"><i style="width:' + w + '%"></i></span><span class="nm">' + name + '</span></button>';
     }).join("");
-    return '<div class="pbar" role="navigation" aria-label="Lesson parts"><div class="pb-row"><b>' + label + '</b><span>' + mins + '</span></div><div class="pb-segs">' + segs + '</div></div>';
+    return '<div class="sb2 prac' + (enter ? " enter" : "") + '" role="navigation" aria-label="Lesson parts"><button type="button" class="lchip" data-part="0" aria-label="Learn, done"><span>✓</span>Learn</button><div class="pseg">' + segs + '</div></div>';
   }
   function shell(o) {
     var x = X();
@@ -1773,8 +1802,9 @@
     var stEl = e.target.closest("#story.tap");
     if (stEl && !e.target.closest("button")) { var rc = stEl.getBoundingClientRect(); learnStep((e.clientX - rc.left) < rc.width * 0.3 ? -1 : 1); return; }
     var t = e.target.closest("button"); if (!t) return;
+    if (t.dataset.card != null) { goLearn(+t.dataset.card); return; }
     if (t.dataset.part != null) { var p = +t.dataset.part; if (p === 0) goLearn(S.ph === 0 ? 0 : X().story.length - 1); else goPart(p); return; }
-    if (t.dataset.lesson != null) { S.lesson = +t.dataset.lesson; S.d = null; S.res = null; if (!S.seenHow) { stopAll(); S.how = true; render(); return; } goLearn(0); return; }
+    if (t.dataset.lesson != null) { S.lesson = +t.dataset.lesson; S.d = null; S.res = null; S.sbEntered = false; if (!S.seenHow) { stopAll(); S.how = true; render(); return; } goLearn(0); return; }
     if (t.dataset.spot != null) { if (S.spot.pick != null) return; S.spot.pick = +t.dataset.spot; render(); return; }
     var r = S.d && S.d.r;
     switch (t.id) {
@@ -1993,7 +2023,7 @@
       P.i = i; var ln = lines[i], cap = $("cap");
       if (cap) { cap.classList.toggle("you", ln.who === "m"); cap.innerHTML = '<span class="cap-who">' + (ln.who === "m" ? "Monica" : esc(x.voter.name)) + '</span><p>' + esc(ln.text) + '</p>'; }
       if (hear && ln.tick != null) { var ol = $("l-moves"); if (ol && ol.children.length <= ln.tick) { var g = document.querySelectorAll(".wghost li")[ln.tick]; if (g) { var li = g.cloneNode(true); ol.appendChild(li); } } }
-      var segI = document.querySelector(".pbar button.cur .seg i"); if (segI) segI.style.width = Math.max(8, (i + 1) / lines.length * 60) + "%";
+      var segI = document.querySelector(".sb2 button.cur .seg i"); if (segI) segI.style.width = Math.max(8, (i + 1) / lines.length * 60) + "%";
       var next = function () { recTimers.push(setTimeout(function () { step(i + 1); }, FAST ? 10 : 350)); };
       if (ln.who === "v") { mouthTalk(true); say(ln.text, x.voter.kv, function () { mouthTalk(false); next(); }); }
       else say(ln.text, "af_heart", next);
