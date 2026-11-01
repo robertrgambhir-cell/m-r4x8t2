@@ -1094,6 +1094,28 @@
   .how .cv-rm li { grid-template-columns: 22px 1fr auto; }
   .how .cv-rm li .lo span::before { display: none; }
   .story.fit .how .cv-rm li .lo span { font-size: calc(13.5px * var(--k)); opacity: .78; }
+
+  /* v11.8 (Robert, Oct 31, 11:38 PM): "how each lesson works" as a light timeline (Mobbin: Deepstash, Hypelist, Yazio) */
+  .story.howc .st-body { justify-content: flex-start; }
+  .hw { display: grid; gap: calc(14px * var(--k, 1)); }
+  .hw-h { margin: 0; font: 500 calc(34px * min(var(--k, 1), 1.12))/1.06 var(--serif); letter-spacing: -.02em; text-wrap: balance; }
+  .hw-sub { margin: calc(-6px * var(--k, 1)) 0 calc(4px * var(--k, 1)); font-size: calc(16.5px * var(--k, 1)); color: var(--ink-3); }
+  .hw-tl { list-style: none; margin: 0; padding: 0; display: grid; position: relative; }
+  .hw-door .hw-tl::before { content: ""; position: absolute; left: calc(19px * var(--k, 1)); top: calc(26px * var(--k, 1)); bottom: calc(26px * var(--k, 1)); width: 2px; background: #BFE3CF; border-radius: 2px; }
+  .hw-s { position: relative; display: grid; grid-template-columns: calc(40px * var(--k, 1)) 1fr auto; gap: 14px; align-items: center; padding: calc(9px * var(--k, 1)) 0; animation: rise .45s ease both; }
+  .hw-ic { position: relative; z-index: 1; width: calc(40px * var(--k, 1)); height: calc(40px * var(--k, 1)); border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-ink); box-shadow: 0 0 0 4px #FCF8F2; }
+  .hw-ic svg { width: 46%; height: 46%; }
+  .hw > .hw-tl .hw-ic { background: #E3ECF8; color: var(--maya); }
+  .hw-door .hw-ic { box-shadow: 0 0 0 4px #F1F8F3; }
+  .hw-tx b { display: block; font-size: calc(17px * var(--k, 1)); font-weight: 700; line-height: 1.2; }
+  .hw-tx small { display: block; font-size: calc(14.5px * var(--k, 1)); color: var(--ink-3); line-height: 1.3; margin-top: 2px; }
+  .hw-s em { font-style: normal; font: 600 calc(12.5px * var(--k, 1))/1 var(--sans); color: var(--ink-3); background: var(--soft); padding: 5px 9px; border-radius: 99px; white-space: nowrap; }
+  .hw-door { border-radius: 22px; background: #F1F8F3; padding: calc(12px * var(--k, 1)) 14px calc(6px * var(--k, 1)); }
+  .hw-door .hw-s em { background: #fff; }
+  .hw-dk { display: flex; align-items: center; gap: 8px; margin: 0 0 calc(2px * var(--k, 1)); font: 700 calc(12px * var(--k, 1))/1.2 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); }
+  .hw-dk span { width: calc(18px * var(--k, 1)); height: calc(18px * var(--k, 1)); display: inline-grid; }
+  .hw-dk svg { width: 100%; height: 100%; }
+  @media (prefers-reduced-motion: reduce) { .hw-s { animation: none; } }
 </style>
 <div class="wrap">
   <p class="fine">Demo campaign. Maya Kaur is fictional. Each lesson presents a real 2026 Democratic candidate’s public record as Maya’s; the real candidates are named at the end of the lesson. Not affiliated with, endorsed by or approved by any campaign.</p>
@@ -1632,10 +1654,21 @@
   window.addEventListener("resize", function () { if (S.lesson != null && S.ph === 0 && !S.sources) fitCard(); });
   /* before the first lesson: how every lesson works, once (Robert, Oct 31, 11:33 PM) */
   function renderHow() {
-    var x = X(), D = ["Quick cards on the issue", "Answer a voter your way. No grades.", "A canvasser shows how it’s done.", "Spot what she gets wrong.", "Answer again, with feedback."];
-    var body = '<div class="how"><span class="st-kick">Before your first lesson</span><h2 class="st-h lg">Every lesson has five parts.</h2><p class="st-p dim">About 5 minutes in all, at a voter’s door for most of it.</p><ol class="cv-rm">' +
-      PARTS.map(function (p, k) { return '<li><i>' + (k + 1) + '</i><b>' + p + '</b><em>' + PART_MIN[k] + '</em><div class="lo"><span>' + D[k] + '</span></div></li>'; }).join("") + '</ol></div>';
-    shell({ bg: BLUE_BG, dark: true, nostep: true, fit: true, body: body, btns: NEXTB("Start: " + x.issue.toLowerCase(), "howgo") }); fitCard();
+    /* Mobbin: Deepstash, Hypelist and Yazio "how it works" timelines. One line of title, a vertical timeline with an icon per part, the four practice parts grouped under one door */
+    var x = X(), I = {
+      learn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5A2.5 2.5 0 0 1 4 20.5z"/></svg>',
+      mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
+      ear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 3-2 4-3 5.5s-1 2.5-1.5 4A2.5 2.5 0 0 1 9 18"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.2-.8 1.8-1.4 2.6"/></svg>',
+      find: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>',
+      star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg>',
+      door: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 21V4h12v17"/><path d="M3.5 21h17"/><circle cx="15" cy="12.5" r="1" fill="currentColor"/></svg>'
+    };
+    var step = function (ic, t, d, m, k) { return '<li class="hw-s" style="animation-delay:' + (120 + k * 90) + 'ms"><span class="hw-ic">' + I[ic] + '</span><span class="hw-tx"><b>' + t + '</b><small>' + d + '</small></span><em>' + m + '</em></li>'; };
+    var body = '<div class="hw"><h2 class="hw-h">How each lesson works</h2><p class="hw-sub">Five quick parts. About 5 minutes.</p>' +
+      '<ol class="hw-tl">' + step("learn", "Learn", "Quick cards on the issue", "2 min", 0) + '</ol>' +
+      '<div class="hw-door"><p class="hw-dk"><span>' + I.door + '</span>Then, at a voter’s door</p><ol class="hw-tl">' +
+      step("mic", "1st try", "Your way, no grades", "30 sec", 1) + step("ear", "Hear it done", "A canvasser shows how", "1 min", 2) + step("find", "Catch the mistake", "Spot her slip", "30 sec", 3) + step("star", "2nd try", "Again, with feedback", "1 min", 4) + '</ol></div></div>';
+    shell({ bg: "#FCF8F2", nostep: true, fit: true, cls: "howc", body: body, btns: NEXTB("Start " + x.issue.toLowerCase(), "howgo") }); fitCard();
   }
   function renderSources() { var x = X(); shell({ bg: "#FBF6EE", body: '<span class="st-kick">Sources for this lesson</span><ul class="srclist">' + x.sources.map(function (s) { return '<li><a href="' + esc(s[1]) + '" target="_blank" rel="noopener">' + esc(s[0]) + '</a></li>'; }).join("") + '</ul>', btns: NEXTB("Back to the lesson", "srcback") }); }
   function renderDone() {
