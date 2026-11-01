@@ -992,6 +992,96 @@
   .hm-top .hm-count { margin-left: auto; }
   .emb-back { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(255,255,255,.16); color: #fff; font: 600 22px/1 var(--sans); cursor: pointer; display: grid; place-items: center; padding: 0 2px 3px 0; }
   .warnline a { color: inherit; font-weight: 700; }
+
+  /* v11.6 (Robert, Oct 31, 9:08 PM): no band of empty space above and below the content. Learn cards start right under the stepper and the
+     page scales each card's type, visuals and spacing (--k) to the largest size that still fits the screen, so content fills it; sources sit above the button */
+  .story.fit .st-body { --k: 1; justify-content: flex-start; gap: calc(12px * var(--k)); padding: calc(10px * var(--k)) 0 4px; overflow: hidden; }
+  .story.fit .st-body > .st-src { margin-top: auto; padding-top: 4px; }
+  .story.fit .st-h { font-size: calc(29px * var(--k)); }
+  .story.fit .st-h.lg { font-size: calc(37px * var(--k)); }
+  .story.fit .st-h.sm { font-size: calc(23px * var(--k)); }
+  .story.fit .mya { font-size: calc(29px * var(--k)); }
+  .story.fit .mya .mk { font-size: calc(14px * var(--k)); }
+  .story.fit .cv-h { font-size: calc(44px * var(--k)); }
+  .story.fit .cv-sub { font-size: calc(16px * var(--k)); }
+  .story.fit .cv-here { font-size: calc(11px * var(--k)); }
+  .story.fit .st-p { font-size: calc(16.5px * var(--k)); }
+  .story.fit .st-p.small, .story.fit .st-p.dim { font-size: calc(14.5px * var(--k)); }
+  .story.fit .st-src { font-size: calc(11px * min(var(--k), 1.1)); }
+  .story.fit .bignum b { font-size: calc(44px * var(--k)); }
+  .story.fit .bignum span { font-size: calc(15px * var(--k)); }
+  .story.fit .bignum { padding: calc(12px * var(--k)) 16px; }
+  .story.fit .st-icard { transform: scale(calc(.9 * var(--k))); margin: calc(-12px + 14px * (var(--k) - 1)) 0; }
+  .story.fit .sis3 .p { padding: calc(12px * var(--k)) 6px; gap: calc(4px * var(--k)); }
+  .story.fit .sis3 .p svg { width: calc(34px * var(--k)); height: calc(42px * var(--k)); }
+  .story.fit .sis3 .p b { font-size: calc(16px * var(--k)); }
+  .story.fit .sis3 .p small, .story.fit .sis3 .p .cv { font-size: calc(12.5px * var(--k)); }
+  .story.fit .ga-map { grid-template-columns: calc(122px * var(--k)) 1fr; }
+  .story.fit .ga-map svg { width: 100%; }
+  .story.fit .ga-map b { font-size: calc(42px * var(--k)); }
+  .story.fit .ga-map span { font-size: calc(15px * var(--k)); }
+  .story.fit .cmp2 .t { height: calc(26px * var(--k)); }
+  .story.fit .cmp2 .r { font-size: calc(13.5px * var(--k)); }
+  .story.fit .bills i { height: calc(38px * var(--k)); font-size: calc(15px * var(--k)); }
+  .story.fit .fl div { padding: calc(10px * var(--k)) 14px; }
+  .story.fit .fl span { font-size: calc(15px * var(--k)); }
+  .story.fit .fl small { font-size: calc(11px * var(--k)); }
+  .story.fit .duo .bars { height: calc(120px * var(--k)); }
+  .story.fit.go .duo .bars i { height: calc(var(--h) * var(--k)); }
+  .story.fit .duo .bars b { font-size: calc(17px * var(--k)); }
+  .story.fit .news .nw-h { font-size: calc(19px * var(--k)); }
+  .story.fit .news { padding: calc(11px * var(--k)) 14px; }
+  .story.fit .m3 li { padding: calc(11px * var(--k)) 14px; }
+  .story.fit .m3 li b { font-size: calc(16px * var(--k)); }
+  .story.fit .m3 li span { font-size: calc(13.5px * var(--k)); }
+  .story.fit .m3n { font-size: calc(14.5px * var(--k)); }
+  .story.fit .tp .col b { font-size: calc(16px * var(--k)); }
+  .story.fit .tp .col span, .story.fit .tp .base { font-size: calc(13.5px * var(--k)); }
+  .story.fit .tp .col { padding: calc(12px * var(--k)) 12px; }
+  .story.fit .tp .note { font-size: calc(13.5px * var(--k)); }
+  .story.fit .fk svg { max-height: calc(150px * var(--k)); }
+  .story.fit .fk .end b { font-size: calc(15.5px * var(--k)); }
+  .story.fit .fk-note { font-size: calc(14.5px * var(--k)); }
+  .story.fit .lk p { font-size: calc(19px * var(--k)); }
+  .story.fit .lk div { padding: calc(12px * var(--k)) 14px; }
+  .story.fit .cv-rm li { padding: calc(10px * var(--k)) 0; }
+  .story.fit .cv-rm li b { font-size: calc(15.5px * var(--k)); }
+  .story.fit .cv-rm li em { font-size: calc(13px * var(--k)); }
+  .story.fit .cv-rm li .lo span { font-size: calc(13.5px * var(--k)); }
+  .story.fit .usmap { gap: calc(3px * var(--k)); }
+  .story.fit .usmap i { font-size: calc(8.5px * var(--k)); }
+  .story.fit .map-k, .story.fit .bills-k { font-size: calc(12.5px * var(--k)); }
+  .story.fit .hr .row span { font-size: calc(13.5px * var(--k)); }
+  .story.fit .sk-q p { font-size: calc(19px * var(--k)); }
+  .story.fit .sk-t span { font-size: calc(15px * var(--k)); }
+  .story.fit .sk-duo, .story.fit .tanks, .story.fit .vb, .story.fit .sk-kids, .story.fit .sk-dc, .story.fit .sk-crate, .story.fit .pie, .story.fit .st-bars2, .story.fit .hr { zoom: var(--k); }
+  .story.measuring, .story.measuring * { transition: none !important; animation: none !important; }
+  .story.fit .st-body > * { flex-shrink: 0; }
+  .story.fit .sk-note span { font-size: calc(14px * var(--k)); }
+  .story.fit .sk-note b { font-size: calc(12px * var(--k)); }
+  /* the same fit on the practice part's intro and result screens and on Lesson done */
+  .story.fit .st-body.stage.center, .story.fit .st-body { justify-content: flex-start; overflow: hidden; }
+  .story.fit .h2 { font-size: calc(24px * var(--k)); }
+  .story.fit .ip { gap: calc(14px * var(--k)); }
+  .story.fit .ip h2 { font-size: calc(34px * var(--k)); }
+  .story.fit .ip ol { gap: calc(8px * var(--k)); }
+  .story.fit .ip ol li { padding: calc(11px * var(--k)) 14px; }
+  .story.fit .ip ol li b { font-size: calc(16px * var(--k)); }
+  .story.fit .ip ol li span { font-size: calc(13.5px * var(--k)); }
+  .story.fit .st-kick { font-size: calc(12px * var(--k)); }
+  .story.fit .fb { padding: calc(14px * var(--k)) 15px; }
+  .story.fit .fb h3 { font-size: calc(21px * var(--k)); }
+  .story.fit .fb .you-said, .story.fit .fb .model { font-size: calc(14px * var(--k)); }
+  .story.fit .fb .try-lead { font-size: calc(15px * var(--k)); }
+  .story.fit .four-list { gap: calc(8px * var(--k)); }
+  .story.fit .four-list li { font-size: calc(16px * var(--k)); }
+  .story.fit .four-list li span { font-size: calc(13px * var(--k)); }
+  .story.fit .four-list li small { font-size: calc(11.5px * var(--k)); }
+  .story.fit .dn-top { gap: calc(10px * var(--k)); }
+  .story.fit .dn-top svg { width: calc(74px * var(--k)); height: calc(74px * var(--k)); }
+  .story.fit .reveal { padding: calc(16px * var(--k)); gap: calc(8px * var(--k)); }
+  .story.fit .reveal p { font-size: calc(19px * var(--k)); }
+  .story.fit .reveal p.muted { font-size: calc(14.5px * var(--k)); }
 </style>
 <div class="wrap">
   <p class="fine">Demo campaign. Maya Kaur is fictional. Each lesson presents a real 2026 Democratic candidate’s public record as Maya’s; the real candidates are named at the end of the lesson. Not affiliated with, endorsed by or approved by any campaign.</p>
@@ -1092,7 +1182,7 @@
     return '<h2 class="mya"><span class="mk">Where Maya stands</span>' + h + '</h2><ol class="m3">' + items.map(function (it, k) { return '<li class="' + (it[0] || "") + '"><i>' + (k + 1) + '</i><div><b>' + it[1] + '</b><span>' + it[2] + '</span></div></li>'; }).join("") + '</ol>' + (note ? '<p class="m3n">' + note + '</p>' : ""); } }; }
   function plans(h, base, k, j, note, src) { return { bg: "#FBF6EE", next: "What your vote decides", src: src, html: function () {
     var col = function (c, who, a) { return '<div class="col ' + c + '"><small>' + who + '</small><b>' + a[0] + '</b>' + a.slice(1).map(function (r) { return '<span>' + r + '</span>'; }).join("") + '</div>'; };
-    return '<h2 class="st-h">' + h + '</h2><div class="tp"><div class="base"><small>Today</small>' + base + '</div><div class="cols">' + col("k", "Maya", k) + col("j", "Her opponent", j) + '</div>' + (note ? '<p class="tp note">' + note + '</p>' : "") + '</div>'; } }; }
+    return '<h2 class="st-h">' + h + '</h2><div class="tp"><div class="base"><small>Today</small>' + base + '</div><div class="cols">' + col("k", "Maya", k) + col("j", "Her opponent", j) + '</div>' + (note ? '<p class="note">' + note + '</p>' : "") + '</div>'; } }; }
   function fork(h, kt, jt, note, src) { return { bg: "#F3EFE8", next: "Your line for the door", src: src, html: function () {
     var ch = function (x, y) { return '<path d="M' + (x - 7) + ' ' + y + ' L' + x + ' ' + (y + 7) + ' L' + (x + 7) + ' ' + y + '" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'; };
     var dg = function (x, y, d) { return '<path d="M' + (x - 8 * d) + ' ' + (y - 2) + ' L' + x + ' ' + (y + 7) + ' L' + (x + 3 * d) + ' ' + (y - 5) + '" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'; };
@@ -1490,7 +1580,7 @@
   function shell(o) {
     var x = X();
     var top = '<div class="st-top"><img src="' + MAYA_PHOTO + '" alt=""><b>Maya Kaur</b><span>' + esc(x.issue) + '</span><button class="st-x" type="button" id="home" aria-label="Close lesson">✕</button></div>';
-    $("body").innerHTML = '<div class="story' + (o.dark ? " dark" : "") + (o.cls ? " " + o.cls : "") + (o.tap ? " tap" : "") + '" id="story" style="background:' + o.bg + '">' + top + stepper() + '<div class="st-body' + (o.bcls ? " " + o.bcls : "") + '">' + o.body + '</div>' + (o.btns || "") + '</div>';
+    $("body").innerHTML = '<div class="story' + (o.dark ? " dark" : "") + (o.cls ? " " + o.cls : "") + (o.tap ? " tap fit" : o.fit ? " fit" : "") + '" id="story" style="background:' + o.bg + '">' + top + stepper() + '<div class="st-body' + (o.bcls ? " " + o.bcls : "") + '">' + o.body + '</div>' + (o.btns || "") + '</div>';
     foot("");
     var st = $("story"), reduce = false; try { reduce = matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
     requestAnimationFrame(function () { requestAnimationFrame(function () { if (st) st.classList.add("go"); }); });
@@ -1514,12 +1604,25 @@
     else if (S.ph === 2 || S.ph === 3) renderPlay();
     else renderDone();
   }
-  function renderLearn() { var c = X().story[S.idx]; shell({ bg: c.bg, dark: c.dark, tap: true, body: c.html() + srcLine(c.src), btns: NEXTB(c.next) }); }
+  function renderLearn() { var c = X().story[S.idx]; shell({ bg: c.bg, dark: c.dark, tap: true, body: c.html() + srcLine(c.src), btns: NEXTB(c.next) }); fitCard(); }
+  /* grow or shrink the card's contents (--k) to the largest size that fits, so a card fills the screen without scrolling (Robert, Oct 31, 9:08 PM) */
+  function fitCard() {
+    var b = document.querySelector("#story.fit .st-body"); if (!b) return;
+    var st = b.closest(".story"), had = st.classList.contains("go");
+    st.classList.add("go", "measuring"); /* measure at the final size of every growing bar, with transitions off */
+    var fits = function (k) { b.style.setProperty("--k", k); return b.scrollHeight <= b.clientHeight; };
+    var lo = 0.7, hi = 1.75;
+    if (fits(hi)) lo = hi; else for (var i = 0; i < 9; i++) { var m = (lo + hi) / 2; if (fits(m)) lo = m; else hi = m; }
+    b.style.setProperty("--k", (lo * 0.98).toFixed(3));
+    if (!had) st.classList.remove("go");
+    void b.offsetHeight; st.classList.remove("measuring");
+  }
+  window.addEventListener("resize", function () { if (S.lesson != null && S.ph === 0 && !S.sources) fitCard(); });
   function renderSources() { var x = X(); shell({ bg: "#FBF6EE", body: '<span class="st-kick">Sources for this lesson</span><ul class="srclist">' + x.sources.map(function (s) { return '<li><a href="' + esc(s[1]) + '" target="_blank" rel="noopener">' + esc(s[0]) + '</a></li>'; }).join("") + '</ul>', btns: NEXTB("Back to the lesson", "srcback") }); }
   function renderDone() {
     var x = X(); S.done[S.lesson] = true;
     shell({ bg: BLUE_BG, dark: true, cls: "donec", body: '<div class="dn-top"><svg viewBox="0 0 48 48" width="74" height="74" aria-hidden="true"><circle cx="24" cy="24" r="20" fill="#7ee0a8"/><path d="M15.5 24.5 L21.5 30.5 L33 18.5" fill="none" stroke="#163a72" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg><h2 class="st-h lg">Lesson done.</h2><p class="st-p dim">You can explain where Maya stands on ' + esc(x.issue.toLowerCase()) + ', and how her opponent differs, at any door.</p></div>' + reveal(x),
-      btns: NEXTB("Back to all lessons", "home") });
+      btns: NEXTB("Back to all lessons", "home"), fit: true }); fitCard();
   }
 
   /* ---------- home ---------- */
@@ -1541,7 +1644,7 @@
       '<div class="hm-hi"><div class="st-photo sm"><img src="' + MAYA_PHOTO + '" alt="Maya Kaur"></div><div><h2>Hi, I’m Maya.</h2><p>These are the five issues we’re hearing the most about from voters at the door.</p></div></div>' +
       '<i class="hm-blob a"></i><i class="hm-blob b"></i></div>' +
       '<div class="hm-path"><svg class="hm-line" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="' + path + '" fill="none" stroke="#d9cfbf" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 12" vector-effect="non-scaling-stroke"/></svg>' + nodes + '</div>' +
-      '<p class="pw-line hm-pw"><svg width="13" height="13" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19" fill="none" stroke="#e6dfd3" stroke-width="10"/><path d="M24 5 A19 19 0 1 1 5 24" fill="none" stroke="#35b57c" stroke-width="10"/></svg>Powered by Warmup</p><p class="hm-fine">Demo campaign. Maya Kaur is fictional; each lesson uses a real 2026 Democratic candidate’s public record, named at the end. Not affiliated with any campaign.</p></div>';
+      '</div>';
     foot("");
   }
 
@@ -1741,17 +1844,17 @@
       if (!second) {
         body = '<div class="ip"><span class="st-kick">Learn ✓ · now take it to a door</span><h2>' + esc(v.name) + ' opens the door with a question about ' + esc(x.issue.toLowerCase()) + '.</h2><ol>' +
           [["Your 1st try", "Answer " + v.name + " your way. No grades."], ["Hear it done", "Monica, a canvasser, shows how."], ["Catch the mistake", "Spot what Monica gets wrong."], ["Your 2nd try", "Answer again, with feedback."]].map(function (r, k) { return '<li><i>' + (k + 1) + '</i><div><b>' + r[0] + '</b><span>' + r[1] + '</span></div></li>'; }).join("") + '</ol></div>';
-        shell({ bg: BLUE_BG, dark: true, body: body, btns: NEXTB("Knock on " + v.name + "’s door", "knock", "green") });
+        shell({ bg: BLUE_BG, dark: true, fit: true, body: body, btns: NEXTB("Knock on " + v.name + "’s door", "knock", "green") }); fitCard();
       } else {
         body = '<div class="ip"><span class="st-kick">Your 2nd try</span><h2>Same door. This time, make Maya’s three moves.</h2><ol>' + x.moves.map(function (m, k) { return '<li><i>' + (k + 1) + '</i><div><b>' + m[0] + '</b><span>' + m[1] + '</span></div></li>'; }).join("") + '</ol></div>';
-        shell({ bg: BLUE_BG, dark: true, body: body, btns: NEXTB("Knock on " + v.name + "’s door again", "knock", "green") });
+        shell({ bg: BLUE_BG, dark: true, fit: true, body: body, btns: NEXTB("Knock on " + v.name + "’s door again", "knock", "green") }); fitCard();
       }
       return;
     }
     if (d.stage === "result") { renderResult(); return; }
     if (d.stage === "end" && !second) {
       body = '<h2 class="h2 tight">Your 1st try</h2><div class="fb try"><p class="you-said">You said: “' + esc(mine().join(" … ")) + '”</p><h3>A strong answer makes three moves.</h3><ul class="four-list">' + x.moves.map(function (m) { return '<li class="n"><small>Listen for</small>' + esc(m[0]) + '</li>'; }).join("") + '</ul><p class="try-lead had">Now hear Monica, a canvasser, answer ' + esc(v.name) + '.</p></div>';
-      shell({ bg: "#FCF8F2", cls: "door", bcls: "stage center", body: body, btns: '<button class="btn" type="button" id="tohear">Next: hear it done</button>' }); return;
+      shell({ bg: "#FCF8F2", cls: "door", bcls: "stage center", fit: true, body: body, btns: '<button class="btn" type="button" id="tohear">Next: hear it done</button>' }); fitCard(); return;
     }
     var title = d.stage === "end" ? "Checking your three moves…" : d.n === 0 ? "The door opens. How would you answer?" : esc(v.name) + " has a follow-up.";
     body = '<h2 class="h2 tight">' + title + '</h2><div class="rep-card stage">' + stage({ shut: !!d.swing }) +
@@ -1799,7 +1902,7 @@
       x.moves.map(function (m, k) { return '<li class="' + (R.hits[k] ? "y" : "n") + '"><small>' + (R.hits[k] ? "You did" : "Not yet") + '</small>' + esc(m[0]) + '<span>' + esc(m[1]) + '</span></li>'; }).join("") + '</ul>' +
       (R.wrong ? '<p class="warnline">Careful: something you said doesn’t match the lesson.</p>' : "") +
       '<div class="model"><b>How Monica said it</b>' + esc(x.model) + '</div></div>';
-    shell({ bg: "#FCF8F2", cls: "door", bcls: "stage center", body: body, btns: '<button class="btn" type="button" id="finish">Finish the lesson</button><button class="link" type="button" id="redo">Try your 2nd try again</button>' });
+    shell({ bg: "#FCF8F2", cls: "door", bcls: "stage center", fit: true, body: body, btns: '<button class="btn" type="button" id="finish">Finish the lesson</button><button class="link" type="button" id="redo">Try your 2nd try again</button>' }); fitCard();
   }
 
   /* ---------- Hear it done and Catch the mistake: Monica at the same door, seen from where she stands ---------- */
