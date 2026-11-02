@@ -1594,6 +1594,7 @@
   .pg-num b { font-size: 32px; line-height: 1; }
   .pg-num small { display: block; margin-top: 2px; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.75; }
   .prog-pend { margin-top: 8px; font-size: 12.5px; opacity: 0.85; }
+  .prog-card .pg-saved { font-size: 22px; } .prog-tier { margin: -6px 2px 14px; font-size: 12.5px; color: var(--ink-3); line-height: 1.4; } /* version 138 (Robert): Progress leads with what she saved; the tier and reset sit below, small */
   .tiers5 { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 7px; }
   .tiers5 li { display: grid; grid-template-columns: 82px 76px 1fr; gap: 10px; align-items: baseline; padding: 9px 13px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
   .tiers5 b { font-size: 14.5px; }
@@ -1703,7 +1704,7 @@ const has = (t, words) => words.some((w) => t.includes(w));
 const andList = (xs) => (xs.length > 1 ? xs.slice(0, -1).join(", ") + " and " + xs[xs.length - 1] : (xs[0] || ""));
 const MINUTE_ASK = ["a minute", "a second", " a sec ", "a moment", "bad time", "good time to talk", "busy right now", "quick minute"];
 const LOCALW = ["neighbor", "i live", "live on", "live in", "live down", "live around", "live nearby", "live close", "live right", "live a few", "local", "down the street", "around the corner", "few blocks", "blocks over", "block over", "nearby", "this street", "same street", "the neighborhood", "your street"];
-const WHY1 = ["election", " vote", "voting", "tuesday", "ballot", "polls"];
+const WHY1 = ["election", "tuesday", "ballot", "polls"]; /* version 138 (Robert, Nov 1): vote and voting no longer earn part 3, so a plan-to-vote question does not count as the Election Day reminder */
 const NAME_STOP = ["a", "an", "the", "with", "here", "just", "so", "from", "out", "on", "not", "sorry", "really", "also", "your", "one", "part", "volunteering", "volunteer", "checking", "calling", "knocking", "stopping", "going", "coming", "doing", "glad", "happy", "excited", "local", "wondering", "hoping", "reaching", "working", "running", "looking", "canvassing", "visiting", "talking", "asking", "trying", "in", "at", "to", "for", "now", "back", "over", "around", "supporting", "voting", "only", "still", "very", "super", "good", "great", "fine", "well", "new", "sure", "helping", "your", "a"];
 function saysName(t) {
   const w = t.replace(/[?.]/g, " ").split(" ").filter(Boolean), nm = String(me()).toLowerCase();
@@ -1724,7 +1725,7 @@ const openHits = (t) => [saysName(t), has(t, CAMPW), has(t, WHY1), !has(t, MINUT
 const UNC = (x) => String(x || "").toLowerCase().split("\u2019").join("'").split("\u2018").join("'");
 const PHR_NAME = ["i'm ", "i am ", "my name's ", "my name is ", "name's ", "name is "];
 const PHR_CAMP = ["volunteering with maya kaur's campaign for city council", "volunteering with maya kaur's campaign", "volunteering for maya kaur's campaign", "volunteering with maya kaur", "volunteering for maya kaur", "volunteering with maya", "volunteering for maya", "volunteer with maya kaur", "volunteer for maya kaur", "with maya kaur's campaign", "for maya kaur's campaign", "with maya kaur", "for maya kaur", "maya kaur's campaign", "maya's campaign", "maya kaur", "with the campaign", "the campaign", "maya", "kaur", "campaign", "city council"];
-const PHR_WHY = ["election day is on tuesday", "election day is this tuesday", "election day is tuesday", "election day's tuesday", "election day on tuesday", "election day tuesday", "election day", "election is tuesday", "the election", "election", "tuesday", "voting", "vote", "ballot", "polls"];
+const PHR_WHY = ["election day is on tuesday", "election day is this tuesday", "election day is tuesday", "election day's tuesday", "election day on tuesday", "election day tuesday", "election day", "election is tuesday", "the election", "election", "tuesday", "ballot", "polls"];
 function phrPick(raw, low, list) {
   for (let i = 0; i < list.length; i += 1) { const at = low.indexOf(list[i]); if (at >= 0) return raw.substr(at, list[i].length); }
   return "";
@@ -2210,7 +2211,7 @@ const SKILLS = {
     moveDefs: [
       "Say your name: says their own first name, early.",
       "Say you're volunteering for Maya Kaur: says they are volunteering for Maya Kaur's campaign (living nearby or being a neighbor is a bonus, not required).",
-      "Remind them Election Day is Tuesday: says Election Day is coming (Election Day, voting, Tuesday).",
+      "Remind them Election Day is Tuesday: says Election Day is coming (Election Day, Tuesday, a ballot or the polls; asking about a plan to vote does not count).",
       "Don't ask 'Do you have a minute?': never asks for the voter's time or permission to talk, such as 'Do you have a minute?' or 'Is this a bad time?'",
     ],
     why: [
@@ -2233,10 +2234,7 @@ const SKILLS = {
         { who: "you", text: "I live a few blocks over, and I\u2019m volunteering with Maya Kaur\u2019s campaign for City Council.", move: 1, pop: 1.47 },
         { who: "you", text: "Election Day is Tuesday, so I\u2019m checking in with neighbors.", move: 2, pop: 0.31 },
         { who: "them", text: "Oh, nice to meet you. Yes, I\u2019m voting for her.", expr: "warm", move: 3 },
-        { who: "you", text: "That\u2019s great to hear. Do you know when you\u2019ll vote?" },
-        { who: "them", text: "Tuesday morning, same as always.", expr: "neutral" },
-        { who: "you", text: "Perfect. Thanks so much, Sofia. Have a good evening!" },
-        { who: "them", text: "You too. Thanks for coming by.", expr: "warm" },
+        { who: "you", text: "Perfect. Thanks so much, Sofia. Have a good evening!", ai: 4 }, /* version 138 (Robert): the door ends once the fourth part lands; ai names the recorded take */
       ],
     },
     micro: [
@@ -5536,15 +5534,17 @@ const PG_ARCS = ["M31.5 90.5 A46 46 0 0 1 18.1 55.6", "M18.8 49.6 A46 46 0 0 1 4
 const TIERS5 = [["Silver", 1, "A digital memento and a shareable card"], ["Gold", 5, "Tougher AI voters to practice against"], ["Platinum", 10, "The full course library unlocks"], ["Diamond", 20, "Early access to new trainings, and your say on them"]];
 function vProgressG() {
   const d5 = S.done5 || {}, nd = LESSONS5.filter((x) => d5[x.n]).length, done = nd >= 5 ? 1 : 0;
+  const lastL = LESSONS5.filter((x) => d5[x.n]).pop(), left = 5 - nd, sc = lastL ? d5[lastL.n].filter(Boolean).length : 0; /* version 138: the lesson she saved last and its score */
+  const heroB = !lastL ? "Lesson 1" : nd >= 5 ? "Door-ready" : `Lesson ${lastL.n} \u00b7 ${sc} of 4`, heroS = nd >= 5 ? "All five lessons saved." : `${left} lesson${left === 1 ? "" : "s"} to Door-ready`;
   const next = TIERS5.find((t) => done < t[1]) || TIERS5[TIERS5.length - 1];
-  const gauge = `<span class="prog-gauge"><svg viewBox="0 0 128 112" aria-label="${done} courses completed; ${nd} of 5 lessons pending toward ${next[0]}">${PG_ARCS.map((d, i) => `<path class="pgn${i < nd ? " on" : ""}" d="${d}"/>`).join("")}</svg><span class="pg-num"><b class="num">${done}</b><small>courses</small></span></span>`;
+  const gauge = `<span class="prog-gauge"><svg viewBox="0 0 128 112" aria-label="${nd} of 5 lessons saved toward ${next[0]}">${PG_ARCS.map((d, i) => `<path class="pgn${i < nd ? " on" : ""}" d="${d}"/>`).join("")}</svg><span class="pg-num"><b class="num">${nd}/5</b><small>lessons</small></span></span>`;
   const lockB = `<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`;
   const badge = (name, on, frac, label) => `<span class="badge${on ? "" : " off"}"><span class="ring-wrap" style="width:46px;height:46px">${ring(frac, 46, 6)}<span class="ring-num">${on ? `<small class="pg-frac num">${label}</small>` : lockB}</span></span>${name}</span>`;
   return app(`
     <h1 class="h1">Progress</h1>
     <div class="status-card prog-card"><div class="prog-top">${gauge}
-      <div><p class="kicker">2026 tier</p><b class="tier">Member</b><small>Finish your first course to reach Silver.</small><small class="prog-pend">Pending: GOTV canvassing, ${nd} of 5 lessons</small></div></div>
-      <p class="small">Your tier resets January 1. Lifetime status is yours for keeps.</p></div>
+      <div><p class="kicker">${lastL ? "Saved" : "Your course"}</p><b class="tier pg-saved">${heroB}</b><small>${heroS}</small></div></div></div>
+    <p class="prog-tier">${done ? "2026 tier: Silver." : "2026 tier: Member. Finish your first course to reach Silver."} Your tier resets January 1. Lifetime status is yours for keeps.</p>
     <p class="deb-q">The tiers</p>
     <ul class="tiers5">${TIERS5.map((t) => `<li><b>${t[0]}</b><span>${t[1]} course${t[1] > 1 ? "s" : ""}</span><small>${t[2]}</small></li>`).join("")}</ul>
     <div class="prog-row"><span><b>Volunteers recruited</b><small>Friends who join through your invite link count here.</small></span><span class="prog-n num">0</span><button class="link" data-act="invite-copy">Share link</button></div>
@@ -7777,7 +7777,7 @@ async function playLesson() {
     let wb = null;
     if (watchSet(L.persona)) { try { wb = await watchAudio(L.persona); } catch (e) { wb = null; } }
     if (run !== lessonRun) return;
-    const k = L.lines.slice(0, i).filter((l) => l.who === line.who).length;
+    const k = line.ai != null ? line.ai : L.lines.slice(0, i).filter((l) => l.who === line.who).length; /* version 138: a line can name its recorded take */
     // the volunteer's first line was recorded as Becca (version 76; the default volunteer has been Suman since version 79), so another name falls back to the browser voice
     const buf = wb ? (line.who === "them" ? wb.them[k] : (S.track !== "gotv" && /\{name\}/.test(line.text) && me() !== REC_NAME ? null : wb.you[k])) : null;
     if (buf && liveRows && line.who === "you" && line.move != null && line.pop != null) { const mv = line.move; setTimeout(() => { if (run === lessonRun) watchLit(mv); }, Math.round(line.pop * 1000)); } /* version 112 (Robert): the part pops as Monica starts saying it; the end-of-line call below stays for the browser voice */
