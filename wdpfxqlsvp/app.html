@@ -1573,7 +1573,7 @@
   .td-k { margin: 0 0 4px; color: var(--ink-3); }
   .td-h { margin: 0 0 4px; font-family: var(--head-font); font-weight: var(--head-weight); font-size: 26px; line-height: 1.08; letter-spacing: -0.01em; }
   .td-sub { margin: 0; color: var(--ink-2); font-size: 14.5px; line-height: 1.35; }
-  .path { list-style: none; margin: 6px 0 10px; padding: 0 2px; display: grid; grid-template-columns: repeat(10, 1fr); position: relative; }
+  .path { list-style: none; margin: 6px 0 27px; padding: 0 2px; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); position: relative; } /* version 149: a labeled column no longer widens, so the dots sit evenly */
   .path::before { content: ""; position: absolute; left: 5%; right: 5%; top: 11px; height: 2px; background: var(--line); }
   .pd { position: relative; display: grid; justify-items: center; gap: 4px; }
   .pd-dot { position: relative; z-index: 1; width: 22px; height: 22px; border-radius: 50%; background: var(--paper); border: 2px solid var(--line); display: grid; place-items: center; color: #FFFFFF; }
@@ -1583,7 +1583,7 @@
   .pd.brief .pd-dot { border-color: var(--camp-soft); }
   .pd.brief.done .pd-dot { background: var(--camp); border-color: var(--camp); }
   .pd.brief.next .pd-dot { border-color: var(--camp); box-shadow: 0 0 0 3px var(--camp-soft); }
-  .pd small { font-size: 10.5px; font-weight: 700; letter-spacing: 0.02em; color: var(--ink-3); white-space: nowrap; line-height: 1; }
+  .pd small { position: absolute; top: 26px; left: 50%; transform: translateX(-50%); font-size: 10.5px; font-weight: 700; letter-spacing: 0.02em; color: var(--ink-3); white-space: nowrap; line-height: 1; }
   .pd:last-child small { justify-self: end; }
   .td-done { display: grid; grid-template-columns: 26px 1fr auto; gap: 10px; align-items: start; padding: 10px 2px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin: 0 0 8px; }
   .td-done .tick { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #FFFFFF; display: grid; place-items: center; }
@@ -1601,7 +1601,7 @@
   .hero-next > .tt { flex: none; }
   .content.stage > .hero-next:has(.hn-art.tiny) { flex: 0 0 auto; } /* version 145: no blank card when the door has no room */
   .hero-next.locked .hn-t { margin-bottom: 8px; } .hero-next.locked .lt-sub { margin-top: 6px; } .hero-next.locked .tt { margin-bottom: 6px; } /* version 145: tighter, so the door keeps its 64 px in the laptop pane */
-  @media (max-height: 700px) { .td-h { font-size: 23px; } .td-sub { font-size: 13.5px; } .path { margin-bottom: 6px; } .td-done { padding: 7px 2px; } .tt-chip { padding: 5px 10px; } .hero-next { padding: 13px 14px 12px; } }
+  @media (max-height: 700px) { .td-h { font-size: 23px; } .td-sub { font-size: 13.5px; } .path { margin-bottom: 23px; } .td-done { padding: 7px 2px; } .tt-chip { padding: 5px 10px; } .hero-next { padding: 13px 14px 12px; } }
   .cut-shot .tt { display: none; } /* the video phone is too small for the chips */
   /* version 143 (Robert, Nov 2): Learn is this campaign's batch only, the course by lesson and the briefs by name */
   .lrn-course { padding: 14px 14px 10px; border-radius: 20px; background: var(--accent-soft); margin: 2px 0 16px; }
@@ -1656,6 +1656,55 @@
   .lrn-after { display: flex; gap: 7px; align-items: center; justify-content: center; margin: 8px 2px 0; padding-top: 9px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-3); }
   .lrn-after svg { width: 12px; height: 12px; flex: none; }
   @media (max-height: 700px) { .lrn-mast .path { margin: 7px 0 3px; } .ch-spine .lr-b { padding: 5px 2px; } .gate-b { padding: 6px 2px; } .lrn-title { font-size: 21px; } }
+  /* version 149 (Robert, Nov 2): the Learn tab is the program grid, two rows of five pictures, chained then loose, a medal at the end of each */
+  .content.stage > .lrn-mast, .content.stage > .pt, .content.stage > .chp-row, .content.stage > .lrn-after { flex: none; }
+  .lrn-mast { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 0; }
+  .lrn-count { font-size: 12px; font-weight: 600; color: var(--ink-2); }
+  .pt { display: flex; align-items: center; gap: 7px; width: 100%; margin: 12px 0 8px; padding: 0 2px; background: none; border: 0; text-align: left; color: inherit; font: inherit; }
+  .pt b { flex: none; font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; color: var(--ink); }
+  .pt.pt-m { cursor: pointer; padding: 3px 2px; margin: 9px 0 5px; } .pt.pt-m b { color: var(--maya); }
+  .pt i { flex: 1 1 0; min-width: 6px; height: 1px; background: var(--line); }
+  .pt span { flex: 0 1 auto; min-width: 0; font-size: 11.5px; line-height: 1.15; color: var(--ink-3); text-align: right; text-wrap: balance; }
+  .pt img { flex: none; width: 22px; height: 22px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 1.5px var(--maya); }
+  .chp-row { list-style: none; margin: 0; padding: 0 2px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) 44px; column-gap: 9px; align-items: start; }
+  .chp { position: relative; }
+  .chp-b { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; width: 100%; padding: 0; background: none; border: 0; color: inherit; font: inherit; cursor: pointer; text-align: center; }
+  .chp-art { position: relative; display: block; width: 100%; aspect-ratio: 1; border-radius: 11px; }
+  .chp-art svg.ta { width: 100%; height: 100%; display: block; }
+  .chp.next .chp-art { box-shadow: 0 0 0 2.5px var(--accent-ink), 0 0 0 6px var(--accent-soft); }
+  .chp-row.chain .chp + .chp .chp-art::before, .chp-row.chain .chp-medal .medal-art::before { content: ''; position: absolute; left: -9px; top: 50%; width: 9px; height: 3px; margin-top: -1.5px; background: #A69D8C; }
+  .chp-row.chain .chp-medal .medal-art::before { left: -12px; width: 12px; top: 57%; }
+  .chp-row.chain .chp.done + .chp.done .chp-art::before, .chp-row.chain .chp.done + .chp.next .chp-art::before, .chp-row.chain .chp-medal.earned .medal-art::before { background: var(--accent); } /* the chain turns green behind you */
+  .chp-n { position: absolute; left: -5px; top: -5px; width: 16px; height: 16px; border-radius: 50%; background: var(--paper); border: 1.3px solid #BFB8A8; font-size: 9px; font-weight: 700; color: var(--ink-3); display: grid; place-items: center; z-index: 2; }
+  .chp.next .chp-n { background: var(--ink); border-color: var(--ink); color: var(--on-ink); }
+  .chp-badge { position: absolute; right: -4px; bottom: -4px; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; box-shadow: 0 0 0 2px var(--paper); z-index: 2; }
+  .chp-badge.done { background: var(--accent-ink); color: #FFFFFF; }
+  .chp-badge.lock { background: var(--paper); border: 1.3px solid #BFB8A8; color: var(--ink-3); }
+  .chp-badge svg { width: 10px; height: 10px; }
+  .chp-t { display: block; margin-top: 6px; font-size: 10px; line-height: 1.2; font-weight: 600; color: var(--ink); white-space: nowrap; }
+  .chp.locked .chp-t { color: var(--ink-3); }
+  .chp-s { display: block; margin-top: 2px; font-size: 9.5px; font-weight: 700; color: var(--ink-3); white-space: nowrap; }
+  .chp.next .chp-s, .chp.done .chp-s { color: var(--accent-ink); }
+  .chp-medal { display: grid; justify-items: center; }
+  .medal-art { position: relative; width: 38px; aspect-ratio: 40 / 46; margin-top: 2px; }
+  .medal-art svg { width: 100%; height: 100%; display: block; }
+  .chp-medal .chp-t { font-size: 8.5px; letter-spacing: 0.06em; font-weight: 800; color: var(--ink-3); margin-top: 6px; }
+  .chp-medal.earned .chp-t { color: var(--accent-ink); } .chp-row.br .chp-medal.earned .chp-t { color: var(--maya); }
+  .lrn-card { flex: 1 0 auto; margin-top: 12px; border: 1.5px solid var(--accent-soft); border-radius: 18px; padding: 12px 12px 12px 14px; display: grid; grid-template-columns: minmax(0, 1fr) 124px; gap: 12px; align-items: stretch; }
+  .lrn-card > div:first-child { align-self: center; }
+  .lk-k { font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-ink); }
+  .lk-t { margin: 3px 0 0; font-family: var(--head-font); font-weight: var(--head-weight); font-size: 20px; line-height: 1.15; }
+  .lk-s { margin: 6px 0 0; font-size: 12.5px; line-height: 1.4; color: var(--ink-2); }
+  .lk-links { display: flex; flex-wrap: wrap; gap: 2px 14px; margin-top: 6px; } .lk-links .link { margin: 0; padding: 9px 0; font-size: 12px; }
+  .lk-links .btn { margin: 0; width: auto; min-height: 40px; padding: 8px 18px; font-size: 14px; }
+  .lk-art { position: relative; min-height: 120px; border-radius: 16px; overflow: hidden; background: var(--soft); } /* the next door, shut, grows with the card like Today's hero */
+  .lk-art svg, .lk-art img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; }
+  .lk-art.ring { box-shadow: 0 0 0 2.5px var(--accent-ink); }
+  .lk-art.lk-tap { padding: 0; border: 0; background: var(--soft); cursor: pointer; }
+  .lrn-after { margin-top: 8px; padding-top: 8px; }
+  .content.stage:has(> .lrn-after) { padding-bottom: 12px; } /* the after-ten line is the last thing on the screen; the strip under it needs no more */
+  @media (max-height: 700px), (min-width: 521px) and (max-height: 820px) { .lrn-title { font-size: 21px; } .pt { margin: 9px 0 6px; } .chp-t { margin-top: 5px; font-size: 9.5px; } .lrn-card { margin-top: 9px; padding: 10px 10px 10px 12px; gap: 10px; grid-template-columns: minmax(0, 1fr) 110px; } .lk-art { min-height: 104px; } .lk-t { font-size: 18px; } .lk-s { margin-top: 4px; font-size: 11.5px; } .lk-links { margin-top: 6px; } .lrn-after { margin-top: 6px; padding-top: 6px; } }
+  @media (max-width: 380px), (min-width: 521px) { .pt { flex-wrap: wrap; row-gap: 2px; } .pt span { flex: 0 0 100%; text-align: left; text-wrap: initial; } .pt.pt-m span { padding-left: 29px; } .chp-t { font-size: 9.5px; } .chp-row { column-gap: 7px; } .chp-row.chain .chp + .chp .chp-art::before { left: -7px; width: 7px; } .chp-row.chain .chp-medal .medal-art::before { left: -10px; width: 10px; } .lrn-after { font-size: 11px; } }
   /* version 144 (Robert, Nov 2): Progress leads with what is next, then the record; the ladder lives one tap away */
   .prog-unlock { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0 0; padding-top: 11px; border-top: 1px solid rgba(255, 255, 255, 0.14); font-size: 13.5px; line-height: 1.35; color: var(--on-ink); }
   .prog-unlock svg { flex: none; width: 14px; height: 14px; margin-top: 2px; opacity: 0.8; }
@@ -4381,7 +4430,7 @@ function vSoon() {
 /* version 52 (Maya Kaur, Robert, Oct 19): lessons 2 to 5 are locked for users until Robert reviews them. Every route into them (Today's rows,
    Today's button, the library) lands on one locked screen; Lesson 1 done and Today say the next lesson is locked. To unlock: set LOCK_ON to false and republish. */
 const LOCK_ON = true;
-const lessonLocked = (n) => LOCK_ON && S.track === "gotv" && Number(n) >= 2;
+const lessonLocked = (n) => LOCK_ON && S.track === "gotv" && Number(n) >= 2 && !((S.done5 || {})[Number(n)]); /* version 149: a saved chapter is never locked */
 const LOCK_LINE = (n) => `A new chapter opens every morning. You\u2019ll get a text as soon as chapter ${n} is ready.`;
 function vLocked() {
   /* version 145: says which day the lesson opens and goes back to where she came from (Learn or Today) */
@@ -4426,7 +4475,7 @@ const NOTES = {
   ready: ["Visible readiness", "Preparation shows up as a badge and a record that carries across shifts."],
   sms2: ["The cooldown text", "One text, sent when the shift ends, opens the cooldown while it\u2019s fresh."],
   debrief: ["Cooldown", "The stars and the four ratings stay for the campaign. New in version 71: one spoken question, Tell me about one door you\u2019ll remember. The coach names the Tough door it points to and adds one like it to the next Warmup. It ends on Sign up for your next shift?"],
-  library: ["Learn: one book of ten chapters", "Version 146 (Robert, Nov 2). One spine: the course name and the ten-dot path on top, chapters 1 to 5 by name with their day, Maya\u2019s byline as the divider (tapping it opens the briefing, the presenter path), chapters 6 to 10 by name with locks until door-ready, a line that Maya adds chapters as issues come up, and a locked after-ten line (more courses from Warmup and your campaign). Once door-ready a chapter row opens its own brief. Counts say chapters; other programs keep the version 28 library."],
+  library: ["Learn: the program grid", "Version 149 (Robert, Nov 2: Let\u2019s do F). A curriculum you can see: two rows of five pictures. Part 1 is the five lessons as their own houses, numbered, chained in order, each with Saved, Tomorrow or its day, and the Door-ready medal at the end of the chain. Part 2 is Maya\u2019s five issues as the briefing\u2019s icons, numbered 6 to 10, loose (any order), locked until door-ready, the Briefed medal at the end; tapping her header opens the briefing (the presenter path). Then the one card for what is next (tomorrow\u2019s chapter with its door; or today\u2019s with Start; or, once door-ready, pick an issue), where the lock is said once. ?learn opens the app here. Other programs keep the version 28 library."],
   training: ["A library page", "A lesson page holds its moves and why, your best take and Go deeper; a Tough door says what it sharpens. Add to my next Warmup puts it into the next Warmup. Anything not built yet says so and asks for a vote."],
   me: ["Progress: one ring, one button", "Version 148 (Robert, Nov 2, Progress B). One hero: five notches over 270 degrees with the Silver medal at the track’s end, so the eye reads fill the track, reach the medal. The center says only how many are done; the notches carry the five. Then “4 lessons to door-ready”, the one unlock (Silver: a thank-you from Maya and a card to share) and one button, Retake Lesson 1 (Continue mid-lesson); no score on Progress, scores stay on Today and stay private. The streak is one row (lessons and practice both count, one miss a week forgiven) with the last seven days. The footer keeps the two promises (the team sees status, never scores; the record travels) and links to How status works (the four levels) and Your record (the counters and the four badges as fractions). Once door-ready the ring becomes Maya’s five briefs in her blue, with Briefed at its end. Behaviors it asks for, ranked: do today’s rep now, come back tomorrow until the ring is full, share at the unlock."],
   record: ["Your record, one tap from Progress", "Version 148. Lessons, doors, best streak and campaigns, then the four badges as fractions (Door-ready, Briefed, Sharp at 20 doors, Recruiter at 3 friends). Yours for keeps: the record never resets and travels from campaign to campaign."],
@@ -4853,7 +4902,7 @@ const ICON = {
 
 /* ---------- shell ---------- */
 /* version 105: the campaign skin is one config (name, the line under it, its one color and the lockup style). Get out the vote only. */
-const CAMPAIGN = { gotv: { name: "Maya Kaur", line: "For Woodbridge City Council", lines: ["For Woodbridge", "City Council"], color: "#1F4C91", soft: "rgba(31, 76, 145, 0.38)", lockup: "stack", briefs: ["Health insurance", "School vouchers", "Your electric bill", "Heating oil", "Tariffs and auto jobs"], briefIds: ["ga", "tx", "oh", "me", "mi"] } }; /* version 146: "Health insurance", never "coverage" (the playbook rule), and each brief\u2019s lesson id in issues/ for the door-ready deep link */ /* version 143: the five briefs in issues/, by short name, in the field director\u2019s order */ /* version 142: soft tints the path dots for the campaign briefs */
+const CAMPAIGN = { gotv: { name: "Maya Kaur", line: "For Woodbridge City Council", lines: ["For Woodbridge", "City Council"], color: "#1F4C91", soft: "rgba(31, 76, 145, 0.38)", lockup: "stack", briefs: ["Health insurance", "School vouchers", "Your electric bill", "Heating oil", "Tariffs and auto jobs"], briefIds: ["ga", "tx", "oh", "me", "mi"], briefShort: [["Health", "insurance"], ["School", "vouchers"], ["Electric", "bill"], ["Heating", "oil"], ["Tariffs and", "auto jobs"]] } }; /* version 149: the tile labels, two short lines each */ /* version 146: "Health insurance", never "coverage" (the playbook rule), and each brief\u2019s lesson id in issues/ for the door-ready deep link */ /* version 143: the five briefs in issues/, by short name, in the field director\u2019s order */ /* version 142: soft tints the path dots for the campaign briefs */
 const campNow = () => (S && CAMPAIGN[S.track]) || null;
 function campMark(c) {
   c = c || campNow();
@@ -5677,34 +5726,101 @@ const COURSES = [
 ];
 const LOCK_S = `<svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`;
 const courseLock = (c) => (c.live ? "" : c.soon ? "Coming soon" : PLAT_LOCK[c.n] ? "Unlocks at Platinum" : "Unlocks after your current course");
+/* version 149: the Learn tab's pictures. A colour faded toward the paper, so a locked tile stays opaque (the road never shows through) */
+function tileMix(hex, t) {
+  const n = parseInt(hex.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255, P = [252, 248, 242];
+  const f = (c, p) => Math.round(c + (p - c) * t);
+  return `rgb(${f(r, P[0])},${f(g, P[1])},${f(b, P[2])})`;
+}
+/* the lesson's own house, 48 x 48: the door scene's wall, door, frame and number, plus doug's sign and jamal's bike */
+function houseTile(h, dim) {
+  const t = dim ? 0.55 : 0, W = tileMix(h.wall, t), L = tileMix(h.line || "#CBC2B3", t), D = tileMix(h.door, t), F = tileMix(h.frame, t), ink = dim ? "#A9A496" : "#3B3631";
+  return `<svg class="ta" viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="11" fill="${W}"/>
+    <g stroke="${L}" stroke-width="1.2"><path d="M0 12H48M0 20H48M0 28H48M0 36H48"/></g>
+    ${h.window !== false ? `<rect x="30" y="11" width="11" height="11" rx="1.5" fill="${dim ? "#F4F4F1" : "#EEF2F2"}" stroke="${F}" stroke-width="2"/><path d="M35.5 11V22M30 16.5H41" stroke="${F}" stroke-width="1.2"/>` : ""}
+    <rect x="14" y="16" width="16" height="32" fill="${F}"/><rect x="16" y="18" width="12" height="30" fill="${D}"/>
+    ${h.glass ? `<rect x="18" y="20" width="8" height="6" rx="1" fill="#F3E3C4" fill-opacity="${dim ? ".35" : ".7"}"/>` : `<rect x="18" y="21" width="8" height="7" rx="1" fill="none" stroke="#FFFFFF" stroke-opacity=".25" stroke-width="1.2"/>`}
+    <circle cx="26" cy="34" r="1.3" fill="${dim ? "#E8D9B4" : "#F6C76B"}"/>
+    <text x="12.5" y="11.5" font-family="Newsreader, Georgia, serif" font-size="7" fill="${ink}">${h.num}</text>
+    ${h.extra === "sign" ? `<g transform="rotate(-4 38 36)"><rect x="32" y="31" width="12" height="7" rx="1" fill="#FFFDF9" stroke="${ink}" stroke-width=".9"/><path d="M34 34.5H42" stroke="${dim ? "#D3A49C" : "#9A3F31"}" stroke-width="1.2"/></g>` : ""}
+    ${h.extra === "bike" ? `<g fill="none" stroke="${dim ? "#A9A496" : "#2F3A44"}" stroke-width="1.2"><circle cx="36" cy="43" r="3"/><circle cx="44" cy="43" r="3"/><path d="M36 43l4-6 4 6M40 37h3"/></g>` : ""}
+  </svg>`;
+}
+/* the same house, tall (48 x 96), for the card: the door grows with the room the card has, and still reads as the chapter's own tile */
+function houseTall(h) {
+  const W = h.wall, L = h.line || "#CBC2B3", D = h.door, F = h.frame, ink = "#3B3631";
+  return `<svg viewBox="0 0 48 84" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="48" height="84" fill="${W}"/>
+    <g stroke="${L}" stroke-width="1.2"><path d="${[8, 16, 24, 32, 40, 48, 56, 64, 72, 80].map((y) => "M0 " + y + "H48").join("")}"/></g>
+    ${h.window !== false ? `<rect x="30" y="14" width="12" height="12" rx="1.5" fill="#EEF2F2" stroke="${F}" stroke-width="2"/><path d="M36 14V26M30 20H42" stroke="${F}" stroke-width="1.2"/>` : ""}
+    <rect x="12" y="30" width="22" height="54" fill="${F}"/><rect x="14.5" y="32.5" width="17" height="51.5" fill="${D}"/>
+    ${h.glass ? `<rect x="17.5" y="36" width="11" height="8" rx="1" fill="#F3E3C4" fill-opacity=".7"/>` : `<rect x="17.5" y="36" width="11" height="12" rx="1" fill="none" stroke="#FFFFFF" stroke-opacity=".25" stroke-width="1.2"/>`}
+    <rect x="17.5" y="52" width="11" height="22" rx="1" fill="none" stroke="#FFFFFF" stroke-opacity=".25" stroke-width="1.2"/>
+    <circle cx="29" cy="61" r="1.4" fill="#F6C76B"/>
+    <text x="6" y="11.5" font-family="Newsreader, Georgia, serif" font-size="5.4" fill="${ink}">${h.num}</text>
+    ${h.extra === "sign" ? `<g transform="rotate(-4 40 46)"><rect x="35" y="42" width="11" height="7" rx="1" fill="#FFFDF9" stroke="${ink}" stroke-width=".9"/><path d="M37 45.5H44" stroke="#9A3F31" stroke-width="1.2"/></g>` : ""}
+    ${h.extra === "bike" ? `<g fill="none" stroke="#2F3A44" stroke-width="1.2"><circle cx="37" cy="78" r="3.2"/><circle cx="45" cy="78" r="3.2"/><path d="M37 78l4-6.5 4 6.5M41 71.5h3"/></g>` : ""}
+  </svg>`;
+}
+/* the briefing's own issue icons (issues/index.html, ICONS), one tile each */
+const ISSUE_ICONS = [
+  ['<path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.2 0 3.6 1.3 5.3 3.3 1.7-2 3.1-3.3 5.3-3.3 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z" fill="#fff"/><path d="M12 9.3v6M9 12.3h6" stroke="COL" stroke-width="2.2" stroke-linecap="round"/>', "#e2557a"],
+  ['<path d="M2.5 9.5 12 4.5l9.5 5-9.5 5z" fill="#fff"/><path d="M6.5 11.8v4.4c0 1.4 2.5 2.8 5.5 2.8s5.5-1.4 5.5-2.8v-4.4" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M20.5 10v5" stroke="#fff" stroke-width="2" stroke-linecap="round"/>', "#3b80b6"],
+  ['<path d="M13.5 2 5 13.5h6L9.5 22 19 9.8h-6.2z" fill="#fff" stroke="#fff" stroke-width="1" stroke-linejoin="round"/>', "#e8a21a"],
+  ['<path d="M12 22c4.4 0 7-2.9 7-6.8 0-3.6-2.4-5.6-3.6-8.6-.4 1.9-1.4 3-2.6 3.6.3-3.3-1.2-6.4-4-8.2.2 3.3-1.6 5.3-3.3 7.4C4.2 11.1 5 12.6 5 15.2 5 19.1 7.6 22 12 22z" fill="#fff"/><path d="M12 22c-1.9 0-3.1-1.3-3.1-3 0-2 1.6-3 2.4-4.6.9 1.2 3.8 2.2 3.8 4.6 0 1.7-1.2 3-3.1 3z" fill="COL"/>', "#f07c3c"],
+  ['<path d="M3 15.5v-3l2-4.5c.3-.7 1-1 1.7-1h10.6c.7 0 1.4.3 1.7 1l2 4.5v3c0 .8-.6 1.5-1.4 1.5H4.4c-.8 0-1.4-.7-1.4-1.5z" fill="#fff"/><path d="M6.2 11.5 7.4 8.6h9.2l1.2 2.9z" fill="COL"/><circle cx="7" cy="17.5" r="2.2" fill="#fff" stroke="COL" stroke-width="1.4"/><circle cx="17" cy="17.5" r="2.2" fill="#fff" stroke="COL" stroke-width="1.4"/>', "#2a9d8f"],
+];
+function issueTile(i, dim) {
+  const [p, c] = ISSUE_ICONS[i % ISSUE_ICONS.length], C = dim ? tileMix(c, 0.62) : c;
+  return `<svg class="ta" viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="11" fill="${C}"/><g transform="translate(7 7) scale(1.42)">${p.split("COL").join(C)}</g></svg>`;
+}
+/* the two medals, 40 x 46: a ribbon in the part\u2019s colour, a disc, a glyph (a door for Door-ready, a brief for Briefed) */
+function medalSvg(kind, earned) {
+  const silver = kind === "door";
+  const disc = earned ? (silver ? "#35B57C" : "#1F4C91") : "#EFEBE2", rim = earned ? (silver ? "#1B7A4D" : "#163A70") : "#B4AD9E", ink = earned ? "#FFFFFF" : "#6F685F";
+  const ribbon = earned ? (silver ? "#1B7A4D" : "#1F4C91") : (silver ? "#A9C9B1" : "#A9B9DA");
+  const glyph = silver
+    ? `<rect x="14.5" y="21.5" width="11" height="15" rx="1" fill="none" stroke="${ink}" stroke-width="2"/><circle cx="23" cy="29.5" r="1.1" fill="${ink}"/>`
+    : `<rect x="13.5" y="21" width="13" height="16" rx="1.5" fill="none" stroke="${ink}" stroke-width="2"/><path d="M16.5 26h7M16.5 29.5h7M16.5 33h4" stroke="${ink}" stroke-width="1.6" stroke-linecap="round"/>`;
+  return `<svg viewBox="0 0 40 46" aria-hidden="true"><path d="M12 0h7l1 12-5 4zM21 0h7l-3 16-5-4z" fill="${ribbon}"/><circle cx="20" cy="29" r="15" fill="${disc}" stroke="${rim}" stroke-width="2.5"/><circle cx="20" cy="29" r="11.5" fill="none" stroke="${rim}" stroke-opacity=".45" stroke-width="1"/>${glyph}</svg>`;
+}
+const TILE_CHECK = `<span class="chp-badge done"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 6.6 11.4 12.5 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+const TILE_LOCK = `<span class="chp-badge lock"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><rect x="3.2" y="7" width="9.6" height="6.5" rx="1.6"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg></span>`;
+const LESSON_SHORT = { 1: ["Introduce", "yourself"], 2: ["Get a voter", "talking"], 3: ["Leave a", "tough door"], 4: ["A plan", "to vote"], 5: ["Remind three", "friends"] };
 function vLearnG() {
-  /* version 146 (Robert, Nov 2): one book of ten chapters on one spine. Chapters 1 to 5 are the course, in order, one a day; 6 to 10 are
-     the campaign's briefs, any order once door-ready, under Maya's byline; a quiet locked line carries the after-ten promise in How
-     status works' words. The "Learn / Your course first" header is gone. The divider is the presenter's door to the briefing (the
-     version 143 tile retired) and, once door-ready, each chapter row opens its own brief by its lesson id. Counts say "chapters" (the
-     canvasser word for a path position; a chapter is a lesson or a brief). The 28-course shelf (version 125) stays for other programs. */
+  /* version 149 (Robert, Nov 2: "Let\u2019s do F"): the program grid, a curriculum you can see. Two rows of five pictures, the lessons\u2019
+     own houses then the briefing\u2019s issue icons, numbered 1 to 10; row 1 chained (in order, one a day) with the Door-ready medal at
+     the end, row 2 loose (any order, once door-ready) with the Briefed medal; then the one card for what is next, where the lock is
+     said once; then the after-ten line. Part 2\u2019s header opens the briefing (the presenter path). Version 146\u2019s spine is retired. */
   const d5 = S.done5 || {}, nd = LESSONS5.filter((x) => d5[x.n]).length, nx = LESSONS5.find((x) => !d5[x.n]);
-  const camp = CAMPAIGN[S.track] || CAMPAIGN.gotv, first = camp.name.split(" ")[0], briefs = camp.briefs || [], ids = camp.briefIds || [];
-  const ready = nd >= 5, total = 5 + briefs.length;
-  const check = `<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const dots = [];
-  for (let i = 1; i <= total; i += 1) {
-    const done = i <= nd, next = i === nd + 1, brief = i > 5, label = i === 5 ? "Door-ready" : i === total ? "Briefed" : "";
-    dots.push(`<li class="pd${done ? " done" : ""}${next ? " next" : ""}${brief ? " brief" : ""}"><span class="pd-dot">${done ? check : ""}</span>${label ? `<small>${label}</small>` : ""}</li>`);
-  }
-  const mast = `<div class="lrn-mast"><h1 class="lrn-title">GOTV canvassing</h1><ol class="path" style="--camp:${camp.color};--camp-soft:${camp.soft}" aria-label="${nd} of ${total} chapters saved">${dots.join("")}</ol><p class="lrn-cap">${ready ? `Door-ready \u00b7 ${first}\u2019s chapters are open` : `${nd} of ${total} chapters saved \u00b7 door-ready at 5`}</p></div>`;
-  const lrow = (L) => {
-    const done = d5[L.n], next = !!nx && nx.n === L.n, lk = !done && lessonLocked(L.n);
-    const when = done ? `Saved \u00b7 ${done.filter(Boolean).length} of 4` : next ? (lk ? "Tomorrow" : "Today") : `Day ${L.n}`;
-    const short = L.title.replace(/^How to /, ""), title = short.charAt(0).toUpperCase() + short.slice(1); /* the spine drops "How to": the course head already says what these are (version 143) */
-    return `<li class="lr ch${done ? " done" : ""}${next ? " next" : ""}${lk && !next ? " locked" : ""}"><button class="lr-b" data-act="lesson5" data-arg="${L.n}"><span class="lr-n">${done ? check : L.n}</span><span class="lr-t"><b>${title}</b></span><span class="lr-when">${when}</span></button>${done ? `<button class="link retake5" data-act="retake5" data-arg="${L.n}">Retake</button>` : ""}</li>`;
+  const camp = CAMPAIGN[S.track] || CAMPAIGN.gotv, first = camp.name.split(" ")[0], briefs = camp.briefs || [], ids = camp.briefIds || [], shorts = camp.briefShort || [];
+  const ready = nd >= 5, total = 5 + briefs.length, lastL = LESSONS5.filter((x) => d5[x.n]).pop();
+  const two = (l) => `<span class="chp-t">${l[0]}<br>${l[1]}</span>`;
+  const doorArt = (n) => houseTall(HOME[(FLOW[LESSON_SKILL[n]] || {}).persona] || HOME.walter);
+  const mast = `<div class="lrn-mast"><h1 class="lrn-title">GOTV canvassing</h1><span class="lrn-count">${nd} of ${total} chapters</span></div>`;
+  const tile1 = (L) => {
+    const done = d5[L.n], next = !!nx && nx.n === L.n, lk = !done && lessonLocked(L.n), dim = !done && !next;
+    const h = HOME[(FLOW[LESSON_SKILL[L.n]] || {}).persona] || HOME.walter;
+    const state = done ? `${done.filter(Boolean).length} of 4` : next ? (lk ? "Tomorrow" : "Today") : `Day ${L.n}`; /* under a green check, "3 of 4" is the saved score */
+    return `<li class="chp${done ? " done" : ""}${next ? " next" : ""}${dim ? " locked" : ""}"><button class="chp-b" data-act="lesson5" data-arg="${L.n}" aria-label="Chapter ${L.n}: ${esc(L.title)}, ${done ? "saved " + state : state}"><span class="chp-art">${houseTile(h, dim)}${done ? TILE_CHECK : ""}</span><span class="chp-n">${L.n}</span>${two(LESSON_SHORT[L.n])}<span class="chp-s">${state}</span></button></li>`;
   };
-  const gate = `<li class="ch-gate"><button class="gate-b" data-act="issues-open"><img class="gate-av" src="${CAND_PHOTO}" alt=""><span class="gate-t"><b>From ${camp.name}\u2019s campaign</b><small>${ready ? "Any order, one a day." : "Any order, one a day, once you\u2019re door-ready."}</small></span><span class="gate-go">\u203a</span></button></li>`;
-  const brow = (bf, i) => `<li class="lr ch br2${ready ? " open" : " locked"}"><button class="lr-b" data-act="brief-open" data-arg="${esc(bf)}" data-lesson="${ids[i] || ""}"><span class="lr-n">${i + 6}</span><span class="lr-t"><b>${esc(bf)}</b></span><span class="lr-when">${ready ? "\u203a" : LOCK_SVG}</span></button></li>`;
-  const more = `<li class="ch-more"><span class="lr-n mn"><svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3.5v9M3.5 8h9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span class="mt">${first} adds new chapters as issues come up at the door.</span></li>`; /* a plus, not a lock: it promises future chapters, it locks nothing (the reviewer's catch) */
-  const spine = `<ol class="lrn-list ch-spine" style="--camp:${camp.color};--camp-soft:${camp.soft}">${LESSONS5.map(lrow).join("")}${gate}${briefs.map(brow).join("")}${more}</ol>`;
+  const medal = (kind, earned, label) => `<li class="chp-medal${earned ? " earned" : ""}"><span class="medal-art" role="img" aria-label="${kind === "door" ? "Door-ready" : "Briefed"} medal, ${earned ? "earned" : "not yet earned"}">${medalSvg(kind, earned)}</span><span class="chp-t" aria-hidden="true">${label}</span></li>`;
+  const row1 = `<ol class="chp-row chain" aria-label="Part 1, five chapters in order">${LESSONS5.map(tile1).join("")}${medal("door", ready, "DOOR-<br>READY")}</ol>`;
+  const tile2 = (bf, i) => `<li class="chp br${ready ? " open" : " locked"}"><button class="chp-b" data-act="brief-open" data-arg="${esc(bf)}" data-lesson="${ids[i] || ""}" aria-label="Chapter ${i + 6}: ${esc(bf)}${ready ? "" : ", locked until door-ready"}"><span class="chp-art">${issueTile(i, !ready)}${ready ? "" : TILE_LOCK}</span><span class="chp-n">${i + 6}</span>${two(shorts[i] || [esc(bf), ""])}</button></li>`;
+  const row2 = `<ol class="chp-row br" aria-label="Part 2, five chapters in any order">${briefs.map(tile2).join("")}${medal("brief", false, "BRIEFED")}</ol>`;
+  const head1 = `<div class="pt"><b>Part 1 \u00b7 Your course</b><i></i><span>In order, one a day</span></div>`;
+  const head2 = `<button class="pt pt-m" data-act="issues-open" aria-label="Part 2, ${first}\u2019s campaign: open the briefing"><img src="${CAND_PHOTO}" alt=""><b>Part 2 \u00b7 ${first}\u2019s campaign</b><i></i><span>${ready ? "Any order, one a day" : "Any order, once door-ready"}</span></button>`;
+  let card;
+  const why = `<button class="link" data-act="go" data-arg="whylock">Why one a day</button>`;
+  const retake = lastL ? `<button class="link retake5" data-act="retake5" data-arg="${lastL.n}">Retake chapter ${lastL.n}</button>` : "";
+  if (ready) {
+    card = `<section class="lrn-card"><div><p class="lk-k">Door-ready \u00b7 Part 2 is open</p><h2 class="lk-t">Pick an issue to learn</h2><p class="lk-s">Five minutes each on what voters are raising at the door.</p><div class="lk-links"><button class="link" data-act="issues-open">Open the briefing</button>${retake}</div></div><button class="lk-art lk-tap" data-act="issues-open" aria-label="Open ${first}\u2019s briefing"><img src="${CAND_PHOTO}" alt=""></button></section>`;
+  } else if (nx && lessonLocked(nx.n)) {
+    card = `<section class="lrn-card"><div><p class="lk-k">Tomorrow \u00b7 Chapter ${nx.n}</p><h2 class="lk-t">${nx.title.replace(/^How to /, "").replace(/^./, (c) => c.toUpperCase())}</h2><p class="lk-s">${nx.line} A new chapter opens every morning.</p><div class="lk-links">${why}${retake}</div></div><div class="lk-art ring">${doorArt(nx.n)}</div></section>`;
+  } else if (nx) {
+    card = `<section class="lrn-card"><div><p class="lk-k">Today \u00b7 Chapter ${nx.n} \u00b7 5 min</p><h2 class="lk-t">${nx.title.replace(/^How to /, "").replace(/^./, (c) => c.toUpperCase())}</h2><p class="lk-s">${nx.line}</p><div class="lk-links">${button([`Start chapter ${nx.n}`, "lesson5", String(nx.n)])}</div></div><div class="lk-art ring">${doorArt(nx.n)}</div></section>`;
+  }
   const after = `<p class="lrn-after">${LOCK_SVG}<span>After ${total}: more courses from Warmup and your campaign.</span></p>`;
-  return app(`${mast}${spine}${after}`, { tabs: "library" });
+  return app(`${mast}${head1}${row1}${head2}${row2}${card}${after}`, { tabs: "library", stage: true });
 }
 function vCourseG() {
   const c = COURSES.find((x) => x.n === (S.courseN || 10)) || COURSES[9];
@@ -5875,7 +5991,7 @@ function vStatusHow() {
     <h1 class="h1">How status works</h1>
     <p class="lede sh-p">You earn status by finishing courses: five lessons, one a day, every check passed. Your first course makes you door-ready and Silver.</p>
     <ul class="sh-list">${TIERS5.map((t) => `<li><b><span class="sh-medal m-${t[0].toLowerCase()}" aria-hidden="true"></span>${t[0]}</b><span>${t[1]} course${t[1] > 1 ? "s" : ""}</span><small>${t[2].replace("the candidate", first)}</small></li>`).join("")}</ul>
-    <p class="lede sh-p">After your ten chapters, the path keeps going: more courses from Warmup and from your campaign, one lesson a day.</p>
+    <p class="lede sh-p">After your ten chapters, the path keeps going: more courses from Warmup and from your campaign, one chapter a day.</p>
     <p class="lede sh-p">Status is for the year and starts fresh each January. Your record never resets, and if you come back next cycle, finishing the course puts you right back where you were.</p>
     <p class="lede sh-p">${first}\u2019s team sees your status, never your scores.</p>
   `, { back: "me", noBrand: true, footer: `<button class="btn" data-act="go" data-arg="me">Got it</button>` });
@@ -7704,12 +7820,12 @@ function vWhyLock() {
   const dots = [1, 2, 3, 4, 5].map((n) => `<span class="wl-dot${n === 1 ? " on" : ""}">${n === 1 ? `<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>` : n}</span>`).join(`<i class="wl-gap"></i>`);
   return app(`
     <div class="why-lock">
-      <div class="wl-chart"><svg class="wl-curve" viewBox="0 0 320 186" role="img" aria-label="Memory over time: one lesson a day stays high, all at once fades"><path d="M14 20 V160 H306" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/><path d="M10 26 L14 18 L18 26" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/><path d="M20 30 C50 92, 110 122, 304 134" fill="none" stroke="var(--ink-3)" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 7" opacity=".75"/><path d="M20 30 C40 52, 56 64, 76 70 L76 30 C96 46, 112 54, 132 58 L132 28 C152 40, 168 45, 188 48 L188 26 C208 34, 224 38, 244 40 L244 24 C264 29, 284 32, 304 34" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><g fill="var(--accent)"><circle cx="20" cy="30" r="5"/><circle cx="76" cy="30" r="5"/><circle cx="132" cy="28" r="5"/><circle cx="188" cy="26" r="5"/><circle cx="244" cy="24" r="5"/></g><text transform="rotate(-90)" x="-90" y="9" text-anchor="middle" font-family="Figtree, sans-serif" font-size="12.5" font-weight="700" fill="var(--ink-3)">Memory</text><text x="304" y="178" text-anchor="end" font-family="Figtree, sans-serif" font-size="12.5" font-weight="700" fill="var(--ink-3)">Time</text><text x="304" y="13" text-anchor="end" font-family="Figtree, sans-serif" font-size="12.5" font-weight="700" fill="var(--accent-ink)">One lesson a day</text><text x="304" y="118" text-anchor="end" font-family="Figtree, sans-serif" font-size="12.5" font-weight="700" fill="var(--ink-3)">All lessons at once</text></svg></div>
-      <h1 class="h1">Why one lesson a day.</h1>
+      <div class="wl-chart"><svg class="wl-curve" viewBox="0 0 320 186" role="img" aria-label="Memory over time: one chapter a day stays high, all at once fades"><path d="M14 20 V160 H306" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/><path d="M10 26 L14 18 L18 26" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/><path d="M20 30 C50 92, 110 122, 304 134" fill="none" stroke="var(--ink-3)" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 7" opacity=".75"/><path d="M20 30 C40 52, 56 64, 76 70 L76 30 C96 46, 112 54, 132 58 L132 28 C152 40, 168 45, 188 48 L188 26 C208 34, 224 38, 244 40 L244 24 C264 29, 284 32, 304 34" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><g fill="var(--accent)"><circle cx="20" cy="30" r="5"/><circle cx="76" cy="30" r="5"/><circle cx="132" cy="28" r="5"/><circle cx="188" cy="26" r="5"/><circle cx="244" cy="24" r="5"/></g><text transform="rotate(-90)" x="-90" y="9" text-anchor="middle" font-family="Figtree, sans-serif" font-size="12.5" font-weight="700" fill="var(--ink-3)">Memory</text><text x="304" y="178" text-anchor="end" font-family="Figtree, sans-serif" font-size="12.5" font-weight="700" fill="var(--ink-3)">Time</text><text x="304" y="13" text-anchor="end" font-family="Figtree, sans-serif" font-size="12.5" font-weight="700" fill="var(--accent-ink)">One chapter a day</text><text x="304" y="118" text-anchor="end" font-family="Figtree, sans-serif" font-size="12.5" font-weight="700" fill="var(--ink-3)">All chapters at once</text></svg></div>
+      <h1 class="h1">Why one chapter a day.</h1>
       <p class="lede">Warmup is built on behavioral science. One of its most reliable findings is that we remember far more when we learn a little at a time, with a pause in between, than when we cram.</p>
-      <p class="lede">So each lesson takes five minutes, and the next one opens the next morning. By your canvass, all five will feel like second nature at the door.</p>
+      <p class="lede">So each chapter takes five minutes, and the next one opens the next morning. By your canvass, all ten will feel like second nature at the door.</p>
     </div>
-  `, { back: "welcome", stage: true, footer: `<button class="btn" data-act="go" data-arg="welcome">Got it</button>` });
+  `, { back: "welcome", stage: true, footer: `<button class="btn" data-act="back" data-arg="welcome">Got it</button>` });
 }
 function vToday() {
   if (S.track === "gotv") return vTodayG();
@@ -9186,14 +9302,14 @@ document.addEventListener("mousedown", (e) => { if (e.target && e.target.closest
 
 /* version 136 (Robert, Nov 1; built as 135 while another chat took 135): ?home opens straight on Today as it looks right after lesson 1, for demos: lesson 1 saved at 3 of 4
    (the Election Day part still to practice) and lesson 2 locked, its clock starting at 24 hours. Nothing is stored, so the plain link is unchanged. */
-if (new URLSearchParams(location.search).has("home") && S.track === "gotv") {
+if ((new URLSearchParams(location.search).has("home") || new URLSearchParams(location.search).has("learn")) && S.track === "gotv") {
   const homeText = "Hi, I'm " + me() + ". I'm volunteering for Maya Kaur, and I'm checking in with neighbors.";
   const homeHits = [true, true, false, true];
   S.lesson = 1; S.intakeDone = true; S.mode = S.mode || "voice";
   S.done5 = { 1: homeHits.slice() };
   S.best5 = { 1: { text: homeText, phr: typeof phrFinal === "function" ? phrFinal(homeText, homeHits, null) : null, hits: homeHits.slice() } };
   S.doneAt = { 1: Date.now() };
-  S.screen = "welcome"; S.hist = [];
+  S.screen = new URLSearchParams(location.search).has("learn") ? "library" : "welcome"; S.hist = []; /* version 149: ?learn lands on the Learn tab */
 }
 loadVoices();
 render();
