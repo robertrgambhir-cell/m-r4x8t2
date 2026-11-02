@@ -19,7 +19,7 @@
 <title>Maya Kaur &middot; Warmup</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Figtree:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Figtree:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,600&display=swap">
 <style>
   :root {
     --stage-bg: #F4EEE5;
@@ -1680,7 +1680,7 @@
   .badges + .prog-row { margin-top: 18px; } /* version 145 */
   .prog-card .pg-saved { white-space: nowrap; font-size: 21px; }
   .rec small { font-size: 10.5px; letter-spacing: 0.03em; }
-  .sh-list { list-style: none; margin: 4px 0 14px; padding: 0; } .sh-list li { display: grid; grid-template-columns: 76px 72px 1fr; gap: 10px; align-items: baseline; padding: 9px 2px; border-top: 1px solid var(--line); } .sh-list li:last-child { border-bottom: 1px solid var(--line); }
+  .sh-list { list-style: none; margin: 4px 0 14px; padding: 0; } .sh-list li { display: grid; grid-template-columns: 100px 66px 1fr; gap: 8px; align-items: baseline; padding: 9px 2px; border-top: 1px solid var(--line); } .sh-list li:last-child { border-bottom: 1px solid var(--line); }
   .sh-p { font-size: 14.5px; line-height: 1.4; } .sh-p + .sh-p { margin-top: 8px; }
   .sh-list b { font-size: 15px; } .sh-list span { font-size: 12.5px; font-weight: 700; color: var(--ink-2); } .sh-list small { font-size: 13px; color: var(--ink-3); line-height: 1.35; }
   .pg-done { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: #FFFFFF; } .pg-done svg { width: 12px; height: 12px; }
@@ -1813,6 +1813,84 @@
   .tabs button { position: relative; }
   .tabs .tab-lock { position: absolute; top: 3px; left: calc(50% + 5px); width: 16px; height: 16px; border-radius: 50%; background: var(--ink-3); color: var(--paper); display: grid; place-items: center; box-shadow: 0 0 0 2px var(--paper); }
   .tabs .tab-lock svg { width: 9px; height: 9px; display: block; }
+  /* version 148: Progress B, Your record, the Silver moment */
+  .pg { min-height: 100%; display: flex; flex-direction: column; }
+  .content:has(> .pg) { container-type: size; } /* the ring sizes to the room the screen has, in the laptop pane too */
+  .pg-main { flex: 1 0 auto; display: flex; flex-direction: column; justify-content: center; padding-bottom: 14px; }
+  .app.no-brand > .content:has(> .pg) { padding-top: 14px; padding-bottom: 0; display: flex; flex-direction: column; }
+  .content > .pg { flex: 1 0 auto; }
+  .pg-head { position: relative; display: flex; justify-content: space-between; align-items: baseline; }
+  .pg-h { font-family: "Newsreader", Georgia, serif; font-weight: 600; font-size: 31px; line-height: 1.05; letter-spacing: 0.005em; margin: 0; }
+  .pg-wm { position: relative; font-family: "Newsreader", Georgia, serif; font-weight: 600; font-style: italic; font-size: 15.5px; color: #3E7C4F; }
+  .scr-tag { position: absolute; right: 0; top: 100%; margin-top: 3px; font-family: "Figtree", system-ui, sans-serif; font-style: normal; font-size: 9.5px; font-weight: 700; letter-spacing: 0.08em; color: #B4AE9E; white-space: nowrap; }
+  .pg-head .kicker + .scr-tag { top: 0; margin-top: 0; }
+  .app.sv > .scr-tag { top: auto; bottom: 16px; right: 24px; }
+  .pg-hero { display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .pg-ring { --rw: clamp(170px, calc(100cqh - 390px), 316px); position: relative; width: var(--rw); margin-top: 8px; }
+  .pg-ring svg { display: block; width: 100%; height: auto; }
+  .pg-ctr { position: absolute; left: 0; right: 0; top: 56%; transform: translateY(-58%); display: flex; flex-direction: column; align-items: center; }
+  .pg-num { font-family: "Newsreader", Georgia, serif; font-weight: 600; font-size: calc(var(--rw) * 0.31); line-height: 1; letter-spacing: 0.01em; color: var(--ink); }
+  .pg-ctr small { font-size: 11px; font-weight: 700; letter-spacing: 0.17em; color: #8D877A; margin-top: 4px; }
+  .pg-take { font-family: "Figtree", system-ui, sans-serif; font-weight: 800; font-size: 25px; line-height: 1.14; letter-spacing: -0.01em; margin: 6px 0 0; }
+  .pg-unlock { max-width: 318px; margin: 8px auto 0; font-size: 14px; line-height: 1.42; text-align: center; text-wrap: balance; }
+  .pg-unlock .nw { white-space: nowrap; }
+  .pg-unlock svg { position: relative; top: 1px; margin-right: 5px; } .pg-unlock b { font-weight: 700; }
+  .pg-cta { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 52px; margin-top: 14px; border: 0; border-radius: 15px; background: #3E7C4F; color: #FDFBF6; font-family: "Figtree", system-ui, sans-serif; font-weight: 700; font-size: 16.5px; box-shadow: 0 4px 0 #2B5C3A; cursor: pointer; transition: transform 0.08s ease, box-shadow 0.08s ease; }
+  .pg-cta:active { transform: translateY(3px); box-shadow: 0 1px 0 #2B5C3A; }
+  .pg-sk { display: flex; gap: 12px; align-items: flex-start; margin-top: 20px; }
+  .pg-flame { flex: none; width: 34px; height: 34px; border-radius: 50%; background: #F8E7D6; display: grid; place-items: center; margin-top: 1px; }
+  .pg-sk > div { display: grid; gap: 1px; min-width: 0; } .pg-sk b { font-size: 15px; } .pg-sk small { font-size: 12.5px; line-height: 1.4; color: #8D877A; text-wrap: pretty; }
+  .pg-week { list-style: none; margin: 10px 0 0; padding: 0 2px; display: grid; grid-template-columns: repeat(7, 1fr); }
+  .pg-week li { display: grid; justify-items: center; gap: 5px; font-size: 10px; font-weight: 600; letter-spacing: 0.04em; color: #8D877A; }
+  .pg-week span { width: 28px; height: 28px; border-radius: 50%; background: #EFEAE0; display: grid; place-items: center; }
+  .pg-week li.on span { background: #3E7C4F; }
+  .pg-week li.pre span { background: transparent; box-shadow: inset 0 0 0 1.5px #E2DCCF; }
+  .pg-week li.today span { outline: 2px solid var(--ink); outline-offset: 2.5px; }
+  .pg-foot { flex: none; padding: 12px 2px 10px; border-top: 1px solid var(--line); text-align: center; }
+  .pg-foot p { margin: 0; font-size: 12px; line-height: 1.5; color: #8D877A; }
+  .pg-foot p svg { position: relative; top: 1px; margin-right: 4px; }
+  .pg-links { margin-top: 4px !important; display: flex; justify-content: center; align-items: center; gap: 8px; }
+  .pg-links .link { color: #3E7C4F; font-weight: 600; font-size: 13px; text-decoration-style: dotted; padding: 4px 0; }
+  .pg-links span { color: #C9C2B2; }
+  @media (max-height: 700px) { .pg-take { font-size: 22px; } .pg-sk { margin-top: 14px; } .pg-week span { width: 25px; height: 25px; } .pg-cta { min-height: 48px; margin-top: 12px; } .pg-unlock { font-size: 13.5px; margin-top: 6px; } }
+  .rec-sheet { margin: 4px 0 6px; }
+  .sh-list li > b { display: flex; align-items: center; gap: 7px; align-self: center; }
+  .sh-medal { flex: none; width: 20px; height: 20px; border-radius: 50%; box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.75), inset 0 -2px 3px rgba(0, 0, 0, 0.18); }
+  .sh-medal.m-silver { background: linear-gradient(140deg, #DFE3E9 8%, #A9AFBA 52%, #79818E); }
+  .sh-medal.m-gold { background: linear-gradient(140deg, #EDCF83 8%, #D2A43C 52%, #A3791F); }
+  .sh-medal.m-platinum { background: linear-gradient(140deg, #E9EEF2 8%, #BEC7CF 52%, #909BA6); }
+  .sh-medal.m-diamond { background: linear-gradient(140deg, #CBE6F1 8%, #7FB2C9 52%, #4E88A5); }
+  .rec-badges { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 10px; }
+  .rec-badges li { display: flex; align-items: center; gap: 14px; }
+  .rec-badges li > span:last-child { display: grid; gap: 1px; } .rec-badges b { font-size: 15px; } .rec-badges small { font-size: 12.5px; color: var(--ink-3); }
+  .rec-badges li.zero .ring-wrap { opacity: 0.7; }
+  .rec-badges .pg-frac.long { font-size: 10.5px; letter-spacing: -0.02em; }
+  .app.sv { background: var(--paper); }
+  .sv-x { position: absolute; top: 14px; right: 16px; z-index: 3; width: 32px; height: 32px; border-radius: 50%; border: 0; background: #EFEAE0; color: #77725F; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .sv-body { flex: 1; min-height: 0; overflow-y: auto; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 24px 6px; }
+  .sv-glow { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(closest-side, rgba(62, 124, 79, 0.14), rgba(169, 175, 186, 0.1) 55%, transparent 72%); pointer-events: none; }
+  .sv-medal { position: relative; z-index: 1; flex: none; width: 104px; height: 104px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(140deg, #DFE3E9 6%, #A9AFBA 50%, #79818E); box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.8), inset 0 -4px 7px rgba(0, 0, 0, 0.2), 0 10px 24px rgba(36, 35, 28, 0.18); animation: svIn 0.6s cubic-bezier(.2, 1.4, .4, 1) both; }
+  .sv-medal::after { content: ""; position: absolute; inset: 10px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.6); }
+  .sv-medal svg { width: 36px; height: 36px; }
+  @keyframes svIn { from { transform: scale(0.4); opacity: 0; } to { transform: none; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .sv-medal { animation: none; } }
+  .sv-h { position: relative; z-index: 1; font-family: "Newsreader", Georgia, serif; font-weight: 600; font-size: 31px; line-height: 1.1; margin: 14px 0 0; }
+  .sv-sub { position: relative; z-index: 1; text-wrap: balance; max-width: 300px; margin: 6px 0 0; font-size: 14.5px; line-height: 1.5; color: #8D877A; }
+  .sv-vid { position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; width: 100%; max-width: 330px; margin-top: 16px; padding: 10px; border-radius: 16px; background: #FFFEFA; border: 1px solid var(--line); text-align: left; font: inherit; color: inherit; cursor: pointer; }
+  .sv-thumb { position: relative; flex: none; width: 84px; height: 56px; border-radius: 10px; overflow: hidden; background: #2E4A38; }
+  .sv-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; display: block; }
+  .sv-play { position: absolute; right: 6px; bottom: 6px; width: 22px; height: 22px; border-radius: 50%; background: rgba(253, 251, 246, 0.95); display: grid; place-items: center; }
+  .sv-vid > span:last-child { display: grid; gap: 1px; } .sv-vid b { font-size: 14px; } .sv-vid small { font-size: 12.5px; color: #8D877A; text-wrap: balance; }
+  .sv-card { position: relative; z-index: 1; width: 252px; margin-top: 16px; padding: 14px 16px 12px; border-radius: 14px; background: #FFFEFA; border: 1px solid #DED7C7; box-shadow: 0 10px 22px rgba(36, 35, 28, 0.14); transform: rotate(-2deg); text-align: left; }
+  .sv-ctop { display: flex; justify-content: space-between; align-items: center; } .sv-ctop span { font-size: 9px; font-weight: 700; letter-spacing: 0.2em; color: #8D877A; }
+  .sv-ct { display: flex; align-items: center; gap: 9px; margin-top: 8px; font-family: "Newsreader", Georgia, serif; font-weight: 600; font-size: 23px; }
+  .sv-name { display: block; margin-top: 8px; font-size: 13px; } .sv-camp { display: block; font-size: 11px; color: #8D877A; margin-top: 1px; }
+  .sv-link { margin: 9px 0 0; padding-top: 7px; border-top: 1px dashed var(--line); font-size: 10.5px; font-weight: 600; color: #3E7C4F; }
+  .sv-foot { display: grid; justify-items: center; gap: 0; }
+  .sv-foot .pg-cta { margin-top: 0; }
+  .sv-note { margin: 9px 0 0; font-size: 12.5px; color: #8D877A; }
+  .sv-back { color: #3E7C4F; font-weight: 600; font-size: 13px; text-decoration-style: dotted; margin-top: 4px; }
+  @media (max-height: 700px) { .sv-medal { width: 84px; height: 84px; } .sv-h { font-size: 27px; margin-top: 10px; } .sv-vid, .sv-card { margin-top: 12px; } .sv-body { padding-top: 34px; } }
 </style>
 </head>
 <body>
@@ -4349,7 +4427,9 @@ const NOTES = {
   debrief: ["Cooldown", "The stars and the four ratings stay for the campaign. New in version 71: one spoken question, Tell me about one door you\u2019ll remember. The coach names the Tough door it points to and adds one like it to the next Warmup. It ends on Sign up for your next shift?"],
   library: ["Learn: one book of ten chapters", "Version 146 (Robert, Nov 2). One spine: the course name and the ten-dot path on top, chapters 1 to 5 by name with their day, Maya\u2019s byline as the divider (tapping it opens the briefing, the presenter path), chapters 6 to 10 by name with locks until door-ready, a line that Maya adds chapters as issues come up, and a locked after-ten line (more courses from Warmup and your campaign). Once door-ready a chapter row opens its own brief. Counts say chapters; other programs keep the version 28 library."],
   training: ["A library page", "A lesson page holds its moves and why, your best take and Go deeper; a Tough door says what it sharpens. Add to my next Warmup puts it into the next Warmup. Anything not built yet says so and asks for a vote."],
-  me: ["Progress: what is next, then what you have done", "Version 144 (Robert, Nov 2). The hero shows the lesson she saved, how many to door-ready and the one unlock that brings (Silver: a thank-you from the candidate and a card to share). Under it, the promise that the campaign sees status, never scores. Then the streak (lesson days and practice days count, one miss a week forgiven) with this week\u2019s days, the record (lessons, doors, best streak, campaigns; yours for keeps, it travels), badges as fractions (Door-ready, Briefed after door-ready, Sharp at 10 practice doors, Recruiter at 3 friends), Bring a friend, and How status works, where the ladder lives: Silver 1 course, Gold 5, Platinum 10, Diamond 20, status for the year with a comeback rule, the record never resets."],
+  me: ["Progress: one ring, one button", "Version 148 (Robert, Nov 2, Progress B). One hero: five notches over 270 degrees with the Silver medal at the track’s end, so the eye reads fill the track, reach the medal. The center says only how many are done; the notches carry the five. Then “4 lessons to door-ready”, the one unlock (Silver: a thank-you from Maya and a card to share) and one button, Retake Lesson 1 (Continue mid-lesson); no score on Progress, scores stay on Today and stay private. The streak is one row (lessons and practice both count, one miss a week forgiven) with the last seven days. The footer keeps the two promises (the team sees status, never scores; the record travels) and links to How status works (the four levels) and Your record (the counters and the four badges as fractions). Once door-ready the ring becomes Maya’s five briefs in her blue, with Briefed at its end. Behaviors it asks for, ranked: do today’s rep now, come back tomorrow until the ring is full, share at the unlock."],
+  record: ["Your record, one tap from Progress", "Version 148. Lessons, doors, best streak and campaigns, then the four badges as fractions (Door-ready, Briefed, Sharp at 20 doors, Recruiter at 3 friends). Yours for keeps: the record never resets and travels from campaign to campaign."],
+  silver: ["The Silver moment", "Version 148. Once, right after lesson 5’s ring card. The medal, “You’re door-ready”, Maya’s 20-second thank-you (a mock until the reshoot records it), and the share card: her name, Door-ready, the campaign and her invite link. Share your card opens the phone’s share sheet. Bring a friend lives here, at the moment of pride, instead of on Progress; friends who join count toward Recruiter."],
   try: ["Your 1st try, before any teaching", "The volunteer answers out loud before any teaching. Trying first, even wrong, makes the lesson that follows stick (the pretesting effect). Feedback is positive only and never a grade: what they got right and what to watch for. All four moves on the first try goes straight to Your 2nd try, the version 67 rule applied to every lesson. Lesson 1\u2019s try also places them. Version 72: one mic button and no box until it\u2019s tapped, so a phone\u2019s keyboard never opens on its own."],
   spot: ["Catch the mistake", "The same door on another day with one realistic miss. Lesson 1 picks it from the volunteer\u2019s own try: the neighbor move, or the permission question. The volunteer taps the miss, sees why it matters and goes straight to the 2nd try to use it at the next door."],
   coach: ["Practice: every door you\u2019ve learned", "Version 139 (the Nov 1 lesson-path decisions). One row per lesson door. A finished lesson\u2019s door replays as often as you like, with the same mic and grading, and never uses the day\u2019s lesson or changes the saved score; each locked door names the lesson that opens it. Later: the five brief doors, tougher voters at Gold and the coach picking the next door from what you missed."],
@@ -5681,7 +5761,7 @@ function statusNow() {
    course, Gold 5, Platinum 10, Diamond 20. Second metric: volunteers recruited via a personal invite link; doors
    knocked and shift confirmation are skipped for now. Supersedes the ready-shift tiers of warmup-profile-status-plan.md. */
 const PG_ARCS = ["M31.5 90.5 A46 46 0 0 1 18.1 55.6", "M18.8 49.6 A46 46 0 0 1 40.0 18.8", "M45.3 16.0 A46 46 0 0 1 82.7 16.0", "M88.0 18.8 A46 46 0 0 1 109.2 49.6", "M109.9 55.6 A46 46 0 0 1 96.5 90.5"];
-const TIERS5 = [["Silver", 1, "A thank-you from the candidate, and a card to share"], ["Gold", 5, "Tougher voters to practice against"], ["Platinum", 10, "Every Warmup course on Learn, not just your campaign\u2019s"], ["Diamond", 20, "First look at new lessons, and your say on them"]]; /* version 144 (Robert, Nov 2): rewards are standing, not stuff */
+const TIERS5 = [["Silver", 1, "A thank-you from the candidate and a card to share"], ["Gold", 5, "Tougher voters to practice against"], ["Platinum", 10, "Every Warmup course on Learn, not just your campaign\u2019s"], ["Diamond", 20, "First look at new lessons and your say on them"]]; /* version 144 (Robert, Nov 2): rewards are standing, not stuff */
 /* version 144 (Robert, Nov 2): the streak counts lesson days and practice days, back from today (or from yesterday, if today is still open) */
 const dayKey = (t) => { const d = new Date(t); return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); };
 function pathDays() { const set = {}; Object.values(S.doneAt || {}).forEach((t) => { set[dayKey(t)] = 1; }); (S.practDays || []).forEach((k) => { set[k] = 1; }); return set; }
@@ -5696,57 +5776,103 @@ function pathStreak(days) { /* version 145: one miss a week is forgiven, if the 
   }
   return n;
 }
+/* version 148 (Robert, Nov 2, Progress B): one hero. The ring is five notches over 270 degrees with a medal at the track's end, so the
+   eye reads fill the track, reach the medal; the center says only the numerator (the five notches carry the denominator). One phase
+   at a time: the five lessons toward door-ready in green with Silver at the end, then the five briefs toward Briefed in the campaign's
+   blue. Under it: the lessons to go, the one unlock, one button, the streak, and a footer with the two promises and two links.
+   The record and the badges live one tap away (Your record); the ladder lives on How status works; Bring a friend moved to the Silver
+   moment, where the card is the invite. No score anywhere on Progress: scores stay on Today and stay private. */
+const PG_SEG = ["M 61.41 190.59 A 97 97 0 0 1 33.01 120.31", "M 34.78 103.49 A 97 97 0 0 1 77.17 40.65", "M 92.10 32.71 A 97 97 0 0 1 167.90 32.71", "M 182.83 40.65 A 97 97 0 0 1 225.22 103.49", "M 226.99 120.31 A 97 97 0 0 1 198.59 190.59"];
+const PG_DOOR = (c) => `<path d="M -6.2 7.5 V -2.2 Q -6.2 -8.2 0 -8.2 Q 6.2 -8.2 6.2 -2.2 V 7.5 Z" fill="none" stroke="${c}" stroke-width="2.1" stroke-linejoin="round"/><circle cx="2.6" cy="0.8" r="1.25" fill="${c}"/>`;
+const PG_SILVER = `<linearGradient id="pgSilver" x1="0" y1="0" x2="1" y2="1"><stop offset="6%" stop-color="#DFE3E9"/><stop offset="50%" stop-color="#A9AFBA"/><stop offset="100%" stop-color="#79818E"/></linearGradient>`;
+const PG_BLUE = `<linearGradient id="pgBlue" x1="0" y1="0" x2="1" y2="1"><stop offset="6%" stop-color="#5E86C4"/><stop offset="50%" stop-color="#1F4C91"/><stop offset="100%" stop-color="#163A70"/></linearGradient>`;
+const pgTag = (t) => (/[?&]nonum\b/.test(location.search) ? "" : `<span class="scr-tag" aria-hidden="true">${t}</span>`);
+const PG_FLAME = `<svg width="15" height="18" viewBox="0 0 15 18" aria-hidden="true"><path d="M7.8.4C8.9 3 7 4.6 5.6 6 4.1 7.6 2.6 9.2 2.6 11.6a5.4 5.4 0 0 0 10.8.2c0-2.6-1.3-4.2-2.5-5.7C9.7 4.6 8.7 2.9 7.8.4Z" fill="#E0813B"/><path d="M7.6 17.4a2.9 2.9 0 0 1-2.9-3c0-1.5.9-2.3 1.7-3.2.7-.8 1.3-1.5 1.6-2.7.8 1.6 1.3 2.5 1.8 3.3.5.9 1 1.7 1 2.7a3 3 0 0 1-3.2 2.9Z" fill="#F3B16B"/></svg>`;
+const PG_LOCK = (c) => `<svg width="10" height="12" viewBox="0 0 10 12" aria-hidden="true"><path d="M2 5V3.5a3 3 0 0 1 6 0V5" fill="none" stroke="${c}" stroke-width="1.5"/><rect x="1" y="5" width="8" height="6" rx="1.6" fill="${c}"/></svg>`;
+const PG_TICK = `<svg width="13" height="10" viewBox="0 0 13 10" aria-hidden="true"><path d="m1.5 5 3.4 3.4L11.5 1.4" fill="none" stroke="#FDFBF6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+function pgCounts() {
+  const d5 = S.done5 || {}, nd = LESSONS5.filter((x) => d5[x.n]).length;
+  return { d5, nd, briefs: Math.min(5, S.briefsDone || 0), doors: nd * 2 + (S.doorsN || 0), recruits: S.recruits || 0 };
+}
+function pgRing(n, brief) {
+  const on = brief ? "#1F4C91" : "#3E7C4F", off = brief ? "#D3DCEB" : "#D2DECB";
+  const medal = brief
+    ? `<circle r="16" fill="url(#pgBlue)" stroke="#FCF8F2" stroke-width="3.5"/><circle r="11.5" fill="none" stroke="#FFFFFF" stroke-width="1.3" opacity=".45"/><path d="M -5.2 0.4 L -1.6 4 L 5.4 -3.6" fill="none" stroke="#FDFBF6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`
+    : `<circle r="16" fill="url(#pgSilver)" stroke="#FCF8F2" stroke-width="3.5"/><circle r="11.5" fill="none" stroke="#FFFFFF" stroke-width="1.3" opacity=".55"/><g transform="scale(.9)">${PG_DOOR("#4E555F")}</g>`;
+  return `<svg viewBox="0 0 260 218" aria-hidden="true"><defs>${PG_SILVER}${PG_BLUE}</defs><g fill="none" stroke-width="17" stroke-linecap="round">${PG_SEG.map((d, i) => `<path class="pg-seg${i < n ? " on" : ""}" d="${d}" stroke="${i < n ? on : off}"/>`).join("")}</g><g class="pg-medal" transform="translate(198.59,190.59)">${medal}</g></svg>`;
+}
 function vProgressG() {
-  /* version 144 (Robert, Nov 2): Progress leads with what is next (the saved lesson, the lessons to door-ready, the one unlock that
-     brings) and then says what she has done (the streak, the record, the badges). The ladder lives on How status works, one tap away,
-     so the page never reads like a program brochure. Keeps version 138's hero (what she saved, not a 0) and version 128's no-lockup rule.
-     The program itself is in the version 144 builder's notes and the plan's Decisions. */
-  const d5 = S.done5 || {}, nd = LESSONS5.filter((x) => d5[x.n]).length, done = nd >= 5 ? 1 : 0, camp = CAMPAIGN[S.track] || CAMPAIGN.gotv, first = camp.name.split(" ")[0];
-  const lastL = LESSONS5.filter((x) => d5[x.n]).pop(), left = 5 - nd, sc = lastL ? d5[lastL.n].filter(Boolean).length : 0; /* version 138: the lesson she saved last and its score */
-  const heroB = !lastL ? "Lesson 1" : nd >= 5 ? "Door-ready" : `Lesson ${lastL.n} \u00b7 ${sc} of 4`, heroS = nd >= 5 ? "All five lessons saved." : `${left} lesson${left === 1 ? "" : "s"} to door-ready`;
-  const next = TIERS5.find((t) => done < t[1]) || TIERS5[TIERS5.length - 1];
-  const gauge = `<span class="prog-gauge"><svg viewBox="0 0 128 112" aria-label="${nd} of 5 lessons saved toward ${next[0]}">${PG_ARCS.map((d, i) => `<path class="pgn${i < nd ? " on" : ""}" d="${d}"/>`).join("")}</svg><span class="pg-num"><b class="num">${nd}/5</b><small>lessons</small></span></span>`;
-  const unlock = nd >= 5 ? `<span><b>Silver</b> this year. Gold at 5 courses brings tougher voters to practice against.</span>` : `<span><b>Door-ready brings Silver:</b> a thank-you from ${first} and a card to share.</span>`;
-  /* the streak and this week */
+  const c = pgCounts(), camp = CAMPAIGN[S.track] || CAMPAIGN.gotv, first = camp.name.split(" ")[0];
+  const brief = c.nd >= 5, n = brief ? c.briefs : c.nd, left = 5 - n;
+  const word = brief ? "brief" : "lesson", WORD = brief ? "BRIEF" : "LESSON";
+  const take = brief ? (left ? `${left} brief${left === 1 ? "" : "s"} to Briefed` : "You’re Briefed") : `${left} lesson${left === 1 ? "" : "s"} to door-ready`;
+  const unlock = brief
+    ? `<b>Silver earned.</b> Briefed means you know where ${first} stands on all five issues.`
+    : `<b>Door-ready brings Silver:</b> <span class="nw">a&nbsp;thank-you</span> from ${first} and a card to share.`;
+  /* the one button: what to do now (version 148, Robert 11:43 AM PT) */
+  const mid = !brief && S.lesson && !c.d5[S.lesson] && (S.lessonAt || 0) > 0 && S.lesson <= 5;
+  const lastL = LESSONS5.filter((x) => c.d5[x.n]).pop();
+  const btn = brief ? [`Open ${first}’s briefs`, "issues-open", ""] : mid ? [`Continue Lesson ${S.lesson}`, "lesson5", String(S.lesson)] : lastL ? [`Retake Lesson ${lastL.n}`, "retake5", String(lastL.n)] : ["Start Lesson 1", "lesson5", "1"];
+  /* the streak and the last seven days, today at the right */
   const days = pathDays(), streak = pathStreak(days), best = Math.max(streak, S.bestStreak || 0); S.bestStreak = best;
-  const today = new Date(), letters = ["S", "M", "T", "W", "T", "F", "S"]; /* the last seven days, today at the right, so a streak reads as a run */
-  const tick = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const week = [6, 5, 4, 3, 2, 1, 0].map((back) => { const t = today.getTime() - back * 86400000, on = !!days[dayKey(t)]; return `<li class="${on ? "on" : ""}${back === 0 ? " today" : ""}"><span>${on ? tick : ""}</span>${letters[new Date(t).getDay()]}</li>`; }).join("");
-  const flame = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c.4 3.6 3.2 5.3 4.6 8.2.9 1.9 1 4.2-.3 6-1.1 1.6-3 2.8-5.1 2.8a6.2 6.2 0 0 1-5.6-3.6c-1-2.3-.4-4.9 1.1-6.8.3 1.3 1.1 2.5 2.4 3.1-.6-2.9.6-6.1 2.9-9.7z" fill="currentColor"/><path d="M12 13.2c.3 1.3 1.4 2 1.7 3.1.3 1.2-.6 2.6-1.9 2.6s-2.2-1.3-1.9-2.6c.2-1 1.5-1.7 2.1-3.1z" fill="#FFF0E3"/></svg>`;
-  const skTxt = streak === 0 ? `<b>Start your streak today</b><small>Lessons and practice both count. One miss a week is forgiven.</small>` : `<b>${streak}-day streak</b><small>Lessons and practice both count. One miss a week is forgiven.</small>`;
-  /* the record */
-  const doors = nd * 2 + (S.doorsN || 0);
-  const rec = `<div class="rec"><div><b class="num">${nd}</b><small>lesson${nd === 1 ? "" : "s"}</small></div><div><b class="num">${doors}</b><small>door${doors === 1 ? "" : "s"}</small></div><div><b class="num">${best}</b><small>best streak</small></div><div><b class="num">1</b><small>campaign</small></div></div>`;
-  /* the badges: fractions, never a wall of locks */
-  const badge = (name, k, of) => { const on = k >= of, zero = k === 0; return `<span class="badge${zero ? " zero" : ""}"><span class="ring-wrap" style="width:46px;height:46px">${ring(Math.min(1, k / of), 46, 6)}<span class="ring-num">${on ? `<span class="pg-done">${tick}</span>` : `<small class="pg-frac num">${k}/${of}</small>`}</span></span>${name}</span>`; };
-  const badges = [badge("Door-ready", nd, 5)].concat(nd >= 5 ? [badge("Briefed", S.briefsDone || 0, 5)] : []).concat([badge("Sharp", doors, 20), badge("Recruiter", S.recruits || 0, 3)]);
+  const today = new Date(), letters = ["S", "M", "T", "W", "T", "F", "S"];
+  const firstDay = Math.min(dayKey(Date.now()), ...Object.keys(days).map(Number)); /* before her first lesson there is nothing to miss */
+  const week = [6, 5, 4, 3, 2, 1, 0].map((back) => { const t = today.getTime() - back * 86400000, on = !!days[dayKey(t)]; return `<li class="${on ? "on" : ""}${back === 0 ? " today" : ""}${dayKey(t) < firstDay ? " pre" : ""}"><span>${on ? PG_TICK : ""}</span>${letters[new Date(t).getDay()]}</li>`; }).join("");
+  return app(`<div class="pg">
+    <div class="pg-head"><h1 class="pg-h">Progress</h1><span class="pg-wm">Warmup${pgTag("Progress")}</span></div>
+    <div class="pg-main"><div class="pg-hero">
+      <div class="pg-ring${brief ? " brief" : ""}" role="img" aria-label="${n} of 5 ${word}s done">${pgRing(n, brief)}<div class="pg-ctr"><b class="pg-num">${n}</b><small>${WORD}${n === 1 ? "" : "S"} DONE</small></div></div>
+      <h2 class="pg-take">${take}</h2>
+      <p class="pg-unlock">${brief ? "" : PG_LOCK("#24231C")}${unlock}</p>
+      <button class="pg-cta" data-act="${btn[1]}" data-arg="${btn[2]}">${btn[0]}</button>
+    </div>
+    <div class="pg-sk"><span class="pg-flame">${PG_FLAME}</span><div><b>${streak ? `${streak}-day streak` : "Start your streak today"}</b><small>Lessons and practice both count. One miss a week is forgiven.</small></div></div>
+    <ol class="pg-week" aria-label="The last seven days">${week}</ol></div>
+    <div class="pg-foot"><p>${PG_LOCK("#8D877A")}${first}’s team sees your status, never your scores.<br>Your record is yours for keeps, from campaign to campaign.</p>
+      <p class="pg-links"><button class="link" data-act="go" data-arg="statushow">How status works</button><span aria-hidden="true">·</span><button class="link" data-act="go" data-arg="record">Your record</button></p></div>
+  </div>`, { tabs: "me", noBrand: true }); /* version 128: Progress travels between campaigns, so it wears Warmup's wordmark, not the campaign's lockup */
+}
+function vRecordG() {
+  /* version 148: the record and the badges, one tap from Progress (same pattern as How status works) */
+  const c = pgCounts(), best = Math.max(S.bestStreak || 0, pathStreak(pathDays()));
+  const frac = (name, k, of, what) => { const on = k >= of; return `<li class="${on ? "on" : ""}${k === 0 ? " zero" : ""}"><span class="ring-wrap" style="width:46px;height:46px">${ring(Math.min(1, k / of), 46, 6)}<span class="ring-num">${on ? `<span class="pg-done">${PG_TICK}</span>` : `<small class="pg-frac num${String(k).length + String(of).length >= 3 ? " long" : ""}">${k}/${of}</small>`}</span></span><span><b>${name}</b><small>${what}</small></span></li>`; };
   return app(`
-    <h1 class="h1">Progress</h1>
-    <div class="status-card prog-card"><div class="prog-top">${gauge}
-      <div><p class="kicker">${lastL ? "Saved" : "Your course"}</p><b class="tier pg-saved">${heroB}</b><small>${heroS}</small></div></div>
-      <p class="prog-unlock">${LOCK_SVG}${unlock}</p></div>
-    <p class="prog-note">${first}\u2019s team sees your status, never your scores.</p>
-    <div class="sk"><span class="sk-flame">${flame}</span><div class="sk-txt">${skTxt}</div></div>
-    <ol class="sk-week" aria-label="The last seven days">${week}</ol>
-    <p class="deb-q">Your record</p>
-    ${rec}
+    <div class="pg-head"><p class="kicker">Progress</p>${pgTag("Record")}</div>
+    <h1 class="h1">Your record</h1>
+    <div class="rec rec-sheet"><div><b class="num">${c.nd}</b><small>lesson${c.nd === 1 ? "" : "s"}</small></div><div><b class="num">${c.doors}</b><small>door${c.doors === 1 ? "" : "s"}</small></div><div><b class="num">${best}</b><small>best streak</small></div><div><b class="num">1</b><small>campaign</small></div></div>
     <p class="rec-note">Yours for keeps, from campaign to campaign.</p>
     <p class="deb-q">Badges</p>
-    <div class="badges${badges.length === 3 ? " b3" : ""}">${badges.join("")}</div>
-    <div class="prog-row"><span><b>Bring a friend</b><small>Friends who join through your link count toward Recruiter.</small></span><button class="link" data-act="invite-copy">Share link</button></div>
-    <button class="link how-status" data-act="go" data-arg="statushow">How status works</button>
-  `, { tabs: "me", noBrand: true }); /* version 128 (Robert): Progress travels between campaigns, so it wears no campaign lockup */
+    <ul class="rec-badges">${frac("Door-ready", c.nd, 5, "Your five lessons")}${frac("Briefed", c.briefs, 5, "The campaign’s five briefs")}${frac("Sharp", c.doors, 20, "Doors knocked, lessons and practice")}${frac("Recruiter", c.recruits, 3, "Friends who join through your card")}</ul>
+  `, { back: "me", noBrand: true, footer: `<button class="btn" data-act="go" data-arg="me">Got it</button>` });
+}
+function vSilverG() {
+  /* version 148 (Robert, Nov 2, frame 3): the Silver moment, once, after lesson 5's ring card. Bring a friend lives here: the card is the invite. */
+  const camp = CAMPAIGN[S.track] || CAMPAIGN.gotv, first = camp.name.split(" ")[0], nm = me(), slug = nm.split(" ")[0].toLowerCase().replace(/[^a-z]/g, "");
+  const when = new Date().toLocaleString("en-US", { month: "short", year: "numeric" });
+  const share = `<svg width="15" height="17" viewBox="0 0 15 17" aria-hidden="true"><path d="M7.5 1v10M4 4l3.5-3L11 4" fill="none" stroke="#FDFBF6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.2 7H2.5v8.5h10V7h-1.7" fill="none" stroke="#FDFBF6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  return `<div class="app sv">${pgTag("Silver")}<button class="sv-x" data-act="silver-close" aria-label="Close">✕</button>
+    <div class="sv-body"><div class="sv-glow" aria-hidden="true"></div>
+      <div class="sv-medal" aria-hidden="true"><svg viewBox="-10 -10 20 20">${PG_DOOR("#4E555F")}</svg></div>
+      <h1 class="sv-h">You’re door-ready</h1>
+      <p class="sv-sub">Five lessons in five mornings. ${first} recorded a&nbsp;thank-you for you.</p>
+      <button class="sv-vid" data-act="silver-play"><span class="sv-thumb"><img src="${CAND_PHOTO}" alt=""><span class="sv-play"><svg width="9" height="10" viewBox="0 0 9 10"><path d="M1 1.2v7.6a.7.7 0 0 0 1 .6l6-3.8a.7.7 0 0 0 0-1.2l-6-3.8a.7.7 0 0 0-1 .6Z" fill="#2B5C3A"/></svg></span></span><span><b>${first}’s thank-you</b><small>0:20 · recorded for her door-ready canvassers</small></span></button>
+      <div class="sv-card"><div class="sv-ctop"><span>WARMUP</span><svg width="15" height="15" viewBox="0 0 22 22" aria-hidden="true"><path d="M5.4 17a8 8 0 1 1 11.2 0" fill="none" stroke="#3E7C4F" stroke-width="3" stroke-linecap="round"/></svg></div>
+        <div class="sv-ct"><svg width="25" height="25" viewBox="-12.5 -12.5 25 25" aria-hidden="true"><defs>${PG_SILVER}</defs><circle r="11" fill="url(#pgSilver)"/><g transform="scale(.92)">${PG_DOOR("#4E555F")}</g></svg>Door-ready</div>
+        <b class="sv-name">${esc(nm)}</b><small class="sv-camp">${camp.name}’s campaign · ${when}</small>
+        <p class="sv-link">Knock with ${esc(nm.split(" ")[0])} · yourwarmup.com/${slug}</p></div>
+    </div>
+    <footer class="actions sv-foot"><button class="pg-cta" data-act="silver-share">${share}Share your card</button><p class="sv-note">Your card carries your invite link.</p><button class="link sv-back" data-act="go" data-arg="me">Back to Progress</button></footer>
+  </div>`;
 }
 function vStatusHow() {
   /* version 144 (Robert, Nov 2): the ladder, one tap away from Progress */
   const camp = CAMPAIGN[S.track] || CAMPAIGN.gotv, first = camp.name.split(" ")[0];
   return app(`
-    <p class="kicker">Progress</p>
+    <div class="pg-head"><p class="kicker">Progress</p>${pgTag("Status")}</div>
     <h1 class="h1">How status works</h1>
     <p class="lede sh-p">You earn status by finishing courses: five lessons, one a day, every check passed. Your first course makes you door-ready and Silver.</p>
-    <ul class="sh-list">${TIERS5.map((t) => `<li><b>${t[0]}</b><span>${t[1]} course${t[1] > 1 ? "s" : ""}</span><small>${t[2].replace("the candidate", first)}</small></li>`).join("")}</ul>
-    <p class="lede sh-p">After your ten, the path keeps going: more courses from Warmup and from your campaign, one lesson a day.</p>
-    <p class="lede sh-p">Badges: Door-ready (your course), Briefed (the five briefs), Sharp (20 doors), Recruiter (3 friends you bring).</p>
+    <ul class="sh-list">${TIERS5.map((t) => `<li><b><span class="sh-medal m-${t[0].toLowerCase()}" aria-hidden="true"></span>${t[0]}</b><span>${t[1]} course${t[1] > 1 ? "s" : ""}</span><small>${t[2].replace("the candidate", first)}</small></li>`).join("")}</ul>
+    <p class="lede sh-p">After your ten chapters, the path keeps going: more courses from Warmup and from your campaign, one lesson a day.</p>
     <p class="lede sh-p">Status is for the year and starts fresh each January. Your record never resets, and if you come back next cycle, finishing the course puts you right back where you were.</p>
     <p class="lede sh-p">${first}\u2019s team sees your status, never your scores.</p>
   `, { back: "me", noBrand: true, footer: `<button class="btn" data-act="go" data-arg="me">Got it</button>` });
@@ -5997,7 +6123,7 @@ const STORY_MS = 4500;
 let storyTimer = 0;
 let doneTimer = 0; /* version 88: the ring card moves on by itself */
 /* version 120 (Robert): What's next merged into Today; the ring card hands off to Today, whose hero card pulses once */
-function toTodayFromDone() { clearTimeout(doneTimer); S.heroPulse = true; S.hist = []; go("welcome"); }
+function toTodayFromDone() { clearTimeout(doneTimer); S.hist = []; if (S.track === "gotv" && !S.silverSeen && LESSONS5.every((x) => (S.done5 || {})[x.n])) { S.silverSeen = true; go("silver"); return; } S.heroPulse = true; go("welcome"); } /* version 148: door-ready opens the Silver moment once */
 function doneArm() {
   clearTimeout(doneTimer);
   if (S.screen !== "close" || S.track !== "gotv" || !$("#screen .cs-auto")) return;
@@ -7839,7 +7965,7 @@ function meTrainingG() {
 }
 
 /* ---------- rendering and navigation ---------- */
-const VIEWS = { pick: vPick, sms: vSMS, sms2: vSMS2, video: vVideo, welcome: vWelcome, intake: vIntake, placement: vPlacement, howworks: vHowWorks, talk: vTalk, note: vNote, library: vLibrary, training: vTraining, me: vMe, path: vPath, session: vSession, watch: vWatch, spot: vSpot, why: vWhy, recap: vRecap, practice: vPractice, main: vMain, door: vDoor, score: vScore, close: vClose, ready: vReady, debrief: vDebrief, try: vTry, warm: vWarm, warmtip: vWarmTip, warmready: vWarmReady, coach: vCoach, how: vHow, locked: vLocked, whylock: vWhyLock, course: vCourseG, statushow: vStatusHow };
+const VIEWS = { pick: vPick, sms: vSMS, sms2: vSMS2, video: vVideo, welcome: vWelcome, intake: vIntake, placement: vPlacement, howworks: vHowWorks, talk: vTalk, note: vNote, library: vLibrary, training: vTraining, me: vMe, path: vPath, session: vSession, watch: vWatch, spot: vSpot, why: vWhy, recap: vRecap, practice: vPractice, main: vMain, door: vDoor, score: vScore, close: vClose, ready: vReady, debrief: vDebrief, try: vTry, warm: vWarm, warmtip: vWarmTip, warmready: vWarmReady, coach: vCoach, how: vHow, locked: vLocked, whylock: vWhyLock, course: vCourseG, statushow: vStatusHow, record: vRecordG, silver: vSilverG };
 let lessonRun = 0;
 
 function render() {
@@ -8861,6 +8987,9 @@ document.addEventListener("click", (e) => {
     case "invite-copy": try { navigator.clipboard.writeText("https://yourwarmup.com/kaur"); } catch (e) { /* ignore */ } toast("Invite link copied."); break; /* version 126 */
     case "course-open": S.courseN = Number(arg); go("course"); break; /* version 125 */
     case "issues-open": issuesOpen(); break;
+    case "silver-close": S.heroPulse = true; S.hist = []; go("welcome"); break; /* version 148 */
+    case "silver-play": toast("Maya\u2019s thank-you plays here."); break; /* version 148: the thank-you is recorded with the reshoot; until then the card is a mock (presenter note) */
+    case "silver-share": { const nm = me().split(" ")[0], url = "https://yourwarmup.com/" + nm.toLowerCase().replace(/[^a-z]/g, ""), text = nm + " is door-ready for Maya Kaur\u2019s campaign. Knock with " + nm + ":"; const copy = () => { const no = () => toast("Your invite link: " + url.replace("https://", "")); try { navigator.clipboard.writeText(url).then(() => toast("Your invite link is copied."), no); } catch (e) { no(); } }; try { if (navigator.share) navigator.share({ title: "Door-ready", text, url }).catch(() => {}); else copy(); } catch (e) { copy(); } break; } /* version 148: the phone's share sheet, else the link is copied */
     case "brief-open": { const d5 = S.done5 || {}; if (LESSONS5.every((x) => d5[x.n])) issuesOpen(el.dataset.lesson || ""); else toast("Opens when you\u2019re door-ready, on day 6."); break; } /* version 146: straight to the brief\u2019s own cover */ /* version 145 */ /* version 130 (Robert, Oct 31): the campaign issue lessons open from Learn */
     case "course-tell": S.courseTold = S.courseTold || {}; S.courseTold[S.courseN || 10] = true; render(); toast("You\u2019re on the list. We\u2019ll text you when it\u2019s ready."); break;
     case "lib-open": S.lib.open = arg; S.lib.sheet = null; go("training"); break;
