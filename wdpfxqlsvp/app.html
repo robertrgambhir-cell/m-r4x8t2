@@ -1599,6 +1599,8 @@
   .hn-tom { color: var(--ink-3); }
   .content.stage > .td-head, .content.stage > .path, .content.stage > .td-done { flex: none; }
   .hero-next > .tt { flex: none; }
+  .content.stage > .hero-next:has(.hn-art.tiny) { flex: 0 0 auto; } /* version 145: no blank card when the door has no room */
+  .hero-next.locked .hn-t { margin-bottom: 8px; } .hero-next.locked .lt-sub { margin-top: 6px; } .hero-next.locked .tt { margin-bottom: 6px; } /* version 145: tighter, so the door keeps its 64 px in the laptop pane */
   @media (max-height: 700px) { .td-h { font-size: 23px; } .td-sub { font-size: 13.5px; } .path { margin-bottom: 6px; } .td-done { padding: 7px 2px; } .tt-chip { padding: 5px 10px; } .hero-next { padding: 13px 14px 12px; } }
   .cut-shot .tt { display: none; } /* the video phone is too small for the chips */
   /* version 143 (Robert, Nov 2): Learn is this campaign's batch only, the course by lesson and the briefs by name */
@@ -1609,7 +1611,7 @@
   .lrn-list { list-style: none; margin: 0; padding: 0; }
   .lrn-list li + li { border-top: 1px solid rgba(20, 40, 30, 0.08); }
   .lrn-list .lr-b, .lrn-list li > .br { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; width: 100%; padding: 9px 2px; background: none; border: 0; text-align: left; color: inherit; font: inherit; cursor: pointer; }
-  .lrn-list li > .br { cursor: default; }
+  .lrn-list li > div.br { cursor: default; } .lrn-list li > button.br .lr-when { font-size: 20px; line-height: 1; color: var(--ink-3); } .br-n:empty { width: 10px; height: 10px; margin: 0 auto; background: var(--line); } /* version 145: the briefs are dots, not numbers */
   .lr-n, .br-n { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; color: var(--ink-3); background: var(--card); }
   .lr-n svg, .br-n svg { width: 15px; height: 15px; }
   .lr.done .lr-n { background: var(--accent); color: #FFFFFF; }
@@ -1647,6 +1649,12 @@
   .rec-note { margin: 8px 2px 0; font-size: 12.5px; color: var(--ink-3); }
   .badges.b3 { grid-template-columns: repeat(3, 1fr); }
   .badge.zero { opacity: 0.6; }
+  .badges + .prog-row { margin-top: 18px; } /* version 145 */
+  .prog-card .pg-saved { white-space: nowrap; font-size: 21px; }
+  .rec small { font-size: 10.5px; letter-spacing: 0.03em; }
+  .sh-list { list-style: none; margin: 4px 0 14px; padding: 0; } .sh-list li { display: grid; grid-template-columns: 76px 72px 1fr; gap: 10px; align-items: baseline; padding: 9px 2px; border-top: 1px solid var(--line); } .sh-list li:last-child { border-bottom: 1px solid var(--line); }
+  .sh-p { font-size: 14.5px; line-height: 1.4; } .sh-p + .sh-p { margin-top: 8px; }
+  .sh-list b { font-size: 15px; } .sh-list span { font-size: 12.5px; font-weight: 700; color: var(--ink-2); } .sh-list small { font-size: 13px; color: var(--ink-3); line-height: 1.35; }
   .pg-done { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: #FFFFFF; } .pg-done svg { width: 12px; height: 12px; }
   .how-status { display: block; width: 100%; margin: 6px 0 0; padding: 8px 0; font-size: 14px; }
   .sh-p { font-size: 15px; line-height: 1.45; }
@@ -4269,15 +4277,17 @@ const LOCK_ON = true;
 const lessonLocked = (n) => LOCK_ON && S.track === "gotv" && Number(n) >= 2;
 const LOCK_LINE = (n) => `A new lesson opens every morning. You\u2019ll get a text as soon as lesson ${n} is ready.`;
 function vLocked() {
-  const n = S.lockN || 2;
+  /* version 145: says which day the lesson opens and goes back to where she came from (Learn or Today) */
+  const n = S.lockN || 2, d5 = S.done5 || {}, nx = LESSONS5.find((x) => !d5[x.n]), isNext = !!nx && nx.n === n;
+  const from = S.hist[S.hist.length - 1] === "library" ? "library" : "welcome";
   return app(`
     <div class="soon">
       <span class="ring-wrap soon-ring">${ring(0.2, 112, ringW(112))}</span>
       <p class="kicker">Lesson ${n} of 5</p>
-      <h1 class="h1">Your next lesson is locked for now.</h1>
+      <h1 class="h1">${isNext ? "Your next lesson opens tomorrow." : `Lesson ${n} opens on day ${n}.`}</h1>
       <p class="lede">${LOCK_LINE(n)}</p>
     </div>
-  `, { tabs: "today", stage: true, primary: ["Back to Today", "go", "welcome"] });
+  `, { tabs: from === "library" ? "library" : "today", stage: true, primary: [from === "library" ? "Back to Learn" : "Back to Today", "go", from] });
 }
 const TAB_LOCK = `<span class="tab-lock" aria-label="Coming soon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span>`;
 function tabBar(cur) {
@@ -5575,12 +5585,12 @@ function vLearnG() {
   };
   const course = `<section class="lrn-course"><div class="lrn-head"><p class="kicker">Your course</p><b>GOTV canvassing</b><span class="ln-notches" aria-label="${nd} of 5 lessons done">${[0, 1, 2, 3, 4].map((i) => `<i class="ln-notch${i < nd ? " on" : ""}"></i>`).join("")}</span><small>${nd >= 5 ? "All five saved. You\u2019re door-ready." : `${nd} of 5 saved \u00b7 door-ready at 5`}</small></div><ol class="lrn-list">${LESSONS5.map(row).join("")}</ol><p class="lrn-note">${nd >= 5 ? "Retake any lesson, any time." : "A new lesson opens every morning."}</p></section>`;
   const tile = `<button class="camp-tile" data-act="issues-open"><img src="${CAND_PHOTO}" alt=""><span class="ct-main"><small class="ct-k">From ${camp.name}\u2019s campaign</small><b>The 5 issues voters are raising at the door</b>${nd >= 5 ? `<small>5 minutes each \u00b7 learn it, then practice at a voter\u2019s door</small>` : `<small class="ct-lock">${LOCK_SVG}Opens when you\u2019re door-ready \u00b7 Day 6</small>`}</span><span class="go">\u203a</span></button>`;
-  const briefRows = briefs.map((bf, i) => `<li class="br"><div class="br"><span class="br-n">${i + 1}</span><span class="br-t"><b>${esc(bf)}</b></span>${nd >= 5 ? `<span class="lr-when">Open</span>` : ""}</div></li>`).join("");
+  const briefRows = briefs.map((bf) => `<li class="br"><button class="br${nd >= 5 ? " open" : ""}" data-act="brief-open" data-arg="${esc(bf)}"><span class="br-n"></span><span class="br-t"><b>${esc(bf)}</b></span>${nd >= 5 ? `<span class="lr-when">\u203a</span>` : ""}</button></li>`).join(""); /* version 145: a tap says when they open, or opens the briefing once door-ready; no numbers, since any order */
   const more = `<li class="br more"><div class="br"><span class="br-n">${LOCK_SVG}</span><span class="br-t"><b>More from ${first}\u2019s campaign</b><small>New briefs land here as issues come up at the door.</small></span></div></li>`;
   const campaign = `<section class="lrn-camp">${tile}<ol class="lrn-list br-list">${briefRows}${more}</ol><p class="lrn-note">${nd >= 5 ? "Any order, one a day." : "Any order, one a day, from day 6."}</p></section>`;
   return app(`
     <h1 class="h1">Learn</h1>
-    <p class="lede">Your course first, then ${first}\u2019s briefs. One a day.</p>
+    <p class="lede">Your course first, then ${first}\u2019s briefs.</p>
     ${course}
     ${campaign}
   `, { tabs: "library" });
@@ -5641,11 +5651,21 @@ function statusNow() {
    course, Gold 5, Platinum 10, Diamond 20. Second metric: volunteers recruited via a personal invite link; doors
    knocked and shift confirmation are skipped for now. Supersedes the ready-shift tiers of warmup-profile-status-plan.md. */
 const PG_ARCS = ["M31.5 90.5 A46 46 0 0 1 18.1 55.6", "M18.8 49.6 A46 46 0 0 1 40.0 18.8", "M45.3 16.0 A46 46 0 0 1 82.7 16.0", "M88.0 18.8 A46 46 0 0 1 109.2 49.6", "M109.9 55.6 A46 46 0 0 1 96.5 90.5"];
-const TIERS5 = [["Silver", 1, "A thank-you from the candidate, and a card to share"], ["Gold", 5, "Tougher voters to practice against"], ["Platinum", 10, "The full course library"], ["Diamond", 20, "First look at new lessons, and your say on them"]]; /* version 144 (Robert, Nov 2): rewards are standing, not stuff */
+const TIERS5 = [["Silver", 1, "A thank-you from the candidate, and a card to share"], ["Gold", 5, "Tougher voters to practice against"], ["Platinum", 10, "Every Warmup course on Learn, not just your campaign\u2019s"], ["Diamond", 20, "First look at new lessons, and your say on them"]]; /* version 144 (Robert, Nov 2): rewards are standing, not stuff */
 /* version 144 (Robert, Nov 2): the streak counts lesson days and practice days, back from today (or from yesterday, if today is still open) */
 const dayKey = (t) => { const d = new Date(t); return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); };
 function pathDays() { const set = {}; Object.values(S.doneAt || {}).forEach((t) => { set[dayKey(t)] = 1; }); (S.practDays || []).forEach((k) => { set[k] = 1; }); return set; }
-function pathStreak(days) { let n = 0, t = Date.now(); if (!days[dayKey(t)]) t -= 86400000; while (days[dayKey(t)]) { n += 1; t -= 86400000; } return n; }
+function pathStreak(days) { /* version 145: one miss a week is forgiven, if the run continues behind it (today still open does not count as a miss) */
+  let n = 0, t = Date.now(), lastFreeze = -99;
+  if (!days[dayKey(t)]) t -= 86400000;
+  for (let i = 0; i < 400; i += 1) {
+    if (days[dayKey(t)]) n += 1;
+    else if (i - lastFreeze > 7 && days[dayKey(t - 86400000)]) lastFreeze = i;
+    else break;
+    t -= 86400000;
+  }
+  return n;
+}
 function vProgressG() {
   /* version 144 (Robert, Nov 2): Progress leads with what is next (the saved lesson, the lessons to door-ready, the one unlock that
      brings) and then says what she has done (the streak, the record, the badges). The ladder lives on How status works, one tap away,
@@ -5653,7 +5673,7 @@ function vProgressG() {
      The program itself is in the version 144 builder's notes and the plan's Decisions. */
   const d5 = S.done5 || {}, nd = LESSONS5.filter((x) => d5[x.n]).length, done = nd >= 5 ? 1 : 0, camp = CAMPAIGN[S.track] || CAMPAIGN.gotv, first = camp.name.split(" ")[0];
   const lastL = LESSONS5.filter((x) => d5[x.n]).pop(), left = 5 - nd, sc = lastL ? d5[lastL.n].filter(Boolean).length : 0; /* version 138: the lesson she saved last and its score */
-  const heroB = !lastL ? "Lesson 1" : nd >= 5 ? "Door-ready" : `Lesson ${lastL.n} \u00b7 ${sc} of 4`, heroS = nd >= 5 ? "All five lessons saved." : `${left} lesson${left === 1 ? "" : "s"} to Door-ready`;
+  const heroB = !lastL ? "Lesson 1" : nd >= 5 ? "Door-ready" : `Lesson ${lastL.n} \u00b7 ${sc} of 4`, heroS = nd >= 5 ? "All five lessons saved." : `${left} lesson${left === 1 ? "" : "s"} to door-ready`;
   const next = TIERS5.find((t) => done < t[1]) || TIERS5[TIERS5.length - 1];
   const gauge = `<span class="prog-gauge"><svg viewBox="0 0 128 112" aria-label="${nd} of 5 lessons saved toward ${next[0]}">${PG_ARCS.map((d, i) => `<path class="pgn${i < nd ? " on" : ""}" d="${d}"/>`).join("")}</svg><span class="pg-num"><b class="num">${nd}/5</b><small>lessons</small></span></span>`;
   const unlock = nd >= 5 ? `<span><b>Silver</b> this year. Gold at 5 courses brings tougher voters to practice against.</span>` : `<span><b>Door-ready brings Silver:</b> a thank-you from ${first} and a card to share.</span>`;
@@ -5666,10 +5686,10 @@ function vProgressG() {
   const skTxt = streak === 0 ? `<b>Start your streak today</b><small>Lessons and practice both count. One miss a week is forgiven.</small>` : `<b>${streak}-day streak</b><small>Lessons and practice both count. One miss a week is forgiven.</small>`;
   /* the record */
   const doors = nd * 2 + (S.doorsN || 0);
-  const rec = `<div class="rec"><div><b class="num">${nd}</b><small>lesson${nd === 1 ? "" : "s"}</small></div><div><b class="num">${doors}</b><small>door${doors === 1 ? "" : "s"}</small></div><div><b class="num">${best}</b><small>best run</small></div><div><b class="num">1</b><small>campaign</small></div></div>`;
+  const rec = `<div class="rec"><div><b class="num">${nd}</b><small>lesson${nd === 1 ? "" : "s"}</small></div><div><b class="num">${doors}</b><small>door${doors === 1 ? "" : "s"}</small></div><div><b class="num">${best}</b><small>best streak</small></div><div><b class="num">1</b><small>campaign</small></div></div>`;
   /* the badges: fractions, never a wall of locks */
   const badge = (name, k, of) => { const on = k >= of, zero = k === 0; return `<span class="badge${zero ? " zero" : ""}"><span class="ring-wrap" style="width:46px;height:46px">${ring(Math.min(1, k / of), 46, 6)}<span class="ring-num">${on ? `<span class="pg-done">${tick}</span>` : `<small class="pg-frac num">${k}/${of}</small>`}</span></span>${name}</span>`; };
-  const badges = [badge("Door-ready", nd, 5)].concat(nd >= 5 ? [badge("Briefed", S.briefsDone || 0, 5)] : []).concat([badge("Sharp", S.doorsN || 0, 10), badge("Recruiter", S.recruits || 0, 3)]);
+  const badges = [badge("Door-ready", nd, 5)].concat(nd >= 5 ? [badge("Briefed", S.briefsDone || 0, 5)] : []).concat([badge("Sharp", doors, 20), badge("Recruiter", S.recruits || 0, 3)]);
   return app(`
     <h1 class="h1">Progress</h1>
     <div class="status-card prog-card"><div class="prog-top">${gauge}
@@ -5680,7 +5700,7 @@ function vProgressG() {
     <ol class="sk-week" aria-label="The last seven days">${week}</ol>
     <p class="deb-q">Your record</p>
     ${rec}
-    <p class="rec-note">Yours for keeps. It travels with you to every campaign.</p>
+    <p class="rec-note">Yours for keeps, from campaign to campaign.</p>
     <p class="deb-q">Badges</p>
     <div class="badges${badges.length === 3 ? " b3" : ""}">${badges.join("")}</div>
     <div class="prog-row"><span><b>Bring a friend</b><small>Friends who join through your link count toward Recruiter.</small></span><button class="link" data-act="invite-copy">Share link</button></div>
@@ -5693,10 +5713,12 @@ function vStatusHow() {
   return app(`
     <p class="kicker">Progress</p>
     <h1 class="h1">How status works</h1>
-    <p class="lede sh-p">You earn status by finishing courses: five lessons, one a day, every check passed. Your first course makes you door-ready.</p>
-    <ul class="tiers5">${TIERS5.map((t) => `<li><b>${t[0]}</b><span>${t[1]} course${t[1] > 1 ? "s" : ""}</span><small>${t[2].replace("the candidate", first)}</small></li>`).join("")}</ul>
-    <p class="lede sh-p">Status is for the year and starts fresh each January. Your record never resets, and if you come back next cycle, finishing the course puts you right back at your last tier.</p>
-    <p class="lede sh-p">${first}\u2019s team sees your status, never your practice scores.</p>
+    <p class="lede sh-p">You earn status by finishing courses: five lessons, one a day, every check passed. Your first course makes you door-ready and Silver.</p>
+    <ul class="sh-list">${TIERS5.map((t) => `<li><b>${t[0]}</b><span>${t[1]} course${t[1] > 1 ? "s" : ""}</span><small>${t[2].replace("the candidate", first)}</small></li>`).join("")}</ul>
+    <p class="lede sh-p">After your ten, the path keeps going: more courses from Warmup and from your campaign, one lesson a day.</p>
+    <p class="lede sh-p">Badges: Door-ready (your course), Briefed (the five briefs), Sharp (20 doors), Recruiter (3 friends you bring).</p>
+    <p class="lede sh-p">Status is for the year and starts fresh each January. Your record never resets, and if you come back next cycle, finishing the course puts you right back where you were.</p>
+    <p class="lede sh-p">${first}\u2019s team sees your status, never your scores.</p>
   `, { back: "me", noBrand: true, footer: `<button class="btn" data-act="go" data-arg="me">Got it</button>` });
 }
 function vMe() {
@@ -7486,7 +7508,7 @@ function vTodayG() {
   /* the head: her name and where she is */
   const words = ["", "One", "Two", "Three", "Four", "Five"], left = 5 - nd;
   const h1 = nd === 0 ? `Welcome, ${esc(name)}.` : nd >= 5 ? `Door-ready, ${esc(name)}.` : `${words[nd]} down, ${esc(name)}.`;
-  const sub = nd === 0 ? `Five lessons to door-ready, one each morning. Then ${first}\u2019s briefs.` : nd >= 5 ? `${first}\u2019s briefs start tomorrow: five issues, one a day.` : `${left} more morning${left === 1 ? "" : "s"} to door-ready, then ${first}\u2019s briefs.`;
+  const sub = nd === 0 ? `Five lessons to door-ready, one each morning. Then ${first}\u2019s briefs.` : nd >= 5 ? `${first}\u2019s briefs start tomorrow: five issues, one a day.` : `${left} morning${left === 1 ? "" : "s"} to door-ready, then ${first}\u2019s briefs.`;
   const head = `<div class="td-head"><p class="kicker td-k">Your path \u00b7 ${nd} of 10</p><h1 class="td-h">${h1}</h1><p class="td-sub">${sub}</p></div>`;
   /* the path: five lessons, then the campaign's five briefs */
   const dots = [];
@@ -7505,7 +7527,7 @@ function vTodayG() {
   }
   /* tomorrow's text: she picks the hour (an implementation intention; Nickerson and Rogers 2010, the same science as lesson 4) */
   const times = ["7 AM", "Noon", "6 PM"];
-  const chips = `<div class="tt"><span class="tt-l">${S.textAt ? "Text set for" : "Text me at"}</span>${times.map((t) => `<button class="tt-chip${S.textAt === t ? " on" : ""}" data-act="text-at" data-arg="${t}" aria-pressed="${S.textAt === t}">${t}</button>`).join("")}</div>`;
+  const chips = `<div class="tt"><span class="tt-l">Text me at</span>${times.map((t) => `<button class="tt-chip${S.textAt === t ? " on" : ""}" data-act="text-at" data-arg="${t}" aria-pressed="${S.textAt === t}">${t}</button>`).join("")}</div>`;
   let hero;
   if (!nx) {
     /* version 140 (Robert, open call 6): after lesson 5, Today points at the briefing, not the Warmup */
@@ -8808,7 +8830,8 @@ document.addEventListener("click", (e) => {
     case "text-at": S.textAt = S.textAt === arg ? null : arg; render(); break; /* version 142 (Robert): the hour the text comes tomorrow, a plan she makes herself */
     case "invite-copy": try { navigator.clipboard.writeText("https://yourwarmup.com/kaur"); } catch (e) { /* ignore */ } toast("Invite link copied."); break; /* version 126 */
     case "course-open": S.courseN = Number(arg); go("course"); break; /* version 125 */
-    case "issues-open": issuesOpen(); break; /* version 130 (Robert, Oct 31): the campaign issue lessons open from Learn */
+    case "issues-open": issuesOpen(); break;
+    case "brief-open": { const d5 = S.done5 || {}; if (LESSONS5.every((x) => d5[x.n])) issuesOpen(); else toast("Opens when you\u2019re door-ready, on day 6."); break; } /* version 145 */ /* version 130 (Robert, Oct 31): the campaign issue lessons open from Learn */
     case "course-tell": S.courseTold = S.courseTold || {}; S.courseTold[S.courseN || 10] = true; render(); toast("You\u2019re on the list. We\u2019ll text you when it\u2019s ready."); break;
     case "lib-open": S.lib.open = arg; S.lib.sheet = null; go("training"); break;
     case "lib-trainer": S.lib.q = TRAINERS[arg].name; go("library"); break;
