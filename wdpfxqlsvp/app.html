@@ -1816,7 +1816,7 @@
   /* version 148: Progress B, Your record, the Silver moment */
   .pg { min-height: 100%; display: flex; flex-direction: column; }
   .content:has(> .pg) { container-type: size; } /* the ring sizes to the room the screen has, in the laptop pane too */
-  .pg-main { flex: 1 0 auto; display: flex; flex-direction: column; justify-content: center; padding-bottom: 14px; }
+  .pg-main { flex: 1 0 auto; display: flex; flex-direction: column; justify-content: center; padding-bottom: 8px; }
   .app.no-brand > .content:has(> .pg) { padding-top: 14px; padding-bottom: 0; display: flex; flex-direction: column; }
   .content > .pg { flex: 1 0 auto; }
   .pg-head { position: relative; display: flex; justify-content: space-between; align-items: baseline; }
@@ -1826,7 +1826,7 @@
   .pg-head .kicker + .scr-tag { top: 0; margin-top: 0; }
   .app.sv > .scr-tag { top: auto; bottom: 16px; right: 24px; }
   .pg-hero { display: flex; flex-direction: column; align-items: center; text-align: center; }
-  .pg-ring { --rw: clamp(170px, calc(100cqh - 390px), 316px); position: relative; width: var(--rw); margin-top: 8px; }
+  .pg-ring { --rw: clamp(170px, calc(100cqh - 414px), 316px); position: relative; width: var(--rw); margin-top: 8px; }
   .pg-ring svg { display: block; width: 100%; height: auto; }
   .pg-ctr { position: absolute; left: 0; right: 0; top: 56%; transform: translateY(-58%); display: flex; flex-direction: column; align-items: center; }
   .pg-num { font-family: "Newsreader", Georgia, serif; font-weight: 600; font-size: calc(var(--rw) * 0.31); line-height: 1; letter-spacing: 0.01em; color: var(--ink); }
@@ -1836,8 +1836,9 @@
   .pg-unlock .nw { white-space: nowrap; }
   .pg-unlock svg { position: relative; top: 1px; margin-right: 5px; } .pg-unlock b { font-weight: 700; }
   .pg-cta { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 52px; margin-top: 14px; border: 0; border-radius: 15px; background: #3E7C4F; color: #FDFBF6; font-family: "Figtree", system-ui, sans-serif; font-weight: 700; font-size: 16.5px; box-shadow: 0 4px 0 #2B5C3A; cursor: pointer; transition: transform 0.08s ease, box-shadow 0.08s ease; }
+  .pg-when { margin: 10px 0 0; font-size: 13px; font-weight: 600; color: #5B554D; }
   .pg-cta:active { transform: translateY(3px); box-shadow: 0 1px 0 #2B5C3A; }
-  .pg-sk { display: flex; gap: 12px; align-items: flex-start; margin-top: 20px; }
+  .pg-sk { display: flex; gap: 12px; align-items: flex-start; margin-top: 16px; }
   .pg-flame { flex: none; width: 34px; height: 34px; border-radius: 50%; background: #F8E7D6; display: grid; place-items: center; margin-top: 1px; }
   .pg-sk > div { display: grid; gap: 1px; min-width: 0; } .pg-sk b { font-size: 15px; } .pg-sk small { font-size: 12.5px; line-height: 1.4; color: #8D877A; text-wrap: pretty; }
   .pg-week { list-style: none; margin: 10px 0 0; padding: 0 2px; display: grid; grid-template-columns: repeat(7, 1fr); }
@@ -5813,6 +5814,8 @@ function vProgressG() {
   const mid = !brief && S.lesson && !c.d5[S.lesson] && (S.lessonAt || 0) > 0 && S.lesson <= 5;
   const lastL = LESSONS5.filter((x) => c.d5[x.n]).pop();
   const btn = brief ? [`Open ${first}’s briefs`, "issues-open", ""] : mid ? [`Continue Lesson ${S.lesson}`, "lesson5", String(S.lesson)] : lastL ? [`Retake Lesson ${lastL.n}`, "retake5", String(lastL.n)] : ["Start Lesson 1", "lesson5", "1"];
+  /* version 148 (Robert, 2:05 PM PT, "1"): say when to come back, under the button (lessons 2 to 5 open by text the next morning) */
+  const when = !brief && !mid && c.nd >= 1 && c.nd < 5 ? `Lesson ${c.nd + 1} opens tomorrow morning.` : "";
   /* the streak and the last seven days, today at the right */
   const days = pathDays(), streak = pathStreak(days), best = Math.max(streak, S.bestStreak || 0); S.bestStreak = best;
   const today = new Date(), letters = ["S", "M", "T", "W", "T", "F", "S"];
@@ -5824,7 +5827,7 @@ function vProgressG() {
       <div class="pg-ring${brief ? " brief" : ""}" role="img" aria-label="${n} of 5 ${word}s done">${pgRing(n, brief)}<div class="pg-ctr"><b class="pg-num">${n}</b><small>${WORD}${n === 1 ? "" : "S"} DONE</small></div></div>
       <h2 class="pg-take">${take}</h2>
       <p class="pg-unlock">${brief ? "" : PG_LOCK("#24231C")}${unlock}</p>
-      <button class="pg-cta" data-act="${btn[1]}" data-arg="${btn[2]}">${btn[0]}</button>
+      <button class="pg-cta" data-act="${btn[1]}" data-arg="${btn[2]}">${btn[0]}</button>${when ? `<p class="pg-when">${when}</p>` : ""}
     </div>
     <div class="pg-sk"><span class="pg-flame">${PG_FLAME}</span><div><b>${streak ? `${streak}-day streak` : "Start your streak today"}</b><small>Lessons and practice both count. One miss a week is forgiven.</small></div></div>
     <ol class="pg-week" aria-label="The last seven days">${week}</ol></div>
