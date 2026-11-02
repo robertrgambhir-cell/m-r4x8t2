@@ -1628,6 +1628,34 @@
   .br-n { background: var(--soft); } .br.more .br-n svg { width: 13px; height: 13px; }
   .br-t small { display: block; font-size: 12.5px; color: var(--ink-3); line-height: 1.3; }
   @media (max-height: 700px) { .lrn-course { padding: 11px 12px 8px; } .lrn-list .lr-b, .lrn-list li > .br { padding: 7px 2px; } }
+  /* version 146 (Robert, Nov 2): the Learn tab is one book of ten chapters on one spine */
+  .lrn-mast { padding: 4px 2px 2px; }
+  .lrn-title { margin: 0; font-family: var(--head-font); font-weight: var(--head-weight); font-size: 23px; }
+  .lrn-mast .path { margin: 10px 0 4px; }
+  .lrn-cap { margin: 0 0 4px; font-size: 12.5px; color: var(--ink-3); }
+  .ch-spine { position: relative; padding: 2px 2px 0; }
+  .ch-spine::before { content: ""; position: absolute; left: 16px; top: 16px; bottom: 14px; width: 2px; background: var(--line); }
+  .ch-spine li + li { border-top: 0; }
+  .ch-spine .lr-b { padding: 6.5px 2px; }
+  .ch-spine .lr-n { position: relative; z-index: 1; }
+  .ch-spine .br2 .lr-n { background: var(--paper); border: 1.5px solid var(--camp); color: var(--camp); }
+  .ch-spine .br2.open .lr-n { background: var(--camp); border-color: var(--camp); color: #FFFFFF; }
+  .ch-spine .br2 .lr-when svg { width: 13px; height: 13px; }
+  .ch-spine .br2.open .lr-when { font-size: 20px; line-height: 1; color: var(--ink-3); }
+  .ch-gate { position: relative; }
+  .gate-b { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; width: 100%; padding: 8px 2px; background: none; border: 0; text-align: left; color: inherit; font: inherit; cursor: pointer; }
+  .gate-av { position: relative; z-index: 1; width: 30px; height: 30px; margin-left: -1px; border-radius: 50%; object-fit: cover; border: 2px solid var(--paper); box-shadow: 0 0 0 1.5px var(--camp); }
+  .gate-t { min-width: 0; }
+  .gate-t b { display: block; font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--camp); }
+  .gate-t small { display: block; font-size: 12px; color: var(--ink-3); line-height: 1.3; margin-top: 1px; }
+  .gate-go { font-size: 20px; line-height: 1; color: var(--ink-3); }
+  .ch-more { position: relative; display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: center; padding: 6px 2px 2px; }
+  .ch-more .mn { position: relative; z-index: 1; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--paper); border: 1.5px solid var(--line); color: var(--ink-3); }
+  .ch-more .mn svg { width: 13px; height: 13px; }
+  .ch-more .mt { font-size: 12px; color: var(--ink-3); line-height: 1.3; }
+  .lrn-after { display: flex; gap: 7px; align-items: center; justify-content: center; margin: 8px 2px 0; padding-top: 9px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-3); }
+  .lrn-after svg { width: 12px; height: 12px; flex: none; }
+  @media (max-height: 700px) { .lrn-mast .path { margin: 7px 0 3px; } .ch-spine .lr-b { padding: 5px 2px; } .gate-b { padding: 6px 2px; } .lrn-title { font-size: 21px; } }
   /* version 144 (Robert, Nov 2): Progress leads with what is next, then the record; the ladder lives one tap away */
   .prog-unlock { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0 0; padding-top: 11px; border-top: 1px solid rgba(255, 255, 255, 0.14); font-size: 13.5px; line-height: 1.35; color: var(--on-ink); }
   .prog-unlock svg { flex: none; width: 14px; height: 14px; margin-top: 2px; opacity: 0.8; }
@@ -4275,7 +4303,7 @@ function vSoon() {
    Today's button, the library) lands on one locked screen; Lesson 1 done and Today say the next lesson is locked. To unlock: set LOCK_ON to false and republish. */
 const LOCK_ON = true;
 const lessonLocked = (n) => LOCK_ON && S.track === "gotv" && Number(n) >= 2;
-const LOCK_LINE = (n) => `A new lesson opens every morning. You\u2019ll get a text as soon as lesson ${n} is ready.`;
+const LOCK_LINE = (n) => `A new chapter opens every morning. You\u2019ll get a text as soon as chapter ${n} is ready.`;
 function vLocked() {
   /* version 145: says which day the lesson opens and goes back to where she came from (Learn or Today) */
   const n = S.lockN || 2, d5 = S.done5 || {}, nx = LESSONS5.find((x) => !d5[x.n]), isNext = !!nx && nx.n === n;
@@ -4283,8 +4311,8 @@ function vLocked() {
   return app(`
     <div class="soon">
       <span class="ring-wrap soon-ring">${ring(0.2, 112, ringW(112))}</span>
-      <p class="kicker">Lesson ${n} of 5</p>
-      <h1 class="h1">${isNext ? "Your next lesson opens tomorrow." : `Lesson ${n} opens on day ${n}.`}</h1>
+      <p class="kicker">Chapter ${n} of 10</p>
+      <h1 class="h1">${isNext ? "Your next chapter opens tomorrow." : `Chapter ${n} opens on day&nbsp;${n}.`}</h1>
       <p class="lede">${LOCK_LINE(n)}</p>
     </div>
   `, { tabs: from === "library" ? "library" : "today", stage: true, primary: [from === "library" ? "Back to Learn" : "Back to Today", "go", from] });
@@ -4301,7 +4329,7 @@ const NOTES = {
   pick: ["Every program in the cycle", "Signatures a year or more out, registration six months or more out, deep canvassing for persuasion in the months before and turnout in the final two weeks, at the door or by vote tripling at a busy site."],
   video: ["A welcome from the candidate", "About a minute, filmed on an iPhone. Maya Kaur, the candidate, talks to the camera at home: why the campaign needs you, that the in-person training comes first and that Warmup gets you door-ready before your shift. On \u201cstarting with how to introduce yourself,\u201d her iPhone fills the frame, in her hand, and plays lesson 1 the way the volunteer will meet it, timed to her words: the lesson opening, a first try at Sofia\u2019s door, Listen in with the moves ticking, Kevin\u2019s door with the volunteer speaking out loud and Kevin talking back, the feedback, Lesson 1 done at 1/5 and Today with lessons 2 to 5. Then it cuts back to her for the ask. She\u2019s a real person reading the script in her own words, so this is the version to compare with the AI welcome."],
   sms: ["SMS-delivered", "Nobody has the campaign\u2019s number saved, so a real person signs the text and says who they\u2019re with. At sign-up the campaign says to expect it, so it never reads as spam. The link opens the lesson, with nothing to download. Testing with someone? Tell them first: you\u2019ll play a volunteer and talk out loud with a pretend voter."],
-  welcome: ["Today: one path, today\u2019s lesson, tomorrow\u2019s door", "Version 142 (Robert, Nov 2). The head says where she is by name, the ten dots show the whole path (five lessons to door-ready, then the campaign\u2019s five briefs), one row holds today\u2019s lesson with its score and the one part to work on, and the hero holds tomorrow: the shut door, the hour she wants the text (a plan she makes herself, the plan-making lesson 4 teaches) and the line that she can close this. No clock: a new lesson opens every morning. After lesson 5 the hero is the campaign\u2019s briefing (version 140). Every lesson by name lives on Learn."],
+  welcome: ["Today: one path, today\u2019s lesson, tomorrow\u2019s door", "Version 142 (Robert, Nov 2). The head says where she is by name, the ten dots show the whole path (five lessons to door-ready, then the campaign\u2019s five briefs), one row holds today\u2019s lesson with its score and the one part to work on, and the hero holds tomorrow: the shut door, the hour she wants the text (a plan she makes herself, the plan-making lesson 4 teaches) and the line that she can close this. No clock: a new lesson opens every morning. After lesson 5 the hero is the campaign\u2019s briefing (version 140). Every lesson by name lives on Learn. Version 146: the counts say chapters (Your path \u00b7 1 of 10 chapters; Tomorrow: Chapter 2 of 10)."],
   intake: ["Find your starting point (off the main path since version 64)", "One question: their experience. The heads-up that practice happens out loud comes right before they first speak: before the opener for veterans, after the four cards for first-timers. Each answer is reflected back, and the name comes from the sign-up list."],
   talk: ["Right before they speak (off the main path since version 64)", "The talk-or-type question waits until the first moment it matters, so first-timers aren\u2019t asked about practicing out loud before they know what Saturday looks like."],
   placement: ["Everyone shows their opener", "Since version 64 (Robert, Oct 11) there is no experience question and no talk-or-type question: the first try places you. A Knock first, so nobody is put on the spot; the box says typing works if you can\u2019t talk. A strong opener skips Watch. The first-timer cards still exist for the presenter menu and \u201cHow Saturday works\u201d: Saturday as a story: six tap-through cards (tap or swipe, auto-advancing like Instagram Stories), each a small animation and one line, ending on a pass with when, where, how long and what to bring. First-timers learn how a canvass works before any technique, and a concrete where and when makes people likelier to show up. Four cards, no test, so their first graded moment is a likely win. Veterans show their opener and get feedback on it right away, on the same screen that opens the lesson; a strong one skips the demo. No level on screen: placement changes what comes next, not a label. The heading says why we ask (version 65): the opener tells us where to start the lesson. The card shows the four moves as checks and the misses as what happened, like the scorecard (version 66). One rule, two paths (version 67): all four moves goes straight to Your turn, nothing re-taught; anything less gets the full lesson, with the reps picked from the moves they missed."],
@@ -4319,7 +4347,7 @@ const NOTES = {
   ready: ["Visible readiness", "Preparation shows up as a badge and a record that carries across shifts."],
   sms2: ["The cooldown text", "One text, sent when the shift ends, opens the cooldown while it\u2019s fresh."],
   debrief: ["Cooldown", "The stars and the four ratings stay for the campaign. New in version 71: one spoken question, Tell me about one door you\u2019ll remember. The coach names the Tough door it points to and adds one like it to the next Warmup. It ends on Sign up for your next shift?"],
-  library: ["Learn: this campaign\u2019s batch", "Version 143 (Robert, Nov 2). A canvasser sees only what her campaign is doing now: the five lessons of her course by name (saved with its score and Retake, tomorrow, or the day it opens; the lock said once), then the campaign\u2019s issue briefs by name, opening on day 6, and one locked row for the briefs the campaign adds later. Other tactics are invisible, not locked. The tile still opens the briefing for presenters. Other programs keep the version 28 library."],
+  library: ["Learn: one book of ten chapters", "Version 146 (Robert, Nov 2). One spine: the course name and the ten-dot path on top, chapters 1 to 5 by name with their day, Maya\u2019s byline as the divider (tapping it opens the briefing, the presenter path), chapters 6 to 10 by name with locks until door-ready, a line that Maya adds chapters as issues come up, and a locked after-ten line (more courses from Warmup and your campaign). Once door-ready a chapter row opens its own brief. Counts say chapters; other programs keep the version 28 library."],
   training: ["A library page", "A lesson page holds its moves and why, your best take and Go deeper; a Tough door says what it sharpens. Add to my next Warmup puts it into the next Warmup. Anything not built yet says so and asks for a vote."],
   me: ["Progress: what is next, then what you have done", "Version 144 (Robert, Nov 2). The hero shows the lesson she saved, how many to door-ready and the one unlock that brings (Silver: a thank-you from the candidate and a card to share). Under it, the promise that the campaign sees status, never scores. Then the streak (lesson days and practice days count, one miss a week forgiven) with this week\u2019s days, the record (lessons, doors, best streak, campaigns; yours for keeps, it travels), badges as fractions (Door-ready, Briefed after door-ready, Sharp at 10 practice doors, Recruiter at 3 friends), Bring a friend, and How status works, where the ladder lives: Silver 1 course, Gold 5, Platinum 10, Diamond 20, status for the year with a comeback rule, the record never resets."],
   try: ["Your 1st try, before any teaching", "The volunteer answers out loud before any teaching. Trying first, even wrong, makes the lesson that follows stick (the pretesting effect). Feedback is positive only and never a grade: what they got right and what to watch for. All four moves on the first try goes straight to Your 2nd try, the version 67 rule applied to every lesson. Lesson 1\u2019s try also places them. Version 72: one mic button and no box until it\u2019s tapped, so a phone\u2019s keyboard never opens on its own."],
@@ -4744,7 +4772,7 @@ const ICON = {
 
 /* ---------- shell ---------- */
 /* version 105: the campaign skin is one config (name, the line under it, its one color and the lockup style). Get out the vote only. */
-const CAMPAIGN = { gotv: { name: "Maya Kaur", line: "For Woodbridge City Council", lines: ["For Woodbridge", "City Council"], color: "#1F4C91", soft: "rgba(31, 76, 145, 0.38)", lockup: "stack", briefs: ["Health coverage", "School vouchers", "Your electric bill", "Heating oil", "Tariffs and auto jobs"] } }; /* version 143: the five briefs in issues/, by short name, in the field director\u2019s order */ /* version 142: soft tints the path dots for the campaign briefs */
+const CAMPAIGN = { gotv: { name: "Maya Kaur", line: "For Woodbridge City Council", lines: ["For Woodbridge", "City Council"], color: "#1F4C91", soft: "rgba(31, 76, 145, 0.38)", lockup: "stack", briefs: ["Health insurance", "School vouchers", "Your electric bill", "Heating oil", "Tariffs and auto jobs"], briefIds: ["ga", "tx", "oh", "me", "mi"] } }; /* version 146: "Health insurance", never "coverage" (the playbook rule), and each brief\u2019s lesson id in issues/ for the door-ready deep link */ /* version 143: the five briefs in issues/, by short name, in the field director\u2019s order */ /* version 142: soft tints the path dots for the campaign briefs */
 const campNow = () => (S && CAMPAIGN[S.track]) || null;
 function campMark(c) {
   c = c || campNow();
@@ -5569,31 +5597,33 @@ const COURSES = [
 const LOCK_S = `<svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`;
 const courseLock = (c) => (c.live ? "" : c.soon ? "Coming soon" : PLAT_LOCK[c.n] ? "Unlocks at Platinum" : "Unlocks after your current course");
 function vLearnG() {
-  /* version 143 (Robert, Nov 2): a canvasser sees only this campaign's batch. During GOTV the signature and registration courses are
-     invisible, not locked. The page is the course by lesson (saved with its score and Retake, tomorrow, or the day it opens; the lock
-     said once), then the campaign's issue briefs by name, opening on day 6, and one locked row for the briefs the campaign adds later.
-     The tile stays tappable for presenters (version 139). The 28-course shelf (version 125) stays in the file for the day a volunteer
-     has more than one batch. */
+  /* version 146 (Robert, Nov 2): one book of ten chapters on one spine. Chapters 1 to 5 are the course, in order, one a day; 6 to 10 are
+     the campaign's briefs, any order once door-ready, under Maya's byline; a quiet locked line carries the after-ten promise in How
+     status works' words. The "Learn / Your course first" header is gone. The divider is the presenter's door to the briefing (the
+     version 143 tile retired) and, once door-ready, each chapter row opens its own brief by its lesson id. Counts say "chapters" (the
+     canvasser word for a path position; a chapter is a lesson or a brief). The 28-course shelf (version 125) stays for other programs. */
   const d5 = S.done5 || {}, nd = LESSONS5.filter((x) => d5[x.n]).length, nx = LESSONS5.find((x) => !d5[x.n]);
-  const camp = CAMPAIGN[S.track] || CAMPAIGN.gotv, first = camp.name.split(" ")[0], briefs = camp.briefs || [];
+  const camp = CAMPAIGN[S.track] || CAMPAIGN.gotv, first = camp.name.split(" ")[0], briefs = camp.briefs || [], ids = camp.briefIds || [];
+  const ready = nd >= 5, total = 5 + briefs.length;
   const check = `<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const row = (L) => {
+  const dots = [];
+  for (let i = 1; i <= total; i += 1) {
+    const done = i <= nd, next = i === nd + 1, brief = i > 5, label = i === 5 ? "Door-ready" : i === total ? "Briefed" : "";
+    dots.push(`<li class="pd${done ? " done" : ""}${next ? " next" : ""}${brief ? " brief" : ""}"><span class="pd-dot">${done ? check : ""}</span>${label ? `<small>${label}</small>` : ""}</li>`);
+  }
+  const mast = `<div class="lrn-mast"><h1 class="lrn-title">GOTV canvassing</h1><ol class="path" style="--camp:${camp.color};--camp-soft:${camp.soft}" aria-label="${nd} of ${total} chapters saved">${dots.join("")}</ol><p class="lrn-cap">${ready ? `Door-ready \u00b7 ${first}\u2019s chapters are open` : `${nd} of ${total} chapters saved \u00b7 door-ready at 5`}</p></div>`;
+  const lrow = (L) => {
     const done = d5[L.n], next = !!nx && nx.n === L.n, lk = !done && lessonLocked(L.n);
     const when = done ? `Saved \u00b7 ${done.filter(Boolean).length} of 4` : next ? (lk ? "Tomorrow" : "Today") : `Day ${L.n}`;
-    const short = L.title.replace(/^How to /, ""), title = short.charAt(0).toUpperCase() + short.slice(1); /* the list drops "How to": the course head already says what these are */
-    return `<li class="lr${done ? " done" : ""}${next ? " next" : ""}${lk && !next ? " locked" : ""}"><button class="lr-b" data-act="lesson5" data-arg="${L.n}"><span class="lr-n">${done ? check : L.n}</span><span class="lr-t"><b>${title}</b></span><span class="lr-when">${when}</span></button>${done ? `<button class="link retake5" data-act="retake5" data-arg="${L.n}">Retake</button>` : ""}</li>`;
+    const short = L.title.replace(/^How to /, ""), title = short.charAt(0).toUpperCase() + short.slice(1); /* the spine drops "How to": the course head already says what these are (version 143) */
+    return `<li class="lr ch${done ? " done" : ""}${next ? " next" : ""}${lk && !next ? " locked" : ""}"><button class="lr-b" data-act="lesson5" data-arg="${L.n}"><span class="lr-n">${done ? check : L.n}</span><span class="lr-t"><b>${title}</b></span><span class="lr-when">${when}</span></button>${done ? `<button class="link retake5" data-act="retake5" data-arg="${L.n}">Retake</button>` : ""}</li>`;
   };
-  const course = `<section class="lrn-course"><div class="lrn-head"><p class="kicker">Your course</p><b>GOTV canvassing</b><span class="ln-notches" aria-label="${nd} of 5 lessons done">${[0, 1, 2, 3, 4].map((i) => `<i class="ln-notch${i < nd ? " on" : ""}"></i>`).join("")}</span><small>${nd >= 5 ? "All five saved. You\u2019re door-ready." : `${nd} of 5 saved \u00b7 door-ready at 5`}</small></div><ol class="lrn-list">${LESSONS5.map(row).join("")}</ol><p class="lrn-note">${nd >= 5 ? "Retake any lesson, any time." : "A new lesson opens every morning."}</p></section>`;
-  const tile = `<button class="camp-tile" data-act="issues-open"><img src="${CAND_PHOTO}" alt=""><span class="ct-main"><small class="ct-k">From ${camp.name}\u2019s campaign</small><b>The 5 issues voters are raising at the door</b>${nd >= 5 ? `<small>5 minutes each \u00b7 learn it, then practice at a voter\u2019s door</small>` : `<small class="ct-lock">${LOCK_SVG}Opens when you\u2019re door-ready \u00b7 Day 6</small>`}</span><span class="go">\u203a</span></button>`;
-  const briefRows = briefs.map((bf) => `<li class="br"><button class="br${nd >= 5 ? " open" : ""}" data-act="brief-open" data-arg="${esc(bf)}"><span class="br-n"></span><span class="br-t"><b>${esc(bf)}</b></span>${nd >= 5 ? `<span class="lr-when">\u203a</span>` : ""}</button></li>`).join(""); /* version 145: a tap says when they open, or opens the briefing once door-ready; no numbers, since any order */
-  const more = `<li class="br more"><div class="br"><span class="br-n">${LOCK_SVG}</span><span class="br-t"><b>More from ${first}\u2019s campaign</b><small>New briefs land here as issues come up at the door.</small></span></div></li>`;
-  const campaign = `<section class="lrn-camp">${tile}<ol class="lrn-list br-list">${briefRows}${more}</ol><p class="lrn-note">${nd >= 5 ? "Any order, one a day." : "Any order, one a day, from day 6."}</p></section>`;
-  return app(`
-    <h1 class="h1">Learn</h1>
-    <p class="lede">Your course first, then ${first}\u2019s briefs.</p>
-    ${course}
-    ${campaign}
-  `, { tabs: "library" });
+  const gate = `<li class="ch-gate"><button class="gate-b" data-act="issues-open"><img class="gate-av" src="${CAND_PHOTO}" alt=""><span class="gate-t"><b>From ${camp.name}\u2019s campaign</b><small>${ready ? "Any order, one a day." : "Any order, one a day, once you\u2019re door-ready."}</small></span><span class="gate-go">\u203a</span></button></li>`;
+  const brow = (bf, i) => `<li class="lr ch br2${ready ? " open" : " locked"}"><button class="lr-b" data-act="brief-open" data-arg="${esc(bf)}" data-lesson="${ids[i] || ""}"><span class="lr-n">${i + 6}</span><span class="lr-t"><b>${esc(bf)}</b></span><span class="lr-when">${ready ? "\u203a" : LOCK_SVG}</span></button></li>`;
+  const more = `<li class="ch-more"><span class="lr-n mn"><svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3.5v9M3.5 8h9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span class="mt">${first} adds new chapters as issues come up at the door.</span></li>`; /* a plus, not a lock: it promises future chapters, it locks nothing (the reviewer's catch) */
+  const spine = `<ol class="lrn-list ch-spine" style="--camp:${camp.color};--camp-soft:${camp.soft}">${LESSONS5.map(lrow).join("")}${gate}${briefs.map(brow).join("")}${more}</ol>`;
+  const after = `<p class="lrn-after">${LOCK_SVG}<span>After ${total}: more courses from Warmup and your campaign.</span></p>`;
+  return app(`${mast}${spine}${after}`, { tabs: "library" });
 }
 function vCourseG() {
   const c = COURSES.find((x) => x.n === (S.courseN || 10)) || COURSES[9];
@@ -6871,10 +6901,10 @@ function closeStory(n, cnt, nx, R, after, anim, key) {
     const d5 = S.done5 || {};
     const path = LESSONS5.map((L, j) => { const done = !!d5[L.n], isNext = !!nx && L.n === nx.n; return `<div class="dn-pw${isNext ? " on" : ""}"><span class="dn-pt${done ? " done" : isNext ? " next" : ""}">${done ? CHECK : L.n}</span>${CLOSE_NAMES[j]}</div>`; }).join("");
     const locked = !!nx && lessonLocked(nx.n);
-    const h = !nx ? `Next is ${(CAMPAIGN[S.track] || CAMPAIGN.gotv).name.split(" ")[0]}\u2019s briefing.` : locked ? `Lesson ${nx.n} unlocks tomorrow.` : `Lesson ${nx.n} comes by text tomorrow.`;
-    const lede = !nx ? "Five short lessons on the issues voters raise. The first opens tomorrow." : locked ? "There\u2019ll be a new 5 minute lesson every morning. You\u2019ll get a text when it\u2019s ready." : "One new lesson a day, five minutes each.";
-    const nextCard = nx ? `<div class="dn-next"><p><b>Lesson ${nx.n}: ${nx.title}.</b></p></div>` : "";
-    const arc = nx ? "Finish all five lessons and you\u2019ll have a strong foundation for great conversations at the door." : "You have all five moves for your canvass.";
+    const h = !nx ? `Next is ${(CAMPAIGN[S.track] || CAMPAIGN.gotv).name.split(" ")[0]}\u2019s briefing.` : locked ? `Chapter ${nx.n} unlocks tomorrow.` : `Chapter ${nx.n} comes by text tomorrow.`;
+    const lede = !nx ? "Five short lessons on the issues voters raise. The first opens tomorrow." : locked ? "There\u2019ll be a new 5 minute chapter every morning. You\u2019ll get a text when it\u2019s ready." : "One new lesson a day, five minutes each.";
+    const nextCard = nx ? `<div class="dn-next"><p><b>Chapter ${nx.n}: ${nx.title}.</b></p></div>` : "";
+    const arc = nx ? "Finish all five chapters and you\u2019ll have a strong foundation for great conversations at the door." : "You have all five moves for your canvass.";
     body = `<div class="dn3"><p class="kicker">What\u2019s next</p><h1 class="h1">${h}</h1><p class="lede">${lede}</p><div class="dn-path">${path}</div>${nextCard}<p class="dn-arc">${arc}</p>${oneOffer(n, d5, R)}</div>`;
     footer = button(["Done for today", "go", "welcome"]);
   }
@@ -6894,7 +6924,7 @@ function vClose5() {
   return app(`
     <div class="wrap-bar">${progressBar(99)}</div>
     ${doneHero(n, cnt, gain, anim)}
-    <div class="next-two">${nx && lessonLocked(nx.n) ? `<p><b>Your next lesson is locked for now.</b></p><p>${LOCK_LINE(nx.n)}</p>` : nx ? `<p><b>Lesson ${nx.n} comes by text tomorrow.</b></p>` : `<p><b>Next is your Warmup</b>, two doors and one tip, right before your canvass.</p>`}</div>
+    <div class="next-two">${nx && lessonLocked(nx.n) ? `<p><b>Your next chapter is locked for now.</b></p><p>${LOCK_LINE(nx.n)}</p>` : nx ? `<p><b>Chapter ${nx.n} comes by text tomorrow.</b></p>` : `<p><b>Next is your Warmup</b>, two doors and one tip, right before your canvass.</p>`}</div>
     ${oneOffer(n, d5, R)}
   `, { noBack: true, footer: button(["Done for today", "go", "welcome"]) }); /* Maya Kaur version: no time chips; the path shows what comes next (Robert) */
 }
@@ -7509,7 +7539,7 @@ function vTodayG() {
   const words = ["", "One", "Two", "Three", "Four", "Five"], left = 5 - nd;
   const h1 = nd === 0 ? `Welcome, ${esc(name)}.` : nd >= 5 ? `Door-ready, ${esc(name)}.` : `${words[nd]} down, ${esc(name)}.`;
   const sub = nd === 0 ? `Five lessons to door-ready, one each morning. Then ${first}\u2019s briefs.` : nd >= 5 ? `${first}\u2019s briefs start tomorrow: five issues, one a day.` : `${left} morning${left === 1 ? "" : "s"} to door-ready, then ${first}\u2019s briefs.`;
-  const head = `<div class="td-head"><p class="kicker td-k">Your path \u00b7 ${nd} of 10</p><h1 class="td-h">${h1}</h1><p class="td-sub">${sub}</p></div>`;
+  const head = `<div class="td-head"><p class="kicker td-k">Your path \u00b7 ${nd} of 10 chapters</p><h1 class="td-h">${h1}</h1><p class="td-sub">${sub}</p></div>`;
   /* the path: five lessons, then the campaign's five briefs */
   const dots = [];
   for (let i = 1; i <= 10; i += 1) {
@@ -7523,7 +7553,7 @@ function vTodayG() {
   if (lastL) {
     const hits = d5[lastL.n], sc = hits.filter(Boolean).length, mi = hits.findIndex((h) => !h), sk = SKILLS[LESSON_SKILL[lastL.n]];
     const tip = mi >= 0 && sk && sk.short && sk.short[mi] ? `Next time: ${esc(sk.short[mi])}.` : "All four parts. Nice.";
-    doneRow = `<div class="td-done"><span class="tick">${check}</span><div class="td-done-txt"><b>Lesson ${lastL.n} saved \u00b7 ${sc} of 4</b><small>${tip}</small></div><button class="link retake5" data-act="retake5" data-arg="${lastL.n}">Retake</button></div>`; /* version 120: a quiet full retake */
+    doneRow = `<div class="td-done"><span class="tick">${check}</span><div class="td-done-txt"><b>Chapter ${lastL.n} saved \u00b7 ${sc} of 4</b><small>${tip}</small></div><button class="link retake5" data-act="retake5" data-arg="${lastL.n}">Retake</button></div>`; /* version 120: a quiet full retake */
   }
   /* tomorrow's text: she picks the hour (an implementation intention; Nickerson and Rogers 2010, the same science as lesson 4) */
   const times = ["7 AM", "Noon", "6 PM"];
@@ -7534,10 +7564,10 @@ function vTodayG() {
     hero = `<div class="hero-next locked brief-next"><p class="hn-k">Up next \u00b7 Day 6</p><h2 class="hn-t">Tomorrow: ${first}\u2019s briefing opens</h2><div class="hn-art hn-cand" aria-hidden="true"><img src="${CAND_PHOTO}" alt=""><span class="hn-art-lock">${LOCK_SVG}</span></div>${chips}<p class="lt-sub">You can close this. We\u2019ll text you ${S.textAt ? "at " + S.textAt : "when it opens"}.</p><div class="hn-links"><button class="link today-more" data-act="go" data-arg="library">Browse Learn</button></div></div>`;
   } else if (locked) {
     /* version 139 (Robert): Tomorrow, no clock; version 129 (from Suman): leaving is the default, Learn is the second path */
-    hero = `<div class="hero-next locked${pulse ? " pulse" : ""}"><p class="hn-k hn-tom">Tomorrow: Lesson ${nx.n} of 5</p><h2 class="hn-t">${nx.title}</h2>${heroDoor(nx.n, true)}${chips}<p class="lt-sub">You can close this. We\u2019ll text you ${S.textAt ? "at " + S.textAt : "lesson " + nx.n}.</p><div class="hn-links"><button class="link" data-act="go" data-arg="whylock">Why one a day</button><button class="link today-more" data-act="go" data-arg="library">Browse Learn</button></div></div>`;
+    hero = `<div class="hero-next locked${pulse ? " pulse" : ""}"><p class="hn-k hn-tom">Tomorrow: Chapter ${nx.n} of 10</p><h2 class="hn-t">${nx.title}</h2>${heroDoor(nx.n, true)}${chips}<p class="lt-sub">You can close this. We\u2019ll text you ${S.textAt ? "at " + S.textAt : "chapter " + nx.n}.</p><div class="hn-links"><button class="link" data-act="go" data-arg="whylock">Why one a day</button><button class="link today-more" data-act="go" data-arg="library">Browse Learn</button></div></div>`;
   } else {
-    const primary = [gated ? "Do it now anyway" : `Start lesson ${nx.n}`, "lesson5", String(nx.n)];
-    hero = `<div class="hero-next${pulse ? " pulse" : ""}"><p class="hn-k">Today \u00b7 Lesson ${nx.n} of 5 \u00b7 5 min</p><h2 class="hn-t">${nx.title}</h2>${heroDoor(nx.n, false)}${gated && at ? `<p class="lt-sub">Opens ${at.say}</p>` : ""}${button(primary)}</div>`;
+    const primary = [gated ? "Do it now anyway" : `Start chapter ${nx.n}`, "lesson5", String(nx.n)];
+    hero = `<div class="hero-next${pulse ? " pulse" : ""}"><p class="hn-k">Today \u00b7 Chapter ${nx.n} of 10 \u00b7 5 min</p><h2 class="hn-t">${nx.title}</h2>${heroDoor(nx.n, false)}${gated && at ? `<p class="lt-sub">Opens ${at.say}</p>` : ""}${button(primary)}</div>`;
   }
   return app(`${head}${path}${doneRow}${hero}`, { tabs: "today", stage: true, footer: pwLine() }); /* version 123: a stage, so the hero can fill the space */ /* version 105: Powered by Warmup at the foot */
 }
@@ -7575,7 +7605,7 @@ function vToday() {
       <div><h1 class="h1" style="margin:0">Today</h1><p class="today-left">${cnt >= 5 ? "You\u2019re door-ready." : `${cnt} of 5 lessons done.`} Your canvass is ${t.when}.</p></div></div>
     <ol class="plan">${rows}${S.track === "gotv" ? "" : shift + cool}</ol> <!-- version 56 (Robert): no canvass or Cooldown rows on the get out the vote Today -->
     <p class="week-line">The ring fills with your five lessons, then your Warmup. <button class="link inline" data-act="go" data-arg="how">How Warmup works</button></p>
-  `, { primary, tabs: "today", footer: locked ? `<div class="next-two lock-note"><p><b>Lesson ${nx.n} is locked for now.</b></p><p>${LOCK_LINE(nx.n)}</p></div>` : "" }); /* version 52: the note sits where the button was */
+  `, { primary, tabs: "today", footer: locked ? `<div class="next-two lock-note"><p><b>Chapter ${nx.n} is locked for now.</b></p><p>${LOCK_LINE(nx.n)}</p></div>` : "" }); /* version 52: the note sits where the button was */
 }
 function vHow() {
   const parts = [
@@ -8831,7 +8861,7 @@ document.addEventListener("click", (e) => {
     case "invite-copy": try { navigator.clipboard.writeText("https://yourwarmup.com/kaur"); } catch (e) { /* ignore */ } toast("Invite link copied."); break; /* version 126 */
     case "course-open": S.courseN = Number(arg); go("course"); break; /* version 125 */
     case "issues-open": issuesOpen(); break;
-    case "brief-open": { const d5 = S.done5 || {}; if (LESSONS5.every((x) => d5[x.n])) issuesOpen(); else toast("Opens when you\u2019re door-ready, on day 6."); break; } /* version 145 */ /* version 130 (Robert, Oct 31): the campaign issue lessons open from Learn */
+    case "brief-open": { const d5 = S.done5 || {}; if (LESSONS5.every((x) => d5[x.n])) issuesOpen(el.dataset.lesson || ""); else toast("Opens when you\u2019re door-ready, on day 6."); break; } /* version 146: straight to the brief\u2019s own cover */ /* version 145 */ /* version 130 (Robert, Oct 31): the campaign issue lessons open from Learn */
     case "course-tell": S.courseTold = S.courseTold || {}; S.courseTold[S.courseN || 10] = true; render(); toast("You\u2019re on the list. We\u2019ll text you when it\u2019s ready."); break;
     case "lib-open": S.lib.open = arg; S.lib.sheet = null; go("training"); break;
     case "lib-trainer": S.lib.q = TRAINERS[arg].name; go("library"); break;
@@ -9055,12 +9085,12 @@ render();
 </style>
 <script>
 /* version 130: open and close the issue lessons over the app */
-function issuesOpen() {
+function issuesOpen(lesson) {
   if (document.getElementById("issues-ov")) return;
   try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) { /* ignore */ }
   var host = document.getElementById("device") || document.body, ov = document.createElement("div");
   ov.className = "issues-ov"; ov.id = "issues-ov";
-  ov.innerHTML = '<iframe src="issues/?all" title="Maya Kaur’s issue lessons" allow="microphone; autoplay"></iframe>';
+  ov.innerHTML = '<iframe src="issues/?all' + (lesson ? "&lesson=" + lesson : "") + '" title="Maya Kaur’s issue lessons" allow="microphone; autoplay"></iframe>'; /* version 146: once door-ready a chapter row opens its own brief */
   host.appendChild(ov);
 }
 window.addEventListener("message", function (e) { if (e && e.data && e.data.warmup === "issues-close") { var ov = document.getElementById("issues-ov"); if (ov) ov.remove(); } });

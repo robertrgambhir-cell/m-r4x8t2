@@ -1546,11 +1546,11 @@
   };
   var GA_MOVES = [["The problem", "About 200,000 working Georgians earn too much for Medicaid and too little to buy insurance"], ["Maya’s plan", "Full Medicaid expansion, and end Pathways"], ["Her opponent’s plan", "A Pathways-style plan with work rules"]];
   var GA_STORY = [
-    cover("Health coverage", [["Who gets left out today"], ["Maya’s plan: full Medicaid expansion"], ["How her opponent’s plan differs"]], "Learn about health coverage"),
+    cover("Health insurance", [["Who gets left out today"], ["Maya’s plan: full Medicaid expansion"], ["How her opponent’s plan differs"]], "Learn about health coverage"),
     { bg: "#FDE9EC", next: "Who that line leaves out", src: [SG.gbpi, SG.kffPar], html: function () {
       return '<h2 class="st-h lg">What’s Medicaid?</h2>' +
         icard(["#b23a5a", "#fde9ec", "#f3dbe1", "rgba(150,40,70,.45)"], "MEDICAID", '<svg viewBox="0 0 24 24" width="30" height="30"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.2 0 3.6 1.3 5.3 3.3 1.7-2 3.1-3.3 5.3-3.3 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z" fill="#e2557a"/><path d="M12 9.5v6M9 12.5h6" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>', ["Doctor", "Hospital", "Medicine"]) +
-        '<p class="st-p">Health coverage for people with low incomes, paid by the state and federal government. About <b>18%</b> of Georgians have it, and <b>71%</b> of them are children.' + sup(1) + '</p>' +
+        '<p class="st-p">Health insurance for people with low incomes, paid by the state and federal government. About <b>18%</b> of Georgians have it, and <b>71%</b> of them are children.' + sup(1) + '</p>' +
         '<p class="st-p small">That count includes PeachCare for Kids, the version for children whose families earn a bit too much for Medicaid.</p>' +
         '<div class="bignum"><b>$8,000</b><span>For adults the line is strict: a parent of two must earn less than this a year.' + sup(2) + '</span></div>'; } },
     { bg: "#E8F1FB", next: "How many Georgians are in Bri’s spot", src: [SG.kffPar, SG.hhs, SG.paFlier], html: function () {
@@ -1761,7 +1761,7 @@
   /* ===================== the lessons ===================== */
   var MONICA = { name: "Monica", meta: "Canvasser", skin: "#c99a74", hair: "#2a1b14", style: "long", shirt: "#35B57C" };
   var L = [
-    { id: "ga", title: "Medicaid and Georgia Pathways", issue: "Health coverage", from: "Keisha Lance Bottoms", race: "Georgia governor", opp: "Rick Jackson", story: GA_STORY, moves: GA_MOVES,
+    { id: "ga", title: "Medicaid and Georgia Pathways", issue: "Health insurance", from: "Keisha Lance Bottoms", race: "Georgia governor", opp: "Rick Jackson", story: GA_STORY, moves: GA_MOVES,
       voter: { key: "tasha", name: "Tasha", meta: "Home health aide, Albany", kv: "af_sarah",
         open: "Hi. Is Maya going to do anything about health insurance? I don’t get any through work.", follow: "I heard the other guy wants to expand it too.", bye: "Okay. That helps. Thanks for coming by." },
       hear: [["v", 0], ["m", "She is. Right now about 200,000 working Georgians earn too much for Medicaid and too little to buy insurance.", 0], ["m", "Maya wants full Medicaid expansion, so any adult earning up to about $22,000 can get covered. The federal government pays 90%.", 1], ["v", 1], ["m", "He wants a Pathways-style plan with work rules. Pathways only signed up about 20,000 people.", 2], ["v", 2]],
@@ -2575,6 +2575,7 @@
   var _screenNum12 = screenNum;
   screenNum = function () { if (S.lesson != null && X().things && S.ph > 0 && !S.sources) return X().id.toUpperCase() + " P" + pnum12(); return _screenNum12(); };
 
+  if (ALL) { var _lq = ((location.search + location.hash).match(/[?&#]lesson=([a-z]{2})/) || [])[1]; if (_lq) { var _li = L.findIndex(function (x) { return x.id === _lq; }); if (_li >= 0) { S.lesson = _li; S.d = null; S.res = null; S.sbEntered = false; S.seenHow = true; S.ph = 0; S.idx = 0; } } } /* version 146: the Warmup app opens a brief straight at its cover once door-ready */
   render();
   if (IN_CLAUDE && claude.use) claude.use("sample").then(function (s) { sample = s; }).catch(function () { sample = null; });
 })();
