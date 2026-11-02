@@ -1600,7 +1600,32 @@
   .content.stage > .td-head, .content.stage > .path, .content.stage > .td-done { flex: none; }
   .hero-next > .tt { flex: none; }
   @media (max-height: 700px) { .td-h { font-size: 23px; } .td-sub { font-size: 13.5px; } .path { margin-bottom: 6px; } .td-done { padding: 7px 2px; } .tt-chip { padding: 5px 10px; } .hero-next { padding: 13px 14px 12px; } }
-  .cut-shot .tt { display: none; } /* the video phone is too small for the chips */ /* version 140: once all five are saved, Today leads with the briefing */
+  .cut-shot .tt { display: none; } /* the video phone is too small for the chips */
+  /* version 143 (Robert, Nov 2): Learn is this campaign's batch only, the course by lesson and the briefs by name */
+  .lrn-course { padding: 14px 14px 10px; border-radius: 20px; background: var(--accent-soft); margin: 2px 0 16px; }
+  .lrn-head { display: grid; gap: 3px; margin: 0 2px 6px; }
+  .lrn-head b { font-family: var(--head-font); font-weight: var(--head-weight); font-size: 21px; }
+  .lrn-head small { font-size: 13px; color: var(--ink-2); }
+  .lrn-list { list-style: none; margin: 0; padding: 0; }
+  .lrn-list li + li { border-top: 1px solid rgba(20, 40, 30, 0.08); }
+  .lrn-list .lr-b, .lrn-list li > .br { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; width: 100%; padding: 9px 2px; background: none; border: 0; text-align: left; color: inherit; font: inherit; cursor: pointer; }
+  .lrn-list li > .br { cursor: default; }
+  .lr-n, .br-n { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; color: var(--ink-3); background: var(--card); }
+  .lr-n svg, .br-n svg { width: 15px; height: 15px; }
+  .lr.done .lr-n { background: var(--accent); color: #FFFFFF; }
+  .lr.next .lr-n { background: var(--ink); color: var(--on-ink); }
+  .lr-t, .br-t { min-width: 0; } .lr-t b, .br-t b { font-size: 15px; font-weight: 600; line-height: 1.3; }
+  .lr.locked .lr-t b, .br .br-t b { color: var(--ink-2); }
+  .lr-when { font-size: 12.5px; font-weight: 700; color: var(--ink-3); white-space: nowrap; }
+  .lr.next .lr-when { color: var(--accent-ink); }
+  .lrn-list li { position: relative; } .lrn-list .retake5 { position: absolute; right: 2px; bottom: 6px; margin: 0; padding: 0; font-size: 12.5px; color: var(--ink-2); line-height: 1; }
+  .lrn-list li.done > .lr-b { padding-bottom: 24px; }
+  .lrn-note { margin: 8px 2px 0; font-size: 12.5px; color: var(--ink-3); line-height: 1.35; }
+  .lrn-camp .camp-tile { margin-bottom: 4px; }
+  .br-list { padding: 0 2px; } .br-list li + li { border-top-color: var(--line); }
+  .br-n { background: var(--soft); } .br.more .br-n svg { width: 13px; height: 13px; }
+  .br-t small { display: block; font-size: 12.5px; color: var(--ink-3); line-height: 1.3; }
+  @media (max-height: 700px) { .lrn-course { padding: 11px 12px 8px; } .lrn-list .lr-b, .lrn-list li > .br { padding: 7px 2px; } } /* version 140: once all five are saved, Today leads with the briefing */
   /* version 120: the hero pulses once on the way in from the ring card; a quiet Retake link under a done row */
   .hero-next.pulse { animation: heroPulse 1.3s ease-out 0.35s 2; }
   @keyframes heroPulse { 0% { box-shadow: 0 0 0 0 rgba(53, 181, 124, 0.5), 0 12px 26px -14px rgba(27, 122, 77, 0.45); transform: scale(1); } 30% { transform: scale(1.015); } 100% { box-shadow: 0 0 0 14px rgba(53, 181, 124, 0), 0 12px 26px -14px rgba(27, 122, 77, 0.45); transform: scale(1); } }
@@ -4258,7 +4283,7 @@ const NOTES = {
   ready: ["Visible readiness", "Preparation shows up as a badge and a record that carries across shifts."],
   sms2: ["The cooldown text", "One text, sent when the shift ends, opens the cooldown while it\u2019s fresh."],
   debrief: ["Cooldown", "The stars and the four ratings stay for the campaign. New in version 71: one spoken question, Tell me about one door you\u2019ll remember. The coach names the Tough door it points to and adds one like it to the next Warmup. It ends on Sign up for your next shift?"],
-  library: ["Learn: the 28-course shelf", "Version 125 (Robert, Oct 27). Every course is five five-minute lessons with checks; finish a course, earn its badge. Locks are honest: finish your current course to open the next, four stay locked until Platinum (What the best canvassers do differently, The one-on-one and the ask, House meetings, From canvasser to team lead; Claude\u2019s proposed set) and the state editions are coming soon. Local leaders teach the tactics, national leaders teach the foundations, one national script and grading standard with a local face. Ganz, Han, Huerta and Fleischer show as Invited until they sign. Tap Public narrative for the one clickable course page. Other programs keep the version 28 library."],
+  library: ["Learn: this campaign\u2019s batch", "Version 143 (Robert, Nov 2). A canvasser sees only what her campaign is doing now: the five lessons of her course by name (saved with its score and Retake, tomorrow, or the day it opens; the lock said once), then the campaign\u2019s issue briefs by name, opening on day 6, and one locked row for the briefs the campaign adds later. Other tactics are invisible, not locked. The tile still opens the briefing for presenters. Other programs keep the version 28 library."],
   training: ["A library page", "A lesson page holds its moves and why, your best take and Go deeper; a Tough door says what it sharpens. Add to my next Warmup puts it into the next Warmup. Anything not built yet says so and asks for a vote."],
   me: ["Progress: the tier preview", "Version 126 (Robert, Oct 27). Two tracks: an annual tier that resets January 1 and lifetime status. The main metric is courses completed; a course counts once all its checks are passed, with unlimited retakes, and a started course shows five pale pending notches on the horseshoe ring, one per lesson, like Delta\u2019s pending MQDs. Tiers (placeholder names): Silver 1 course (a digital memento and a shareable card), Gold 5 (tougher AI voters), Platinum 10 (the full library), Diamond 20 (early access). Second metric: volunteers recruited via a personal invite link; doors knocked and shift confirmation are skipped for now. Supersedes the ready-shift tiers and the never-demotes rule."],
   try: ["Your 1st try, before any teaching", "The volunteer answers out loud before any teaching. Trying first, even wrong, makes the lesson that follows stick (the pretesting effect). Feedback is positive only and never a grade: what they got right and what to watch for. All four moves on the first try goes straight to Your 2nd try, the version 67 rule applied to every lesson. Lesson 1\u2019s try also places them. Version 72: one mic button and no box until it\u2019s tapped, so a phone\u2019s keyboard never opens on its own."],
@@ -4683,7 +4708,7 @@ const ICON = {
 
 /* ---------- shell ---------- */
 /* version 105: the campaign skin is one config (name, the line under it, its one color and the lockup style). Get out the vote only. */
-const CAMPAIGN = { gotv: { name: "Maya Kaur", line: "For Woodbridge City Council", lines: ["For Woodbridge", "City Council"], color: "#1F4C91", soft: "rgba(31, 76, 145, 0.38)", lockup: "stack" } }; /* version 142: soft tints the path dots for the campaign briefs */
+const CAMPAIGN = { gotv: { name: "Maya Kaur", line: "For Woodbridge City Council", lines: ["For Woodbridge", "City Council"], color: "#1F4C91", soft: "rgba(31, 76, 145, 0.38)", lockup: "stack", briefs: ["Health coverage", "School vouchers", "Your electric bill", "Heating oil", "Tariffs and auto jobs"] } }; /* version 143: the five briefs in issues/, by short name, in the field director\u2019s order */ /* version 142: soft tints the path dots for the campaign briefs */
 const campNow = () => (S && CAMPAIGN[S.track]) || null;
 function campMark(c) {
   c = c || campNow();
@@ -5508,20 +5533,30 @@ const COURSES = [
 const LOCK_S = `<svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`;
 const courseLock = (c) => (c.live ? "" : c.soon ? "Coming soon" : PLAT_LOCK[c.n] ? "Unlocks at Platinum" : "Unlocks after your current course");
 function vLearnG() {
-  const d5 = S.done5 || {}, nd = LESSONS5.filter((x) => d5[x.n]).length;
-  const card = (c) => {
-    const lock = courseLock(c), open = c.n === 10; /* one clickable course page for now (decision 10) */
-    const sub = c.live ? `<small class="lc-live">Your course \u00b7 ${nd} of 5 lessons</small>` : `${c.by ? `<small class="lc-by">${c.by}${c.inv ? " \u00b7 Invited" : ""}</small>` : ""}<small class="lc-lock">${LOCK_S}${lock}</small>`;
-    const inner = `<span class="lc-main"><b>${c.t}</b>${sub}</span>${open ? `<span class="go">\u203a</span>` : ""}`;
-    return open ? `<li><button class="lc" data-act="course-open" data-arg="${c.n}">${inner}</button></li>` : `<li><div class="lc${c.live ? " live" : ""}">${inner}</div></li>`;
+  /* version 143 (Robert, Nov 2): a canvasser sees only this campaign's batch. During GOTV the signature and registration courses are
+     invisible, not locked. The page is the course by lesson (saved with its score and Retake, tomorrow, or the day it opens; the lock
+     said once), then the campaign's issue briefs by name, opening on day 6, and one locked row for the briefs the campaign adds later.
+     The tile stays tappable for presenters (version 139). The 28-course shelf (version 125) stays in the file for the day a volunteer
+     has more than one batch. */
+  const d5 = S.done5 || {}, nd = LESSONS5.filter((x) => d5[x.n]).length, nx = LESSONS5.find((x) => !d5[x.n]);
+  const camp = CAMPAIGN[S.track] || CAMPAIGN.gotv, first = camp.name.split(" ")[0], briefs = camp.briefs || [];
+  const check = `<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const row = (L) => {
+    const done = d5[L.n], next = !!nx && nx.n === L.n, lk = !done && lessonLocked(L.n);
+    const when = done ? `Saved \u00b7 ${done.filter(Boolean).length} of 4` : next ? (lk ? "Tomorrow" : "Today") : `Day ${L.n}`;
+    const short = L.title.replace(/^How to /, ""), title = short.charAt(0).toUpperCase() + short.slice(1); /* the list drops "How to": the course head already says what these are */
+    return `<li class="lr${done ? " done" : ""}${next ? " next" : ""}${lk && !next ? " locked" : ""}"><button class="lr-b" data-act="lesson5" data-arg="${L.n}"><span class="lr-n">${done ? check : L.n}</span><span class="lr-t"><b>${title}</b></span><span class="lr-when">${when}</span></button>${done ? `<button class="link retake5" data-act="retake5" data-arg="${L.n}">Retake</button>` : ""}</li>`;
   };
-  const shelf = (s, i) => { const xs = COURSES.filter((c) => c.s === i); return `<h2 class="shelf-h">${s[0]}</h2>${s[1] ? `<p class="shelf-sub">${s[1]}</p>` : ""}<ul class="shelf">${xs.map(card).join("")}</ul>`; };
+  const course = `<section class="lrn-course"><div class="lrn-head"><p class="kicker">Your course</p><b>GOTV canvassing</b><span class="ln-notches" aria-label="${nd} of 5 lessons done">${[0, 1, 2, 3, 4].map((i) => `<i class="ln-notch${i < nd ? " on" : ""}"></i>`).join("")}</span><small>${nd >= 5 ? "All five saved. You\u2019re door-ready." : `${nd} of 5 saved \u00b7 door-ready at 5`}</small></div><ol class="lrn-list">${LESSONS5.map(row).join("")}</ol><p class="lrn-note">${nd >= 5 ? "Retake any lesson, any time." : "A new lesson opens every morning."}</p></section>`;
+  const tile = `<button class="camp-tile" data-act="issues-open"><img src="${CAND_PHOTO}" alt=""><span class="ct-main"><small class="ct-k">From ${camp.name}\u2019s campaign</small><b>The 5 issues voters are raising at the door</b>${nd >= 5 ? `<small>5 minutes each \u00b7 learn it, then practice at a voter\u2019s door</small>` : `<small class="ct-lock">${LOCK_SVG}Opens when you\u2019re door-ready \u00b7 Day 6</small>`}</span><span class="go">\u203a</span></button>`;
+  const briefRows = briefs.map((bf, i) => `<li class="br"><div class="br"><span class="br-n">${i + 1}</span><span class="br-t"><b>${esc(bf)}</b></span>${nd >= 5 ? `<span class="lr-when">Open</span>` : ""}</div></li>`).join("");
+  const more = `<li class="br more"><div class="br"><span class="br-n">${LOCK_SVG}</span><span class="br-t"><b>More from ${first}\u2019s campaign</b><small>New briefs land here as issues come up at the door.</small></span></div></li>`;
+  const campaign = `<section class="lrn-camp">${tile}<ol class="lrn-list br-list">${briefRows}${more}</ol><p class="lrn-note">${nd >= 5 ? "Any order, one a day." : "Any order, one a day, from day 6."}</p></section>`;
   return app(`
     <h1 class="h1">Learn</h1>
-    <p class="lede">One lesson a day. Finish a course, earn its badge.</p>
-    <div class="learn-now"><p class="kicker">Your course</p><b>GOTV canvassing</b><span class="ln-notches" aria-label="${nd} of 5 lessons done">${[0, 1, 2, 3, 4].map((i) => `<i class="ln-notch${i < nd ? " on" : ""}"></i>`).join("")}</span><small>${nd} of 5 lessons done. Pass every check and the course counts.</small></div>
-    <button class="camp-tile" data-act="issues-open"><img src="${CAND_PHOTO}" alt=""><span class="ct-main"><small class="ct-k">From Maya Kaur’s campaign</small><b>The 5 issues voters are raising at the door</b>${nd >= 5 ? `<small>5 minutes each \u00b7 learn it, then practice at a voter\u2019s door</small>` : `<small class="ct-lock">${LOCK_SVG}Opens when you\u2019re door-ready \u00b7 Day 6</small>`}</span><span class="go">›</span></button>
-    ${SHELVES.map(shelf).join("")}
+    <p class="lede">Your course first, then ${first}\u2019s briefs. One a day.</p>
+    ${course}
+    ${campaign}
   `, { tabs: "library" });
 }
 function vCourseG() {
