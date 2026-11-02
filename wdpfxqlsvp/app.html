@@ -1887,6 +1887,46 @@
   .rd-tip b { color: var(--accent-ink); }
   @media (max-height: 700px) { .rd-ring { width: 76px; height: 76px; } .rd-ring .gv-face { left: 8px; top: 8px; width: 60px; height: 60px; } .rd-tip { margin-top: 18px; } }
   .lt-more { margin-top: 2px !important; } .lt-sub .lt-knock { display: inline; padding: 0; font-size: inherit; color: inherit; }
+  /* version 151: Today in two states, the done row and the chapter's record */
+  .td2 .td-k { color: var(--ink-3); }
+  .content.stage > .hero-next.td2-card { flex: 0 1 auto; min-height: 0; }
+  .td2-card > .hn-art { flex: 1 1 230px; min-height: 80px; max-height: 230px; }
+  .td2 .td-sub { font-size: 13.5px; color: var(--ink-2); }
+  .td2-row { display: flex; align-items: center; gap: 12px; width: 100%; margin: 4px 0 6px; padding: 10px 2px 12px; background: none; border: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: left; font: inherit; color: inherit; cursor: pointer; }
+  .td2-ring { position: relative; flex: none; display: block; }
+  .td2-ring > svg:first-child { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .td2-ck { position: absolute; left: 50%; top: 50%; width: 38%; height: 38%; transform: translate(-50%, -50%); color: var(--accent-ink); }
+  .td2-txt { flex: 1; min-width: 0; display: grid; gap: 1px; }
+  .td2-txt small { font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+  .td2-txt b { text-wrap: balance; font-family: var(--head-font); font-weight: var(--head-weight); font-size: 17px; line-height: 1.2; }
+  .td2-chev { flex: none; font-size: 24px; line-height: 1; color: var(--ink-3); }
+  .hero-next .hn-k.hn-tom, .hero-next.locked .hn-k { color: var(--ink-3); }
+  .hero-next:not(.locked):not(.td2-brief) > .hn-k { color: var(--accent-ink); }
+  .td2-brief .hn-cand { max-height: 180px; min-height: 96px; } .td2-brief .hn-cand img { width: clamp(88px, 38%, 140px); height: auto; aspect-ratio: 1; }
+  .td2-brief .btn { margin-top: 10px; }
+  .cr-top { display: grid; grid-template-columns: 32px 1fr 32px; align-items: center; text-align: center; margin: 0 0 6px; }
+  .cr-top .kicker { margin: 0; color: var(--ink-3); }
+  .cr-x { width: 32px; height: 32px; border-radius: 50%; border: 0; background: var(--soft); color: var(--ink-2); font-size: 15px; font-weight: 600; cursor: pointer; }
+  .cr-h { margin: 8px 0 0; text-align: center; font-family: var(--head-font); font-weight: var(--head-weight); font-size: 24px; line-height: 1.12; text-wrap: balance; }
+  .cr-wrap { position: absolute; inset: 0; z-index: 40; display: flex; flex-direction: column; justify-content: flex-end; }
+  .cr-scrim { position: absolute; inset: 0; border: 0; padding: 0; background: rgba(28, 26, 22, 0.42); cursor: pointer; animation: crFade 0.2s ease both; }
+  .cr-sheet { position: relative; max-height: 94%; overflow-y: auto; background: var(--paper); border-radius: 22px 22px 0 0; padding: 14px 20px calc(14px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.18); animation: crUp 0.28s cubic-bezier(.2, .8, .2, 1) both; }
+  @keyframes crUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } } @keyframes crFade { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .cr-sheet, .cr-scrim { animation: none; } }
+  .cr-sheet > .td2-ring { margin: 12px auto 8px; }
+  .cr-foot { margin-top: 14px; display: grid; }
+  .cr-sub { margin: 0 0 12px; text-align: center; font-size: 14px; color: var(--ink-2); }
+  .cr-parts { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .cr-parts li { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 14px; line-height: 1.3; }
+  .cr-dot { flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; }
+  .cr-dot.ok { background: var(--accent); color: #FFFFFF; } .cr-dot.ok svg { width: 13px; height: 13px; }
+  .cr-dot.open { border: 2px solid #D99A2B; background: #FFF7E6; }
+  .cr-parts li.miss { flex-wrap: wrap; row-gap: 2px; } .cr-parts li.miss > span:nth-child(2) { flex: 1; min-width: 0; }
+  .cr-parts em { flex-basis: 100% !important; padding-left: 32px; margin-left: 0 !important; margin-left: auto; flex: none; font-style: normal; font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #8A5A0B; }
+  .cr-quote { margin: 12px 0 0; padding: 10px 12px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); font-family: var(--head-font); font-size: 14.5px; line-height: 1.4; }
+  .cr-quote small { display: block; margin-bottom: 4px; font-family: var(--body-font); font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+  .cr-grow { margin: 12px 0 0; text-align: center; font-size: 13px; color: var(--ink-2); }
+  @media (max-height: 700px) { .cr-sheet > .td2-ring { margin: 8px auto 6px; } .cr-parts li { padding: 7px 0; font-size: 13.5px; } .cr-h { font-size: 22px; } }
   /* version 148: Progress B, Your record, the Silver moment */
   .pg { min-height: 100%; display: flex; flex-direction: column; }
   .content:has(> .pg) { container-type: size; } /* the ring sizes to the room the screen has, in the laptop pane too */
@@ -4513,7 +4553,8 @@ const NOTES = {
   pick: ["Every program in the cycle", "Signatures a year or more out, registration six months or more out, deep canvassing for persuasion in the months before and turnout in the final two weeks, at the door or by vote tripling at a busy site."],
   video: ["A welcome from the candidate", "About a minute, filmed on an iPhone. Maya Kaur, the candidate, talks to the camera at home: why the campaign needs you, that the in-person training comes first and that Warmup gets you door-ready before your shift. On \u201cstarting with how to introduce yourself,\u201d her iPhone fills the frame, in her hand, and plays lesson 1 the way the volunteer will meet it, timed to her words: the lesson opening, a first try at Sofia\u2019s door, Listen in with the moves ticking, Kevin\u2019s door with the volunteer speaking out loud and Kevin talking back, the feedback, Lesson 1 done at 1/5 and Today with lessons 2 to 5. Then it cuts back to her for the ask. She\u2019s a real person reading the script in her own words, so this is the version to compare with the AI welcome."],
   sms: ["SMS-delivered", "Nobody has the campaign\u2019s number saved, so a real person signs the text and says who they\u2019re with. At sign-up the campaign says to expect it, so it never reads as spam. The link opens the lesson, with nothing to download. Testing with someone? Tell them first: you\u2019ll play a volunteer and talk out loud with a pretend voter."],
-  welcome: ["Today: one path, today\u2019s lesson, tomorrow\u2019s door", "Version 142 (Robert, Nov 2). The head says where she is by name, the ten dots show the whole path (five lessons to door-ready, then the campaign\u2019s five briefs), one row holds today\u2019s lesson with its score and the one part to work on, and the hero holds tomorrow: the shut door, the hour she wants the text (a plan she makes herself, the plan-making lesson 4 teaches) and the line that she can close this. No clock: a new lesson opens every morning. After lesson 5 the hero is the campaign\u2019s briefing (version 140). Every lesson by name lives on Learn. Version 146: the counts say chapters (Your path \u00b7 1 of 10 chapters; Tomorrow: Chapter 2 of 10)."],
+  welcome: ["Today: one obvious thing", "Version 151 (Robert, Nov 2, the Today redesign). Two states. When a chapter is waiting: her name, one line on where she is (Chapter 2 of 10, door-ready in 4 mornings) and today’s chapter with one Start button. When she’s done for today: what she just did as one glyph, the Warmup ring filled to her best score with a check in its center (fill says how well, the check says done), and a tap opens that chapter’s record with the one part to add and the retake. Below it tomorrow’s shut door and the comeback: “We’ll text you Chapter 2 tomorrow at 8 AM.” No clock, no time picker; the app never asks for an hour (the text goes at 8 AM the morning the chapter opens). The full path lives on Progress and Learn. Once door-ready, Today points to Maya’s briefs, open the same moment Learn opens them."],
+  chrec: ["The chapter’s record", "Version 151. One tap down from Today’s done row, so Today stays “close this” and the retake pitch lands where she is already curious. The ring large, how many parts her best intro has, the parts with the one to add marked, her best words, the growth from her first try, and Retake · go for 4 of 4 (the endowed-progress open loop)."],
   intake: ["Find your starting point (off the main path since version 64)", "One question: their experience. The heads-up that practice happens out loud comes right before they first speak: before the opener for veterans, after the four cards for first-timers. Each answer is reflected back, and the name comes from the sign-up list."],
   talk: ["Right before they speak (off the main path since version 64)", "The talk-or-type question waits until the first moment it matters, so first-timers aren\u2019t asked about practicing out loud before they know what Saturday looks like."],
   placement: ["Everyone shows their opener", "Since version 64 (Robert, Oct 11) there is no experience question and no talk-or-type question: the first try places you. A Knock first, so nobody is put on the spot; the box says typing works if you can\u2019t talk. A strong opener skips Watch. The first-timer cards still exist for the presenter menu and \u201cHow Saturday works\u201d: Saturday as a story: six tap-through cards (tap or swipe, auto-advancing like Instagram Stories), each a small animation and one line, ending on a pass with when, where, how long and what to bring. First-timers learn how a canvass works before any technique, and a concrete where and when makes people likelier to show up. Four cards, no test, so their first graded moment is a likely win. Veterans show their opener and get feedback on it right away, on the same screen that opens the lesson; a strong one skips the demo. No level on screen: placement changes what comes next, not a label. The heading says why we ask (version 65): the opener tells us where to start the lesson. The card shows the four moves as checks and the misses as what happened, like the scorecard (version 66). One rule, two paths (version 67): all four moves goes straight to Your turn, nothing re-taught; anything less gets the full lesson, with the reps picked from the moves they missed."],
@@ -7849,51 +7890,67 @@ function heroDoor(n, locked) {
   return `<div class="hn-art" aria-hidden="true">${sv}${locked ? `<span class="hn-art-lock">${LOCK_SVG}</span>` : ""}</div>`;
 }
 function vTodayG() {
-  /* version 142 (Robert, Nov 2): Today is one path, today's lesson and tomorrow's door. The head says where she is by name, the ten dots
-     show the whole path (five lessons to door-ready, then the campaign's five briefs), one row holds today's lesson with the part to work
-     on, and the hero holds tomorrow: the shut door, the hour she wants the text (a plan she makes herself, the same plan-making lesson 4
-     teaches) and the line that she can close this. Every lesson by name now lives on Learn (version 143).
-     Earlier: version 113 (the hero and quiet rows), 123 (the door fills the space), 129 (two paths), 139 (Tomorrow, no clock), 140 (the briefing after lesson 5). */
+  /* version 151 (Robert, Nov 2, the Today redesign): two states, one obvious thing each. A chapter waiting: her name, one path line and
+     today's chapter with one Start. Done for today: what she just did as one glyph (the ring filled to her best, a check in its center; a tap
+     opens the chapter's record), tomorrow's shut door and the 8 AM text, then close the tab. The full path lives on Progress and Learn.
+     No clock, no chips, no Browse Learn (the Learn tab covers it). Earlier: version 142 (one path), 139 (Tomorrow, no clock), 123 (the door
+     fills the space), 129 (Suman's close line), 150 (Practice's line). */
   const d5 = S.done5 || {}, nx = LESSONS5.find((x) => !d5[x.n]), gated = !!nx && lessonGated();
-  const nd = LESSONS5.filter((x) => d5[x.n]).length, camp = CAMPAIGN[S.track] || CAMPAIGN.gotv, first = camp.name.split(" ")[0], name = me();
-  const check = `<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const locked = !!nx && lessonLocked(nx.n), at = nx ? S.nextAt[nx.n] : null;
+  const nd = LESSONS5.filter((x) => d5[x.n]).length, camp = CAMPAIGN[S.track] || CAMPAIGN.gotv, first = camp.name.split(" ")[0], name = esc(me());
   const pulse = !!S.heroPulse; S.heroPulse = false; /* version 120: once, on the way in from the ring card */
-  /* the head: her name and where she is */
-  const words = ["", "One", "Two", "Three", "Four", "Five"], left = 5 - nd;
-  const h1 = nd === 0 ? `Welcome, ${esc(name)}.` : nd >= 5 ? `Door-ready, ${esc(name)}.` : `${words[nd]} down, ${esc(name)}.`;
-  const sub = nd === 0 ? `Five lessons to door-ready, one each morning. Then ${first}\u2019s briefs.` : nd >= 5 ? `${first}\u2019s briefs start tomorrow: five issues, one a day.` : `${left} morning${left === 1 ? "" : "s"} to door-ready, then ${first}\u2019s briefs.`;
-  const head = `<div class="td-head"><p class="kicker td-k">Your path \u00b7 ${nd} of 10 chapters</p><h1 class="td-h">${h1}</h1><p class="td-sub">${sub}</p></div>`;
-  /* the path: five lessons, then the campaign's five briefs */
-  const dots = [];
-  for (let i = 1; i <= 10; i += 1) {
-    const done = i <= nd, next = i === nd + 1, brief = i > 5, label = i === 5 ? "Door-ready" : i === 10 ? "Briefed" : "";
-    dots.push(`<li class="pd${done ? " done" : ""}${next ? " next" : ""}${brief ? " brief" : ""}"><span class="pd-dot">${done ? check : ""}</span>${label ? `<small>${label}</small>` : ""}</li>`);
-  }
-  const path = `<ol class="path" style="--camp:${camp.color};--camp-soft:${camp.soft}" aria-label="${nd} of 10 done">${dots.join("")}</ol>`;
-  /* today's lesson, saved, with the one part to work on */
+  const words = ["", "One", "Two", "Three", "Four", "Five"], left = 5 - nd, briefs = Math.min(5, S.briefsDone || 0);
+  const mornings = (n) => `${n} morning${n === 1 ? "" : "s"}`;
   const lastL = LESSONS5.filter((x) => d5[x.n]).pop();
-  let doneRow = "";
-  if (lastL) {
-    const hits = d5[lastL.n], sc = hits.filter(Boolean).length, mi = hits.findIndex((h) => !h), sk = SKILLS[LESSON_SKILL[lastL.n]];
-    const tip = mi >= 0 && sk && sk.short && sk.short[mi] ? `Next time: ${esc(sk.short[mi])}.` : "All four parts. Nice.";
-    doneRow = `<div class="td-done"><span class="tick">${check}</span><div class="td-done-txt"><b>Chapter ${lastL.n} saved \u00b7 ${sc} of 4</b><small>${tip}</small></div><button class="link retake5" data-act="retake5" data-arg="${lastL.n}">Retake</button></div>`; /* version 120: a quiet full retake */
-  }
-  /* tomorrow's text: she picks the hour (an implementation intention; Nickerson and Rogers 2010, the same science as lesson 4) */
-  const times = ["7 AM", "Noon", "6 PM"];
-  const chips = `<div class="tt"><span class="tt-l">Text me at</span>${times.map((t) => `<button class="tt-chip${S.textAt === t ? " on" : ""}" data-act="text-at" data-arg="${t}" aria-pressed="${S.textAt === t}">${t}</button>`).join("")}</div>`;
-  let hero;
+  const head = (k, h, line) => `<div class="td-head td2"><p class="kicker td-k">${k}</p><h1 class="td-h">${h}</h1><p class="td-sub">${line}</p></div>`;
+  const row = lastL ? tdRow(lastL.n) : "";
+  /* door-ready: Part 2 is open, the same moment Learn opens it (version 149) */
   if (!nx) {
-    /* version 140 (Robert, open call 6): after lesson 5, Today points at the briefing, not the Warmup */
-    hero = `<div class="hero-next locked brief-next"><p class="hn-k">Up next \u00b7 Day 6</p><h2 class="hn-t">Tomorrow: ${first}\u2019s briefing opens</h2><div class="hn-art hn-cand" aria-hidden="true"><img src="${CAND_PHOTO}" alt=""><span class="hn-art-lock">${LOCK_SVG}</span></div>${chips}<p class="lt-sub">You can close this. We\u2019ll text you ${S.textAt ? "at " + S.textAt : "when it opens"}.</p><div class="hn-links"><button class="link today-more" data-act="go" data-arg="library">Browse Learn</button></div></div>`;
-  } else if (locked) {
-    /* version 139 (Robert): Tomorrow, no clock; version 129 (from Suman): leaving is the default, Learn is the second path */
-    hero = `<div class="hero-next locked${pulse ? " pulse" : ""}"><p class="hn-k hn-tom">Tomorrow: Chapter ${nx.n} of 10</p><h2 class="hn-t">${nx.title}</h2>${heroDoor(nx.n, true)}${chips}<p class="lt-sub">You can close this. We\u2019ll text you ${S.textAt ? "at " + S.textAt : "chapter " + nx.n}.</p><p class="lt-sub lt-more"><button class="link lt-knock" data-act="go" data-arg="coach">Or knock a few doors.</button></p><div class="hn-links"><button class="link" data-act="go" data-arg="whylock">Why one a day</button><button class="link today-more" data-act="go" data-arg="library">Browse Learn</button></div></div>`;
-  } else {
-    const primary = [gated ? "Do it now anyway" : `Start chapter ${nx.n}`, "lesson5", String(nx.n)];
-    hero = `<div class="hero-next${pulse ? " pulse" : ""}"><p class="hn-k">Today \u00b7 Chapter ${nx.n} of 10 \u00b7 5 min</p><h2 class="hn-t">${nx.title}</h2>${heroDoor(nx.n, false)}${gated && at ? `<p class="lt-sub">Opens ${at.say}</p>` : ""}${button(primary)}</div>`;
+    const line = briefs >= 5 ? "All 10 chapters done." : `Chapter ${6 + briefs} of 10 next · briefed in ${mornings(5 - briefs)}`;
+    const card = `<div class="hero-next td2-card td2-brief"><p class="hn-k">Up next · ${first}’s briefs</p><h2 class="hn-t">Pick an issue to learn</h2><div class="hn-art hn-cand" aria-hidden="true"><img src="${CAND_PHOTO}" alt=""></div><button class="btn" data-act="issues-open">Open the briefing</button><p class="lt-sub">Or close this. We’ll text you tomorrow at&nbsp;8&nbsp;AM.</p></div>`;
+    return app(`${head(`Door-ready, ${name}`, `${first}’s briefs are open.`, line)}${row}${card}`, { tabs: "today", stage: true, footer: pwLine() });
   }
-  return app(`${head}${path}${doneRow}${hero}`, { tabs: "today", stage: true, footer: pwLine() }); /* version 123: a stage, so the hero can fill the space */ /* version 105: Powered by Warmup at the foot */
+  const locked = lessonLocked(nx.n) || (gated && nd > 0);
+  if (nd > 0 && locked) {
+    /* state 2: done for today */
+    const card = `<div class="hero-next td2-card locked${pulse ? " pulse" : ""}"><p class="hn-k hn-tom">Tomorrow · Chapter ${nx.n}</p><h2 class="hn-t">${nx.title}</h2>${heroDoor(nx.n, true)}<p class="lt-sub">You can close this. We’ll text you Chapter ${nx.n} tomorrow at&nbsp;8&nbsp;AM.</p><p class="lt-sub lt-more"><button class="link lt-knock" data-act="go" data-arg="coach">Or knock a few doors.</button></p><div class="hn-links"><button class="link" data-act="go" data-arg="whylock">Why one a day</button></div></div>`;
+    return app(`${head(`${words[nd]} down, ${name}`, "See you tomorrow.", `Chapter ${nx.n} of 10 next · door-ready in ${mornings(left)}`)}${row}${card}`, { tabs: "today", stage: true, footer: pwLine() });
+  }
+  /* state 1: a chapter is waiting */
+  const card = `<div class="hero-next td2-card${pulse ? " pulse" : ""}"><p class="hn-k">Chapter ${nx.n} · GOTV</p><h2 class="hn-t">${nx.title}</h2>${heroDoor(nx.n, false)}${button([`Start · 5 min`, "lesson5", String(nx.n)])}</div>`;
+  return app(`${head(`Good morning, ${name}`, "Today’s chapter is ready.", `Chapter ${nx.n} of 10 · door-ready in ${mornings(left)}`)}${card}`, { tabs: "today", stage: true, footer: pwLine() });
+}
+/* the done row's ring: the Warmup ring filled to the best score, a check in its center (fill = how well, check = done) */
+function tdRing(hits, size) {
+  const r = size / 2 - size * 0.105, c = 2 * Math.PI * r, f = hits / 4, w = size * 0.105;
+  return `<span class="td2-ring" style="width:${size}px;height:${size}px"><svg viewBox="0 0 ${size} ${size}" aria-hidden="true"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--accent-soft)" stroke-width="${w}"/>${f ? `<circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--accent)" stroke-width="${w}" stroke-linecap="round" stroke-dasharray="${(c * f).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 ${size / 2} ${size / 2})"/>` : ""}</svg><svg class="td2-ck" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 13l4 4L19 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+}
+function tdRow(n) {
+  const L = LESSONS5.find((x) => x.n === n), hits = (S.done5 || {})[n] || [], sc = hits.filter(Boolean).length;
+  return `<button class="td2-row" data-act="ch-rec" data-arg="${n}" aria-label="Chapter ${n}, ${esc(L.title)}, done, ${sc} of 4 parts. Open your record">${tdRing(sc, 48)}<span class="td2-txt"><small>Chapter ${n}</small><b>${L.title}</b></span><span class="td2-chev" aria-hidden="true">›</span></button>`;
+}
+/* version 151: the chapter's record, one tap down from Today's done row (How you grew's data, the retake pitch where she is curious) */
+function vChRec() {
+  const n = S.chRec || 1, L = LESSONS5.find((x) => x.n === n) || LESSONS5[0], sk = SKILLS[LESSON_SKILL[n]], hits = (S.done5 || {})[n] || [false, false, false, false];
+  const sc = hits.filter(Boolean).length, intro = n === 1, unit = intro ? "parts" : "moves";
+  const firstMiss = hits.findIndex((h) => !h);
+  const ck = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 13l4 4L19 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const parts = sk.moves.map((m, i) => hits[i] ? `<li><span class="cr-dot ok">${ck}</span><span>${esc(sk.hitNames[i])}</span></li>` : `<li class="miss"><span class="cr-dot open"></span><span>${esc(sk.hitNames[i])}</span>${i === firstMiss ? `<em>The one to add</em>` : ""}</li>`).join("");
+  const best = (S.best5 || {})[n], words = best && best.text && best.text.length > 12 ? best.text.replace(/'/g, "\u2019") : ""; /* typed or heard words, with curly apostrophes */
+  const f1 = (S.first5 || {})[n] || (S.tryRes && S.tryRes.lesson === n && S.tryRes.hits ? S.tryRes.hits : null), a = f1 ? f1.filter(Boolean).length : null;
+  const grow = a != null ? `<p class="cr-grow">1st try ${a} of 4 → best ${sc} of 4</p>` : "";
+  const foot = sc < 4 ? `<button class="btn" data-act="retake5" data-arg="${n}">Retake \u00b7 go for 4 of 4</button>` : `<button class="link center" data-act="retake5" data-arg="${n}">Retake</button>`;
+  /* a sheet over Today: Today stays underneath, dimmed; the close button or a tap on Today goes back */
+  const sheet = `<div class="cr-wrap" role="dialog" aria-modal="true" aria-label="Chapter ${n}: your record"><button class="cr-scrim" data-act="go" data-arg="welcome" aria-label="Back to Today" tabindex="-1"></button><div class="cr-sheet">
+    <div class="cr-top"><button class="cr-x" data-act="go" data-arg="welcome" aria-label="Back to Today">\u2715</button><p class="kicker">Chapter ${n}</p><span></span></div>
+    <h1 class="cr-h">${L.title}</h1>
+    ${tdRing(sc, 88)}
+    <p class="cr-sub">Your best ${intro ? "intro" : "door"} has ${sc} of the 4 ${unit}.</p>
+    <ul class="cr-parts">${parts}</ul>
+    ${words ? `<div class="cr-quote"><small>Your best ${intro ? "intro" : "door"}</small>\u201c${esc(words)}\u201d</div>` : ""}
+    ${grow}
+    <div class="cr-foot">${foot}</div></div></div>`;
+  const today = vTodayG();
+  return today.slice(0, today.lastIndexOf("</div>")) + sheet + "</div>";
 }
 function vWhyLock() {
   const dots = [1, 2, 3, 4, 5].map((n) => `<span class="wl-dot${n === 1 ? " on" : ""}">${n === 1 ? `<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>` : n}</span>`).join(`<i class="wl-gap"></i>`);
@@ -8205,7 +8262,7 @@ function meTrainingG() {
 }
 
 /* ---------- rendering and navigation ---------- */
-const VIEWS = { pick: vPick, sms: vSMS, sms2: vSMS2, video: vVideo, welcome: vWelcome, intake: vIntake, placement: vPlacement, howworks: vHowWorks, talk: vTalk, note: vNote, library: vLibrary, training: vTraining, me: vMe, path: vPath, session: vSession, watch: vWatch, spot: vSpot, why: vWhy, recap: vRecap, practice: vPractice, main: vMain, door: vDoor, score: vScore, close: vClose, ready: vReady, debrief: vDebrief, try: vTry, warm: vWarm, warmtip: vWarmTip, warmready: vWarmReady, coach: vCoach, how: vHow, locked: vLocked, whylock: vWhyLock, course: vCourseG, statushow: vStatusHow, record: vRecordG, silver: vSilverG, round: vRoundG };
+const VIEWS = { pick: vPick, sms: vSMS, sms2: vSMS2, video: vVideo, welcome: vWelcome, intake: vIntake, placement: vPlacement, howworks: vHowWorks, talk: vTalk, note: vNote, library: vLibrary, training: vTraining, me: vMe, path: vPath, session: vSession, watch: vWatch, spot: vSpot, why: vWhy, recap: vRecap, practice: vPractice, main: vMain, door: vDoor, score: vScore, close: vClose, ready: vReady, debrief: vDebrief, try: vTry, warm: vWarm, warmtip: vWarmTip, warmready: vWarmReady, coach: vCoach, how: vHow, locked: vLocked, whylock: vWhyLock, course: vCourseG, statushow: vStatusHow, record: vRecordG, silver: vSilverG, round: vRoundG, chrec: vChRec };
 let lessonRun = 0;
 
 function render() {
@@ -8888,6 +8945,7 @@ async function finishConvo(d) {
     if (S.drill.kind === "warm") { S.warm = S.warm || { res: {} }; S.warm.res = S.warm.res || {}; S.warm.res["d" + S.drill.step] = { skill: skKey(), moves: result.hits, tip: result.tip, door: S.drill.door }; }
   } else {
     S.sessions[S.track][S.track === "gotv" && (S.lesson || 1) !== 1 ? "L" + S.lesson : S.day] = { moves: result.hits };
+    if (S.track === "gotv") { S.first5 = S.first5 || {}; const R0 = tryNow(), k5 = S.lesson || 1; if (!S.first5[k5] && R0 && !R0.pending && R0.hits) S.first5[k5] = R0.hits.slice(); } /* version 151: the record's growth line */
     if (S.track === "gotv") { S.done5 = S.done5 || {}; const n5 = S.lesson || 1, prev = S.done5[n5], keep = prev && prev.filter(Boolean).length > result.hits.filter(Boolean).length; S.done5[n5] = keep ? prev : result.hits; S.best5 = S.best5 || {}; if (!keep || !S.best5[n5]) S.best5[n5] = { text: youText, phr, hits: result.hits }; if (!S.doneAt[n5]) S.doneAt[n5] = Date.now(); } /* version 120: the clock runs from the first finish, so a retake never moves it */ /* version 39: a retried door keeps the best of the tries; version 98: and its words, for How you grew */
   }
   S.sayNow = null;
@@ -9224,6 +9282,7 @@ document.addEventListener("click", (e) => {
     }
     case "story-replay": S.storyI = 0; render(); break;
     case "story-go": S.storyI = Number(arg); render(); break;
+    case "ch-rec": S.chRec = Number(arg) || 1; go("chrec"); break; /* version 151 */
     case "text-at": S.textAt = S.textAt === arg ? null : arg; render(); break; /* version 142 (Robert): the hour the text comes tomorrow, a plan she makes herself */
     case "invite-copy": try { navigator.clipboard.writeText("https://yourwarmup.com/kaur"); } catch (e) { /* ignore */ } toast("Invite link copied."); break; /* version 126 */
     case "course-open": S.courseN = Number(arg); go("course"); break; /* version 125 */
@@ -9427,6 +9486,7 @@ document.addEventListener("mousedown", (e) => { if (e.target && e.target.closest
 
 /* version 136 (Robert, Nov 1; built as 135 while another chat took 135): ?home opens straight on Today as it looks right after lesson 1, for demos: lesson 1 saved at 3 of 4
    (the Election Day part still to practice) and lesson 2 locked, its clock starting at 24 hours. Nothing is stored, so the plain link is unchanged. */
+if (new URLSearchParams(location.search).has("home") && S.track === "gotv") S.first5 = { 1: [true, false, false, true] }; /* version 151: ?home's chapter 1 record shows a first try (2 of 4) under the best (3 of 4) */
 if ((new URLSearchParams(location.search).has("home") || new URLSearchParams(location.search).has("learn")) && S.track === "gotv") {
   const homeText = "Hi, I'm " + me() + ". I'm volunteering for Maya Kaur, and I'm checking in with neighbors.";
   const homeHits = [true, true, false, true];
