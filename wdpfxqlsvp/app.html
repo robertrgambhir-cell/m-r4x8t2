@@ -1625,7 +1625,33 @@
   .br-list { padding: 0 2px; } .br-list li + li { border-top-color: var(--line); }
   .br-n { background: var(--soft); } .br.more .br-n svg { width: 13px; height: 13px; }
   .br-t small { display: block; font-size: 12.5px; color: var(--ink-3); line-height: 1.3; }
-  @media (max-height: 700px) { .lrn-course { padding: 11px 12px 8px; } .lrn-list .lr-b, .lrn-list li > .br { padding: 7px 2px; } } /* version 140: once all five are saved, Today leads with the briefing */
+  @media (max-height: 700px) { .lrn-course { padding: 11px 12px 8px; } .lrn-list .lr-b, .lrn-list li > .br { padding: 7px 2px; } }
+  /* version 144 (Robert, Nov 2): Progress leads with what is next, then the record; the ladder lives one tap away */
+  .prog-unlock { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0 0; padding-top: 11px; border-top: 1px solid rgba(255, 255, 255, 0.14); font-size: 13.5px; line-height: 1.35; color: var(--on-ink); }
+  .prog-unlock svg { flex: none; width: 14px; height: 14px; margin-top: 2px; opacity: 0.8; }
+  .prog-unlock b { font-weight: 700; }
+  .prog-note { margin: -2px 2px 14px; font-size: 12.5px; color: var(--ink-3); }
+  .sk { display: flex; align-items: center; gap: 12px; margin: 0 2px 8px; }
+  .sk-flame { flex: none; width: 40px; height: 40px; border-radius: 50%; background: #FFF0E3; color: #E0611F; display: grid; place-items: center; }
+  .sk-flame svg { width: 22px; height: 22px; display: block; }
+  .sk-txt { display: grid; gap: 2px; min-width: 0; } .sk-txt b { font-size: 17px; } .sk-txt small { font-size: 12.5px; color: var(--ink-3); line-height: 1.3; }
+  .sk-week { list-style: none; margin: 0 2px 2px; padding: 0; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .sk-week li { display: grid; justify-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: var(--ink-3); }
+  .sk-week span { width: 30px; height: 30px; border-radius: 50%; background: var(--soft); display: grid; place-items: center; color: #FFFFFF; }
+  .sk-week li.on span { background: var(--accent); }
+  .sk-week li.today span { box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px var(--ink); }
+  .sk-week li.future span { opacity: 0.55; }
+  .sk-week span svg { width: 15px; height: 15px; }
+  .rec { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 0 2px; }
+  .rec div { display: grid; gap: 1px; } .rec small { white-space: nowrap; } .rec b { font-family: var(--head-font); font-weight: var(--head-weight); font-size: 26px; line-height: 1.05; } .rec small { font-size: 11.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-3); }
+  .rec-note { margin: 8px 2px 0; font-size: 12.5px; color: var(--ink-3); }
+  .badges.b3 { grid-template-columns: repeat(3, 1fr); }
+  .badge.zero { opacity: 0.6; }
+  .pg-done { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: #FFFFFF; } .pg-done svg { width: 12px; height: 12px; }
+  .how-status { display: block; width: 100%; margin: 6px 0 0; padding: 8px 0; font-size: 14px; }
+  .sh-p { font-size: 15px; line-height: 1.45; }
+  .sh-p + .sh-p { margin-top: 10px; }
+  @media (max-height: 760px) { .sk-week span { width: 26px; height: 26px; } .rec b { font-size: 23px; } .sk-txt b { font-size: 16px; } } /* version 140: once all five are saved, Today leads with the briefing */
   /* version 120: the hero pulses once on the way in from the ring card; a quiet Retake link under a done row */
   .hero-next.pulse { animation: heroPulse 1.3s ease-out 0.35s 2; }
   @keyframes heroPulse { 0% { box-shadow: 0 0 0 0 rgba(53, 181, 124, 0.5), 0 12px 26px -14px rgba(27, 122, 77, 0.45); transform: scale(1); } 30% { transform: scale(1.015); } 100% { box-shadow: 0 0 0 14px rgba(53, 181, 124, 0), 0 12px 26px -14px rgba(27, 122, 77, 0.45); transform: scale(1); } }
@@ -4285,7 +4311,7 @@ const NOTES = {
   debrief: ["Cooldown", "The stars and the four ratings stay for the campaign. New in version 71: one spoken question, Tell me about one door you\u2019ll remember. The coach names the Tough door it points to and adds one like it to the next Warmup. It ends on Sign up for your next shift?"],
   library: ["Learn: this campaign\u2019s batch", "Version 143 (Robert, Nov 2). A canvasser sees only what her campaign is doing now: the five lessons of her course by name (saved with its score and Retake, tomorrow, or the day it opens; the lock said once), then the campaign\u2019s issue briefs by name, opening on day 6, and one locked row for the briefs the campaign adds later. Other tactics are invisible, not locked. The tile still opens the briefing for presenters. Other programs keep the version 28 library."],
   training: ["A library page", "A lesson page holds its moves and why, your best take and Go deeper; a Tough door says what it sharpens. Add to my next Warmup puts it into the next Warmup. Anything not built yet says so and asks for a vote."],
-  me: ["Progress: the tier preview", "Version 126 (Robert, Oct 27). Two tracks: an annual tier that resets January 1 and lifetime status. The main metric is courses completed; a course counts once all its checks are passed, with unlimited retakes, and a started course shows five pale pending notches on the horseshoe ring, one per lesson, like Delta\u2019s pending MQDs. Tiers (placeholder names): Silver 1 course (a digital memento and a shareable card), Gold 5 (tougher AI voters), Platinum 10 (the full library), Diamond 20 (early access). Second metric: volunteers recruited via a personal invite link; doors knocked and shift confirmation are skipped for now. Supersedes the ready-shift tiers and the never-demotes rule."],
+  me: ["Progress: what is next, then what you have done", "Version 144 (Robert, Nov 2). The hero shows the lesson she saved, how many to door-ready and the one unlock that brings (Silver: a thank-you from the candidate and a card to share). Under it, the promise that the campaign sees status, never scores. Then the streak (lesson days and practice days count, one miss a week forgiven) with this week\u2019s days, the record (lessons, doors, best streak, campaigns; yours for keeps, it travels), badges as fractions (Door-ready, Briefed after door-ready, Sharp at 10 practice doors, Recruiter at 3 friends), Bring a friend, and How status works, where the ladder lives: Silver 1 course, Gold 5, Platinum 10, Diamond 20, status for the year with a comeback rule, the record never resets."],
   try: ["Your 1st try, before any teaching", "The volunteer answers out loud before any teaching. Trying first, even wrong, makes the lesson that follows stick (the pretesting effect). Feedback is positive only and never a grade: what they got right and what to watch for. All four moves on the first try goes straight to Your 2nd try, the version 67 rule applied to every lesson. Lesson 1\u2019s try also places them. Version 72: one mic button and no box until it\u2019s tapped, so a phone\u2019s keyboard never opens on its own."],
   spot: ["Catch the mistake", "The same door on another day with one realistic miss. Lesson 1 picks it from the volunteer\u2019s own try: the neighbor move, or the permission question. The volunteer taps the miss, sees why it matters and goes straight to the 2nd try to use it at the next door."],
   coach: ["Practice: every door you\u2019ve learned", "Version 139 (the Nov 1 lesson-path decisions). One row per lesson door. A finished lesson\u2019s door replays as often as you like, with the same mic and grading, and never uses the day\u2019s lesson or changes the saved score; each locked door names the lesson that opens it. Later: the five brief doors, tougher voters at Gold and the coach picking the next door from what you missed."],
@@ -5615,26 +5641,63 @@ function statusNow() {
    course, Gold 5, Platinum 10, Diamond 20. Second metric: volunteers recruited via a personal invite link; doors
    knocked and shift confirmation are skipped for now. Supersedes the ready-shift tiers of warmup-profile-status-plan.md. */
 const PG_ARCS = ["M31.5 90.5 A46 46 0 0 1 18.1 55.6", "M18.8 49.6 A46 46 0 0 1 40.0 18.8", "M45.3 16.0 A46 46 0 0 1 82.7 16.0", "M88.0 18.8 A46 46 0 0 1 109.2 49.6", "M109.9 55.6 A46 46 0 0 1 96.5 90.5"];
-const TIERS5 = [["Silver", 1, "A digital memento and a shareable card"], ["Gold", 5, "Tougher AI voters to practice against"], ["Platinum", 10, "The full course library unlocks"], ["Diamond", 20, "Early access to new trainings, and your say on them"]];
+const TIERS5 = [["Silver", 1, "A thank-you from the candidate, and a card to share"], ["Gold", 5, "Tougher voters to practice against"], ["Platinum", 10, "The full course library"], ["Diamond", 20, "First look at new lessons, and your say on them"]]; /* version 144 (Robert, Nov 2): rewards are standing, not stuff */
+/* version 144 (Robert, Nov 2): the streak counts lesson days and practice days, back from today (or from yesterday, if today is still open) */
+const dayKey = (t) => { const d = new Date(t); return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); };
+function pathDays() { const set = {}; Object.values(S.doneAt || {}).forEach((t) => { set[dayKey(t)] = 1; }); (S.practDays || []).forEach((k) => { set[k] = 1; }); return set; }
+function pathStreak(days) { let n = 0, t = Date.now(); if (!days[dayKey(t)]) t -= 86400000; while (days[dayKey(t)]) { n += 1; t -= 86400000; } return n; }
 function vProgressG() {
-  const d5 = S.done5 || {}, nd = LESSONS5.filter((x) => d5[x.n]).length, done = nd >= 5 ? 1 : 0;
+  /* version 144 (Robert, Nov 2): Progress leads with what is next (the saved lesson, the lessons to door-ready, the one unlock that
+     brings) and then says what she has done (the streak, the record, the badges). The ladder lives on How status works, one tap away,
+     so the page never reads like a program brochure. Keeps version 138's hero (what she saved, not a 0) and version 128's no-lockup rule.
+     The program itself is in the version 144 builder's notes and the plan's Decisions. */
+  const d5 = S.done5 || {}, nd = LESSONS5.filter((x) => d5[x.n]).length, done = nd >= 5 ? 1 : 0, camp = CAMPAIGN[S.track] || CAMPAIGN.gotv, first = camp.name.split(" ")[0];
   const lastL = LESSONS5.filter((x) => d5[x.n]).pop(), left = 5 - nd, sc = lastL ? d5[lastL.n].filter(Boolean).length : 0; /* version 138: the lesson she saved last and its score */
   const heroB = !lastL ? "Lesson 1" : nd >= 5 ? "Door-ready" : `Lesson ${lastL.n} \u00b7 ${sc} of 4`, heroS = nd >= 5 ? "All five lessons saved." : `${left} lesson${left === 1 ? "" : "s"} to Door-ready`;
   const next = TIERS5.find((t) => done < t[1]) || TIERS5[TIERS5.length - 1];
   const gauge = `<span class="prog-gauge"><svg viewBox="0 0 128 112" aria-label="${nd} of 5 lessons saved toward ${next[0]}">${PG_ARCS.map((d, i) => `<path class="pgn${i < nd ? " on" : ""}" d="${d}"/>`).join("")}</svg><span class="pg-num"><b class="num">${nd}/5</b><small>lessons</small></span></span>`;
-  const lockB = `<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`;
-  const badge = (name, on, frac, label) => `<span class="badge${on ? "" : " off"}"><span class="ring-wrap" style="width:46px;height:46px">${ring(frac, 46, 6)}<span class="ring-num">${on ? `<small class="pg-frac num">${label}</small>` : lockB}</span></span>${name}</span>`;
+  const unlock = nd >= 5 ? `<span><b>Silver</b> this year. Gold at 5 courses brings tougher voters to practice against.</span>` : `<span><b>Door-ready brings Silver:</b> a thank-you from ${first} and a card to share.</span>`;
+  /* the streak and this week */
+  const days = pathDays(), streak = pathStreak(days), best = Math.max(streak, S.bestStreak || 0); S.bestStreak = best;
+  const today = new Date(), letters = ["S", "M", "T", "W", "T", "F", "S"]; /* the last seven days, today at the right, so a streak reads as a run */
+  const tick = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const week = [6, 5, 4, 3, 2, 1, 0].map((back) => { const t = today.getTime() - back * 86400000, on = !!days[dayKey(t)]; return `<li class="${on ? "on" : ""}${back === 0 ? " today" : ""}"><span>${on ? tick : ""}</span>${letters[new Date(t).getDay()]}</li>`; }).join("");
+  const flame = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c.4 3.6 3.2 5.3 4.6 8.2.9 1.9 1 4.2-.3 6-1.1 1.6-3 2.8-5.1 2.8a6.2 6.2 0 0 1-5.6-3.6c-1-2.3-.4-4.9 1.1-6.8.3 1.3 1.1 2.5 2.4 3.1-.6-2.9.6-6.1 2.9-9.7z" fill="currentColor"/><path d="M12 13.2c.3 1.3 1.4 2 1.7 3.1.3 1.2-.6 2.6-1.9 2.6s-2.2-1.3-1.9-2.6c.2-1 1.5-1.7 2.1-3.1z" fill="#FFF0E3"/></svg>`;
+  const skTxt = streak === 0 ? `<b>Start your streak today</b><small>Lessons and practice both count. One miss a week is forgiven.</small>` : `<b>${streak}-day streak</b><small>Lessons and practice both count. One miss a week is forgiven.</small>`;
+  /* the record */
+  const doors = nd * 2 + (S.doorsN || 0);
+  const rec = `<div class="rec"><div><b class="num">${nd}</b><small>lesson${nd === 1 ? "" : "s"}</small></div><div><b class="num">${doors}</b><small>door${doors === 1 ? "" : "s"}</small></div><div><b class="num">${best}</b><small>best run</small></div><div><b class="num">1</b><small>campaign</small></div></div>`;
+  /* the badges: fractions, never a wall of locks */
+  const badge = (name, k, of) => { const on = k >= of, zero = k === 0; return `<span class="badge${zero ? " zero" : ""}"><span class="ring-wrap" style="width:46px;height:46px">${ring(Math.min(1, k / of), 46, 6)}<span class="ring-num">${on ? `<span class="pg-done">${tick}</span>` : `<small class="pg-frac num">${k}/${of}</small>`}</span></span>${name}</span>`; };
+  const badges = [badge("Door-ready", nd, 5)].concat(nd >= 5 ? [badge("Briefed", S.briefsDone || 0, 5)] : []).concat([badge("Sharp", S.doorsN || 0, 10), badge("Recruiter", S.recruits || 0, 3)]);
   return app(`
     <h1 class="h1">Progress</h1>
     <div class="status-card prog-card"><div class="prog-top">${gauge}
-      <div><p class="kicker">${lastL ? "Saved" : "Your course"}</p><b class="tier pg-saved">${heroB}</b><small>${heroS}</small></div></div></div>
-    <p class="prog-tier">${done ? "2026 tier: Silver." : "2026 tier: Member. Finish your first course to reach Silver."} Your tier resets January 1. Lifetime status is yours for keeps.</p>
-    <p class="deb-q">The tiers</p>
-    <ul class="tiers5">${TIERS5.map((t) => `<li><b>${t[0]}</b><span>${t[1]} course${t[1] > 1 ? "s" : ""}</span><small>${t[2]}</small></li>`).join("")}</ul>
-    <div class="prog-row"><span><b>Volunteers recruited</b><small>Friends who join through your invite link count here.</small></span><span class="prog-n num">0</span><button class="link" data-act="invite-copy">Share link</button></div>
+      <div><p class="kicker">${lastL ? "Saved" : "Your course"}</p><b class="tier pg-saved">${heroB}</b><small>${heroS}</small></div></div>
+      <p class="prog-unlock">${LOCK_SVG}${unlock}</p></div>
+    <p class="prog-note">${first}\u2019s team sees your status, never your scores.</p>
+    <div class="sk"><span class="sk-flame">${flame}</span><div class="sk-txt">${skTxt}</div></div>
+    <ol class="sk-week" aria-label="The last seven days">${week}</ol>
+    <p class="deb-q">Your record</p>
+    ${rec}
+    <p class="rec-note">Yours for keeps. It travels with you to every campaign.</p>
     <p class="deb-q">Badges</p>
-    <div class="badges">${badge("Door-ready", true, nd / 5, nd + "/5")}${badge("Storyteller", false, 0, "")}${badge("Marshal", false, 0, "")}${badge("The science", false, 0, "")}</div>
+    <div class="badges${badges.length === 3 ? " b3" : ""}">${badges.join("")}</div>
+    <div class="prog-row"><span><b>Bring a friend</b><small>Friends who join through your link count toward Recruiter.</small></span><button class="link" data-act="invite-copy">Share link</button></div>
+    <button class="link how-status" data-act="go" data-arg="statushow">How status works</button>
   `, { tabs: "me", noBrand: true }); /* version 128 (Robert): Progress travels between campaigns, so it wears no campaign lockup */
+}
+function vStatusHow() {
+  /* version 144 (Robert, Nov 2): the ladder, one tap away from Progress */
+  const camp = CAMPAIGN[S.track] || CAMPAIGN.gotv, first = camp.name.split(" ")[0];
+  return app(`
+    <p class="kicker">Progress</p>
+    <h1 class="h1">How status works</h1>
+    <p class="lede sh-p">You earn status by finishing courses: five lessons, one a day, every check passed. Your first course makes you door-ready.</p>
+    <ul class="tiers5">${TIERS5.map((t) => `<li><b>${t[0]}</b><span>${t[1]} course${t[1] > 1 ? "s" : ""}</span><small>${t[2].replace("the candidate", first)}</small></li>`).join("")}</ul>
+    <p class="lede sh-p">Status is for the year and starts fresh each January. Your record never resets, and if you come back next cycle, finishing the course puts you right back at your last tier.</p>
+    <p class="lede sh-p">${first}\u2019s team sees your status, never your practice scores.</p>
+  `, { back: "me", noBrand: true, footer: `<button class="btn" data-act="go" data-arg="me">Got it</button>` });
 }
 function vMe() {
   if (S.track === "gotv") return vProgressG(); /* version 126 (Robert, Oct 27): the Progress tab previews the tier ring */
@@ -7724,7 +7787,7 @@ function meTrainingG() {
 }
 
 /* ---------- rendering and navigation ---------- */
-const VIEWS = { pick: vPick, sms: vSMS, sms2: vSMS2, video: vVideo, welcome: vWelcome, intake: vIntake, placement: vPlacement, howworks: vHowWorks, talk: vTalk, note: vNote, library: vLibrary, training: vTraining, me: vMe, path: vPath, session: vSession, watch: vWatch, spot: vSpot, why: vWhy, recap: vRecap, practice: vPractice, main: vMain, door: vDoor, score: vScore, close: vClose, ready: vReady, debrief: vDebrief, try: vTry, warm: vWarm, warmtip: vWarmTip, warmready: vWarmReady, coach: vCoach, how: vHow, locked: vLocked, whylock: vWhyLock, course: vCourseG };
+const VIEWS = { pick: vPick, sms: vSMS, sms2: vSMS2, video: vVideo, welcome: vWelcome, intake: vIntake, placement: vPlacement, howworks: vHowWorks, talk: vTalk, note: vNote, library: vLibrary, training: vTraining, me: vMe, path: vPath, session: vSession, watch: vWatch, spot: vSpot, why: vWhy, recap: vRecap, practice: vPractice, main: vMain, door: vDoor, score: vScore, close: vClose, ready: vReady, debrief: vDebrief, try: vTry, warm: vWarm, warmtip: vWarmTip, warmready: vWarmReady, coach: vCoach, how: vHow, locked: vLocked, whylock: vWhyLock, course: vCourseG, statushow: vStatusHow };
 let lessonRun = 0;
 
 function render() {
@@ -8402,6 +8465,7 @@ async function finishConvo(d) {
   const phr = S.track === "gotv" && (S.lesson || 1) === 1 ? phrFinal(youText, result.hits, result.phr || null) : null; /* version 98 */
   S.last = { skill: skKey(), lesson: S.lesson || 1, prior: S.track === "gotv" ? priorChecks(S.convo.turns.filter((x) => x.who === "you").map((x) => norm(x.text)), S.lesson || 1) : [], moves: result.hits, praise: result.praise, tip: result.tip, text: youText, phr, who: d.name, day: S.day };
   if (S.drill) {
+    if (S.drill.kind === "practice") { S.doorsN = (S.doorsN || 0) + 1; S.practDays = (S.practDays || []).concat([dayKey(Date.now())]); } /* version 144: a practice door counts toward Sharp and keeps the streak */
     if (S.drill.kind === "warm") { S.warm = S.warm || { res: {} }; S.warm.res = S.warm.res || {}; S.warm.res["d" + S.drill.step] = { skill: skKey(), moves: result.hits, tip: result.tip, door: S.drill.door }; }
   } else {
     S.sessions[S.track][S.track === "gotv" && (S.lesson || 1) !== 1 ? "L" + S.lesson : S.day] = { moves: result.hits };
