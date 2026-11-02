@@ -1567,7 +1567,40 @@
   .hn-art-lock { position: absolute; left: 50%; top: 54%; transform: translate(-50%, -50%); width: 42px; height: 42px; border-radius: 50%; background: var(--card); color: var(--ink-2); display: grid; place-items: center; box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.35); }
   .hn-art-lock svg { position: static; width: 18px; height: 18px; }
   .hn-cand { display: grid; place-items: center; } .hn-cand img { display: block; width: 88px; height: 88px; border-radius: 50%; object-fit: cover; border: 3px solid var(--card); box-shadow: 0 6px 16px -8px rgba(0,0,0,.35); } .hn-cand .hn-art-lock { left: calc(50% + 34px); top: calc(50% + 30px); width: 34px; height: 34px; } /* version 140 (Robert): the briefing hero wears the candidate, round, like her tile on Learn */
-  .plan.plan-quiet.plan-alldone .retake5, .plan.plan-quiet.plan-alldone li small { display: none; } /* version 140: once all five are saved, Today leads with the briefing */
+  .plan.plan-quiet.plan-alldone .retake5, .plan.plan-quiet.plan-alldone li small { display: none; }
+  /* version 142 (Robert, Nov 2): Today is one path, today's lesson and tomorrow's door */
+  .td-head { margin: 0 2px 8px; }
+  .td-k { margin: 0 0 4px; color: var(--ink-3); }
+  .td-h { margin: 0 0 4px; font-family: var(--head-font); font-weight: var(--head-weight); font-size: 26px; line-height: 1.08; letter-spacing: -0.01em; }
+  .td-sub { margin: 0; color: var(--ink-2); font-size: 14.5px; line-height: 1.35; }
+  .path { list-style: none; margin: 6px 0 10px; padding: 0 2px; display: grid; grid-template-columns: repeat(10, 1fr); position: relative; }
+  .path::before { content: ""; position: absolute; left: 5%; right: 5%; top: 11px; height: 2px; background: var(--line); }
+  .pd { position: relative; display: grid; justify-items: center; gap: 4px; }
+  .pd-dot { position: relative; z-index: 1; width: 22px; height: 22px; border-radius: 50%; background: var(--paper); border: 2px solid var(--line); display: grid; place-items: center; color: #FFFFFF; }
+  .pd-dot svg { width: 13px; height: 13px; }
+  .pd.done .pd-dot { background: var(--accent); border-color: var(--accent); }
+  .pd.next .pd-dot { border-color: var(--ink); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .pd.brief .pd-dot { border-color: var(--camp-soft); }
+  .pd.brief.done .pd-dot { background: var(--camp); border-color: var(--camp); }
+  .pd.brief.next .pd-dot { border-color: var(--camp); box-shadow: 0 0 0 3px var(--camp-soft); }
+  .pd small { font-size: 10.5px; font-weight: 700; letter-spacing: 0.02em; color: var(--ink-3); white-space: nowrap; line-height: 1; }
+  .pd:last-child small { justify-self: end; }
+  .td-done { display: grid; grid-template-columns: 26px 1fr auto; gap: 10px; align-items: start; padding: 10px 2px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin: 0 0 8px; }
+  .td-done .tick { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #FFFFFF; display: grid; place-items: center; }
+  .td-done .tick svg { width: 15px; height: 15px; }
+  .td-done-txt { display: grid; gap: 2px; min-width: 0; }
+  .td-done-txt b { font-size: 15px; font-weight: 600; line-height: 1.3; }
+  .td-done-txt small { font-size: 13px; color: var(--ink-3); line-height: 1.35; }
+  .td-done .retake5 { margin: 0; padding: 3px 0; font-size: 13.5px; color: var(--ink-2); }
+  .tt { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 0 0 8px; }
+  .tt-l { font-size: 13.5px; font-weight: 600; color: var(--ink-2); margin-right: 2px; }
+  .tt-chip { padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--card); color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; }
+  .tt-chip.on { background: var(--ink); border-color: var(--ink); color: var(--on-ink); }
+  .hn-tom { color: var(--ink-3); }
+  .content.stage > .td-head, .content.stage > .path, .content.stage > .td-done { flex: none; }
+  .hero-next > .tt { flex: none; }
+  @media (max-height: 700px) { .td-h { font-size: 23px; } .td-sub { font-size: 13.5px; } .path { margin-bottom: 6px; } .td-done { padding: 7px 2px; } .tt-chip { padding: 5px 10px; } .hero-next { padding: 13px 14px 12px; } }
+  .cut-shot .tt { display: none; } /* the video phone is too small for the chips */ /* version 140: once all five are saved, Today leads with the briefing */
   /* version 120: the hero pulses once on the way in from the ring card; a quiet Retake link under a done row */
   .hero-next.pulse { animation: heroPulse 1.3s ease-out 0.35s 2; }
   @keyframes heroPulse { 0% { box-shadow: 0 0 0 0 rgba(53, 181, 124, 0.5), 0 12px 26px -14px rgba(27, 122, 77, 0.45); transform: scale(1); } 30% { transform: scale(1.015); } 100% { box-shadow: 0 0 0 14px rgba(53, 181, 124, 0), 0 12px 26px -14px rgba(27, 122, 77, 0.45); transform: scale(1); } }
@@ -4207,7 +4240,7 @@ const NOTES = {
   pick: ["Every program in the cycle", "Signatures a year or more out, registration six months or more out, deep canvassing for persuasion in the months before and turnout in the final two weeks, at the door or by vote tripling at a busy site."],
   video: ["A welcome from the candidate", "About a minute, filmed on an iPhone. Maya Kaur, the candidate, talks to the camera at home: why the campaign needs you, that the in-person training comes first and that Warmup gets you door-ready before your shift. On \u201cstarting with how to introduce yourself,\u201d her iPhone fills the frame, in her hand, and plays lesson 1 the way the volunteer will meet it, timed to her words: the lesson opening, a first try at Sofia\u2019s door, Listen in with the moves ticking, Kevin\u2019s door with the volunteer speaking out loud and Kevin talking back, the feedback, Lesson 1 done at 1/5 and Today with lessons 2 to 5. Then it cuts back to her for the ask. She\u2019s a real person reading the script in her own words, so this is the version to compare with the AI welcome."],
   sms: ["SMS-delivered", "Nobody has the campaign\u2019s number saved, so a real person signs the text and says who they\u2019re with. At sign-up the campaign says to expect it, so it never reads as spam. The link opens the lesson, with nothing to download. Testing with someone? Tell them first: you\u2019ll play a volunteer and talk out loud with a pretend voter."],
-  welcome: ["Today: the plan around the shift", "Version 71 (How Warmup Teaches, approved Oct 12). One list: each lesson on its day, the Warmup Saturday at 8, the canvass at 9 and the Cooldown after. The ring shows readiness for the next shift: the five lessons, then the Warmup. Since version 139 a new lesson opens every morning, so a locked lesson reads Tomorrow: Lesson 2 of 5, with no clock; after lesson 5, Today points at the campaign\u2019s briefing on day 6 (version 140). Four tabs: Today, Learn, Practice, Progress."],
+  welcome: ["Today: one path, today\u2019s lesson, tomorrow\u2019s door", "Version 142 (Robert, Nov 2). The head says where she is by name, the ten dots show the whole path (five lessons to door-ready, then the campaign\u2019s five briefs), one row holds today\u2019s lesson with its score and the one part to work on, and the hero holds tomorrow: the shut door, the hour she wants the text (a plan she makes herself, the plan-making lesson 4 teaches) and the line that she can close this. No clock: a new lesson opens every morning. After lesson 5 the hero is the campaign\u2019s briefing (version 140). Every lesson by name lives on Learn."],
   intake: ["Find your starting point (off the main path since version 64)", "One question: their experience. The heads-up that practice happens out loud comes right before they first speak: before the opener for veterans, after the four cards for first-timers. Each answer is reflected back, and the name comes from the sign-up list."],
   talk: ["Right before they speak (off the main path since version 64)", "The talk-or-type question waits until the first moment it matters, so first-timers aren\u2019t asked about practicing out loud before they know what Saturday looks like."],
   placement: ["Everyone shows their opener", "Since version 64 (Robert, Oct 11) there is no experience question and no talk-or-type question: the first try places you. A Knock first, so nobody is put on the spot; the box says typing works if you can\u2019t talk. A strong opener skips Watch. The first-timer cards still exist for the presenter menu and \u201cHow Saturday works\u201d: Saturday as a story: six tap-through cards (tap or swipe, auto-advancing like Instagram Stories), each a small animation and one line, ending on a pass with when, where, how long and what to bring. First-timers learn how a canvass works before any technique, and a concrete where and when makes people likelier to show up. Four cards, no test, so their first graded moment is a likely win. Veterans show their opener and get feedback on it right away, on the same screen that opens the lesson; a strong one skips the demo. No level on screen: placement changes what comes next, not a label. The heading says why we ask (version 65): the opener tells us where to start the lesson. The card shows the four moves as checks and the misses as what happened, like the scorecard (version 66). One rule, two paths (version 67): all four moves goes straight to Your turn, nothing re-taught; anything less gets the full lesson, with the reps picked from the moves they missed."],
@@ -4247,8 +4280,8 @@ const fresh = () => ({
   streakBase: 2, debrief: { mood: null, change: "", why: "", sent: false }, whyI: 0, practice: null,
   review: { step: 0, overall: 0, cats: {}, tags: {}, change: "", why: "", sent: false },
   lib: { q: "", open: null, sheet: null, asked: {}, added: {}, done: {} }, dayDone: {}, fitsReact: {}, noteFrom: "today",
-  lesson: 1, tryRes: null, tryKnocked: false, drill: null, drillBack: null, sayNow: null, warm: null, warmDone: false, doneAt: {}, nextAt: {}, noteKind: "list", coolDoor: null, signedUp: false,
-});
+  lesson: 1, tryRes: null, tryKnocked: false, drill: null, drillBack: null, sayNow: null, warm: null, warmDone: false, doneAt: {}, nextAt: {}, noteKind: "list", coolDoor: null, signedUp: false, textAt: null,
+}); /* version 142: textAt, the hour she picked for tomorrow's text */
 let S = fresh();
 const settings = {
   look: "recognize",
@@ -4650,7 +4683,7 @@ const ICON = {
 
 /* ---------- shell ---------- */
 /* version 105: the campaign skin is one config (name, the line under it, its one color and the lockup style). Get out the vote only. */
-const CAMPAIGN = { gotv: { name: "Maya Kaur", line: "For Woodbridge City Council", lines: ["For Woodbridge", "City Council"], color: "#1F4C91", lockup: "stack" } };
+const CAMPAIGN = { gotv: { name: "Maya Kaur", line: "For Woodbridge City Council", lines: ["For Woodbridge", "City Council"], color: "#1F4C91", soft: "rgba(31, 76, 145, 0.38)", lockup: "stack" } }; /* version 142: soft tints the path dots for the campaign briefs */
 const campNow = () => (S && CAMPAIGN[S.track]) || null;
 function campMark(c) {
   c = c || campNow();
@@ -7342,35 +7375,58 @@ function heroDoor(n, locked) {
   return `<div class="hn-art" aria-hidden="true">${sv}${locked ? `<span class="hn-art-lock">${LOCK_SVG}</span>` : ""}</div>`;
 }
 function vTodayG() {
-  /* version 113 (Robert, Mobbin audit edit 1): one hero card for the next lesson, the rest are quiet rows. After lesson 1 the next lesson is locked,
-     so the hero holds the clock and the why link; before it, the hero holds the one Start button. */
+  /* version 142 (Robert, Nov 2): Today is one path, today's lesson and tomorrow's door. The head says where she is by name, the ten dots
+     show the whole path (five lessons to door-ready, then the campaign's five briefs), one row holds today's lesson with the part to work
+     on, and the hero holds tomorrow: the shut door, the hour she wants the text (a plan she makes herself, the same plan-making lesson 4
+     teaches) and the line that she can close this. Every lesson by name now lives on Learn (version 143).
+     Earlier: version 113 (the hero and quiet rows), 123 (the door fills the space), 129 (two paths), 139 (Tomorrow, no clock), 140 (the briefing after lesson 5). */
   const d5 = S.done5 || {}, nx = LESSONS5.find((x) => !d5[x.n]), gated = !!nx && lessonGated();
+  const nd = LESSONS5.filter((x) => d5[x.n]).length, camp = CAMPAIGN[S.track] || CAMPAIGN.gotv, first = camp.name.split(" ")[0], name = me();
   const check = `<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const row = (L) => {
-    const done = d5[L.n], lk = !done && lessonLocked(L.n);
-    return `<li class="${done ? "done" : ""}${lk ? " locked" : ""}"><button data-act="lesson5" data-arg="${L.n}"><span class="tick">${done ? check : lk ? LOCK_SVG : L.n}</span><span><b>${L.title}</b>${done ? `<small>Saved \u00b7 Score ${done.filter(Boolean).length}/4</small>` : ""}</span></button>${done ? `<button class="link retake5" data-act="retake5" data-arg="${L.n}">Retake lesson ${L.n}</button>` : ""}</li>`; /* version 120 (Robert): a quiet full retake while the next lesson is locked */
-  };
   const locked = !!nx && lessonLocked(nx.n), at = nx ? S.nextAt[nx.n] : null;
-  const primary = locked ? null : nx ? [gated ? "Do it now anyway" : `Start lesson ${nx.n}`, "lesson5", String(nx.n)]
-    : !S.warmDone ? ["Start your Warmup", "warm-start"]
-    : ["Practice a door", "go", "coach"];
   const pulse = !!S.heroPulse; S.heroPulse = false; /* version 120: once, on the way in from the ring card */
-  const brief = !nx && S.track === "gotv" ? `<div class="hero-next locked brief-next"><p class="hn-k">Up next \u00b7 Day 6</p><h2 class="hn-t">Tomorrow: ${(CAMPAIGN[S.track] || CAMPAIGN.gotv).name.split(" ")[0]}\u2019s briefing opens</h2><div class="hn-art hn-cand" aria-hidden="true"><img src="${CAND_PHOTO}" alt=""><span class="hn-art-lock">${LOCK_SVG}</span></div><p class="lt-sub">You can close this. We\u2019ll text you when it opens.</p><div class="hn-links"><button class="link today-more" data-act="go" data-arg="library">Browse Learn</button></div></div>` : ""; /* version 140 (Robert, Nov 1, open call 6): after lesson 5, Today points at the briefing, not the Warmup */
-  const hero = !nx ? brief : `<div class="hero-next${locked ? " locked" : ""}${pulse ? " pulse" : ""}"><p class="hn-k">Up next \u00b7 5 min</p><h2 class="hn-t">Lesson ${nx.n}: ${nx.title}</h2>${heroDoor(nx.n, locked)}${locked
-    ? `<div class="hn-lock"><span class="hn-ico">${LOCK_SVG}</span><p class="hn-next">Tomorrow: Lesson ${nx.n} of 5</p></div><p class="lt-sub">You can close this. We\u2019ll text you lesson ${nx.n}.</p><div class="hn-links"><button class="link" data-act="go" data-arg="whylock">Why your lesson is locked</button><button class="link today-more" data-act="go" data-arg="library">Browse Learn</button></div>` /* version 129 (Robert, Oct 27, from Suman): the second path, Learn; leaving stays the default */
-    : `${gated && at ? `<p class="lt-sub">Opens ${at.say}</p>` : ""}${button(primary)}`}</div>`;
-  const list = (xs) => (xs.length ? `<ol class="plan plan-g plan-quiet${brief ? " plan-alldone" : ""}">${xs.map(row).join("")}</ol>` : "");
-  const before = nx ? LESSONS5.filter((L) => L.n < nx.n) : LESSONS5, after = nx ? LESSONS5.filter((L) => L.n > nx.n) : [];
-  const nDone = LESSONS5.filter((x) => d5[x.n]).length;
-  const head = `<div class="fund-head"><h1 class="fund-h">Your five canvassing fundamentals</h1><p class="fund-sub">${nDone === 0 ? "Five short lessons, one a day, to get you door-ready." : nDone === 5 ? "All five done. You have the fundamentals." : `${nDone} of 5 down. One lesson a day gets you door-ready.`}</p></div>`;
-  return app(`${head}${list(before)}${hero}${list(after)}`, { tabs: "today", stage: !!nx || !!brief, footer: (nx || brief ? "" : button(primary)) + pwLine() }); /* version 123: a stage, so the hero can fill the space */ /* version 105: Powered by Warmup at the foot */
+  /* the head: her name and where she is */
+  const words = ["", "One", "Two", "Three", "Four", "Five"], left = 5 - nd;
+  const h1 = nd === 0 ? `Welcome, ${esc(name)}.` : nd >= 5 ? `Door-ready, ${esc(name)}.` : `${words[nd]} down, ${esc(name)}.`;
+  const sub = nd === 0 ? `Five lessons to door-ready, one each morning. Then ${first}\u2019s briefs.` : nd >= 5 ? `${first}\u2019s briefs start tomorrow: five issues, one a day.` : `${left} more morning${left === 1 ? "" : "s"} to door-ready, then ${first}\u2019s briefs.`;
+  const head = `<div class="td-head"><p class="kicker td-k">Your path \u00b7 ${nd} of 10</p><h1 class="td-h">${h1}</h1><p class="td-sub">${sub}</p></div>`;
+  /* the path: five lessons, then the campaign's five briefs */
+  const dots = [];
+  for (let i = 1; i <= 10; i += 1) {
+    const done = i <= nd, next = i === nd + 1, brief = i > 5, label = i === 5 ? "Door-ready" : i === 10 ? "Briefed" : "";
+    dots.push(`<li class="pd${done ? " done" : ""}${next ? " next" : ""}${brief ? " brief" : ""}"><span class="pd-dot">${done ? check : ""}</span>${label ? `<small>${label}</small>` : ""}</li>`);
+  }
+  const path = `<ol class="path" style="--camp:${camp.color};--camp-soft:${camp.soft}" aria-label="${nd} of 10 done">${dots.join("")}</ol>`;
+  /* today's lesson, saved, with the one part to work on */
+  const lastL = LESSONS5.filter((x) => d5[x.n]).pop();
+  let doneRow = "";
+  if (lastL) {
+    const hits = d5[lastL.n], sc = hits.filter(Boolean).length, mi = hits.findIndex((h) => !h), sk = SKILLS[LESSON_SKILL[lastL.n]];
+    const tip = mi >= 0 && sk && sk.short && sk.short[mi] ? `Next time: ${esc(sk.short[mi])}.` : "All four parts. Nice.";
+    doneRow = `<div class="td-done"><span class="tick">${check}</span><div class="td-done-txt"><b>Lesson ${lastL.n} saved \u00b7 ${sc} of 4</b><small>${tip}</small></div><button class="link retake5" data-act="retake5" data-arg="${lastL.n}">Retake</button></div>`; /* version 120: a quiet full retake */
+  }
+  /* tomorrow's text: she picks the hour (an implementation intention; Nickerson and Rogers 2010, the same science as lesson 4) */
+  const times = ["7 AM", "Noon", "6 PM"];
+  const chips = `<div class="tt"><span class="tt-l">${S.textAt ? "Text set for" : "Text me at"}</span>${times.map((t) => `<button class="tt-chip${S.textAt === t ? " on" : ""}" data-act="text-at" data-arg="${t}" aria-pressed="${S.textAt === t}">${t}</button>`).join("")}</div>`;
+  let hero;
+  if (!nx) {
+    /* version 140 (Robert, open call 6): after lesson 5, Today points at the briefing, not the Warmup */
+    hero = `<div class="hero-next locked brief-next"><p class="hn-k">Up next \u00b7 Day 6</p><h2 class="hn-t">Tomorrow: ${first}\u2019s briefing opens</h2><div class="hn-art hn-cand" aria-hidden="true"><img src="${CAND_PHOTO}" alt=""><span class="hn-art-lock">${LOCK_SVG}</span></div>${chips}<p class="lt-sub">You can close this. We\u2019ll text you ${S.textAt ? "at " + S.textAt : "when it opens"}.</p><div class="hn-links"><button class="link today-more" data-act="go" data-arg="library">Browse Learn</button></div></div>`;
+  } else if (locked) {
+    /* version 139 (Robert): Tomorrow, no clock; version 129 (from Suman): leaving is the default, Learn is the second path */
+    hero = `<div class="hero-next locked${pulse ? " pulse" : ""}"><p class="hn-k hn-tom">Tomorrow: Lesson ${nx.n} of 5</p><h2 class="hn-t">${nx.title}</h2>${heroDoor(nx.n, true)}${chips}<p class="lt-sub">You can close this. We\u2019ll text you ${S.textAt ? "at " + S.textAt : "lesson " + nx.n}.</p><div class="hn-links"><button class="link" data-act="go" data-arg="whylock">Why one a day</button><button class="link today-more" data-act="go" data-arg="library">Browse Learn</button></div></div>`;
+  } else {
+    const primary = [gated ? "Do it now anyway" : `Start lesson ${nx.n}`, "lesson5", String(nx.n)];
+    hero = `<div class="hero-next${pulse ? " pulse" : ""}"><p class="hn-k">Today \u00b7 Lesson ${nx.n} of 5 \u00b7 5 min</p><h2 class="hn-t">${nx.title}</h2>${heroDoor(nx.n, false)}${gated && at ? `<p class="lt-sub">Opens ${at.say}</p>` : ""}${button(primary)}</div>`;
+  }
+  return app(`${head}${path}${doneRow}${hero}`, { tabs: "today", stage: true, footer: pwLine() }); /* version 123: a stage, so the hero can fill the space */ /* version 105: Powered by Warmup at the foot */
 }
 function vWhyLock() {
   const dots = [1, 2, 3, 4, 5].map((n) => `<span class="wl-dot${n === 1 ? " on" : ""}">${n === 1 ? `<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>` : n}</span>`).join(`<i class="wl-gap"></i>`);
   return app(`
     <div class="why-lock">
       <div class="wl-chart"><svg class="wl-curve" viewBox="0 0 320 186" role="img" aria-label="Memory over time: one lesson a day stays high, all at once fades"><path d="M14 20 V160 H306" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/><path d="M10 26 L14 18 L18 26" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/><path d="M20 30 C50 92, 110 122, 304 134" fill="none" stroke="var(--ink-3)" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 7" opacity=".75"/><path d="M20 30 C40 52, 56 64, 76 70 L76 30 C96 46, 112 54, 132 58 L132 28 C152 40, 168 45, 188 48 L188 26 C208 34, 224 38, 244 40 L244 24 C264 29, 284 32, 304 34" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><g fill="var(--accent)"><circle cx="20" cy="30" r="5"/><circle cx="76" cy="30" r="5"/><circle cx="132" cy="28" r="5"/><circle cx="188" cy="26" r="5"/><circle cx="244" cy="24" r="5"/></g><text transform="rotate(-90)" x="-90" y="9" text-anchor="middle" font-family="Figtree, sans-serif" font-size="12.5" font-weight="700" fill="var(--ink-3)">Memory</text><text x="304" y="178" text-anchor="end" font-family="Figtree, sans-serif" font-size="12.5" font-weight="700" fill="var(--ink-3)">Time</text><text x="304" y="13" text-anchor="end" font-family="Figtree, sans-serif" font-size="12.5" font-weight="700" fill="var(--accent-ink)">One lesson a day</text><text x="304" y="118" text-anchor="end" font-family="Figtree, sans-serif" font-size="12.5" font-weight="700" fill="var(--ink-3)">All lessons at once</text></svg></div>
-      <h1 class="h1">Lessons stick when you space them out.</h1>
+      <h1 class="h1">Why one lesson a day.</h1>
       <p class="lede">Warmup is built on behavioral science. One of its most reliable findings is that we remember far more when we learn a little at a time, with a pause in between, than when we cram.</p>
       <p class="lede">So each lesson takes five minutes, and the next one opens the next morning. By your canvass, all five will feel like second nature at the door.</p>
     </div>
@@ -8650,6 +8706,7 @@ document.addEventListener("click", (e) => {
     }
     case "story-replay": S.storyI = 0; render(); break;
     case "story-go": S.storyI = Number(arg); render(); break;
+    case "text-at": S.textAt = S.textAt === arg ? null : arg; render(); break; /* version 142 (Robert): the hour the text comes tomorrow, a plan she makes herself */
     case "invite-copy": try { navigator.clipboard.writeText("https://yourwarmup.com/kaur"); } catch (e) { /* ignore */ } toast("Invite link copied."); break; /* version 126 */
     case "course-open": S.courseN = Number(arg); go("course"); break; /* version 125 */
     case "issues-open": issuesOpen(); break; /* version 130 (Robert, Oct 31): the campaign issue lessons open from Learn */
