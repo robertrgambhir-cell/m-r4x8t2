@@ -5893,9 +5893,10 @@ function vLearnG() {
   const d5 = S.done5 || {}, nd = LESSONS5.filter((x) => d5[x.n]).length, nx = LESSONS5.find((x) => !d5[x.n]);
   const camp = CAMPAIGN[S.track] || CAMPAIGN.gotv, first = camp.name.split(" ")[0], briefs = camp.briefs || [], ids = camp.briefIds || [], shorts = camp.briefShort || [];
   const ready = nd >= 5, total = 5 + briefs.length, lastL = LESSONS5.filter((x) => d5[x.n]).pop();
+  const bd = S.briefsDoneIds || {}, nb = ids.filter((id) => bd[id]).length, briefed = ready && nb >= briefs.length; /* version 152: a finished brief counts */
   const two = (l) => `<span class="chp-t">${l[0]}<br>${l[1]}</span>`;
   const doorArt = (n) => houseTall(HOME[(FLOW[LESSON_SKILL[n]] || {}).persona] || HOME.walter);
-  const mast = `<div class="lrn-mast"><h1 class="lrn-title">GOTV canvassing</h1><span class="lrn-count">${nd} of ${total} chapters</span></div>`;
+  const mast = `<div class="lrn-mast"><h1 class="lrn-title">GOTV canvassing</h1><span class="lrn-count">${nd + (ready ? nb : 0)} of ${total} chapters</span></div>`;
   const tile1 = (L) => {
     const done = d5[L.n], next = !!nx && nx.n === L.n, lk = !done && lessonLocked(L.n), dim = !done && !next;
     const h = HOME[(FLOW[LESSON_SKILL[L.n]] || {}).persona] || HOME.walter;
@@ -5904,15 +5905,17 @@ function vLearnG() {
   };
   const medal = (kind, earned, label) => `<li class="chp-medal${earned ? " earned" : ""}"><span class="medal-art" role="img" aria-label="${kind === "door" ? "Door-ready" : "Briefed"} medal, ${earned ? "earned" : "not yet earned"}">${medalSvg(kind, earned)}</span><span class="chp-t" aria-hidden="true">${label}</span></li>`;
   const row1 = `<ol class="chp-row chain" aria-label="Part 1, five chapters in order">${LESSONS5.map(tile1).join("")}${medal("door", ready, "DOOR-<br>READY")}</ol>`;
-  const tile2 = (bf, i) => `<li class="chp br${ready ? " open" : " locked"}"><button class="chp-b" data-act="brief-open" data-arg="${esc(bf)}" data-lesson="${ids[i] || ""}" aria-label="Chapter ${i + 6}: ${esc(bf)}${ready ? "" : ", locked until door-ready"}"><span class="chp-art">${issueTile(i, !ready)}${ready ? "" : TILE_LOCK}</span><span class="chp-n">${i + 6}</span>${two(shorts[i] || [esc(bf), ""])}</button></li>`;
-  const row2 = `<ol class="chp-row br" aria-label="Part 2, five chapters in any order">${briefs.map(tile2).join("")}${medal("brief", false, "BRIEFED")}</ol>`;
+  const tile2 = (bf, i) => { const ok = ready && !!bd[ids[i]]; return `<li class="chp br${ok ? " done" : ready ? " open" : " locked"}"><button class="chp-b" data-act="brief-open" data-arg="${esc(bf)}" data-lesson="${ids[i] || ""}" aria-label="Chapter ${i + 6}: ${esc(bf)}${ok ? ", done" : ready ? "" : ", locked until door-ready"}"><span class="chp-art">${issueTile(i, !ready)}${ok ? TILE_CHECK : ready ? "" : TILE_LOCK}</span><span class="chp-n">${i + 6}</span>${two(shorts[i] || [esc(bf), ""])}</button></li>`; };
+  const row2 = `<ol class="chp-row br" aria-label="Part 2, five chapters in any order">${briefs.map(tile2).join("")}${medal("brief", briefed, "BRIEFED")}</ol>`;
   const head1 = `<div class="pt"><b>Part 1 \u00b7 Your course</b><i></i><span>In order, one a day</span></div>`;
   const head2 = `<button class="pt pt-m" data-act="issues-open" aria-label="Part 2, ${first}\u2019s campaign: open the briefing"><img src="${CAND_PHOTO}" alt=""><b>Part 2 \u00b7 ${first}\u2019s campaign</b><i></i><span>${ready ? "Any order, one a day" : "Any order, once door-ready"}</span></button>`;
   let card;
   const why = `<button class="link" data-act="go" data-arg="whylock">Why one a day</button>`;
   const retake = lastL ? `<button class="link retake5" data-act="retake5" data-arg="${lastL.n}">Retake chapter ${lastL.n}</button>` : "";
-  if (ready) {
-    card = `<section class="lrn-card"><div><p class="lk-k">Door-ready \u00b7 Part 2 is open</p><h2 class="lk-t">Pick an issue to learn</h2><p class="lk-s">Five minutes each on what voters are raising at the door.</p><div class="lk-links"><button class="link" data-act="issues-open">Open the briefing</button>${retake}</div></div><button class="lk-art lk-tap" data-act="issues-open" aria-label="Open ${first}\u2019s briefing"><img src="${CAND_PHOTO}" alt=""></button></section>`;
+  if (briefed) {
+    card = `<section class="lrn-card"><div><p class="lk-k">Briefed \u00b7 All ${total} done</p><h2 class="lk-t">You finished the course</h2><p class="lk-s">You can hold a GOTV door and say where ${first} stands on five issues.</p><div class="lk-links"><button class="link" data-act="issues-open">Open the briefing</button>${retake}</div></div><button class="lk-art lk-tap" data-act="issues-open" aria-label="Open ${first}\u2019s briefing"><img src="${CAND_PHOTO}" alt=""></button></section>`;
+  } else if (ready) {
+    card = `<section class="lrn-card"><div><p class="lk-k">Door-ready \u00b7 ${nb ? nb + " of " + briefs.length + " issues" : "Part 2 is open"}</p><h2 class="lk-t">${nb ? "Pick your next issue" : "Pick an issue to learn"}</h2><p class="lk-s">Five minutes each on what voters are raising at the door.</p><div class="lk-links"><button class="link" data-act="issues-open">Open the briefing</button>${retake}</div></div><button class="lk-art lk-tap" data-act="issues-open" aria-label="Open ${first}\u2019s briefing"><img src="${CAND_PHOTO}" alt=""></button></section>`;
   } else if (nx && lessonLocked(nx.n)) {
     card = `<section class="lrn-card"><div><p class="lk-k">Tomorrow \u00b7 Chapter ${nx.n}</p><h2 class="lk-t">${nx.title.replace(/^How to /, "").replace(/^./, (c) => c.toUpperCase())}</h2><p class="lk-s">${nx.line} A new chapter opens every morning.</p><div class="lk-links">${why}${retake}</div></div><div class="lk-art ring">${doorArt(nx.n)}</div></section>`;
   } else if (nx) {
@@ -9484,6 +9487,17 @@ document.addEventListener("focusout", (e) => {
 /* tapping the arrow keeps the box focused, so nothing moves under the finger before the tap lands */
 document.addEventListener("mousedown", (e) => { if (e.target && e.target.closest && e.target.closest("#talk-tray button")) e.preventDefault(); });
 
+/* version 152 (Robert, Nov 2): the briefing says when a brief reaches Lesson done; the chapter checks off on Learn and counts on Today and Progress */
+window.addEventListener("message", (e) => {
+  const d = e && e.data;
+  if (!d || d.warmup !== "brief-done" || !/^[a-z]{2}$/.test(d.lesson || "")) return;
+  const camp = CAMPAIGN[S.track] || CAMPAIGN.gotv;
+  if (!(camp.briefIds || []).includes(d.lesson)) return;
+  S.briefsDoneIds = Object.assign({}, S.briefsDoneIds, { [d.lesson]: Date.now() });
+  S.briefsDone = Object.keys(S.briefsDoneIds).length;
+  render();
+});
+window.__warmupBriefsDone = () => Object.keys(S.briefsDoneIds || {}).join(",");
 /* version 136 (Robert, Nov 1; built as 135 while another chat took 135): ?home opens straight on Today as it looks right after lesson 1, for demos: lesson 1 saved at 3 of 4
    (the Election Day part still to practice) and lesson 2 locked, its clock starting at 24 hours. Nothing is stored, so the plain link is unchanged. */
 if (new URLSearchParams(location.search).has("home") && S.track === "gotv") S.first5 = { 1: [true, false, false, true] }; /* version 151: ?home's chapter 1 record shows a first try (2 of 4) under the best (3 of 4) */
@@ -9495,6 +9509,11 @@ if ((new URLSearchParams(location.search).has("home") || new URLSearchParams(loc
   S.best5 = { 1: { text: homeText, phr: typeof phrFinal === "function" ? phrFinal(homeText, homeHits, null) : null, hits: homeHits.slice() } };
   S.doneAt = { 1: Date.now() };
   S.screen = new URLSearchParams(location.search).has("learn") ? "library" : "welcome"; S.hist = []; /* version 149: ?learn lands on the Learn tab */
+  if (new URLSearchParams(location.search).has("ready")) { /* version 152: ?learn&ready (or ?home&ready) opens door-ready, all five chapters saved, one a day */
+    S.done5 = {}; S.doneAt = {};
+    LESSONS5.forEach((x) => { S.done5[x.n] = x.n === 1 ? homeHits.slice() : [true, true, true, true]; S.doneAt[x.n] = Date.now() - (6 - x.n) * 86400000; /* chapter 5 saved yesterday, so Today agrees Part 2 is open */ });
+    S.lesson = 5;
+  }
 }
 loadVoices();
 render();
@@ -9523,7 +9542,8 @@ function issuesOpen(lesson) {
   try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) { /* ignore */ }
   var host = document.getElementById("device") || document.body, ov = document.createElement("div");
   ov.className = "issues-ov"; ov.id = "issues-ov";
-  ov.innerHTML = '<iframe src="issues/?all' + (lesson ? "&lesson=" + lesson : "") + '" title="Maya Kaur’s issue lessons" allow="microphone; autoplay"></iframe>'; /* version 146: once door-ready a chapter row opens its own brief */
+  var dn = typeof window.__warmupBriefsDone === "function" ? window.__warmupBriefsDone() : ""; /* version 152: the briefing shows the same checks */
+  ov.innerHTML = '<iframe src="issues/?all' + (lesson ? "&lesson=" + lesson : "") + (dn ? "&done=" + dn : "") + '" title="Maya Kaur’s issue lessons" allow="microphone; autoplay"></iframe>'; /* version 146: once door-ready a chapter row opens its own brief */
   host.appendChild(ov);
 }
 window.addEventListener("message", function (e) { if (e && e.data && e.data.warmup === "issues-close") { var ov = document.getElementById("issues-ov"); if (ov) ov.remove(); } });

@@ -1981,6 +1981,7 @@
   function renderSources() { var x = X(); shell({ bg: "#FBF6EE", body: '<span class="st-kick">Sources for this lesson</span><ul class="srclist">' + x.sources.map(function (s) { return '<li><a href="' + esc(s[1]) + '" target="_blank" rel="noopener">' + esc(s[0]) + '</a></li>'; }).join("") + '</ul>', btns: NEXTB("Back to the lesson", "srcback") }); }
   function renderDone() {
     var x = X(); S.done[S.lesson] = true;
+    if (EMB) { try { window.parent.postMessage({ warmup: "brief-done", lesson: x.id }, "*"); } catch (er) {} } /* version 152: tell Warmup this chapter is done */
     shell({ bg: BLUE_BG, dark: true, cls: "donec", body: '<div class="dn-top"><svg viewBox="0 0 48 48" width="74" height="74" aria-hidden="true"><circle cx="24" cy="24" r="20" fill="#7ee0a8"/><path d="M15.5 24.5 L21.5 30.5 L33 18.5" fill="none" stroke="#163a72" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg><h2 class="st-h lg">Lesson done.</h2><p class="st-p dim">You can explain where Maya stands on ' + esc(x.issue.toLowerCase()) + ', and how her opponent differs, at any door.</p></div>' + reveal(x),
       btns: NEXTB("Back to all lessons", "home"), fit: true }); fitCard();
   }
@@ -2563,6 +2564,7 @@
   renderDone = function () {
     if (!X().things) return _renderDone();
     var x = X(); S.done[S.lesson] = true;
+    if (EMB) { try { window.parent.postMessage({ warmup: "brief-done", lesson: x.id }, "*"); } catch (er) {} } /* version 152: tell Warmup this chapter is done */
     var a = (S.res1 && S.res1.hits) || [false, false, false], b = (S.res && S.res.hits) || [false, false, false];
     var na = a.filter(Boolean).length, nb = b.filter(Boolean).length;
     var rows = x.things.map(function (m, k) { return '<tr><th>' + esc(m[1]) + '</th><td>' + (a[k] ? OK12 : NO12) + '</td><td>' + (b[k] ? OK12 : NO12) + '</td></tr>'; }).join("");
@@ -2575,6 +2577,7 @@
   var _screenNum12 = screenNum;
   screenNum = function () { if (S.lesson != null && X().things && S.ph > 0 && !S.sources) return X().id.toUpperCase() + " P" + pnum12(); return _screenNum12(); };
 
+  (((location.search + location.hash).match(/[?&#]done=([a-z,]+)/) || [])[1] || "").split(",").forEach(function (id) { var i = L.findIndex(function (x) { return x.id === id; }); if (i >= 0) S.done[i] = true; }); /* version 152: Warmup says which briefs are done */
   if (ALL) { var _lq = ((location.search + location.hash).match(/[?&#]lesson=([a-z]{2})/) || [])[1]; if (_lq) { var _li = L.findIndex(function (x) { return x.id === _lq; }); if (_li >= 0) { S.lesson = _li; S.d = null; S.res = null; S.sbEntered = false; S.seenHow = true; S.ph = 0; S.idx = 0; } } } /* version 146: the Warmup app opens a brief straight at its cover once door-ready */
   render();
   if (IN_CLAUDE && claude.use) claude.use("sample").then(function (s) { sample = s; }).catch(function () { sample = null; });
