@@ -652,6 +652,10 @@
   .cut-bg { position: absolute; inset: -30px; background-size: 185% auto; background-position: 28% 6%; filter: blur(20px) brightness(.6) saturate(.9); }
   .cut-vig { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 38%, rgba(0,0,0,0) 30%, rgba(0,0,0,.55) 100%); }
   .cut-rig { position: absolute; inset: 0; transform-origin: 50% 62%; }
+  /* version 137 (Robert, Nov 1, from the Oct 30 review): the caption never covers the phone. While the phone is up, the phone and the hand
+     scale together (cutFit sets --cs from the frame's height), so the phone ends above a caption strip at the bottom of the frame. */
+  .cut-fit { position: absolute; inset: 0; transform: scale(var(--cs, 1)); transform-origin: calc(50% + 14px) 78px; }
+  .vid-cut.on ~ .vid-cap { top: auto; height: 96px; padding-bottom: 8px; background: none; } .vid-cut.on ~ .vid-cap p { font-size: 17.5px; }
   .vid-cut.on .cut-rig { animation: phonein .5s cubic-bezier(.2,.7,.2,1) both; }
   @keyframes phonein { from { opacity: .5; transform: translateY(22px) scale(.93); } }
   .cut-hand { position: absolute; left: 0; top: 0; width: 100%; height: auto; pointer-events: none; }
@@ -1555,7 +1559,10 @@
   .hn-art.tiny { display: none; } /* too little room to read as a door */
   .hero-next > .link { align-self: flex-start; text-align: left; }
   .hero-next:has(.hn-art:not(.tiny)) .hn-ico { display: none; } /* one lock: on the door */
-  .cut-shot .hn-art { display: none; } .cut-shot .content.stage > .hero-next { flex: none; } .cut-shot .hero-next .hn-ico { display: grid; } /* the video phone is too small for the door */
+  /* version 137 (Robert, Nov 1): the video's Today is the Today you ship, door and all (version 123 hid the door here). The door gets a
+     fixed height so the video never shows a sliver, about what Robert's iPhone shows (67 px at 402x713). */
+  .cut-shot .hn-art { flex: 1 1 0; min-height: 84px; }
+  .vid-cut .cut-shot[data-screen=welcome] { zoom: .77; } /* a touch smaller than the other shots, so the door and all four lessons fit */
   .hn-art svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   .hn-art-lock { position: absolute; left: 50%; top: 54%; transform: translate(-50%, -50%); width: 42px; height: 42px; border-radius: 50%; background: var(--card); color: var(--ink-2); display: grid; place-items: center; box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.35); }
   .hn-art-lock svg { position: static; width: 18px; height: 18px; }
@@ -1572,7 +1579,7 @@
   .hero-next .lt-sub { margin: 10px 0 0; font-size: 14px; }
   .hero-next .link { display: block; padding: 4px 0 0; font-size: 14px; }
   .hero-next > .hn-links { flex: none; display: flex; flex-wrap: wrap; gap: 0 14px; } .hn-links .link { display: inline-block; padding: 4px 0 0; font-size: 14px; } /* version 129 (Robert, Oct 27, from Suman): the second path into Learn, beside the why link */
-  .cut-shot .today-more { display: none; } /* the video phone is too small for it */
+  /* version 137: Browse Learn shows in the video's Today too (version 129 hid it here) */
   @media (max-height: 840px) { .hero-next { padding: 14px 15px 12px; margin: 6px 0 8px; } .hn-t { font-size: 21px; margin-bottom: 10px; } .hero-next .lt-clock { font-size: 27px; } .plan.plan-quiet li > button { padding: 7px 2px; } }
   @media (max-height: 700px) { .hero-next .lt-sub { margin-top: 7px; font-size: 13.5px; } .hn-lock { padding: 7px 10px; } }
 
@@ -5305,7 +5312,7 @@ function videoCut() {
   const handFront = `<svg class="cut-hand cut-hand-front" viewBox="0 0 372 760" aria-hidden="true"><defs><linearGradient id="chf-skin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D2A485"/><stop offset="1" stop-color="#A67A5B"/></linearGradient><linearGradient id="chf-nail" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#DDB7A0"/><stop offset="1" stop-color="#C4957A"/></linearGradient><filter id="chf-sh" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="7"/></filter></defs><g fill="#000" opacity=".3" filter="url(#chf-sh)"><ellipse cx="50" cy="339" rx="15" ry="22"/><ellipse cx="49" cy="396" rx="16" ry="22"/><ellipse cx="49" cy="453" rx="15" ry="21"/><ellipse cx="52" cy="507" rx="13" ry="19"/><ellipse cx="352" cy="632" rx="18" ry="62"/></g>${finger(20, 336, 76, 48, -7)}${finger(18, 393, 80, 48, -5)}${finger(18, 450, 78, 46, -4)}${finger(22, 505, 70, 42, -3)}<g transform="rotate(-18 357 633)"><rect x="334" y="548" width="46" height="172" rx="23" fill="url(#chf-skin)"/><ellipse cx="357" cy="574" rx="12" ry="15" fill="url(#chf-nail)"/><path d="M346 640 q11 6 22 0" fill="none" stroke="#6E4530" stroke-width="2" stroke-opacity=".4"/></g></svg>`;
   const keys = `<span class="cut-key l" style="top:104px;height:26px"></span><span class="cut-key l" style="top:152px;height:56px"></span><span class="cut-key l" style="top:222px;height:56px"></span><span class="cut-key r" style="top:170px;height:84px"></span>`;
   const phone = `<div class="cut-phone">${keys}<div class="cut-screenwrap"><div class="cut-status"><span>6:43</span><span class="cut-island"></span>${SB_ICONS}</div><div class="cut-content cut-real" inert>${vidShots()}</div><div class="cut-home"></div><div class="cut-glare"></div></div></div>`;
-  return `<div class="vid-cut" id="vid-cut" data-act="video-toggle"><div class="cut-bg" style="background-image:url(${CAND_PHOTO})"></div><div class="cut-vig"></div><div class="cut-rig">${handBack}${phone}${handFront}</div></div>`;
+  return `<div class="vid-cut" id="vid-cut" data-act="video-toggle"><div class="cut-bg" style="background-image:url(${CAND_PHOTO})"></div><div class="cut-vig"></div><div class="cut-fit"><div class="cut-rig">${handBack}${phone}${handFront}</div></div></div>`;
 }
 
 function vVideo() {
@@ -7929,6 +7936,15 @@ function playLine(buf, offset) {
 /* the cutaway block's clock (Maya Kaur version): one clock from the start of the welcome (LINE_T[i] plus the line's audio clock), so pause, resume and seek land on the right beat.
    The phone is up from CUT_ON (inside line 4) to CUT_OFF (line 7's start). Beats are generic: data-at adds .in, data-lit adds .lit, data-off adds .off. */
 let cutRAF = 0, cutShown = false;
+/* version 137: the scale that puts the whole phone (655 px tall, its top at 78 px) above the caption strip (96 px) */
+const CUT_CAP = 96, CUT_TOP = 78, CUT_PH = 655;
+function cutFit() {
+  const v = $("#vid");
+  if (!v) return;
+  const sc = Math.max(0.6, Math.min(1, (v.clientHeight - CUT_CAP - CUT_TOP - 4) / CUT_PH));
+  v.style.setProperty("--cs", sc.toFixed(3));
+}
+window.addEventListener("resize", () => { if ($("#vid-cut.on")) cutFit(); });
 function cutRun(dur, start, run, i) {
   cancelAnimationFrame(cutRAF);
   const root = $("#vid-cut");
@@ -7939,7 +7955,7 @@ function cutRun(dur, start, run, i) {
   const apply = (lt) => {
     const t = LINE_T[i] + lt, on = t >= CUT_ON && t < CUT_OFF;
     root.classList.toggle("on", on);
-    if (on && !cutShown) { cutShown = true; stopClip(true); }
+    if (on && !cutShown) { cutShown = true; cutFit(); stopClip(true); }
     let k = 0;
     while (k + 1 < CUT_T.length && CUT_T[k + 1] <= t) k += 1;
     screens.forEach((el, j) => el.classList.toggle("show", on && j === k));
