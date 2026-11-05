@@ -1,0 +1,9 @@
+{
+  "name": "warmup-ai",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/worker.test.mjs",
+    "live": "node tests/live-eval.mjs"
+  }
+}

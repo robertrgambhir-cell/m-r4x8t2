@@ -1,0 +1,23 @@
+# Cloudflare Worker for Warmup's practice AI (the voter and the coach). Deploy steps: ai/README.md.
+name = "warmup-ai"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+ALLOWED_ORIGINS = "https://yourwarmup.com,https://robertrgambhir-cell.github.io,http://localhost:8787,http://127.0.0.1:8765"
+VOTER_MODEL = "claude-haiku-5-5"
+COACH_MODEL = "claude-sonnet-5-5"
+DAILY_USD_CAP = "6"
+MONTHLY_USD_CAP = "150"
+VOTER_PER_IP_HOUR = "150"
+COACH_PER_IP_HOUR = "30"
+
+# Counters for the rate limits and the dollar ceilings. Create it with
+#   npx wrangler kv namespace create WARMUP_KV
+# and paste the id it prints here.
+[[kv_namespaces]]
+binding = "WARMUP_KV"
+id = "PASTE_THE_KV_ID_HERE"
+
+# The key is a secret, never in this file:
+#   npx wrangler secret put ANTHROPIC_API_KEY

@@ -1,0 +1,35 @@
+  /* version 156 (staging): the live AI voter and coach */
+  .thread .note.wai-pill { font-size: 12px; letter-spacing: .02em; color: var(--ink-3); margin: 0 0 2px; }
+  .thread .note.wai-pill.off { color: #9a5b12; }
+  .thread .note.wai-err { color: #9a3412; }
+  .thread .note.wai-err .link { font-size: inherit; padding: 0 0 0 4px; }
+  .sc-coach { margin: 10px 0 0; padding: 10px 14px; border-radius: 16px; background: var(--card); border: 1.5px solid var(--line); font-size: 13.5px; line-height: 1.4; color: var(--ink-2); }
+  .sc-coach p { margin: 0 0 6px; }
+  .sc-coach b { color: var(--ink); }
+  .sc-coach .cc-line { color: var(--ink); font-style: italic; }
+  .sc-coach .link { padding: 0; font-size: 13.5px; }
+  .sc-coach.warn { border-color: #e8b26a; }
+  @media (max-height: 700px) { .sc-coach { padding: 8px 12px; font-size: 12.5px; margin-top: 8px; } .sc-coach p { margin-bottom: 4px; } }
+  .cf-list { list-style: none; margin: 12px 0; padding: 0; display: grid; gap: 10px; }
+  .cf-list li { position: relative; padding-left: 28px; font-size: 14.5px; line-height: 1.4; color: var(--ink-2); }
+  .cf-list li b { display: block; color: var(--ink); }
+  .cf-list li span { display: block; }
+  .cf-list li q { display: block; margin-top: 2px; color: var(--ink); font-style: italic; }
+  .cf-list li::before { content: ""; position: absolute; left: 0; top: 2px; width: 18px; height: 18px; border-radius: 50%; box-sizing: border-box; }
+  .cf-list li.y::before { background: var(--accent); }
+  .cf-list li.p::before { border: 2px solid var(--accent); background: linear-gradient(90deg, var(--accent) 50%, transparent 50%); }
+  .cf-list li.n::before { border: 2px solid var(--ink-3); }
+  .cf-flag { margin: 0 0 10px; padding: 10px 12px; border-radius: 14px; background: #FDF0E6; font-size: 14px; line-height: 1.4; }
+  .cf-flag.soft { background: #EEF3FB; }
+  .cf-flag b { display: block; margin-bottom: 2px; }
+  .cf-flag p { margin: 4px 0 0; }
+  .cf-try { margin: 0 0 10px; padding: 10px 12px; border-radius: 14px; border: 1.5px solid var(--line); font-size: 14px; line-height: 1.4; }
+  .cf-try p { margin: 4px 0 0; }
+  .cf-try .cc-line { font-style: italic; color: var(--ink); }
+  .cf-tr { margin: 0 0 8px; font-size: 14px; }
+  .cf-tr summary { cursor: pointer; font-weight: 600; color: var(--ink); padding: 4px 0; }
+  .cf-t { margin: 6px 0 0; line-height: 1.4; color: var(--ink-2); }
+  .cf-t b { color: var(--ink); margin-right: 4px; }
+  .cf-src { font-size: 12px; color: var(--ink-3); margin: 6px 0 0; }
+  .talk .link.wai-type { display: block; margin: 6px auto 0; padding: 2px 8px; font-size: 13.5px; }
+  .thread .bub.old { display: none; }
