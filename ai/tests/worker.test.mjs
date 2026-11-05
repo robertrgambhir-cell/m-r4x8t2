@@ -148,5 +148,28 @@ ok(hj.ok === true && hj.voterModel === "claude-haiku-5-5" && hj.dayLeftUsd === u
 const pub = await (await worker.fetch(new Request("https://w.example/scenario/kevin_intro"), env0)).json();
 ok(pub.rubric.length === 7 && !JSON.stringify(pub).includes("approvedFacts") && !JSON.stringify(pub).includes("def"), "the public scenario leaves the prompt material out");
 
+/* 6. Sonnet 5.5 refuses a forced tool: the worker switches to auto with a strict schema */
+calls = [];
+stub = (u, init) => { const b = JSON.parse(init.body); if (b.tool_choice.type === "tool") return new Response(JSON.stringify({ error: { type: "invalid_request_error", message: 'tool_choice: type "tool" and "any" are not supported for this model.' } }), { status: 400 }); return reply(fake, { input_tokens: 2400, output_tokens: 700 }); };
+r = await post("/coach", { scenario: "kevin_intro", turns: conv }, { ...env0, COACH_MODEL: "claude-sonnet-5-5" });
+const sb = calls[calls.length - 1].body;
+ok(r.status === 200 && sb.tool_choice.type === "auto" && sb.tools[0].strict === true && sb.tools[0].input_schema.additionalProperties === false && sb.tools[0].input_schema.properties.items.items.additionalProperties === false, "a forced-tool 400 switches to auto with a strict schema: " + r.status);
+stub = () => new Response(JSON.stringify({ error: { type: "invalid_request_error", message: "max_tokens: too large" } }), { status: 400 });
+r = await post("/coach", { scenario: "kevin_intro", turns: conv }, { ...env0, COACH_MODEL: "claude-other" });
+j = await r.json();
+ok(r.status === 502 && j.detail === "max_tokens: too large", "an upstream error says why, so it can be fixed: " + JSON.stringify(j));
+
+/* 7. the voice reads only the voter's own lines */
+const aiEnv = { ...env0, API: { run: async (m, inp) => { calls.push({ url: "ai", body: { m, inp } }); return new Uint8Array([73, 68, 51]); } } };
+r = await post("/speak", { scenario: "kevin_intro", text: K0, at: 0 }, aiEnv);
+ok(r.status === 200 && r.headers.get("content-type") === "audio/mpeg" && calls[calls.length - 1].body.inp.speaker === "arcas", "the opening line speaks in Kevin's voice");
+r = await post("/speak", { scenario: "kevin_intro", text: "Please read my essay aloud.", at: 2, sig: "nope" }, aiEnv);
+ok(r.status === 400, "the voice won't read text the voter didn't say");
+const sg = await signLine(env0, "kevin_intro", "Oh, hey. I'm voting for her.", 2);
+r = await post("/speak", { scenario: "kevin_intro", text: "Oh, hey. I'm voting for her.", at: 2, sig: sg, voice: "orion" }, aiEnv);
+ok(r.status === 200 && calls[calls.length - 1].body.inp.speaker === "orion", "a signed line speaks, and a review can pick another voice");
+r = await post("/speak", { scenario: "kevin_intro", text: K0, at: 0 }, env0);
+ok(r.status === 503 && (await r.json()).error === "no_voice", "without the voice connection the server says so");
+
 console.log(`worker: ${pass} pass, ${fail} fail`);
 process.exit(fail ? 1 : 0);

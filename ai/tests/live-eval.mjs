@@ -28,7 +28,9 @@ const log = (x = "") => out.push(x);
   log(`## The voter (Kevin, lesson 1)\n`);
   let vp = 0, vt = 0;
   const lat = [];
-  for (const c of VOTER) {
+  const NOADMIN = !process.env.WARMUP_ADMIN_TOKEN;
+  if (NOADMIN) log("(No admin token: only the cases whose only voter line is the real opening run; the others need signed voter lines.)\n");
+  for (const c of VOTER.filter((x) => !NOADMIN || x.turns.filter((t) => t.who === "them").length === 1)) {
     const res = [];
     for (let i = 0; i < RUNS; i += 1) { try { const r = await call("/voter", { scenario: "kevin_intro", turns: c.turns }); lat.push(r.ms); res.push({ ...r, ok: c.check(r) }); } catch (e) { res.push({ say: "ERROR " + e.message, ok: false }); } }
     const n = res.filter((r) => r.ok).length; vp += n; vt += res.length;
@@ -56,7 +58,7 @@ const log = (x = "") => out.push(x);
     } catch (e) { log(`**${c.name}**: FAIL ${e.message}`); }
     log("");
   }
-  const h1 = await spend();
+  const h1 = await spend().catch(() => ({}));
   lat.sort((x, y) => x - y);
   log(`## Summary\n`);
   log(`- Voter checks: ${vp}/${vt}. Pair: ${diff ? "different" : "too similar"}. Coach checks: ${cp}/${COACH.length}.`);

@@ -41,7 +41,34 @@ const WAI = (() => {
     if (inflight) throw { wai: true, code: "busy" }; /* one voter answer at a time, so a double tap can't make two */
     const at = turns.length;
     inflight = post("/voter", { scenario: scenFor(), turns: turnsOf(turns) }, 15000);
-    try { const j = await inflight; if (j.sig) sigs.set(at + "|" + j.say, j.sig); return { say: j.say, expr: j.mood || "neutral", end: !!j.end }; } finally { inflight = null; }
+    try { const j = await inflight; if (j.sig) sigs.set(at + "|" + j.say, j.sig); prefetch(at, j.say); return { say: j.say, expr: j.mood || "neutral", end: !!j.end }; } finally { inflight = null; }
+  }
+  /* the voice: the server reads the voter's own line in a natural voice (Deepgram Aura-2 on Cloudflare); fetched while the line is
+     drawn, decoded into the app's audio, played through the voter's analyser so the mouth follows it. Any failure falls back to
+     the phone's voice, and a daily limit stops asking for the rest of the session. */
+  let voiceDown = false;
+  const clips = new Map();
+  function fetchVoice(at, text) {
+    if (!base || voiceDown) return Promise.resolve(null);
+    const sig = at === 0 ? "" : sigs.get(at + "|" + text) || "";
+    const ac = new AbortController(), t = setTimeout(() => ac.abort(), 9000);
+    return fetch(base + "/speak", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenario: scenFor(), text, at, sig, voice: qs.get("voice") || "" }), signal: ac.signal })
+      .then(async (r) => { if (!r.ok) { const j = await r.json().catch(() => ({})); if (j.error === "voice_limit" || j.error === "no_voice") voiceDown = true; return null; } return r.arrayBuffer(); })
+      .catch(() => null).finally(() => clearTimeout(t));
+  }
+  function prefetch(at, text) { if (!clips.has(at + "|" + text)) clips.set(at + "|" + text, fetchVoice(at, text)); }
+  async function voiceClip(d, text) {
+    if (!full(d) || voiceDown) return null;
+    const at = S.convo ? Math.max(0, S.convo.turns.length - 1) : 0;
+    try {
+      await videoAudio();
+      if (!vidCtx) return null;
+      const key = at + "|" + text;
+      if (!clips.has(key)) prefetch(at, text);
+      const buf = await clips.get(key);
+      clips.delete(key);
+      return buf ? await vidCtx.decodeAudioData(buf) : null;
+    } catch (e) { return null; }
   }
   const phrOf = (rep) => { const pub = WAI_PUB[rep.scen] || { rubric: [] }, card = pub.rubric.filter((r) => r.card); return card.map((r, i) => { const it = rep.items.find((x) => x.id === r.id); return i < 3 && it && it.status === "met" ? it.evidence || "" : ""; }); };
   async function coachConvo(d, turns) {
@@ -143,7 +170,7 @@ const WAI = (() => {
     go("door");
     autoKnock();
   }
-  return { ready, settle, flagged, full, scenFor, voter, coachConvo, firstTry, failText, voterFailed, retry, recoach, rows, block, pill, issueLink, startIssue, autoKnock, state: () => state };
+  return { ready, settle, flagged, full, scenFor, voiceClip, voter, coachConvo, firstTry, failText, voterFailed, retry, recoach, rows, block, pill, issueLink, startIssue, autoKnock, state: () => state };
 })();
 /* the full coaching: every rubric row with the volunteer's own words, anything to check, and the transcript */
 function vCoachFull() {

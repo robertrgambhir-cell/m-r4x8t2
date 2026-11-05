@@ -65,7 +65,7 @@ SWAPS = [
     ('<p class="note">Door ${(S.round ? S.round.i : 0) + 1} of 3 ',
      '${WAI.pill()}${S.drill.kind === "aiissue" ? `<p class="note">${esc(d.intro)}</p><p hidden>` : `<p class="note">`}Door ${(S.round ? S.round.i : 0) + 1} of 3 ', 1),
     ('<div class="thread" id="thread"></div>', '<div class="thread" id="thread">${WAI.pill()}</div>', 1),
-    ("  const clip = await voterClip(d.persona, text);", "  const clip = WAI.full(d) ? null : await voterClip(d.persona, text); /* version 156: one voice for the whole AI conversation */", 1),
+    ("  const clip = await voterClip(d.persona, text);", "  const clip = WAI.full(d) ? await WAI.voiceClip(d, text) : await voterClip(d.persona, text); /* version 157: the AI conversation speaks in a natural voice from the server; the phone@Q@s voice is the fallback */", 1),
     ("shortDoor() ? 2 : 7", "WAI.full() ? 6 : shortDoor() ? 2 : 7", 3),
     # the turn: the tail becomes voterReply, so a failed answer can be asked for again
     ("  // The scripted voter always runs too: it tracks moves for the fallback score and covers any AI hiccup.@N@  const scripted = d.reply(S.convo.st, text);@N@  let r = scripted;@N@",

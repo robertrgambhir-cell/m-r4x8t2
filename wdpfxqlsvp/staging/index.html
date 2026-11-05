@@ -4734,7 +4734,7 @@ function stopSpeech() {
    coach's checked report. When the server isn't reachable the page says so; it never passes the scripted voter or the word
    check off as AI. Scenario cards (names, rows) come from ai/scenarios.js, copied in at build time as WAI_PUB. */
 const WAI_URL_DEFAULT = "https://warmup-ai.robertrgambhir.workers.dev";
-const WAI_PUB = {"kevin_intro":{"id":"kevin_intro","title":"Introduce yourself at the door","coachOnly":false,"voter":{"name":"Kevin","opening":{"say":"Hey. Can I help you?","mood":"neutral"}},"rubric":[{"id":"name","label":"Say your name","hit":"Said your name","miss":"Didn't say your name","card":true,"move":0,"avoid":false},{"id":"maya","label":"Say you're volunteering for Maya Kaur","hit":"Said you're volunteering for Maya Kaur","miss":"Didn't say you're volunteering for Maya Kaur","card":true,"move":1,"avoid":false},{"id":"tuesday","label":"Remind them Election Day is Tuesday","hit":"Reminded him Election Day is Tuesday","miss":"Didn't remind him Election Day is Tuesday","card":true,"move":2,"avoid":false},{"id":"nominute","label":"Don't ask “Do you have a minute?”","hit":"Didn't ask “Do you have a minute?”","miss":"Asked for his time","card":true,"move":3,"avoid":true},{"id":"listen","label":"Listen and respond","hit":"Responded to what he said","miss":"Didn't respond to what he said","card":false,"avoid":false},{"id":"accurate","label":"Stick to what you know","hit":"Stuck to what you know","miss":"Stated something you don't know","card":false,"avoid":false},{"id":"close","label":"End it well","hit":"Ended it warmly","miss":"Didn't end it well","card":false,"avoid":false}]},"opener_first_try":{"id":"opener_first_try","title":"Your 1st try","coachOnly":true,"voter":{"name":"Sofia"},"rubric":[{"id":"name","label":"Say your name","hit":"Said your name","miss":"Didn't say your name","card":true,"move":0,"avoid":false},{"id":"maya","label":"Say you're volunteering for Maya Kaur","hit":"Said you're volunteering for Maya Kaur","miss":"Didn't say you're volunteering for Maya Kaur","card":true,"move":1,"avoid":false},{"id":"tuesday","label":"Remind them Election Day is Tuesday","hit":"Reminded him Election Day is Tuesday","miss":"Didn't remind him Election Day is Tuesday","card":true,"move":2,"avoid":false},{"id":"nominute","label":"Don't ask “Do you have a minute?”","hit":"Didn't ask “Do you have a minute?”","miss":"Asked for his time","card":true,"move":3,"avoid":true}]},"bri_health":{"id":"bri_health","title":"Health insurance at the door","coachOnly":false,"voter":{"name":"Bri","opening":{"say":"Hi. Can I help you?","mood":"neutral"}},"rubric":[{"id":"gap","label":"Who's left out today","hit":"Said who's left out today","miss":"Didn't say who's left out today","card":true,"avoid":false},{"id":"plan","label":"Maya's plan","hit":"Explained Maya's plan","miss":"Didn't explain Maya's plan","card":true,"avoid":false},{"id":"opp","label":"How her opponent's plan differs","hit":"Said how her opponent's plan differs","miss":"Didn't say how her opponent's plan differs","card":true,"avoid":false},{"id":"accurate","label":"Stick to the facts","hit":"Stuck to the facts","miss":"Said something that isn't right","card":true,"avoid":false},{"id":"listen","label":"Connect it to her","hit":"Connected it to her situation","miss":"Didn't connect it to her","card":false,"avoid":false},{"id":"close","label":"End it well","hit":"Ended it warmly","miss":"Didn't end it well","card":false,"avoid":false}]}};
+const WAI_PUB = {"kevin_intro":{"id":"kevin_intro","title":"Introduce yourself at the door","coachOnly":false,"voter":{"name":"Kevin","opening":{"say":"Hey. Can I help you?","mood":"neutral"},"voice":"arcas","voices":["arcas","apollo","orion"]},"rubric":[{"id":"name","label":"Say your name","hit":"Said your name","miss":"Didn't say your name","card":true,"move":0,"avoid":false},{"id":"maya","label":"Say you're volunteering for Maya Kaur","hit":"Said you're volunteering for Maya Kaur","miss":"Didn't say you're volunteering for Maya Kaur","card":true,"move":1,"avoid":false},{"id":"tuesday","label":"Remind them Election Day is Tuesday","hit":"Reminded him Election Day is Tuesday","miss":"Didn't remind him Election Day is Tuesday","card":true,"move":2,"avoid":false},{"id":"nominute","label":"Don't ask “Do you have a minute?”","hit":"Didn't ask “Do you have a minute?”","miss":"Asked for his time","card":true,"move":3,"avoid":true},{"id":"listen","label":"Listen and respond","hit":"Responded to what he said","miss":"Didn't respond to what he said","card":false,"avoid":false},{"id":"accurate","label":"Stick to what you know","hit":"Stuck to what you know","miss":"Stated something you don't know","card":false,"avoid":false},{"id":"close","label":"End it well","hit":"Ended it warmly","miss":"Didn't end it well","card":false,"avoid":false}]},"opener_first_try":{"id":"opener_first_try","title":"Your 1st try","coachOnly":true,"voter":{"name":"Sofia"},"rubric":[{"id":"name","label":"Say your name","hit":"Said your name","miss":"Didn't say your name","card":true,"move":0,"avoid":false},{"id":"maya","label":"Say you're volunteering for Maya Kaur","hit":"Said you're volunteering for Maya Kaur","miss":"Didn't say you're volunteering for Maya Kaur","card":true,"move":1,"avoid":false},{"id":"tuesday","label":"Remind them Election Day is Tuesday","hit":"Reminded him Election Day is Tuesday","miss":"Didn't remind him Election Day is Tuesday","card":true,"move":2,"avoid":false},{"id":"nominute","label":"Don't ask “Do you have a minute?”","hit":"Didn't ask “Do you have a minute?”","miss":"Asked for his time","card":true,"move":3,"avoid":true}]},"bri_health":{"id":"bri_health","title":"Health insurance at the door","coachOnly":false,"voter":{"name":"Bri","opening":{"say":"Hi. Can I help you?","mood":"neutral"},"voice":"thalia","voices":["thalia","luna","andromeda"]},"rubric":[{"id":"gap","label":"Who's left out today","hit":"Said who's left out today","miss":"Didn't say who's left out today","card":true,"avoid":false},{"id":"plan","label":"Maya's plan","hit":"Explained Maya's plan","miss":"Didn't explain Maya's plan","card":true,"avoid":false},{"id":"opp","label":"How her opponent's plan differs","hit":"Said how her opponent's plan differs","miss":"Didn't say how her opponent's plan differs","card":true,"avoid":false},{"id":"accurate","label":"Stick to the facts","hit":"Stuck to the facts","miss":"Said something that isn't right","card":true,"avoid":false},{"id":"listen","label":"Connect it to her","hit":"Connected it to her situation","miss":"Didn't connect it to her","card":false,"avoid":false},{"id":"close","label":"End it well","hit":"Ended it warmly","miss":"Didn't end it well","card":false,"avoid":false}]}};
 const WAI = (() => {
   const qs = new URLSearchParams(location.search);
   const base = String(qs.get("ai") || WAI_URL_DEFAULT || "").replace(/\/+$/, "");
@@ -4772,7 +4772,34 @@ const WAI = (() => {
     if (inflight) throw { wai: true, code: "busy" }; /* one voter answer at a time, so a double tap can't make two */
     const at = turns.length;
     inflight = post("/voter", { scenario: scenFor(), turns: turnsOf(turns) }, 15000);
-    try { const j = await inflight; if (j.sig) sigs.set(at + "|" + j.say, j.sig); return { say: j.say, expr: j.mood || "neutral", end: !!j.end }; } finally { inflight = null; }
+    try { const j = await inflight; if (j.sig) sigs.set(at + "|" + j.say, j.sig); prefetch(at, j.say); return { say: j.say, expr: j.mood || "neutral", end: !!j.end }; } finally { inflight = null; }
+  }
+  /* the voice: the server reads the voter's own line in a natural voice (Deepgram Aura-2 on Cloudflare); fetched while the line is
+     drawn, decoded into the app's audio, played through the voter's analyser so the mouth follows it. Any failure falls back to
+     the phone's voice, and a daily limit stops asking for the rest of the session. */
+  let voiceDown = false;
+  const clips = new Map();
+  function fetchVoice(at, text) {
+    if (!base || voiceDown) return Promise.resolve(null);
+    const sig = at === 0 ? "" : sigs.get(at + "|" + text) || "";
+    const ac = new AbortController(), t = setTimeout(() => ac.abort(), 9000);
+    return fetch(base + "/speak", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenario: scenFor(), text, at, sig, voice: qs.get("voice") || "" }), signal: ac.signal })
+      .then(async (r) => { if (!r.ok) { const j = await r.json().catch(() => ({})); if (j.error === "voice_limit" || j.error === "no_voice") voiceDown = true; return null; } return r.arrayBuffer(); })
+      .catch(() => null).finally(() => clearTimeout(t));
+  }
+  function prefetch(at, text) { if (!clips.has(at + "|" + text)) clips.set(at + "|" + text, fetchVoice(at, text)); }
+  async function voiceClip(d, text) {
+    if (!full(d) || voiceDown) return null;
+    const at = S.convo ? Math.max(0, S.convo.turns.length - 1) : 0;
+    try {
+      await videoAudio();
+      if (!vidCtx) return null;
+      const key = at + "|" + text;
+      if (!clips.has(key)) prefetch(at, text);
+      const buf = await clips.get(key);
+      clips.delete(key);
+      return buf ? await vidCtx.decodeAudioData(buf) : null;
+    } catch (e) { return null; }
   }
   const phrOf = (rep) => { const pub = WAI_PUB[rep.scen] || { rubric: [] }, card = pub.rubric.filter((r) => r.card); return card.map((r, i) => { const it = rep.items.find((x) => x.id === r.id); return i < 3 && it && it.status === "met" ? it.evidence || "" : ""; }); };
   async function coachConvo(d, turns) {
@@ -4874,7 +4901,7 @@ const WAI = (() => {
     go("door");
     autoKnock();
   }
-  return { ready, settle, flagged, full, scenFor, voter, coachConvo, firstTry, failText, voterFailed, retry, recoach, rows, block, pill, issueLink, startIssue, autoKnock, state: () => state };
+  return { ready, settle, flagged, full, scenFor, voiceClip, voter, coachConvo, firstTry, failText, voterFailed, retry, recoach, rows, block, pill, issueLink, startIssue, autoKnock, state: () => state };
 })();
 /* the full coaching: every rubric row with the volunteer's own words, anything to check, and the transcript */
 function vCoachFull() {
@@ -9101,7 +9128,7 @@ async function voterSays(text, expr, d) {
   setExpr(expr);
   addBubble("them", text);
   S.convo.turns.push({ who: "them", text });
-  const clip = WAI.full(d) ? null : await voterClip(d.persona, text); /* version 156: one voice for the whole AI conversation */
+  const clip = WAI.full(d) ? await WAI.voiceClip(d, text) : await voterClip(d.persona, text); /* version 157: the AI conversation speaks in a natural voice from the server; the phone's voice is the fallback */
   if (clip) { if (S.screen !== "door") return; talk(true); await playWatchBuf(clip); talk(false); return; }
   await speak(text, { gender: GENDER[d.persona], role: "voter", rate: d.rate || 1, onstart: () => talk(true), onend: () => talk(false) });
 }

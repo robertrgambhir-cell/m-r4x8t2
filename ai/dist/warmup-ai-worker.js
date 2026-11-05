@@ -28,6 +28,9 @@ var SCENARIOS = {
         "If they talk at length, his attention drifts to his call."
       ],
       opening: { say: "Hey. Can I help you?", mood: "neutral" },
+      voice: "arcas",
+      voices: ["arcas", "apollo", "orion"],
+      /* Deepgram Aura-2 speakers; ?voice= picks one for review */
       endRule: "After about four to six exchanges, or sooner if the volunteer wraps up, he says he has to get on his call, thanks them and closes the door. If the volunteer says goodbye, he says goodbye back.",
       wrapAt: 5,
       hardStop: 7
@@ -89,6 +92,8 @@ var SCENARIOS = {
         "If the volunteer gets the facts tangled, she's confused and asks them to say it again."
       ],
       opening: { say: "Hi. Can I help you?", mood: "neutral" },
+      voice: "thalia",
+      voices: ["thalia", "luna", "andromeda"],
       endRule: "After about four to six exchanges, or once her questions are answered, she thanks them, says she has to get her kids and closes the door.",
       wrapAt: 5,
       hardStop: 7
@@ -129,7 +134,7 @@ function publicScenario(id) {
     id,
     title: s.title,
     coachOnly: !!s.coachOnly,
-    voter: s.voter && s.voter.opening ? { name: s.voter.name, opening: s.voter.opening } : { name: s.voter.name },
+    voter: s.voter && s.voter.opening ? { name: s.voter.name, opening: s.voter.opening, voice: s.voter.voice, voices: s.voter.voices } : { name: s.voter.name },
     rubric: s.rubric.map(({ id: rid, label, hit, miss, card, move, avoid }) => ({ id: rid, label, hit, miss, card: !!card, move, avoid: !!avoid }))
   };
 }
@@ -459,17 +464,35 @@ function cleanCoach(x, s, turns) {
   const imp = x.improvement && x.improvement.text ? { text: clip(x.improvement.text, 120), try_saying: clip(x.improvement.try_saying || "", 160) } : null;
   return { items, hits: card.map((c) => c.status === "met"), invented, unsure: [...new Set(unsure)].slice(0, 3), transcription: heard, strength: st, improvement: imp, summary: clip(x.summary || "", 120) };
 }
-async function claude(env, c, { model, system, user, tool, maxTokens, timeout, retries }) {
+var NO_FORCE = /* @__PURE__ */ new Set();
+function strictSchema(x) {
+  if (Array.isArray(x)) return x.map(strictSchema);
+  if (!x || typeof x !== "object") return x;
+  const o = {};
+  for (const [k, v] of Object.entries(x)) o[k] = k === "properties" ? Object.fromEntries(Object.entries(v).map(([pk, pv]) => [pk, strictSchema(pv)])) : strictSchema(v);
+  if (o.type === "object") o.additionalProperties = false;
+  return o;
+}
+function claudeBody({ model, system, user, tool, maxTokens }, force) {
+  const t = force ? tool : { ...tool, strict: true, input_schema: strictSchema(tool.input_schema) };
+  const sys = force ? system : system + `
+
+Answer only by calling the ${tool.name} tool, once.`;
+  return JSON.stringify({ model, max_tokens: maxTokens, system: sys, messages: [{ role: "user", content: user }], tools: [t], tool_choice: force ? { type: "tool", name: tool.name } : { type: "auto" } });
+}
+async function claude(env, c, args) {
+  const { model, tool, timeout, retries } = args;
   if (!env.ANTHROPIC_API_KEY) throw new HttpError(503, "not_configured", "The AI key isn't set on the server.");
-  const body = JSON.stringify({ model, max_tokens: maxTokens, system, messages: [{ role: "user", content: user }], tools: [tool], tool_choice: { type: "tool", name: tool.name } });
   const t0 = Date.now();
+  let switched = false;
   for (let attempt = 0; ; attempt += 1) {
     const left = timeout - (Date.now() - t0);
     if (left < 1500) throw new HttpError(504, "timeout", "The AI took too long to answer.");
+    const force = !NO_FORCE.has(model) && !(env.NO_FORCE_MODELS || "").split(",").map((x) => x.trim()).includes(model);
     const ac = new AbortController(), timer = setTimeout(() => ac.abort(), left);
     let res;
     try {
-      res = await fetch(c.apiUrl, { method: "POST", signal: ac.signal, headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" }, body });
+      res = await fetch(c.apiUrl, { method: "POST", signal: ac.signal, headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" }, body: claudeBody(args, force) });
     } catch (e) {
       clearTimeout(timer);
       if (attempt < retries) continue;
@@ -480,15 +503,52 @@ async function claude(env, c, { model, system, user, tool, maxTokens, timeout, r
       const j = await res.json();
       const use = (j.content || []).find((b) => b.type === "tool_use" && b.name === tool.name);
       const usd = await addSpend(env, model, j.usage || {});
-      if (!use) throw new HttpError(502, "bad_model_output", "The AI's answer had no structured reply.");
+      if (!use) {
+        if (attempt < retries) continue;
+        throw new HttpError(502, "bad_model_output", "The AI's answer had no structured reply.");
+      }
       return { input: use.input, usage: j.usage || {}, usd, ms: Date.now() - t0 };
+    }
+    let detail = "";
+    try {
+      const e = await res.json();
+      detail = String(e && e.error && e.error.message || "").slice(0, 300);
+    } catch (e) {
+    }
+    if (res.status === 400 && force && !switched && /tool_choice/i.test(detail)) {
+      NO_FORCE.add(model);
+      switched = true;
+      attempt -= 1;
+      continue;
     }
     if ((res.status === 429 || res.status === 529 || res.status >= 500) && attempt < retries) {
       await new Promise((r) => setTimeout(r, 400));
       continue;
     }
-    throw new HttpError(res.status === 429 || res.status === 529 ? 503 : 502, "upstream_" + res.status, "The AI service returned an error.");
+    console.log(JSON.stringify({ upstream: res.status, model, detail }));
+    const err = new HttpError(res.status === 429 || res.status === 529 ? 503 : 502, "upstream_" + res.status, "The AI service returned an error.");
+    err.detail = detail;
+    throw err;
   }
+}
+var VOICES = ["amalthea", "andromeda", "apollo", "arcas", "aries", "asteria", "athena", "atlas", "aurora", "callista", "cora", "cordelia", "delia", "draco", "electra", "harmonia", "helena", "hera", "hermes", "hyperion", "iris", "janus", "juno", "jupiter", "luna", "mars", "minerva", "neptune", "odysseus", "ophelia", "orion", "orpheus", "pandora", "phoebe", "pluto", "saturn", "selene", "thalia", "theia", "vesta", "zeus"];
+async function speak(env, s, text, voice) {
+  const ai = env.AI || env.API;
+  if (!ai || typeof ai.run !== "function") throw new HttpError(503, "no_voice", "The voice isn't connected on the server.");
+  const speaker = VOICES.includes(voice) ? voice : s.voter.voice || "luna";
+  let out;
+  try {
+    out = await ai.run(env.VOICE_MODEL || "@cf/deepgram/aura-2-en", { text, speaker, encoding: "mp3" });
+  } catch (e) {
+    const m = String(e && e.message || e);
+    console.log(JSON.stringify({ voice: "error", detail: m.slice(0, 200) }));
+    throw new HttpError(/limit|quota|neuron|4006|429/i.test(m) ? 429 : 502, /limit|quota|neuron|4006|429/i.test(m) ? "voice_limit" : "voice_error", "The voice didn't answer.");
+  }
+  if (out instanceof ReadableStream) return out;
+  if (out instanceof ArrayBuffer || ArrayBuffer.isView(out)) return out;
+  if (out && typeof out.audio === "string") return Uint8Array.from(atob(out.audio), (ch) => ch.charCodeAt(0));
+  if (out && out.audio instanceof ReadableStream) return out.audio;
+  throw new HttpError(502, "voice_error", "The voice came back in a form the server didn't expect.");
 }
 function cors(origin, c) {
   const ok = origin && c.origins.includes(origin);
@@ -506,13 +566,13 @@ var worker_default = {
         const b = await checkBudget(env, c).catch(() => ({ day: c.dailyCap, month: c.monthlyCap }));
         const open = b.day < c.dailyCap && b.month < c.monthlyCap;
         if (url.searchParams.get("spend") === "1" && env.ADMIN_TOKEN && req.headers.get("x-admin-token") === env.ADMIN_TOKEN) return json({ ok: !!env.ANTHROPIC_API_KEY && open, dayUsd: +b.day.toFixed(3), monthUsd: +b.month.toFixed(3) }, 200, h);
-        return json({ ok: !!env.ANTHROPIC_API_KEY && open, voterModel: c.voterModel, coachModel: c.coachModel }, 200, h);
+        return json({ ok: !!env.ANTHROPIC_API_KEY && open, voterModel: c.voterModel, coachModel: c.coachModel, voice: !!(env.AI || env.API) }, 200, h);
       }
       if (route.startsWith("/scenario/") && req.method === "GET") {
         const p = publicScenario(route.slice(10));
         return p ? json(p, 200, h) : json({ error: "unknown_scenario" }, 404, h);
       }
-      if (req.method !== "POST" || route !== "/voter" && route !== "/coach") throw new HttpError(404, "not_found");
+      if (req.method !== "POST" || route !== "/voter" && route !== "/coach" && route !== "/speak") throw new HttpError(404, "not_found");
       if (!c.origins.includes(origin)) throw new HttpError(403, "origin", "This page isn't allowed to use the practice AI.");
       const ip = req.headers.get("cf-connecting-ip") || "local";
       let body;
@@ -524,6 +584,15 @@ var worker_default = {
       const s = SCENARIOS[body && body.scenario];
       scen = String(body && body.scenario || "");
       if (!s) throw new HttpError(400, "unknown_scenario");
+      if (route === "/speak") {
+        const text = String(body && body.text || "").slice(0, 400), at = Number(body && body.at);
+        const okLine = s.voter && s.voter.opening && (at === 0 && text === s.voter.opening.say || text && body.sig === await signLine(env, scen, text, at));
+        if (!okLine) throw new HttpError(400, "bad_signature", "The voice only reads the voter's own lines.");
+        await checkRate(env, ip, "speak", c.voterPerHour);
+        const audio = await speak(env, s, text, String(body && body.voice || ""));
+        console.log(JSON.stringify({ route, scen, ms: Date.now() - t0, chars: text.length }));
+        return new Response(audio, { status: 200, headers: { "content-type": "audio/mpeg", "cache-control": "no-store", ...h } });
+      }
       const turns = readTurns(body, s);
       const admin = !!env.ADMIN_TOKEN && req.headers.get("x-admin-token") === env.ADMIN_TOKEN;
       if (route === "/voter" && !admin) await checkLines(env, scen, s, turns);
@@ -551,7 +620,7 @@ Judge it with the coach_report tool.`, tool: coachTool(s), maxTokens: DEFAULTS.C
     } catch (e) {
       const status = e instanceof HttpError ? e.status : 500, code = e instanceof HttpError ? e.code : "server_error";
       console.log(JSON.stringify({ route, scen, ms: Date.now() - t0, error: code }));
-      return json({ error: code, message: e instanceof HttpError ? e.message : "Something went wrong." }, status, h);
+      return json({ error: code, message: e instanceof HttpError ? e.message : "Something went wrong.", ...e && e.detail ? { detail: e.detail } : {} }, status, h);
     }
   }
 };

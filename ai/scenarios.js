@@ -44,6 +44,7 @@ export const SCENARIOS = {
         "If they talk at length, his attention drifts to his call.",
       ],
       opening: { say: "Hey. Can I help you?", mood: "neutral" },
+      voice: "arcas", voices: ["arcas", "apollo", "orion"], /* Deepgram Aura-2 speakers; ?voice= picks one for review */
       endRule: "After about four to six exchanges, or sooner if the volunteer wraps up, he says he has to get on his call, thanks them and closes the door. If the volunteer says goodbye, he says goodbye back.",
       wrapAt: 5,
       hardStop: 7,
@@ -106,6 +107,7 @@ export const SCENARIOS = {
         "If the volunteer gets the facts tangled, she's confused and asks them to say it again.",
       ],
       opening: { say: "Hi. Can I help you?", mood: "neutral" },
+      voice: "thalia", voices: ["thalia", "luna", "andromeda"],
       endRule: "After about four to six exchanges, or once her questions are answered, she thanks them, says she has to get her kids and closes the door.",
       wrapAt: 5,
       hardStop: 7,
@@ -147,7 +149,7 @@ export function publicScenario(id) {
   if (!s) return null;
   return {
     id, title: s.title, coachOnly: !!s.coachOnly,
-    voter: s.voter && s.voter.opening ? { name: s.voter.name, opening: s.voter.opening } : { name: s.voter.name },
+    voter: s.voter && s.voter.opening ? { name: s.voter.name, opening: s.voter.opening, voice: s.voter.voice, voices: s.voter.voices } : { name: s.voter.name },
     rubric: s.rubric.map(({ id: rid, label, hit, miss, card, move, avoid }) => ({ id: rid, label, hit, miss, card: !!card, move, avoid: !!avoid })),
   };
 }
