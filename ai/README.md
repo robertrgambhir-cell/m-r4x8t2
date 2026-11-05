@@ -16,6 +16,10 @@ phone (staging page)  --scenario id + transcript-->  Cloudflare Worker (ai/worke
 
 Models: Claude Haiku 5.5 plays the voter (fast and cheap per turn); Claude Sonnet 5.5 coaches (more careful judgment). Both are settings (VOTER_MODEL, COACH_MODEL).
 
+## Automatic deploys (since Nov 5)
+
+The warmup-ai worker is connected to this repo (Cloudflare Workers Builds, branch main, root directory /ai, deploy command npx wrangler deploy). Every push to main that touches the repo redeploys the server; wrangler.toml keeps the dashboard's key and settings (keep_vars). Check a deploy at /health.
+
 ## Deploy the worker (about 15 minutes, no terminal needed)
 
 1. **Anthropic key.** In the Claude Console (console.anthropic.com), create an API key for Warmup. Under Limits, set a monthly spend limit of $200 so the account itself can never pass the budget.
