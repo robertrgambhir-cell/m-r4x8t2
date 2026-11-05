@@ -6,8 +6,8 @@ Nov 4 to 5, 2026. Staging only; the live app stays at version 155.
 
 | Part | Status |
 |---|---|
-| Worker logic (prompts built server side, signed voter lines, quote checks, caps, limits, timeouts, retries) | **Verified**, 46 unit checks with Claude stubbed |
-| Staging page with the real worker code and a canned model (turns, retry, coach card, full coaching, Bri, Type instead, a slow or failed server, no-server fallback, other doors untouched) | **Verified**, 49 checks at 402x713, 375x667 and 1280x792 |
+| Worker logic (prompts built server side, signed voter lines, quote checks, caps, limits, timeouts, retries) | **Verified**, 49 unit checks with Claude stubbed |
+| Staging page with the real worker code and a canned model (turns, retry, coach card, full coaching, Bri, Type instead, a slow, failed or hung server, no-server fallback, other doors untouched) | **Verified**, 51 checks at 402x713, 375x667 and 1280x792 |
 | Every screen staging doesn't change (Today, Learn, Practice, Progress, record, the video, locked, why) reads the same as 155 | **Verified**, 30 of 30 screens at two sizes (the only differences were the Practice door stack's random order) |
 | Prompt quality: the exact prompts, answered by Claude models standing in for the API (Haiku for the voter, Sonnet for the coach) | **Dry run**: 9 of 9 voter cases, the two-openers pair and 9 of 9 coach cases pass. A dry run is a strong sign, not proof; the deployed run below is the real test |
 | The deployed worker calling Claude from the public page | **Not yet run.** It needs Robert's Cloudflare account and Anthropic key (ai/README.md). Then `tests/live-eval.mjs` runs the same cases against it |
@@ -55,6 +55,12 @@ A separate reviewer walked every screen at three sizes and read the code. Fixed:
 - **Accuracy hidden on the card.** Bri's card has a Stick to the facts row; a stated fact outside the materials shows as Check this on the card and stops a perfect card reading Excellent.
 - **Abuse paths.** The voter's lines are signed by the server, so a page can't write the voter's side or slip instructions into it; the conversation must start with the real opening; off-topic requests get an in-character brush-off; /health no longer shows dollars; local addresses are out of the allowed origins.
 - **Small things.** The suggested line moved to the full coaching so the card keeps the voter in view; What worked on the full coaching; check and minus icons; "Partly:" wording; number ranges read "8 to 10"; 40-pixel tap targets; Type instead only on AI doors; Bri opens with "Hi. Can I help you?" and asks her question once she knows who's knocking.
+
+The reviewer then re-checked the fixes and found two new problems, both fixed and tested:
+- **A hung health check froze every Knock button.** Only AI doors wait for the check now, and the check gives up after 4 seconds and counts as down.
+- **Looser penalty matching could pin a miss on words the learner never said** (a "not sure" answer flagged with "the polls close at 8"). A penalty now needs every number in the coach's quote and most of its words in one of the learner's own turns, and the card shows that turn, not the coach's wording. When no turn carries it, the doubt shows as "The coach wasn't sure about" on the full coaching and doesn't count against them. An item the coach skips reads "not judged" and gets no credit. Voter signatures now also lock each line to its place in the conversation.
+
+Known limit from this trade: when the coach misquotes a real miss badly (says "do you have a minute" for "got a minute?"), the learner isn't penalized; the live run will show how often the model quotes loosely. A flagged fact also doesn't change what lesson 1 records, which stays the four opener parts.
 
 Not fixed, by choice:
 - **The origin check can be faked by a script, and the KV counters can undercount under heavy load.** The signed lines stop the voter being used as a free chatbot; the worst case left is someone burning the $6 daily ceiling, which turns the AI off for the day. The account's own $200 limit is the hard stop. A bot check (Cloudflare Turnstile) and the rate-limit binding are the next step if the link spreads.

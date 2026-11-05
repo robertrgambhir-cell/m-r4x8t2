@@ -4740,8 +4740,9 @@ const WAI = (() => {
   const base = String(qs.get("ai") || WAI_URL_DEFAULT || "").replace(/\/+$/, "");
   let state = base && !qs.has("noai") ? "checking" : "off", inflight = null, pendingD = null, pendingScripted = null;
   const sigs = new Map(); /* the server signs each voter line; the page hands the signature back with the transcript */
+  const hc = new AbortController(); setTimeout(() => hc.abort(), 4000); /* a check that hangs counts as down after 4 s */
   const ping = state === "checking"
-    ? fetch(base + "/health", { cache: "no-store" }).then((r) => r.json()).then((j) => { state = j && j.ok ? "on" : "down"; }).catch(() => { state = "down"; }).then(() => { if (S.screen === "door" && !(S.convo && S.convo.knocked)) render(); })
+    ? fetch(base + "/health", { cache: "no-store", signal: hc.signal }).then((r) => r.json()).then((j) => { state = j && j.ok ? "on" : "down"; }).catch(() => { state = "down"; }).then(() => { if (S.screen === "door" && !(S.convo && S.convo.knocked)) render(); })
     : Promise.resolve();
   const ready = () => state === "on"; /* only after the server said so: a door never starts as AI on a guess */
   const settle = () => ping;
@@ -4766,11 +4767,12 @@ const WAI = (() => {
       throw { wai: true, code: e && e.name === "AbortError" ? "timeout" : "network" };
     } finally { clearTimeout(t); }
   }
-  const turnsOf = (turns) => turns.map((x) => (x.who === "you" ? { who: "you", text: String(x.text || "") } : { who: "them", text: String(x.text || ""), sig: sigs.get(String(x.text || "")) || "" }));
+  const turnsOf = (turns) => turns.map((x, i) => (x.who === "you" ? { who: "you", text: String(x.text || "") } : { who: "them", text: String(x.text || ""), sig: sigs.get(i + "|" + String(x.text || "")) || "" }));
   async function voter(d, turns) {
     if (inflight) throw { wai: true, code: "busy" }; /* one voter answer at a time, so a double tap can't make two */
+    const at = turns.length;
     inflight = post("/voter", { scenario: scenFor(), turns: turnsOf(turns) }, 15000);
-    try { const j = await inflight; if (j.sig) sigs.set(j.say, j.sig); return { say: j.say, expr: j.mood || "neutral", end: !!j.end }; } finally { inflight = null; }
+    try { const j = await inflight; if (j.sig) sigs.set(at + "|" + j.say, j.sig); return { say: j.say, expr: j.mood || "neutral", end: !!j.end }; } finally { inflight = null; }
   }
   const phrOf = (rep) => { const pub = WAI_PUB[rep.scen] || { rubric: [] }, card = pub.rubric.filter((r) => r.card); return card.map((r, i) => { const it = rep.items.find((x) => x.id === r.id); return i < 3 && it && it.status === "met" ? it.evidence || "" : ""; }); };
   async function coachConvo(d, turns) {
@@ -4834,7 +4836,7 @@ const WAI = (() => {
   function rows(L) {
     const pub = L && L.coach && WAI_PUB[L.coach.scen];
     if (!pub) return "";
-    return pub.rubric.filter((r) => r.card).map((r) => { const it = L.coach.items.find((x) => x.id === r.id) || {}; const y = it.status === "met"; return `<li class="${y ? "y" : "n"}">${esc(y ? r.hit : r.miss)}</li>`; }).join("");
+    return pub.rubric.filter((r) => r.card).map((r) => { const it = L.coach.items.find((x) => x.id === r.id) || {}; const y = it.status === "met"; return `<li class="${y ? "y" : "n"}">${esc(y ? r.hit : it.status === "not_judged" ? r.label + ": not judged" : r.miss)}</li>`; }).join("");
   }
   /* under the card: one thing that worked, one thing to try, and the way into the full coaching */
   function block(L) {
@@ -4882,10 +4884,11 @@ function vCoachFull() {
   const row = (r) => {
     const it = c.items.find((x) => x.id === r.id) || { status: "missed" };
     if (it.status === "not_applicable") return "";
-    const head = it.status === "met" ? r.hit : it.status === "partial" ? "Partly: " + r.hit.charAt(0).toLowerCase() + r.hit.slice(1) : r.miss;
+    const head = it.status === "not_judged" ? r.label + ": not judged" : it.status === "met" ? r.hit : it.status === "partial" ? "Partly: " + r.hit.charAt(0).toLowerCase() + r.hit.slice(1) : r.miss;
     return `<li class="${ICON[it.status]}"><b>${esc(head)}</b>${it.note && it.status !== "met" ? `<span>${esc(it.note)}</span>` : ""}${it.evidence ? `<q>${esc(it.evidence)}</q>` : ""}</li>`;
   };
   const inv = c.invented && c.invented.length ? `<div class="cf-flag"><b>Check this</b>${c.invented.map((x) => `<p>${x.quote ? `<q>${esc(x.quote)}</q> ` : ""}${esc(x.issue)}</p>`).join("")}</div>` : "";
+  const uns = c.unsure && c.unsure.length ? `<div class="cf-flag soft"><b>The coach wasn\u2019t sure about</b>${c.unsure.map((x) => `<p>${esc(x)}</p>`).join("")}<p>It couldn\u2019t find this in your words, so it doesn\u2019t count against you.</p></div>` : "";
   const heard = c.transcription && c.transcription.length ? `<div class="cf-flag soft"><b>We may have misheard you</b>${c.transcription.map((x) => `<p>We heard <q>${esc(x.heard)}</q>${x.likely ? `, probably “${esc(x.likely)}”` : ""}. Not counted against you.</p>`).join("")}</div>` : "";
   const tr = (L.turns || []).map((x) => `<p class="cf-t ${x.who === "you" ? "you" : "them"}"><b>${x.who === "you" ? "You" : esc(pub.voter.name)}</b> ${esc(x.text)}</p>`).join("");
   return app(`
@@ -4893,7 +4896,7 @@ function vCoachFull() {
     <h1 class="h1">${esc(c.summary || "How it went")}</h1>
     ${c.strength && c.strength.text ? `<div class="cf-try good"><b>What worked</b><p>${esc(c.strength.text)}</p>${c.strength.quote ? `<p class="cc-line">\u201c${esc(c.strength.quote)}\u201d</p>` : ""}</div>` : ""}
     <ul class="cf-list">${pub.rubric.map(row).join("")}</ul>
-    ${inv}${heard}
+    ${inv}${uns}${heard}
     ${c.improvement && c.improvement.text ? `<div class="cf-try"><b>Try next</b><p>${esc(c.improvement.text)}</p>${c.improvement.try_saying ? `<p class="cc-line">“${esc(c.improvement.try_saying)}”</p>` : ""}</div>` : ""}
     <details class="cf-tr"><summary>Your conversation</summary>${tr}</details>
     <p class="cf-src">Coached by AI from what you said. It can make mistakes.</p>
@@ -9066,7 +9069,7 @@ function setComposer(on) {
 }
 async function knock() {
   const d = DOORS[doorKey()];
-  if (S.convo.knocking) return; S.convo.knocking = true; await WAI.settle(); if (!S.convo || S.screen !== "door") return; S.convo.wai = WAI.full(d); /* version 156 */
+  if (S.convo.knocking) return; S.convo.knocking = true; if (WAI.scenFor()) await WAI.settle(); /* only AI doors wait for the check, at most 4 s */ if (!S.convo || S.screen !== "door") return; S.convo.wai = WAI.full(d); /* version 156 */
   S.convo.knocked = true;
   const fr0 = $("#screen .frame.door-stage"), h0 = fr0 ? fr0.getBoundingClientRect().height : 0; /* version 87: where the intro's door sat */
   if (S.track === "gotv" && !S.drill) render(); /* version 54: from the door intro into the conversation */

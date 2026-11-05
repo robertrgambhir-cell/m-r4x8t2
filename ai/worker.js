@@ -33,7 +33,7 @@ const DEFAULTS = {
 };
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
-const STATUSES = ["met", "partial", "missed", "not_applicable"];
+const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
 
 /* ---------------- small helpers ---------------- */
 const num = (v, d) => (v == null || v === "" || isNaN(Number(v)) ? d : Number(v));
@@ -58,13 +58,24 @@ export function inLearner(quote, turns) {
   if (!q || (q.split(" ").length < 2 && q.length < 4)) return false;
   return turns.some((t) => t.who === "you" && (" " + norm(t.text) + " ").includes(" " + q + " "));
 }
-/* a penalty only needs the quote to be close: most of its words in one of the volunteer's turns (the model may tidy a quote) */
-export function nearLearner(quote, turns) {
-  if (inLearner(quote, turns)) return true;
-  const w = norm(quote).split(" ").filter((x) => x.length > 1);
-  if (w.length < 2) return false;
-  return turns.some((t) => { if (t.who !== "you") return false; const have = new Set(norm(t.text).split(" ")); return w.filter((x) => have.has(x)).length / w.length >= 0.7; });
+/* a penalty needs the learner's own turn to carry it: every number in the model's quote, and most of its words, in one turn.
+   The evidence shown is then the learner's own words from that turn, never the model's wording. */
+const NUMW = { zero: "0", one: "1", two: "2", three: "3", four: "4", five: "5", six: "6", seven: "7", eight: "8", nine: "9", ten: "10", eleven: "11", twelve: "12", twenty: "20", thirty: "30", hundred: "100", thousand: "1000" };
+const toks = (t) => norm(t).split(" ").filter(Boolean).map((w) => NUMW[w] || w);
+export function learnerTurnFor(quote, turns) {
+  const q = toks(quote), nums = q.filter((w) => /^[0-9]+$/.test(w)), words = q.filter((w) => w.length > 1 && !/^[0-9]+$/.test(w));
+  if (q.length < 2) return "";
+  let best = "", score = 0;
+  for (const t of turns) {
+    if (t.who !== "you") continue;
+    const have = new Set(toks(t.text));
+    if (!nums.every((n) => have.has(n))) continue;
+    const sc = words.length ? words.filter((w) => have.has(w)).length / words.length : 1;
+    if (sc > score) { score = sc; best = t.text; }
+  }
+  return score >= 0.6 ? best : "";
 }
+export const nearLearner = (quote, turns) => !!learnerTurnFor(quote, turns);
 const clip = (t, n) => { t = dashes(t).trim(); if (t.length <= n) return t; const cut = t.slice(0, n); const end = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("? "), cut.lastIndexOf("! ")); return end > n * 0.5 ? cut.slice(0, end + 1) : cut.replace(/\s+\S*$/, "") + "\u2026"; };
 
 /* voter lines carry a signature, so a page can't put words in the voter's mouth (or instructions in its transcript) */
@@ -72,8 +83,8 @@ async function hmacKey(env) {
   const raw = new TextEncoder().encode("warmup-voter-lines:" + (env.SIGNING_KEY || env.ANTHROPIC_API_KEY || "dev"));
   return crypto.subtle.importKey("raw", raw, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
 }
-export async function signLine(env, scen, text) {
-  const sig = await crypto.subtle.sign("HMAC", await hmacKey(env), new TextEncoder().encode(scen + "|" + text));
+export async function signLine(env, scen, text, at) {
+  const sig = await crypto.subtle.sign("HMAC", await hmacKey(env), new TextEncoder().encode(scen + "|" + at + "|" + text));
   return btoa(String.fromCharCode(...new Uint8Array(sig))).replace(/[+/=]/g, "").slice(0, 24);
 }
 async function checkLines(env, scen, s, turns) {
@@ -81,7 +92,7 @@ async function checkLines(env, scen, s, turns) {
   if (turns[0].who !== "them" || turns[0].text !== s.voter.opening.say) throw new HttpError(400, "bad_opening", "the conversation must start with the voter's opening line");
   for (let i = 1; i < turns.length; i += 1) {
     const t = turns[i];
-    if (t.who === "them" && t.sig !== (await signLine(env, scen, t.text))) throw new HttpError(400, "bad_signature", "a voter line wasn't written by the voter");
+    if (t.who === "them" && t.sig !== (await signLine(env, scen, t.text, i))) throw new HttpError(400, "bad_signature", "a voter line wasn't written by the voter");
   }
 }
 
@@ -254,20 +265,23 @@ export function cleanCoach(x, s, turns) {
   if (!x || !Array.isArray(x.items)) throw new HttpError(502, "bad_model_output", "the coach's report was malformed");
   const heard = Array.isArray(x.transcription) ? x.transcription.filter((t) => t && t.heard && nearLearner(t.heard, turns)).map((t) => ({ heard: dashes(t.heard), likely: dashes(t.likely || "") })) : [];
   const claims = Array.isArray(x.invented) ? x.invented.filter((t) => t && (t.quote || t.issue)) : [];
-  const invented = claims.filter((t) => t.quote && nearLearner(t.quote, turns)).map((t) => ({ quote: dashes(t.quote), issue: clip(t.issue || "", 160) }));
+  const invented = [], unsure = [];
+  claims.forEach((t) => { const turn = t.quote ? learnerTurnFor(t.quote, turns) : ""; if (turn) invented.push({ quote: clip(turn, 160), issue: clip(t.issue || "", 160) }); else if (t.issue) unsure.push(clip(t.issue, 160)); });
   const byId = {};
   x.items.forEach((it) => { if (it && it.id && !byId[it.id]) byId[it.id] = it; });
   const items = s.rubric.map((r) => {
     const it = byId[r.id];
-    if (!it) return { id: r.id, status: "missed", evidence: "", note: "The coach didn't judge this one.", downgraded: true };
+    if (!it) return { id: r.id, status: "not_judged", evidence: "", note: "The coach didn't judge this one, so it gets no credit.", downgraded: true };
     let status = STATUSES.includes(it.status) ? it.status : "missed", evidence = String(it.evidence || "").trim(), note = clip(it.note || "", 160), checked = false;
     if (r.avoid) {
       /* met means they avoided it; anything else from the model is a miss, with the words when they can be found */
       if (status === "not_applicable") status = "met";
-      if (status !== "met") { status = "missed"; if (!nearLearner(evidence, turns)) evidence = ""; } else { evidence = ""; }
+      /* a miss stands on the learner's own words; when no turn carries the model's quote, there is nothing to hold against them */
+      if (status !== "met") { const turn = learnerTurnFor(evidence, turns); if (turn) { status = "missed"; evidence = clip(turn, 160); } else { if (evidence || it.note) unsure.push(clip(it.note || r.miss, 160)); status = "met"; evidence = ""; note = ""; } } else { evidence = ""; }
     } else if (r.id === "accurate") {
+      /* missed only on a claim a turn really carries; a doubt without one shows as unsure, no penalty and no credit taken away */
       if (invented.length) status = "missed";
-      else if (status === "not_applicable" || status === "met") status = status === "not_applicable" ? "not_applicable" : "met";
+      else if (status === "missed" || status === "partial") { status = "met"; if (it.note) unsure.push(clip(it.note, 160)); }
       if (!inLearner(evidence, turns)) evidence = "";
     } else if (status === "met" || status === "partial") {
       if (r.evidence && !inLearner(evidence, turns)) { status = "missed"; evidence = ""; checked = true; note = "No credit: the words for this weren't in what you said."; }
@@ -277,7 +291,7 @@ export function cleanCoach(x, s, turns) {
   const card = s.rubric.map((r, i) => (r.card ? items[i] : null)).filter(Boolean);
   const st = x.strength && x.strength.text && x.strength.quote && inLearner(x.strength.quote, turns) ? { text: clip(x.strength.text, 120), quote: dashes(x.strength.quote) } : null;
   const imp = x.improvement && x.improvement.text ? { text: clip(x.improvement.text, 120), try_saying: clip(x.improvement.try_saying || "", 160) } : null;
-  return { items, hits: card.map((c) => c.status === "met"), invented, unquoted: claims.length - invented.length, transcription: heard, strength: st, improvement: imp, summary: clip(x.summary || "", 120) };
+  return { items, hits: card.map((c) => c.status === "met"), invented, unsure: [...new Set(unsure)].slice(0, 3), transcription: heard, strength: st, improvement: imp, summary: clip(x.summary || "", 120) };
 }
 
 /* ---------------- calling Claude ---------------- */
@@ -353,7 +367,7 @@ export default {
         await checkRate(env, ip, "voter", c.voterPerHour);
         const r = await claude(env, c, { model: c.voterModel, system: voterPrompt(s, turns), user: `The conversation so far:\n${transcriptText(turns, s.voter.name)}\n\nWrite ${s.voter.name}'s next turn. Don't repeat anything ${s.voter.name} already said.`, tool: VOTER_TOOL, maxTokens: DEFAULTS.VOTER_MAX_TOKENS, timeout: c.voterTimeout, retries: 1 });
         const out = cleanVoter(r.input, s, turns);
-        out.sig = await signLine(env, scen, out.say);
+        out.sig = await signLine(env, scen, out.say, turns.length); /* signed for its place in the conversation */
         console.log(JSON.stringify({ route, scen, ms: r.ms, in: r.usage.input_tokens, out: r.usage.output_tokens, usd: +r.usd.toFixed(5) }));
         return json(out, 200, h);
       }

@@ -174,16 +174,25 @@ function inLearner(quote, turns) {
   if (!q || q.split(" ").length < 2 && q.length < 4) return false;
   return turns.some((t) => t.who === "you" && (" " + norm(t.text) + " ").includes(" " + q + " "));
 }
-function nearLearner(quote, turns) {
-  if (inLearner(quote, turns)) return true;
-  const w = norm(quote).split(" ").filter((x) => x.length > 1);
-  if (w.length < 2) return false;
-  return turns.some((t) => {
-    if (t.who !== "you") return false;
-    const have = new Set(norm(t.text).split(" "));
-    return w.filter((x) => have.has(x)).length / w.length >= 0.7;
-  });
+var NUMW = { zero: "0", one: "1", two: "2", three: "3", four: "4", five: "5", six: "6", seven: "7", eight: "8", nine: "9", ten: "10", eleven: "11", twelve: "12", twenty: "20", thirty: "30", hundred: "100", thousand: "1000" };
+var toks = (t) => norm(t).split(" ").filter(Boolean).map((w) => NUMW[w] || w);
+function learnerTurnFor(quote, turns) {
+  const q = toks(quote), nums = q.filter((w) => /^[0-9]+$/.test(w)), words = q.filter((w) => w.length > 1 && !/^[0-9]+$/.test(w));
+  if (q.length < 2) return "";
+  let best = "", score = 0;
+  for (const t of turns) {
+    if (t.who !== "you") continue;
+    const have = new Set(toks(t.text));
+    if (!nums.every((n) => have.has(n))) continue;
+    const sc = words.length ? words.filter((w) => have.has(w)).length / words.length : 1;
+    if (sc > score) {
+      score = sc;
+      best = t.text;
+    }
+  }
+  return score >= 0.6 ? best : "";
 }
+var nearLearner = (quote, turns) => !!learnerTurnFor(quote, turns);
 var clip = (t, n) => {
   t = dashes(t).trim();
   if (t.length <= n) return t;
@@ -195,8 +204,8 @@ async function hmacKey(env) {
   const raw = new TextEncoder().encode("warmup-voter-lines:" + (env.SIGNING_KEY || env.ANTHROPIC_API_KEY || "dev"));
   return crypto.subtle.importKey("raw", raw, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
 }
-async function signLine(env, scen, text) {
-  const sig = await crypto.subtle.sign("HMAC", await hmacKey(env), new TextEncoder().encode(scen + "|" + text));
+async function signLine(env, scen, text, at) {
+  const sig = await crypto.subtle.sign("HMAC", await hmacKey(env), new TextEncoder().encode(scen + "|" + at + "|" + text));
   return btoa(String.fromCharCode(...new Uint8Array(sig))).replace(/[+/=]/g, "").slice(0, 24);
 }
 async function checkLines(env, scen, s, turns) {
@@ -207,7 +216,7 @@ async function checkLines(env, scen, s, turns) {
   if (turns[0].who !== "them" || turns[0].text !== s.voter.opening.say) throw new HttpError(400, "bad_opening", "the conversation must start with the voter's opening line");
   for (let i = 1; i < turns.length; i += 1) {
     const t = turns[i];
-    if (t.who === "them" && t.sig !== await signLine(env, scen, t.text)) throw new HttpError(400, "bad_signature", "a voter line wasn't written by the voter");
+    if (t.who === "them" && t.sig !== await signLine(env, scen, t.text, i)) throw new HttpError(400, "bad_signature", "a voter line wasn't written by the voter");
   }
 }
 var HttpError = class extends Error {
@@ -398,26 +407,42 @@ function cleanCoach(x, s, turns) {
   if (!x || !Array.isArray(x.items)) throw new HttpError(502, "bad_model_output", "the coach's report was malformed");
   const heard = Array.isArray(x.transcription) ? x.transcription.filter((t) => t && t.heard && nearLearner(t.heard, turns)).map((t) => ({ heard: dashes(t.heard), likely: dashes(t.likely || "") })) : [];
   const claims = Array.isArray(x.invented) ? x.invented.filter((t) => t && (t.quote || t.issue)) : [];
-  const invented = claims.filter((t) => t.quote && nearLearner(t.quote, turns)).map((t) => ({ quote: dashes(t.quote), issue: clip(t.issue || "", 160) }));
+  const invented = [], unsure = [];
+  claims.forEach((t) => {
+    const turn = t.quote ? learnerTurnFor(t.quote, turns) : "";
+    if (turn) invented.push({ quote: clip(turn, 160), issue: clip(t.issue || "", 160) });
+    else if (t.issue) unsure.push(clip(t.issue, 160));
+  });
   const byId = {};
   x.items.forEach((it) => {
     if (it && it.id && !byId[it.id]) byId[it.id] = it;
   });
   const items = s.rubric.map((r) => {
     const it = byId[r.id];
-    if (!it) return { id: r.id, status: "missed", evidence: "", note: "The coach didn't judge this one.", downgraded: true };
+    if (!it) return { id: r.id, status: "not_judged", evidence: "", note: "The coach didn't judge this one, so it gets no credit.", downgraded: true };
     let status = STATUSES.includes(it.status) ? it.status : "missed", evidence = String(it.evidence || "").trim(), note = clip(it.note || "", 160), checked = false;
     if (r.avoid) {
       if (status === "not_applicable") status = "met";
       if (status !== "met") {
-        status = "missed";
-        if (!nearLearner(evidence, turns)) evidence = "";
+        const turn = learnerTurnFor(evidence, turns);
+        if (turn) {
+          status = "missed";
+          evidence = clip(turn, 160);
+        } else {
+          if (evidence || it.note) unsure.push(clip(it.note || r.miss, 160));
+          status = "met";
+          evidence = "";
+          note = "";
+        }
       } else {
         evidence = "";
       }
     } else if (r.id === "accurate") {
       if (invented.length) status = "missed";
-      else if (status === "not_applicable" || status === "met") status = status === "not_applicable" ? "not_applicable" : "met";
+      else if (status === "missed" || status === "partial") {
+        status = "met";
+        if (it.note) unsure.push(clip(it.note, 160));
+      }
       if (!inLearner(evidence, turns)) evidence = "";
     } else if (status === "met" || status === "partial") {
       if (r.evidence && !inLearner(evidence, turns)) {
@@ -432,7 +457,7 @@ function cleanCoach(x, s, turns) {
   const card = s.rubric.map((r, i) => r.card ? items[i] : null).filter(Boolean);
   const st = x.strength && x.strength.text && x.strength.quote && inLearner(x.strength.quote, turns) ? { text: clip(x.strength.text, 120), quote: dashes(x.strength.quote) } : null;
   const imp = x.improvement && x.improvement.text ? { text: clip(x.improvement.text, 120), try_saying: clip(x.improvement.try_saying || "", 160) } : null;
-  return { items, hits: card.map((c) => c.status === "met"), invented, unquoted: claims.length - invented.length, transcription: heard, strength: st, improvement: imp, summary: clip(x.summary || "", 120) };
+  return { items, hits: card.map((c) => c.status === "met"), invented, unsure: [...new Set(unsure)].slice(0, 3), transcription: heard, strength: st, improvement: imp, summary: clip(x.summary || "", 120) };
 }
 async function claude(env, c, { model, system, user, tool, maxTokens, timeout, retries }) {
   if (!env.ANTHROPIC_API_KEY) throw new HttpError(503, "not_configured", "The AI key isn't set on the server.");
@@ -511,7 +536,7 @@ ${transcriptText(turns, s.voter.name)}
 
 Write ${s.voter.name}'s next turn. Don't repeat anything ${s.voter.name} already said.`, tool: VOTER_TOOL, maxTokens: DEFAULTS.VOTER_MAX_TOKENS, timeout: c.voterTimeout, retries: 1 });
         const out2 = cleanVoter(r2.input, s, turns);
-        out2.sig = await signLine(env, scen, out2.say);
+        out2.sig = await signLine(env, scen, out2.say, turns.length);
         console.log(JSON.stringify({ route, scen, ms: r2.ms, in: r2.usage.input_tokens, out: r2.usage.output_tokens, usd: +r2.usd.toFixed(5) }));
         return json(out2, 200, h);
       }
@@ -537,6 +562,7 @@ export {
   dashes,
   worker_default as default,
   inLearner,
+  learnerTurnFor,
   nearLearner,
   norm,
   readTurns,

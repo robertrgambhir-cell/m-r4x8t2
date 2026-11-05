@@ -2,7 +2,7 @@
    model (ai/tests/mock-server.mjs). This is plumbing, not model quality: turns reach the server and come back, the conversation
    runs past the old two-line cutoff, the voter ends it, failures say so and retry, the coach's rows and words land on the score
    card, the full coaching screen, the issue conversation, Type instead, and the page with no server stays the scripted app.
-   Usage: NODE_PATH=$(npm root -g) node test156.js /abs/site-root /abs/nourl.html /abs/outdir [w h]
+   Usage: NODE_PATH=$(npm root -g) node test156.cjs /abs/site-root /abs/nourl.html /abs/outdir [w h]
    (start the mock first: node ai/tests/mock-server.mjs /abs/site-root) */
 const { chromium } = require('playwright');
 const fs = require('fs'), path = require('path');
@@ -157,6 +157,21 @@ const stats = async () => JSON.parse(await mock('stats'));
   ok((await p.evaluate(() => __T.S.screen)) !== 'door' || !(await p.evaluate(() => __T.S.drill && __T.S.drill.kind === 'aiissue')), 'Bri' + "'" + 's conversation refuses to start without the AI');
   await p.close();
   await mock('health?down=0');
+  /* I. a health check that never answers: non-AI doors knock at once, Kevin's door knocks within about 4 s, labeled scripted */
+  await mock('health?hang=1');
+  p = await open('zzhooked156.html', '?convo=kevin');
+  await p.evaluate(() => { const S = __T.S; S.lesson = 2; S.done5 = { 1: [true, true, true, true] }; __T.go('door'); });
+  await p.waitForTimeout(400);
+  let t0 = Date.now();
+  if (await p.$('[data-act="knock"]')) await p.click('[data-act="knock"]');
+  ok(await waitThem(p, 1, 3000), 'a hung check never blocks a non-AI door' + "'" + 's knock: ' + (Date.now() - t0) + ' ms');
+  await p.evaluate(() => { __T.S.lesson = 1; __T.go('door'); });
+  await p.waitForTimeout(400);
+  t0 = Date.now();
+  await p.click('[data-act="knock"]');
+  ok(await waitThem(p, 1, 9000) && (await p.$eval('#thread', (t) => t.textContent)).includes('Scripted voter'), 'a hung check lets Kevin' + "'" + 's door open as scripted within the 4 s cap: ' + (Date.now() - t0) + ' ms');
+  await p.close();
+  await mock('health?hang=0');
 
   /* D. no server: the scripted app, labeled */
   p = await open('zznourl156.html', '?convo=kevin');

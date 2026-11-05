@@ -9,7 +9,7 @@ import worker from "../worker.js";
 
 const ROOT = process.argv[2];
 const stats = { voter: 0, coach: 0 }, failNext = { voter: 0, coach: 0 };
-let healthDown = false;
+let healthDown = false, healthHang = false;
 const realFetch = globalThis.fetch;
 const said = (body) => body.messages[0].content;
 globalThis.fetch = async (url, init) => {
@@ -43,7 +43,8 @@ const env = { ANTHROPIC_API_KEY: "mock", ALLOWED_ORIGINS: "http://127.0.0.1:8765
 http.createServer(async (req, res) => {
   const u = new URL(req.url, "http://127.0.0.1:8799");
   if (u.pathname === "/__mock/stats") { res.end(JSON.stringify(stats)); return; }
-  if (u.pathname === "/__mock/health") { healthDown = u.searchParams.get("down") === "1"; res.end("ok"); return; }
+  if (u.pathname === "/__mock/health") { healthDown = u.searchParams.get("down") === "1"; healthHang = u.searchParams.get("hang") === "1"; res.end("ok"); return; }
+  if (u.pathname === "/health" && healthHang) return; /* never answers */
   if (u.pathname === "/health" && healthDown) { await new Promise((r) => setTimeout(r, 2500)); res.writeHead(200, { "access-control-allow-origin": "*", "content-type": "application/json" }); res.end(JSON.stringify({ ok: false })); return; }
   if (u.pathname === "/__mock/fail") { failNext.voter = Number(u.searchParams.get("voter") || 0); failNext.coach = Number(u.searchParams.get("coach") || 0); res.end("ok"); return; }
   const route = u.pathname.slice(1);

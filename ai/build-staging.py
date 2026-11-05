@@ -92,7 +92,7 @@ SWAPS = [
      '  else if (drill && drill.kind === "aiissue") footer = `<button class="btn" data-act="door-again">Try this conversation again</button><button class="link center" data-act="coach-back">Done for now</button>`; /* version 156 */@N@  else if (drill && drill.kind === "knock") footer =', 1),
     # a door decides at the knock, after the health check, and keeps that mode (the reviewer: a slow first check let a scripted line play under the AI label)
     ("async function knock() {@N@  const d = DOORS[doorKey()];@N@  S.convo.knocked = true;",
-     "async function knock() {@N@  const d = DOORS[doorKey()];@N@  if (S.convo.knocking) return; S.convo.knocking = true; await WAI.settle(); if (!S.convo || S.screen !== @DQ@door@DQ@) return; S.convo.wai = WAI.full(d); /* version 156 */@N@  S.convo.knocked = true;", 1),
+     "async function knock() {@N@  const d = DOORS[doorKey()];@N@  if (S.convo.knocking) return; S.convo.knocking = true; if (WAI.scenFor()) await WAI.settle(); /* only AI doors wait for the check, at most 4 s */ if (!S.convo || S.screen !== @DQ@door@DQ@) return; S.convo.wai = WAI.full(d); /* version 156 */@N@  S.convo.knocked = true;", 1),
     ('  S.convo.mode = aiOn() ? "live" : "scripted";@N@', '  S.convo.mode = S.convo.wai || aiOn() ? "live" : "scripted"; /* version 156 */@N@', 1),
     ('case "knock": if (S.convo && !S.convo.knocked) knock(); break;', 'case "knock": if (S.convo && !S.convo.knocked && !S.convo.knocking) knock(); break;', 1),
     ('if (S.convo.mode === "live" && aiOn() && S.convo.turns.some((x) => x.who === "you")) {', 'if (S.convo.mode === "live" && (WAI.full(d) || aiOn()) && S.convo.turns.some((x) => x.who === "you")) {', 1),
