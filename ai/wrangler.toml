@@ -2,9 +2,12 @@
 name = "warmup-ai"
 main = "worker.js"
 compatibility_date = "2026-10-01"
+# Deployed by Cloudflare Workers Builds on every push to main (root directory: ai). keep_vars keeps the key and
+# the other settings typed into the dashboard; nothing secret lives in this file.
+keep_vars = true
 
 [vars]
-ALLOWED_ORIGINS = "https://yourwarmup.com,https://robertrgambhir-cell.github.io"
+ALLOWED_ORIGINS = "https://yourwarmup.com"
 VOTER_MODEL = "claude-haiku-5-5"
 COACH_MODEL = "claude-sonnet-5-5"
 DAILY_USD_CAP = "6"
@@ -17,9 +20,13 @@ COACH_PER_IP_HOUR = "30"
 # and paste the id it prints here.
 [[kv_namespaces]]
 binding = "WARMUP_KV"
-id = "PASTE_THE_KV_ID_HERE"
+id = "2fe97fe2a1244dbdb97eae46777e5d8"
 
 # The key is a secret, never in this file:
 #   npx wrangler secret put ANTHROPIC_API_KEY
 # Optional secrets: SIGNING_KEY (signs voter lines; defaults to one derived from the API key)
 # and ADMIN_TOKEN (lets /health?spend=1 show the dollars spent, with an x-admin-token header).
+
+# The natural voices (Cloudflare Workers AI). The dashboard named this binding API; the worker accepts AI or API.
+[ai]
+binding = "API"
