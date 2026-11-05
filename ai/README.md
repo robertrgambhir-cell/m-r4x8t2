@@ -37,7 +37,7 @@ With a terminal instead: `cd ai && npx wrangler login && npx wrangler kv namespa
 
 ## Rollback
 
-The live app (`wdpfxqlsvp/app.html`, version 155) is untouched; staging is a separate page. The git tag `v155-before-ai` marks the last commit before this work. To remove staging, delete `wdpfxqlsvp/staging/`; to turn the AI off without a redeploy, set `DAILY_USD_CAP` to 0 (every call stops and the page says the AI isn't available).
+The live app (`wdpfxqlsvp/app.html`, version 155) is untouched; staging is a separate page. Commit `c64b12d` (version 155) is the last commit before this work; `git checkout c64b12d -- wdpfxqlsvp/` restores it exactly. To remove staging, delete `wdpfxqlsvp/staging/`; to turn the AI off without a redeploy, set `DAILY_USD_CAP` to 0 (every call stops and the page says the AI isn't available).
 
 ## Tests
 
