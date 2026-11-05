@@ -24,7 +24,8 @@ Models: Claude Haiku 5.5 plays the voter (fast and cheap per turn); Claude Sonne
 4. **Secret and settings.** In the worker's Settings, Variables and Secrets, add:
    - `ANTHROPIC_API_KEY` as a **Secret** (the key from step 1)
    - `ALLOWED_ORIGINS` = `https://yourwarmup.com`
-   - optional: `DAILY_USD_CAP` (default 6), `MONTHLY_USD_CAP` (default 150), `VOTER_MODEL`, `COACH_MODEL`
+   - `ADMIN_TOKEN` as a **Secret**: any long random phrase. It lets the live tests run made-up conversations and lets you see spend at `/health?spend=1`
+   - optional: `SIGNING_KEY` (Secret; signs the voter's lines, otherwise derived from the API key), `DAILY_USD_CAP` (default 6), `MONTHLY_USD_CAP` (default 150), `VOTER_MODEL`, `COACH_MODEL`
 5. **Check it.** Open `https://warmup-ai.<your-subdomain>.workers.dev/health`. It should say `"ok": true`.
 6. **Point the staging page at it.** Send Claude the worker's address; Claude rebuilds staging with it (`python3 ai/build-staging.py wdpfxqlsvp/app.html wdpfxqlsvp/staging/index.html https://warmup-ai...workers.dev`) and pushes. Until then you can try it by adding `&ai=https://warmup-ai...workers.dev` to the staging link.
 
@@ -41,9 +42,9 @@ The live app (`wdpfxqlsvp/app.html`, version 155) is untouched; staging is a sep
 
 ## Tests
 
-- `node tests/worker.test.mjs`: the worker's own logic with Claude stubbed (34 checks: origins, free prompts refused, caps, rate limits, timeouts, retries, quote checks, no em dashes).
-- `node tests/mock-server.mjs <site>` then `NODE_PATH=$(npm root -g) node tests/test156.js <site> <nourl.html> <out> [w h]`: the staging page against the real worker with a canned model (45 checks per screen size).
-- `WARMUP_AI_URL=https://... node tests/live-eval.mjs 3`: the real model on the deployed worker, 9 voter cases three times each, the two-openers pair and 9 coach cases, with latency and spend. About $0.11 a run.
+- `node tests/worker.test.mjs`: the worker's own logic with Claude stubbed (46 checks: origins, free prompts refused, the voter's signed lines, caps, rate limits, timeouts, retries, quote checks, no em dashes).
+- `node tests/mock-server.mjs <site>` then `NODE_PATH=$(npm root -g) node tests/test156.js <site> <nourl.html> <out> [w h]`: the staging page against the real worker with a canned model (49 checks per screen size).
+- `WARMUP_AI_URL=https://... WARMUP_ADMIN_TOKEN=... node tests/live-eval.mjs 3`: the real model on the deployed worker, 9 voter cases three times each, the two-openers pair and 9 coach cases, with latency and spend. About $0.11 a run.
 - `node tests/scripted-baseline.mjs <app155.html> <out.json>`: what version 155's scripted Kevin says to the same lines (the "before" column).
 
 ## Manual tests on a real iPhone (can't be run headless)

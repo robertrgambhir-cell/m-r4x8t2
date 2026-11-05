@@ -6,8 +6,9 @@ Nov 4 to 5, 2026. Staging only; the live app stays at version 155.
 
 | Part | Status |
 |---|---|
-| Worker logic (prompts built server side, quote checks, caps, limits, timeouts, retries) | **Verified**, 34 unit checks with Claude stubbed |
-| Staging page with the real worker code and a canned model (turns, retry, coach card, full coaching, Bri, Type instead, no-server fallback) | **Verified**, 45 checks at 402x713, 375x667 and 1280x792 |
+| Worker logic (prompts built server side, signed voter lines, quote checks, caps, limits, timeouts, retries) | **Verified**, 46 unit checks with Claude stubbed |
+| Staging page with the real worker code and a canned model (turns, retry, coach card, full coaching, Bri, Type instead, a slow or failed server, no-server fallback, other doors untouched) | **Verified**, 49 checks at 402x713, 375x667 and 1280x792 |
+| Every screen staging doesn't change (Today, Learn, Practice, Progress, record, the video, locked, why) reads the same as 155 | **Verified**, 30 of 30 screens at two sizes (the only differences were the Practice door stack's random order) |
 | Prompt quality: the exact prompts, answered by Claude models standing in for the API (Haiku for the voter, Sonnet for the coach) | **Dry run**: 9 of 9 voter cases, the two-openers pair and 9 of 9 coach cases pass. A dry run is a strong sign, not proof; the deployed run below is the real test |
 | The deployed worker calling Claude from the public page | **Not yet run.** It needs Robert's Cloudflare account and Anthropic key (ai/README.md). Then `tests/live-eval.mjs` runs the same cases against it |
 | Microphone, speech recognition and voices on a real iPhone | **Not testable here.** Manual steps in ai/README.md |
@@ -41,7 +42,22 @@ Nov 4 to 5, 2026. Staging only; the live app stays at version 155.
 | Bri: "her opponent is against Medicaid" | Stick to the facts missed |
 | Bri: the three things in her own words | all three met |
 
-Never credited what wasn't said: the worker drops any credit whose quote isn't in the canvasser's own lines, and any praise or "check this" note tied to words they didn't say (unit-tested).
+Never credited what wasn't said: a credit needs the canvasser's own words, word for word, inside one of their turns; a miss the coach sees stays a miss even when its quote is slightly off; an item the coach skips gets no credit (unit-tested).
+
+## The independent review, and what changed
+
+A separate reviewer walked every screen at three sizes and read the code. Fixed:
+- **A false "Claude didn't answer" on other doors once the server is on.** The AI switch now applies only to the AI doors; every other door runs exactly as in 155 (tested on lesson 2's door).
+- **A scripted line under the AI label on a slow first check.** A door now waits for the server's answer at the knock and keeps that mode for the whole conversation; Bri refuses to start without it.
+- **Bri's card falling back to lesson 1's rows.** Her card never shows another lesson's rows; without the coach it says there's no score yet, with Get the coaching.
+- **Credit from loose quote matching.** Word-boundary matching inside one turn; misses survive tidied quotes; skipped items aren't credited.
+- **Bri's facts left out what lesson 6 teaches** (Pathways' enrollment and cost, the $8,000 line, the 40 states, rural hospitals, her opponent's own words). Added from the lesson.
+- **Accuracy hidden on the card.** Bri's card has a Stick to the facts row; a stated fact outside the materials shows as Check this on the card and stops a perfect card reading Excellent.
+- **Abuse paths.** The voter's lines are signed by the server, so a page can't write the voter's side or slip instructions into it; the conversation must start with the real opening; off-topic requests get an in-character brush-off; /health no longer shows dollars; local addresses are out of the allowed origins.
+- **Small things.** The suggested line moved to the full coaching so the card keeps the voter in view; What worked on the full coaching; check and minus icons; "Partly:" wording; number ranges read "8 to 10"; 40-pixel tap targets; Type instead only on AI doors; Bri opens with "Hi. Can I help you?" and asks her question once she knows who's knocking.
+
+Not fixed, by choice:
+- **The origin check can be faked by a script, and the KV counters can undercount under heavy load.** The signed lines stop the voter being used as a free chatbot; the worst case left is someone burning the $6 daily ceiling, which turns the AI off for the day. The account's own $200 limit is the hard stop. A bot check (Cloudflare Turnstile) and the rate-limit binding are the next step if the link spreads.
 
 ## Speed and cost (estimates until the live run measures them)
 
@@ -52,7 +68,7 @@ Never credited what wasn't said: the worker drops any credit whose quote isn't i
 ## Known limits
 
 - **One voice.** AI lines use the phone's built-in voice; Kevin's recorded clips can't say new lines, so the whole AI conversation uses the built-in voice for consistency. A real-voice TTS is the next upgrade.
-- **The dry run isn't the deployed run.** Run `tests/live-eval.mjs` after deploying; expect some variation between runs.
+- **The dry run isn't the deployed run,** and it ran before the review's prompt changes (Bri's new opening and facts, the off-topic rule). Run `tests/live-eval.mjs` after deploying; expect some variation between runs.
 - **Strict quote checks** can cost a canvasser a credit when the model paraphrases its own quote. The live run counts these downgrades.
 - **Bri's facts say Georgia** because the approved issue lesson does, while Maya now runs in Woodbridge. That's the campaign demos thread's content.
 
@@ -60,7 +76,7 @@ Never credited what wasn't said: the worker drops any credit whose quote isn't i
 
 New files (all under ai/ and wdpfxqlsvp/staging/; nothing else changed):
 - ai/scenarios.js, ai/worker.js, ai/wrangler.toml, ai/package.json, ai/dist/warmup-ai-worker.js
-- ai/client/engine.js, ai/client/engine.css, ai/build-staging.py (the exact-match builder, 37 asserted swaps)
+- ai/client/engine.js, ai/client/engine.css, ai/build-staging.py (the exact-match builder, 43 asserted swaps)
 - ai/tests/: worker.test.mjs, mock-server.mjs, test156.js, cases.mjs, live-eval.mjs, scripted-baseline.mjs, dryrun-export.mjs
 - ai/README.md (deploy, links, rollback, manual iPhone tests), ai/REPORT.md (this file)
 - wdpfxqlsvp/staging/index.html: the staging page

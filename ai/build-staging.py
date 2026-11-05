@@ -42,8 +42,8 @@ css = open(os.path.join(HERE, "client", "engine.css"), encoding="utf-8").read()
 BRI = '''  /* version 156: Maya's health insurance question as a live AI conversation (ai/scenarios.js bri_health); no scripted lines, so it opens only when the practice AI is on */
   bri: {
     persona: "brianna", scene: "door", name: "Bri", sub: "Supporter, home health aide", street: "2F", ai: "bri_health", rate: 1,
-    intro: "Bri, apartment 2F. She has a question about health insurance.",
-    first: { say: "Oh, you@Q@re with Maya? Can I ask you something? My job doesn@Q@t offer health insurance, and I can@Q@t afford to buy it. Is Maya going to do anything about that?", expr: "neutral" },
+    intro: "Bri, apartment 2F. She@Q@s been wondering about health insurance.",
+    first: { say: "Hi. Can I help you?", expr: "neutral" },
     start(st) { st.stage = "door"; },
     suggest() { return ""; },
     reply() { return { say: "Sorry, I have to run. Thanks for stopping by.", expr: "neutral", end: true }; },
@@ -53,8 +53,6 @@ BRI = '''  /* version 156: Maya's health insurance question as a live AI convers
 SWAPS = [
     # the engine, before the claude.ai sample path
     ("/* ---------- live AI: claude.ai", engine + "@N@/* ---------- live AI: claude.ai", 1),
-    ('const aiOn = () => settings.ai === "live" && !!sampleFn && !aiBlocked;',
-     'const aiOn = () => WAI.ready() || (settings.ai === "live" && !!sampleFn && !aiBlocked); /* version 156: Warmup' + chr(39) + 's own server first */', 1),
     ("function aiFail(e) {", "function aiFail(e) {@N@  if (e && e.wai) { toast(WAI.failText(e)); return e.code; } /* version 156 */", 1),
     ("async function aiVoter(d) {", "async function aiVoter(d) {@N@  if (WAI.full(d)) return WAI.voter(d, S.convo.turns); /* version 156 */", 1),
     ("async function aiGradeConvo(d) {", "async function aiGradeConvo(d) {@N@  if (WAI.full(d)) return WAI.coachConvo(d, S.convo.turns); /* version 156 */", 1),
@@ -74,17 +72,17 @@ SWAPS = [
      "  // The scripted voter always runs too: it tracks moves for the fallback score and covers any AI hiccup.@N@  const scripted = d.reply(S.convo.st, text);@N@  await voterReply(d, scripted, typing);@N@}@N@"
      "/* version 156: the voter's answer, split out of sendTurn so WAI.retry can ask again for the same turn */@N@async function voterReply(d, scripted, typing) {@N@  let r = scripted;@N@  const full = WAI.full(d);@N@", 1),
     ("  if (S.convo.mode === @DQ@live@DQ@ && aiOn() && !(d.short && VOTER_AUDIO[d.persona])) {@N@    try {@N@      r = await aiVoter(d);@N@    } catch (e) {@N@      aiFail(e);",
-     "  if (S.convo.mode === @DQ@live@DQ@ && aiOn() && (full || !(d.short && VOTER_AUDIO[d.persona]))) {@N@    try {@N@      r = await aiVoter(d);@N@    } catch (e) {@N@      if (full) { typing.remove(); WAI.voterFailed(d, e, scripted); return; } /* version 156: say so, never swap in the script */@N@      aiFail(e);", 1),
+     "  if (S.convo.mode === @DQ@live@DQ@ && (full || (aiOn() && !(d.short && VOTER_AUDIO[d.persona])))) {@N@    try {@N@      r = await aiVoter(d);@N@    } catch (e) {@N@      if (full) { typing.remove(); WAI.voterFailed(d, e, scripted); return; } /* version 156: say so, never swap in the script */@N@      aiFail(e);", 1),
     ("if ((youTurns >= 9 || (shortDoor() && youTurns >= 2)) && !r.end)", "if ((youTurns >= (full ? 10 : 9) || (!full && shortDoor() && youTurns >= 2)) && !r.end)", 1),
     # the coaching
     ('addNote("Scoring your conversation', 'addNote(WAI.full(d) ? "Your coach is reading the conversation@ELL@" : "Scoring your conversation', 1),
     ("try { result = await aiGradeConvo(d); } catch (e) { aiFail(e); }",
      "try { result = await aiGradeConvo(d); } catch (e) { if (WAI.full(d)) { try { result = await aiGradeConvo(d); } catch (e2) { result = Object.assign(result, { coachErr: true }); } } else aiFail(e); } /* version 156: one quiet retry, then an honest label */", 1),
     ("who: d.name, day: S.day };",
-     "who: d.name, day: S.day };@N@  if (WAI.full(d)) { S.last.coach = result.coach || null; S.last.coachErr = !!result.coachErr; S.last.turns = S.convo.turns.map((x) => ({ who: x.who, text: x.text })); S.last.scen = WAI.scenFor(); if (S.drill && S.drill.kind === @DQ@aiissue@DQ@) S.last.prior = []; } /* version 156 */", 1),
+     "who: d.name, day: S.day };@N@  if (WAI.full(d)) { S.last.coach = result.coach || null; S.last.coachErr = !!result.coachErr; S.last.turns = S.convo.turns.map((x) => ({ who: x.who, text: x.text })); S.last.scen = WAI.scenFor(); } if (S.drill && S.drill.kind === @DQ@aiissue@DQ@) { S.last.prior = []; if (!S.last.coach) { S.last.noScore = true; S.last.moves = [false, false, false, false]; } } /* version 156: no lesson 1 rows on an issue card */", 1),
     # the score card
     ("const [emo, word] = hits === 3 ?", "const [emo, word] = hits === 3 && L.moves.length === 4 ?", 1),
-    ('VERDICT[hits === 4 ? "strong" : hits >= 2 ? "ok" : "weak"]', 'VERDICT[hits === L.moves.length ? "strong" : hits >= 2 ? "ok" : "weak"]', 1),
+    ('VERDICT[hits === 4 ? "strong" : hits >= 2 ? "ok" : "weak"]', 'VERDICT[hits === L.moves.length && !WAI.flagged(L) ? "strong" : hits >= 2 ? "ok" : "weak"]', 1),
     ('${ring(hits / 4, 52, 7)}<span class="ring-num num" style="font-size:15px">${hits}/4</span>',
      '${ring(hits / L.moves.length, 52, 7)}<span class="ring-num num" style="font-size:15px">${hits}/${L.moves.length}</span>', 1),
     ('<ul class="sc-list">${sk.moves.map(', '<ul class="sc-list">${WAI.rows(L) || sk.moves.map(', 1),
@@ -92,6 +90,15 @@ SWAPS = [
      "    ${WAI.block(L)}@N@    ${sayCard}@N@    ${prior}@N@  `, { tag: drill ? (warm ? @DQ@Warmup@DQ@ : @DQ@Practice@DQ@) : @DQ@Feedback@DQ@, noBack: true, footer, stage: !!sd });", 1),
     ('  else if (drill && drill.kind === "knock") footer =',
      '  else if (drill && drill.kind === "aiissue") footer = `<button class="btn" data-act="door-again">Try this conversation again</button><button class="link center" data-act="coach-back">Done for now</button>`; /* version 156 */@N@  else if (drill && drill.kind === "knock") footer =', 1),
+    # a door decides at the knock, after the health check, and keeps that mode (the reviewer: a slow first check let a scripted line play under the AI label)
+    ("async function knock() {@N@  const d = DOORS[doorKey()];@N@  S.convo.knocked = true;",
+     "async function knock() {@N@  const d = DOORS[doorKey()];@N@  if (S.convo.knocking) return; S.convo.knocking = true; await WAI.settle(); if (!S.convo || S.screen !== @DQ@door@DQ@) return; S.convo.wai = WAI.full(d); /* version 156 */@N@  S.convo.knocked = true;", 1),
+    ('  S.convo.mode = aiOn() ? "live" : "scripted";@N@', '  S.convo.mode = S.convo.wai || aiOn() ? "live" : "scripted"; /* version 156 */@N@', 1),
+    ('case "knock": if (S.convo && !S.convo.knocked) knock(); break;', 'case "knock": if (S.convo && !S.convo.knocked && !S.convo.knocking) knock(); break;', 1),
+    ('if (S.convo.mode === "live" && aiOn() && S.convo.turns.some((x) => x.who === "you")) {', 'if (S.convo.mode === "live" && (WAI.full(d) || aiOn()) && S.convo.turns.some((x) => x.who === "you")) {', 1),
+    ("  if (aiOn()) {@N@    S.tryRes = { lesson: n, text, hits, pending: true };", "  if (aiOn() || (n === 1 && WAI.ready())) { /* version 156: lesson 1@Q@s 1st try goes to Warmup@Q@s coach */@N@    S.tryRes = { lesson: n, text, hits, pending: true };", 1),
+    ('<div class="sc-card"><ul class="sc-list">', '<div class="sc-card"${L.noScore ? " hidden" : ""}><ul class="sc-list">', 1),
+    ('${scTop}</div>` : scTop}', '${L.noScore ? "" : scTop}</div>` : (L.noScore ? "" : scTop)}', 1),
     # screens and actions
     ("chrec: vChRec };", "chrec: vChRec, coachfull: vCoachFull };", 1),
     ('if (S.drill && !["main", "door", "score", "warmtip"].includes(screen)) endDrillState();', 'if (S.drill && !["main", "door", "score", "warmtip", "coachfull"].includes(screen)) endDrillState();', 1),
@@ -103,7 +110,7 @@ SWAPS = [
     # typing instead of talking: on a page that uses the mic itself the box was read-only, so a canvasser whose speech
     # recognition fails had no way in. Type instead opens the box for the rest of the conversation.
     ('<span id="talk-label">${talkLabel()}</span></button>@N@  </div>`;',
-     '<span id="talk-label">${talkLabel()}</span></button>${live && S.screen === "door" && !S.typeMode ? `<button class="link wai-type" data-act="wai-type">Type instead</button>` : ""}@N@  </div>`; /* version 156 */', 1),
+     '<span id="talk-label">${talkLabel()}</span></button>${live && S.screen === "door" && !S.typeMode && WAI.full() ? `<button class="link wai-type" data-act="wai-type">Type instead</button>` : ""}@N@  </div>`; /* version 156 */', 1),
     ("  setTimeout(() => { armTries = 0; micArm(); }, 0); /* version 111 */",
      "  if (S.typeMode && S.screen === @DQ@door@DQ@) { const sy = $(@DQ@#say@DQ@); if (sy) sy.readOnly = false; const tb = $(@DQ@#talk .wai-type@DQ@); if (tb) tb.remove(); setTimeout(() => { trayOpen(true); if (sy && !isTouch()) sy.focus(); }, 0); return; } /* version 156: Type instead */@N@"
      "  setTimeout(() => { armTries = 0; micArm(); }, 0); /* version 111 */", 1),

@@ -8,16 +8,19 @@ const WAI = (() => {
   const qs = new URLSearchParams(location.search);
   const base = String(qs.get("ai") || WAI_URL_DEFAULT || "").replace(/\/+$/, "");
   let state = base && !qs.has("noai") ? "checking" : "off", inflight = null, pendingD = null, pendingScripted = null;
+  const sigs = new Map(); /* the server signs each voter line; the page hands the signature back with the transcript */
   const ping = state === "checking"
     ? fetch(base + "/health", { cache: "no-store" }).then((r) => r.json()).then((j) => { state = j && j.ok ? "on" : "down"; }).catch(() => { state = "down"; }).then(() => { if (S.screen === "door" && !(S.convo && S.convo.knocked)) render(); })
     : Promise.resolve();
-  const ready = () => state === "on" || state === "checking";
+  const ready = () => state === "on"; /* only after the server said so: a door never starts as AI on a guess */
+  const settle = () => ping;
   /* which scenario this door plays: lesson 1's 2nd try (Kevin) and the issue practice (Bri) */
   const scenFor = () => {
     if (S.drill) return S.drill.kind === "aiissue" ? (DOORS[S.drill.door] || {}).ai || null : null;
     return S.track === "gotv" && (S.lesson || 1) === 1 && doorKey() === "kevin" ? "kevin_intro" : null;
   };
-  const full = (d) => ready() && !!scenFor() && (!d || d === DOORS[doorKey()]);
+  /* a door decides at the knock and keeps that mode for the whole conversation (S.convo.wai), so a failure shows as a failure */
+  const full = (d) => { if (d && d !== DOORS[doorKey()]) return false; if (!scenFor()) return false; if (S.convo && S.convo.wai !== undefined) return !!S.convo.wai; return ready(); };
   async function post(path, body, ms) {
     if (!base) throw { wai: true, code: "off" };
     await ping;
@@ -32,11 +35,11 @@ const WAI = (() => {
       throw { wai: true, code: e && e.name === "AbortError" ? "timeout" : "network" };
     } finally { clearTimeout(t); }
   }
-  const turnsOf = (turns) => turns.map((x) => ({ who: x.who === "you" ? "you" : "them", text: String(x.text || "") }));
+  const turnsOf = (turns) => turns.map((x) => (x.who === "you" ? { who: "you", text: String(x.text || "") } : { who: "them", text: String(x.text || ""), sig: sigs.get(String(x.text || "")) || "" }));
   async function voter(d, turns) {
     if (inflight) throw { wai: true, code: "busy" }; /* one voter answer at a time, so a double tap can't make two */
     inflight = post("/voter", { scenario: scenFor(), turns: turnsOf(turns) }, 15000);
-    try { const j = await inflight; return { say: j.say, expr: j.mood || "neutral", end: !!j.end }; } finally { inflight = null; }
+    try { const j = await inflight; if (j.sig) sigs.set(j.say, j.sig); return { say: j.say, expr: j.mood || "neutral", end: !!j.end }; } finally { inflight = null; }
   }
   const phrOf = (rep) => { const pub = WAI_PUB[rep.scen] || { rubric: [] }, card = pub.rubric.filter((r) => r.card); return card.map((r, i) => { const it = rep.items.find((x) => x.id === r.id); return i < 3 && it && it.status === "met" ? it.evidence || "" : ""; }); };
   async function coachConvo(d, turns) {
@@ -91,6 +94,7 @@ const WAI = (() => {
       const sc = L.scen, rep = await post("/coach", { scenario: sc, turns: L.turns }, 40000);
       rep.scen = sc;
       L.coach = rep; L.moves = rep.hits.slice(); L.tip = rep.improvement ? rep.improvement.text : "";
+      L.noScore = false;
     } catch (e) { L.coachErr = true; }
     L.coachBusy = false;
     if (S.screen === "score") render();
@@ -105,12 +109,14 @@ const WAI = (() => {
   function block(L) {
     if (!L) return "";
     if (L.coachBusy) return `<p class="sc-coach">Your coach is reading the conversation…</p>`;
-    if (L.coachErr) return `<div class="sc-coach warn"><p>The AI coach didn’t answer, so these rows come from a quick word check, not the coach.</p><button class="link" data-act="coach-retry">Get the coaching</button></div>`;
+    if (L.coachErr) return `<div class="sc-coach warn"><p>${L.noScore ? "The AI coach didn\u2019t answer, so there\u2019s no score for this one yet." : "The AI coach didn\u2019t answer, so these rows come from a quick word check, not the coach."}</p><button class="link" data-act="coach-retry">Get the coaching</button></div>`;
+    if (L.noScore && !L.coach) return `<div class="sc-coach warn"><p>The practice AI wasn\u2019t connected, so this conversation has no score.</p></div>`;
     const c = L.coach;
     if (!c) return "";
-    const st = c.strength && c.strength.text ? `<p><b>What worked:</b> ${esc(c.strength.text)}</p>` : "";
-    const im = c.improvement && c.improvement.text ? `<p><b>Try next:</b> ${esc(c.improvement.text)}${c.improvement.try_saying ? ` <span class="cc-line">“${esc(c.improvement.try_saying)}”</span>` : ""}</p>` : "";
-    return `<div class="sc-coach">${st}${im}<button class="link" data-act="coach-full">See your full coaching</button></div>`;
+    const chk = c.invented && c.invented.length ? `<p class="cc-chk"><b>Check this:</b> ${c.invented[0].quote ? `\u201c${esc(c.invented[0].quote)}\u201d ` : ""}${esc(c.invented[0].issue)}</p>` : "";
+    const st = !chk && c.strength && c.strength.text ? `<p><b>What worked:</b> ${esc(c.strength.text)}</p>` : "";
+    const im = c.improvement && c.improvement.text ? `<p><b>Try next:</b> ${esc(c.improvement.text)}</p>` : "";
+    return `<div class="sc-coach">${chk}${st}${im}<button class="link" data-act="coach-full">See your full coaching</button></div>`;
   }
   /* the honest label on the door: whether this voter is the AI or the scripted one */
   function pill() {
@@ -118,13 +124,16 @@ const WAI = (() => {
     if (full()) return `<p class="note wai-pill">Live AI voter · talk the way you would at a real door</p>`;
     return `<p class="note wai-pill off">Scripted voter · the practice AI isn’t connected</p>`;
   }
+  /* a stated fact that isn't in the materials keeps a perfect card from reading Excellent */
+  const flagged = (L) => !!(L && L.coach && L.coach.items.some((x) => x.id === "accurate" && x.status === "missed"));
   function issueLink() {
-    if (!ready() || !((S.briefsDoneIds || {}).ga || qs.get("convo") === "bri")) return "";
+    if (!ready() || !(S.briefsDoneIds || {}).ga) return ""; /* after lesson 6 (health insurance); ?convo=bri opens it directly for review */
     return `<button class="link center" data-act="wai-issue">Practice a health insurance question</button>`;
   }
   function autoKnock() { setTimeout(() => { if (S.screen === "door" && S.convo && !S.convo.knocked) knock(); }, 380); }
-  function startIssue() {
-    if (!ready()) { toast(FAIL.off); return; }
+  async function startIssue() {
+    await ping;
+    if (!ready()) { toast(state === "down" ? FAIL.network : FAIL.off); return; }
     if (!S.drill) S.drillBack = { lesson: lessonNo(), skipWatch: S.skipWatch };
     S.round = null;
     S.drill = { kind: "aiissue", door: "bri", step: 1 };
@@ -132,7 +141,7 @@ const WAI = (() => {
     go("door");
     autoKnock();
   }
-  return { ready, full, scenFor, voter, coachConvo, firstTry, failText, voterFailed, retry, recoach, rows, block, pill, issueLink, startIssue, autoKnock, state: () => state };
+  return { ready, settle, flagged, full, scenFor, voter, coachConvo, firstTry, failText, voterFailed, retry, recoach, rows, block, pill, issueLink, startIssue, autoKnock, state: () => state };
 })();
 /* the full coaching: every rubric row with the volunteer's own words, anything to check, and the transcript */
 function vCoachFull() {
@@ -142,15 +151,16 @@ function vCoachFull() {
   const row = (r) => {
     const it = c.items.find((x) => x.id === r.id) || { status: "missed" };
     if (it.status === "not_applicable") return "";
-    const head = it.status === "met" ? r.hit : it.status === "partial" ? r.label + ": partly" : r.miss;
+    const head = it.status === "met" ? r.hit : it.status === "partial" ? "Partly: " + r.hit.charAt(0).toLowerCase() + r.hit.slice(1) : r.miss;
     return `<li class="${ICON[it.status]}"><b>${esc(head)}</b>${it.note && it.status !== "met" ? `<span>${esc(it.note)}</span>` : ""}${it.evidence ? `<q>${esc(it.evidence)}</q>` : ""}</li>`;
   };
-  const inv = c.invented && c.invented.length ? `<div class="cf-flag"><b>Check this</b>${c.invented.map((x) => `<p><q>${esc(x.quote)}</q> ${esc(x.issue)}</p>`).join("")}</div>` : "";
+  const inv = c.invented && c.invented.length ? `<div class="cf-flag"><b>Check this</b>${c.invented.map((x) => `<p>${x.quote ? `<q>${esc(x.quote)}</q> ` : ""}${esc(x.issue)}</p>`).join("")}</div>` : "";
   const heard = c.transcription && c.transcription.length ? `<div class="cf-flag soft"><b>We may have misheard you</b>${c.transcription.map((x) => `<p>We heard <q>${esc(x.heard)}</q>${x.likely ? `, probably “${esc(x.likely)}”` : ""}. Not counted against you.</p>`).join("")}</div>` : "";
   const tr = (L.turns || []).map((x) => `<p class="cf-t ${x.who === "you" ? "you" : "them"}"><b>${x.who === "you" ? "You" : esc(pub.voter.name)}</b> ${esc(x.text)}</p>`).join("");
   return app(`
     <p class="kicker">Your coaching</p>
     <h1 class="h1">${esc(c.summary || "How it went")}</h1>
+    ${c.strength && c.strength.text ? `<div class="cf-try good"><b>What worked</b><p>${esc(c.strength.text)}</p>${c.strength.quote ? `<p class="cc-line">\u201c${esc(c.strength.quote)}\u201d</p>` : ""}</div>` : ""}
     <ul class="cf-list">${pub.rubric.map(row).join("")}</ul>
     ${inv}${heard}
     ${c.improvement && c.improvement.text ? `<div class="cf-try"><b>Try next</b><p>${esc(c.improvement.text)}</p>${c.improvement.try_saying ? `<p class="cc-line">“${esc(c.improvement.try_saying)}”</p>` : ""}</div>` : ""}

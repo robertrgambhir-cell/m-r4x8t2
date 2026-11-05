@@ -2065,7 +2065,8 @@
   .sc-coach p { margin: 0 0 6px; }
   .sc-coach b { color: var(--ink); }
   .sc-coach .cc-line { color: var(--ink); font-style: italic; }
-  .sc-coach .link { padding: 0; font-size: 13.5px; }
+  .sc-coach .link { padding: 0; font-size: 13.5px; min-height: 40px; display: inline-flex; align-items: center; }
+  .sc-coach .cc-chk, .sc-coach .cc-chk b { color: #9a3412; }
   .sc-coach.warn { border-color: #e8b26a; }
   @media (max-height: 700px) { .sc-coach { padding: 8px 12px; font-size: 12.5px; margin-top: 8px; } .sc-coach p { margin-bottom: 4px; } }
   .cf-list { list-style: none; margin: 12px 0; padding: 0; display: grid; gap: 10px; }
@@ -2074,9 +2075,11 @@
   .cf-list li span { display: block; }
   .cf-list li q { display: block; margin-top: 2px; color: var(--ink); font-style: italic; }
   .cf-list li::before { content: ""; position: absolute; left: 0; top: 2px; width: 18px; height: 18px; border-radius: 50%; box-sizing: border-box; }
-  .cf-list li.y::before { background: var(--accent); }
+  .cf-list li.y::before { background: var(--accent); content: "\2713"; color: #fff; font-size: 12px; font-weight: 800; line-height: 18px; text-align: center; }
   .cf-list li.p::before { border: 2px solid var(--accent); background: linear-gradient(90deg, var(--accent) 50%, transparent 50%); }
   .cf-list li.n::before { border: 2px solid var(--ink-3); }
+  .cf-list li.n::after { content: ""; position: absolute; left: 5px; top: 10px; width: 8px; height: 2px; background: var(--ink-3); }
+  .cf-try.good { background: var(--card); }
   .cf-flag { margin: 0 0 10px; padding: 10px 12px; border-radius: 14px; background: #FDF0E6; font-size: 14px; line-height: 1.4; }
   .cf-flag.soft { background: #EEF3FB; }
   .cf-flag b { display: block; margin-bottom: 2px; }
@@ -2089,7 +2092,7 @@
   .cf-t { margin: 6px 0 0; line-height: 1.4; color: var(--ink-2); }
   .cf-t b { color: var(--ink); margin-right: 4px; }
   .cf-src { font-size: 12px; color: var(--ink-3); margin: 6px 0 0; }
-  .talk .link.wai-type { display: block; margin: 6px auto 0; padding: 2px 8px; font-size: 13.5px; }
+  .talk .link.wai-type { display: block; margin: 2px auto 0; padding: 0 12px; min-height: 40px; font-size: 13.5px; }
   .thread .bub.old { display: none; }
 </style>
 </head>
@@ -4277,8 +4280,8 @@ const DOORS = {
   /* version 156: Maya's health insurance question as a live AI conversation (ai/scenarios.js bri_health); no scripted lines, so it opens only when the practice AI is on */
   bri: {
     persona: "brianna", scene: "door", name: "Bri", sub: "Supporter, home health aide", street: "2F", ai: "bri_health", rate: 1,
-    intro: "Bri, apartment 2F. She has a question about health insurance.",
-    first: { say: "Oh, you're with Maya? Can I ask you something? My job doesn't offer health insurance, and I can't afford to buy it. Is Maya going to do anything about that?", expr: "neutral" },
+    intro: "Bri, apartment 2F. She's been wondering about health insurance.",
+    first: { say: "Hi. Can I help you?", expr: "neutral" },
     start(st) { st.stage = "door"; },
     suggest() { return ""; },
     reply() { return { say: "Sorry, I have to run. Thanks for stopping by.", expr: "neutral", end: true }; },
@@ -4731,21 +4734,24 @@ function stopSpeech() {
    coach's checked report. When the server isn't reachable the page says so; it never passes the scripted voter or the word
    check off as AI. Scenario cards (names, rows) come from ai/scenarios.js, copied in at build time as WAI_PUB. */
 const WAI_URL_DEFAULT = "";
-const WAI_PUB = {"kevin_intro":{"id":"kevin_intro","title":"Introduce yourself at the door","coachOnly":false,"voter":{"name":"Kevin","opening":{"say":"Hey. Can I help you?","mood":"neutral"}},"rubric":[{"id":"name","label":"Say your name","hit":"Said your name","miss":"Didn't say your name","card":true,"move":0,"avoid":false},{"id":"maya","label":"Say you're volunteering for Maya Kaur","hit":"Said you're volunteering for Maya Kaur","miss":"Didn't say you're volunteering for Maya Kaur","card":true,"move":1,"avoid":false},{"id":"tuesday","label":"Remind them Election Day is Tuesday","hit":"Reminded him Election Day is Tuesday","miss":"Didn't remind him Election Day is Tuesday","card":true,"move":2,"avoid":false},{"id":"nominute","label":"Don't ask “Do you have a minute?”","hit":"Didn't ask “Do you have a minute?”","miss":"Asked for his time","card":true,"move":3,"avoid":true},{"id":"listen","label":"Listen and respond","hit":"Responded to what he said","miss":"Didn't respond to what he said","card":false,"avoid":false},{"id":"accurate","label":"Stick to what you know","hit":"Stuck to what you know","miss":"Stated something you don't know","card":false,"avoid":false},{"id":"close","label":"End it well","hit":"Ended it warmly","miss":"Didn't end it well","card":false,"avoid":false}]},"opener_first_try":{"id":"opener_first_try","title":"Your 1st try","coachOnly":true,"voter":{"name":"Sofia"},"rubric":[{"id":"name","label":"Say your name","hit":"Said your name","miss":"Didn't say your name","card":true,"move":0,"avoid":false},{"id":"maya","label":"Say you're volunteering for Maya Kaur","hit":"Said you're volunteering for Maya Kaur","miss":"Didn't say you're volunteering for Maya Kaur","card":true,"move":1,"avoid":false},{"id":"tuesday","label":"Remind them Election Day is Tuesday","hit":"Reminded him Election Day is Tuesday","miss":"Didn't remind him Election Day is Tuesday","card":true,"move":2,"avoid":false},{"id":"nominute","label":"Don't ask “Do you have a minute?”","hit":"Didn't ask “Do you have a minute?”","miss":"Asked for his time","card":true,"move":3,"avoid":true}]},"bri_health":{"id":"bri_health","title":"Health insurance at the door","coachOnly":false,"voter":{"name":"Bri","opening":{"say":"Oh, you're with Maya? Can I ask you something? My job doesn't offer health insurance, and I can't afford to buy it. Is Maya going to do anything about that?","mood":"neutral"}},"rubric":[{"id":"gap","label":"Who's left out today","hit":"Said who's left out today","miss":"Didn't say who's left out today","card":true,"avoid":false},{"id":"plan","label":"Maya's plan","hit":"Explained Maya's plan","miss":"Didn't explain Maya's plan","card":true,"avoid":false},{"id":"opp","label":"How her opponent's plan differs","hit":"Said how her opponent's plan differs","miss":"Didn't say how her opponent's plan differs","card":true,"avoid":false},{"id":"accurate","label":"Stick to the facts","hit":"Stuck to the facts","miss":"Said something that isn't right","card":false,"avoid":false},{"id":"listen","label":"Connect it to her","hit":"Connected it to her situation","miss":"Didn't connect it to her","card":false,"avoid":false},{"id":"close","label":"End it well","hit":"Ended it warmly","miss":"Didn't end it well","card":false,"avoid":false}]}};
+const WAI_PUB = {"kevin_intro":{"id":"kevin_intro","title":"Introduce yourself at the door","coachOnly":false,"voter":{"name":"Kevin","opening":{"say":"Hey. Can I help you?","mood":"neutral"}},"rubric":[{"id":"name","label":"Say your name","hit":"Said your name","miss":"Didn't say your name","card":true,"move":0,"avoid":false},{"id":"maya","label":"Say you're volunteering for Maya Kaur","hit":"Said you're volunteering for Maya Kaur","miss":"Didn't say you're volunteering for Maya Kaur","card":true,"move":1,"avoid":false},{"id":"tuesday","label":"Remind them Election Day is Tuesday","hit":"Reminded him Election Day is Tuesday","miss":"Didn't remind him Election Day is Tuesday","card":true,"move":2,"avoid":false},{"id":"nominute","label":"Don't ask “Do you have a minute?”","hit":"Didn't ask “Do you have a minute?”","miss":"Asked for his time","card":true,"move":3,"avoid":true},{"id":"listen","label":"Listen and respond","hit":"Responded to what he said","miss":"Didn't respond to what he said","card":false,"avoid":false},{"id":"accurate","label":"Stick to what you know","hit":"Stuck to what you know","miss":"Stated something you don't know","card":false,"avoid":false},{"id":"close","label":"End it well","hit":"Ended it warmly","miss":"Didn't end it well","card":false,"avoid":false}]},"opener_first_try":{"id":"opener_first_try","title":"Your 1st try","coachOnly":true,"voter":{"name":"Sofia"},"rubric":[{"id":"name","label":"Say your name","hit":"Said your name","miss":"Didn't say your name","card":true,"move":0,"avoid":false},{"id":"maya","label":"Say you're volunteering for Maya Kaur","hit":"Said you're volunteering for Maya Kaur","miss":"Didn't say you're volunteering for Maya Kaur","card":true,"move":1,"avoid":false},{"id":"tuesday","label":"Remind them Election Day is Tuesday","hit":"Reminded him Election Day is Tuesday","miss":"Didn't remind him Election Day is Tuesday","card":true,"move":2,"avoid":false},{"id":"nominute","label":"Don't ask “Do you have a minute?”","hit":"Didn't ask “Do you have a minute?”","miss":"Asked for his time","card":true,"move":3,"avoid":true}]},"bri_health":{"id":"bri_health","title":"Health insurance at the door","coachOnly":false,"voter":{"name":"Bri","opening":{"say":"Hi. Can I help you?","mood":"neutral"}},"rubric":[{"id":"gap","label":"Who's left out today","hit":"Said who's left out today","miss":"Didn't say who's left out today","card":true,"avoid":false},{"id":"plan","label":"Maya's plan","hit":"Explained Maya's plan","miss":"Didn't explain Maya's plan","card":true,"avoid":false},{"id":"opp","label":"How her opponent's plan differs","hit":"Said how her opponent's plan differs","miss":"Didn't say how her opponent's plan differs","card":true,"avoid":false},{"id":"accurate","label":"Stick to the facts","hit":"Stuck to the facts","miss":"Said something that isn't right","card":true,"avoid":false},{"id":"listen","label":"Connect it to her","hit":"Connected it to her situation","miss":"Didn't connect it to her","card":false,"avoid":false},{"id":"close","label":"End it well","hit":"Ended it warmly","miss":"Didn't end it well","card":false,"avoid":false}]}};
 const WAI = (() => {
   const qs = new URLSearchParams(location.search);
   const base = String(qs.get("ai") || WAI_URL_DEFAULT || "").replace(/\/+$/, "");
   let state = base && !qs.has("noai") ? "checking" : "off", inflight = null, pendingD = null, pendingScripted = null;
+  const sigs = new Map(); /* the server signs each voter line; the page hands the signature back with the transcript */
   const ping = state === "checking"
     ? fetch(base + "/health", { cache: "no-store" }).then((r) => r.json()).then((j) => { state = j && j.ok ? "on" : "down"; }).catch(() => { state = "down"; }).then(() => { if (S.screen === "door" && !(S.convo && S.convo.knocked)) render(); })
     : Promise.resolve();
-  const ready = () => state === "on" || state === "checking";
+  const ready = () => state === "on"; /* only after the server said so: a door never starts as AI on a guess */
+  const settle = () => ping;
   /* which scenario this door plays: lesson 1's 2nd try (Kevin) and the issue practice (Bri) */
   const scenFor = () => {
     if (S.drill) return S.drill.kind === "aiissue" ? (DOORS[S.drill.door] || {}).ai || null : null;
     return S.track === "gotv" && (S.lesson || 1) === 1 && doorKey() === "kevin" ? "kevin_intro" : null;
   };
-  const full = (d) => ready() && !!scenFor() && (!d || d === DOORS[doorKey()]);
+  /* a door decides at the knock and keeps that mode for the whole conversation (S.convo.wai), so a failure shows as a failure */
+  const full = (d) => { if (d && d !== DOORS[doorKey()]) return false; if (!scenFor()) return false; if (S.convo && S.convo.wai !== undefined) return !!S.convo.wai; return ready(); };
   async function post(path, body, ms) {
     if (!base) throw { wai: true, code: "off" };
     await ping;
@@ -4760,11 +4766,11 @@ const WAI = (() => {
       throw { wai: true, code: e && e.name === "AbortError" ? "timeout" : "network" };
     } finally { clearTimeout(t); }
   }
-  const turnsOf = (turns) => turns.map((x) => ({ who: x.who === "you" ? "you" : "them", text: String(x.text || "") }));
+  const turnsOf = (turns) => turns.map((x) => (x.who === "you" ? { who: "you", text: String(x.text || "") } : { who: "them", text: String(x.text || ""), sig: sigs.get(String(x.text || "")) || "" }));
   async function voter(d, turns) {
     if (inflight) throw { wai: true, code: "busy" }; /* one voter answer at a time, so a double tap can't make two */
     inflight = post("/voter", { scenario: scenFor(), turns: turnsOf(turns) }, 15000);
-    try { const j = await inflight; return { say: j.say, expr: j.mood || "neutral", end: !!j.end }; } finally { inflight = null; }
+    try { const j = await inflight; if (j.sig) sigs.set(j.say, j.sig); return { say: j.say, expr: j.mood || "neutral", end: !!j.end }; } finally { inflight = null; }
   }
   const phrOf = (rep) => { const pub = WAI_PUB[rep.scen] || { rubric: [] }, card = pub.rubric.filter((r) => r.card); return card.map((r, i) => { const it = rep.items.find((x) => x.id === r.id); return i < 3 && it && it.status === "met" ? it.evidence || "" : ""; }); };
   async function coachConvo(d, turns) {
@@ -4819,6 +4825,7 @@ const WAI = (() => {
       const sc = L.scen, rep = await post("/coach", { scenario: sc, turns: L.turns }, 40000);
       rep.scen = sc;
       L.coach = rep; L.moves = rep.hits.slice(); L.tip = rep.improvement ? rep.improvement.text : "";
+      L.noScore = false;
     } catch (e) { L.coachErr = true; }
     L.coachBusy = false;
     if (S.screen === "score") render();
@@ -4833,12 +4840,14 @@ const WAI = (() => {
   function block(L) {
     if (!L) return "";
     if (L.coachBusy) return `<p class="sc-coach">Your coach is reading the conversation…</p>`;
-    if (L.coachErr) return `<div class="sc-coach warn"><p>The AI coach didn’t answer, so these rows come from a quick word check, not the coach.</p><button class="link" data-act="coach-retry">Get the coaching</button></div>`;
+    if (L.coachErr) return `<div class="sc-coach warn"><p>${L.noScore ? "The AI coach didn\u2019t answer, so there\u2019s no score for this one yet." : "The AI coach didn\u2019t answer, so these rows come from a quick word check, not the coach."}</p><button class="link" data-act="coach-retry">Get the coaching</button></div>`;
+    if (L.noScore && !L.coach) return `<div class="sc-coach warn"><p>The practice AI wasn\u2019t connected, so this conversation has no score.</p></div>`;
     const c = L.coach;
     if (!c) return "";
-    const st = c.strength && c.strength.text ? `<p><b>What worked:</b> ${esc(c.strength.text)}</p>` : "";
-    const im = c.improvement && c.improvement.text ? `<p><b>Try next:</b> ${esc(c.improvement.text)}${c.improvement.try_saying ? ` <span class="cc-line">“${esc(c.improvement.try_saying)}”</span>` : ""}</p>` : "";
-    return `<div class="sc-coach">${st}${im}<button class="link" data-act="coach-full">See your full coaching</button></div>`;
+    const chk = c.invented && c.invented.length ? `<p class="cc-chk"><b>Check this:</b> ${c.invented[0].quote ? `\u201c${esc(c.invented[0].quote)}\u201d ` : ""}${esc(c.invented[0].issue)}</p>` : "";
+    const st = !chk && c.strength && c.strength.text ? `<p><b>What worked:</b> ${esc(c.strength.text)}</p>` : "";
+    const im = c.improvement && c.improvement.text ? `<p><b>Try next:</b> ${esc(c.improvement.text)}</p>` : "";
+    return `<div class="sc-coach">${chk}${st}${im}<button class="link" data-act="coach-full">See your full coaching</button></div>`;
   }
   /* the honest label on the door: whether this voter is the AI or the scripted one */
   function pill() {
@@ -4846,13 +4855,16 @@ const WAI = (() => {
     if (full()) return `<p class="note wai-pill">Live AI voter · talk the way you would at a real door</p>`;
     return `<p class="note wai-pill off">Scripted voter · the practice AI isn’t connected</p>`;
   }
+  /* a stated fact that isn't in the materials keeps a perfect card from reading Excellent */
+  const flagged = (L) => !!(L && L.coach && L.coach.items.some((x) => x.id === "accurate" && x.status === "missed"));
   function issueLink() {
-    if (!ready() || !((S.briefsDoneIds || {}).ga || qs.get("convo") === "bri")) return "";
+    if (!ready() || !(S.briefsDoneIds || {}).ga) return ""; /* after lesson 6 (health insurance); ?convo=bri opens it directly for review */
     return `<button class="link center" data-act="wai-issue">Practice a health insurance question</button>`;
   }
   function autoKnock() { setTimeout(() => { if (S.screen === "door" && S.convo && !S.convo.knocked) knock(); }, 380); }
-  function startIssue() {
-    if (!ready()) { toast(FAIL.off); return; }
+  async function startIssue() {
+    await ping;
+    if (!ready()) { toast(state === "down" ? FAIL.network : FAIL.off); return; }
     if (!S.drill) S.drillBack = { lesson: lessonNo(), skipWatch: S.skipWatch };
     S.round = null;
     S.drill = { kind: "aiissue", door: "bri", step: 1 };
@@ -4860,7 +4872,7 @@ const WAI = (() => {
     go("door");
     autoKnock();
   }
-  return { ready, full, scenFor, voter, coachConvo, firstTry, failText, voterFailed, retry, recoach, rows, block, pill, issueLink, startIssue, autoKnock, state: () => state };
+  return { ready, settle, flagged, full, scenFor, voter, coachConvo, firstTry, failText, voterFailed, retry, recoach, rows, block, pill, issueLink, startIssue, autoKnock, state: () => state };
 })();
 /* the full coaching: every rubric row with the volunteer's own words, anything to check, and the transcript */
 function vCoachFull() {
@@ -4870,15 +4882,16 @@ function vCoachFull() {
   const row = (r) => {
     const it = c.items.find((x) => x.id === r.id) || { status: "missed" };
     if (it.status === "not_applicable") return "";
-    const head = it.status === "met" ? r.hit : it.status === "partial" ? r.label + ": partly" : r.miss;
+    const head = it.status === "met" ? r.hit : it.status === "partial" ? "Partly: " + r.hit.charAt(0).toLowerCase() + r.hit.slice(1) : r.miss;
     return `<li class="${ICON[it.status]}"><b>${esc(head)}</b>${it.note && it.status !== "met" ? `<span>${esc(it.note)}</span>` : ""}${it.evidence ? `<q>${esc(it.evidence)}</q>` : ""}</li>`;
   };
-  const inv = c.invented && c.invented.length ? `<div class="cf-flag"><b>Check this</b>${c.invented.map((x) => `<p><q>${esc(x.quote)}</q> ${esc(x.issue)}</p>`).join("")}</div>` : "";
+  const inv = c.invented && c.invented.length ? `<div class="cf-flag"><b>Check this</b>${c.invented.map((x) => `<p>${x.quote ? `<q>${esc(x.quote)}</q> ` : ""}${esc(x.issue)}</p>`).join("")}</div>` : "";
   const heard = c.transcription && c.transcription.length ? `<div class="cf-flag soft"><b>We may have misheard you</b>${c.transcription.map((x) => `<p>We heard <q>${esc(x.heard)}</q>${x.likely ? `, probably “${esc(x.likely)}”` : ""}. Not counted against you.</p>`).join("")}</div>` : "";
   const tr = (L.turns || []).map((x) => `<p class="cf-t ${x.who === "you" ? "you" : "them"}"><b>${x.who === "you" ? "You" : esc(pub.voter.name)}</b> ${esc(x.text)}</p>`).join("");
   return app(`
     <p class="kicker">Your coaching</p>
     <h1 class="h1">${esc(c.summary || "How it went")}</h1>
+    ${c.strength && c.strength.text ? `<div class="cf-try good"><b>What worked</b><p>${esc(c.strength.text)}</p>${c.strength.quote ? `<p class="cc-line">\u201c${esc(c.strength.quote)}\u201d</p>` : ""}</div>` : ""}
     <ul class="cf-list">${pub.rubric.map(row).join("")}</ul>
     ${inv}${heard}
     ${c.improvement && c.improvement.text ? `<div class="cf-try"><b>Try next</b><p>${esc(c.improvement.text)}</p>${c.improvement.try_saying ? `<p class="cc-line">“${esc(c.improvement.try_saying)}”</p>` : ""}</div>` : ""}
@@ -4893,7 +4906,7 @@ let aiBlocked = false;
 const aiReady = (window.claude && typeof window.claude.use === "function")
   ? window.claude.use("sample").then((s) => { sampleFn = s; if (!$("#menu").hidden) openMenu(); return s; }).catch(() => null)
   : Promise.resolve(null);
-const aiOn = () => WAI.ready() || (settings.ai === "live" && !!sampleFn && !aiBlocked); /* version 156: Warmup's own server first */
+const aiOn = () => settings.ai === "live" && !!sampleFn && !aiBlocked;
 function withTimeout(p, ms) {
   return Promise.race([p, new Promise((_, reject) => setTimeout(() => reject({ code: "timeout" }), ms))]);
 }
@@ -5298,7 +5311,7 @@ function composer(act, placeholder, label) {
       <p class="talk-hint">${ICON.mic}<span id="talk-hint">${live ? "Listening\u2026" : keyHint()}</span></p>
       <div class="composer"><textarea class="field" id="say" rows="1" placeholder="Your words show up here" aria-label="What you said"${live ? " readonly" : ""}></textarea><button class="iconbtn primary" data-act="${act}" aria-label="${label || "Send"}">${ICON.send}</button></div>
     </div>
-    <button class="mic-btn" data-act="talk"><span class="mic-dot" aria-hidden="true">${ICON.mic}</span><span id="talk-label">${talkLabel()}</span></button>${live && S.screen === "door" && !S.typeMode ? `<button class="link wai-type" data-act="wai-type">Type instead</button>` : ""}
+    <button class="mic-btn" data-act="talk"><span class="mic-dot" aria-hidden="true">${ICON.mic}</span><span id="talk-label">${talkLabel()}</span></button>${live && S.screen === "door" && !S.typeMode && WAI.full() ? `<button class="link wai-type" data-act="wai-type">Type instead</button>` : ""}
   </div>`; /* version 156 */
 }
 function trayOpen(focus) {
@@ -7265,7 +7278,7 @@ function vScore() {
   const L = S.last, sk = SKILLS[L.skill], g = S.track === "gotv", drill = g ? S.drill : null, warm = !!drill && drill.kind === "warm";
   const hits = L.moves.filter(Boolean).length;
   const miss = L.moves.findIndex((m) => !m);
-  const [emo, word] = hits === 3 && L.moves.length === 4 ? ["\u{1F4AA}", "You\u2019re getting there"] : VERDICT[hits === L.moves.length ? "strong" : hits >= 2 ? "ok" : "weak"]; /* version 83 (Robert): 3 of 4 is the flexed arm and You're getting there on both tries */
+  const [emo, word] = hits === 3 && L.moves.length === 4 ? ["\u{1F4AA}", "You\u2019re getting there"] : VERDICT[hits === L.moves.length && !WAI.flagged(L) ? "strong" : hits >= 2 ? "ok" : "weak"]; /* version 83 (Robert): 3 of 4 is the flexed arm and You're getting there on both tries */
   const tip = miss >= 0 ? (L.tip || sk.tips[miss]) : "";
   const rightList = sk.hitNames.filter((_, i) => L.moves[i]);
   const fixList = (sk.missNames || sk.moves.map((m) => "Missed: " + m)).filter((_, i) => !L.moves[i]);
@@ -7295,8 +7308,8 @@ function vScore() {
   const scTop = `<div class="sc-top"><div class="ring-wrap" style="width:52px;height:52px">${ring(hits / L.moves.length, 52, 7)}<span class="ring-num num" style="font-size:15px">${hits}/${L.moves.length}</span></div><h1 class="h1 verdict-h" style="margin:0">${emoIcon(emo)}${word}</h1></div>`;
   if (g) return app(`
     ${progressBar(repMoves().length + 2, 1)}
-    ${sd ? `<div class="frame stage-frame sc-voter">${scene(sd.scene, sd.persona, { main: true, label: `${sd.name}, ${sd.sub}` })}${scTop}</div>` : scTop}
-    <div class="sc-card"><ul class="sc-list">${WAI.rows(L) || sk.moves.map((m, i) => `<li class="${L.moves[i] ? "y" : "n"}">${esc(L.moves[i] ? sk.hitNames[i] : (sk.missNames || [])[i] || m)}</li>`).join("")}</ul>${drill && drill.kind === "knock" && tip ? `<p class="sc-mytip"><b>My tip:</b> ${esc(tip.charAt(0).toLowerCase() + tip.slice(1).replace(/^([^:\u201c]*): /, "$1. "))}</p>` : ""}</div>
+    ${sd ? `<div class="frame stage-frame sc-voter">${scene(sd.scene, sd.persona, { main: true, label: `${sd.name}, ${sd.sub}` })}${L.noScore ? "" : scTop}</div>` : (L.noScore ? "" : scTop)}
+    <div class="sc-card"${L.noScore ? " hidden" : ""}><ul class="sc-list">${WAI.rows(L) || sk.moves.map((m, i) => `<li class="${L.moves[i] ? "y" : "n"}">${esc(L.moves[i] ? sk.hitNames[i] : (sk.missNames || [])[i] || m)}</li>`).join("")}</ul>${drill && drill.kind === "knock" && tip ? `<p class="sc-mytip"><b>My tip:</b> ${esc(tip.charAt(0).toLowerCase() + tip.slice(1).replace(/^([^:\u201c]*): /, "$1. "))}</p>` : ""}</div>
     ${WAI.block(L)}
     ${sayCard}
     ${prior}
@@ -7946,7 +7959,7 @@ async function checkTry() {
   if (!text) { toast("Say it first, then tap the arrow."); return; }
   const n = lessonNo(), f = FLOW[skKey()];
   let hits = f.hits(norm(text)), phrAI = null;
-  if (aiOn()) {
+  if (aiOn() || (n === 1 && WAI.ready())) { /* version 156: lesson 1's 1st try goes to Warmup's coach */
     S.tryRes = { lesson: n, text, hits, pending: true };
     render();
     try { if (n === 1) { const rr = await aiGradeOpener(text); hits = rr[1].hits; phrAI = rr[1].phr || null; } else hits = await aiGradeTry(text); } catch (e) { aiFail(e); }
@@ -9053,6 +9066,7 @@ function setComposer(on) {
 }
 async function knock() {
   const d = DOORS[doorKey()];
+  if (S.convo.knocking) return; S.convo.knocking = true; await WAI.settle(); if (!S.convo || S.screen !== "door") return; S.convo.wai = WAI.full(d); /* version 156 */
   S.convo.knocked = true;
   const fr0 = $("#screen .frame.door-stage"), h0 = fr0 ? fr0.getBoundingClientRect().height : 0; /* version 87: where the intro's door sat */
   if (S.track === "gotv" && !S.drill) render(); /* version 54: from the door intro into the conversation */
@@ -9060,7 +9074,7 @@ async function knock() {
   const fr1 = $("#screen .frame.convo-stage"), reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (fr1 && h0 && fr1.animate && !reduce) { const h1 = fr1.getBoundingClientRect().height; if (Math.abs(h1 - h0) > 4) fr1.animate([{ flexBasis: h0 + "px", flexGrow: 0 }, { flexBasis: h1 + "px", flexGrow: 0 }], { duration: 550, easing: "cubic-bezier(.3,.7,.2,1)" }); } /* version 87: the door grows into the space the four parts had */
   const shake = fr1 || svg; /* version 87: on the stage the frame shakes; the scene's own transform is its crop */
-  S.convo.mode = aiOn() ? "live" : "scripted";
+  S.convo.mode = S.convo.wai || aiOn() ? "live" : "scripted"; /* version 156 */
   const footer = $("#screen .actions");
   if (footer) footer.innerHTML = `${composer("send", "Type what you\u2019d say")}${S.track === "gotv" ? "" : `<div class="door-links"><button class="link" data-act="suggest">Need a line?</button><button class="link" data-act="ask-open">Ask the campaign</button><button class="link" data-act="end-convo">End conversation</button></div>`}`;
   setComposer(false);
@@ -9115,7 +9129,7 @@ async function sendTurn() {
 async function voterReply(d, scripted, typing) {
   let r = scripted;
   const full = WAI.full(d);
-  if (S.convo.mode === "live" && aiOn() && (full || !(d.short && VOTER_AUDIO[d.persona]))) {
+  if (S.convo.mode === "live" && (full || (aiOn() && !(d.short && VOTER_AUDIO[d.persona])))) {
     try {
       r = await aiVoter(d);
     } catch (e) {
@@ -9154,7 +9168,7 @@ async function finishConvo(d) {
   setComposer(false);
   const fallback = [0, 1, 2, 3].map((i) => S.convo.st.moves.has(i));
   let result = { hits: fallback, praise: "", tip: "" };
-  if (S.convo.mode === "live" && aiOn() && S.convo.turns.some((x) => x.who === "you")) {
+  if (S.convo.mode === "live" && (WAI.full(d) || aiOn()) && S.convo.turns.some((x) => x.who === "you")) {
     const note = addNote(WAI.full(d) ? "Your coach is reading the conversation…" : "Scoring your conversation\u2026");
     try { result = await aiGradeConvo(d); } catch (e) { if (WAI.full(d)) { try { result = await aiGradeConvo(d); } catch (e2) { result = Object.assign(result, { coachErr: true }); } } else aiFail(e); } /* version 156: one quiet retry, then an honest label */
     if (note) note.remove();
@@ -9163,7 +9177,7 @@ async function finishConvo(d) {
   const youText = S.convo.turns.filter((x) => x.who === "you").slice(0, 2).map((x) => x.text).join(" ");
   const phr = S.track === "gotv" && (S.lesson || 1) === 1 ? phrFinal(youText, result.hits, result.phr || null) : null; /* version 98 */
   S.last = { skill: skKey(), lesson: S.lesson || 1, prior: S.track === "gotv" ? priorChecks(S.convo.turns.filter((x) => x.who === "you").map((x) => norm(x.text)), S.lesson || 1) : [], moves: result.hits, praise: result.praise, tip: result.tip, text: youText, phr, who: d.name, day: S.day };
-  if (WAI.full(d)) { S.last.coach = result.coach || null; S.last.coachErr = !!result.coachErr; S.last.turns = S.convo.turns.map((x) => ({ who: x.who, text: x.text })); S.last.scen = WAI.scenFor(); if (S.drill && S.drill.kind === "aiissue") S.last.prior = []; } /* version 156 */
+  if (WAI.full(d)) { S.last.coach = result.coach || null; S.last.coachErr = !!result.coachErr; S.last.turns = S.convo.turns.map((x) => ({ who: x.who, text: x.text })); S.last.scen = WAI.scenFor(); } if (S.drill && S.drill.kind === "aiissue") { S.last.prior = []; if (!S.last.coach) { S.last.noScore = true; S.last.moves = [false, false, false, false]; } } /* version 156: no lesson 1 rows on an issue card */
   if (S.drill) {
     if (S.drill.kind === "knock" && S.round) S.round.res[S.round.i] = { door: S.drill.door, hits: result.hits.slice() }; /* version 150 */
     if (S.drill.kind === "practice" || S.drill.kind === "knock") { S.doorsN = (S.doorsN || 0) + 1; S.practDays = (S.practDays || []).concat([dayKey(Date.now())]); } /* version 144: a practice door counts toward Sharp and keeps the streak */
@@ -9580,7 +9594,7 @@ document.addEventListener("click", (e) => {
       document.querySelectorAll("#l-moves li").forEach((li) => li.classList.remove("lit"));
       playLesson();
       break;
-    case "knock": if (S.convo && !S.convo.knocked) knock(); break;
+    case "knock": if (S.convo && !S.convo.knocked && !S.convo.knocking) knock(); break;
     case "send": sendTurn(); break;
     case "suggest": {
       const d = DOORS[doorKey()], ta = $("#say");

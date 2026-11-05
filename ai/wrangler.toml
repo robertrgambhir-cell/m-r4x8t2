@@ -4,7 +4,7 @@ main = "worker.js"
 compatibility_date = "2026-10-01"
 
 [vars]
-ALLOWED_ORIGINS = "https://yourwarmup.com,https://robertrgambhir-cell.github.io,http://localhost:8787,http://127.0.0.1:8765"
+ALLOWED_ORIGINS = "https://yourwarmup.com,https://robertrgambhir-cell.github.io"
 VOTER_MODEL = "claude-haiku-5-5"
 COACH_MODEL = "claude-sonnet-5-5"
 DAILY_USD_CAP = "6"
@@ -21,3 +21,5 @@ id = "PASTE_THE_KV_ID_HERE"
 
 # The key is a secret, never in this file:
 #   npx wrangler secret put ANTHROPIC_API_KEY
+# Optional secrets: SIGNING_KEY (signs voter lines; defaults to one derived from the API key)
+# and ADMIN_TOKEN (lets /health?spend=1 show the dollars spent, with an x-admin-token header).
