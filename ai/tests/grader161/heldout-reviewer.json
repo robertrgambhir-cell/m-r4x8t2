@@ -1,0 +1,62 @@
+{
+  "open": [
+    ["Hi I'm Dana I'm a volunteer with Maya Kaur's campaign Election Day is Tuesday", [true, true, true, true]],
+    ["Hi! Do you have a minute to talk about the election?", [false, false, false, false]],
+    ["Hello", [false, false, false, false]],
+    ["Hey there, my name is Luis and I'm voting for Maya Kaur on Tuesday", [true, false, true, true]],
+    ["hi im priya im out here with the maya kaur campaign polls open tuesday at 7 is this a good time", [true, true, true, false]],
+    ["Hi, I'm with the campaign. Don't forget to vote in the election!", [false, false, false, true]],
+    ["Good afternoon my name is Sam I'm volunteering for Maya Kaur can I ask you a quick question", [true, true, false, false]],
+    ["Hi I'm Jordan, I'm volunteering with Maya Kaur for city council. The election is November 3rd.", [true, true, true, true]],
+    ["How are you? Have you heard of Maya Kaur?", [false, false, false, true]],
+    ["Hi I'm Alex I'm not volunteering for Maya Kaur I just live down the street", [true, false, false, true]],
+    ["Hey I'm Chris I'm a Maya Kaur volunteer and Election Day is next Tuesday do you have a second", [true, true, true, false]],
+    ["Hi I'm volunteering for Maya Kaur and the election is Tuesday", [false, true, true, true]]
+  ],
+  "listen": [
+    ["That's great! What do you like most about her?", [true, true, true, null]],
+    ["Great. What issues matter to you? And have you voted before?", [true, false, true, null]],
+    ["Glad to hear it", [false, false, true, null]],
+    ["what do you care about most in the neighborhood", [true, true, false, null]],
+    ["Awesome glad to hear that what made you decide to support her", [true, true, true, null]],
+    ["How are you?", [false, true, false, null]],
+    ["Cool. Do you want to hear about her tax plan?", [false, true, true, null]],
+    ["Why do you like her", [true, true, false, null]],
+    ["I'm glad you like her! What's the biggest issue for you, housing or schools?", [true, true, true, null]],
+    ["Great what do you do for work what issues matter to you", [true, false, true, null]]
+  ],
+  "noargue": [
+    ["No problem, thanks for your time. Have a good night!", [true, true, true, null]],
+    ["Actually her tax plan lowers taxes for most families. Thanks anyway, bye.", [false, true, false, null]],
+    ["Okay thanks have a good one", [true, true, true, null]],
+    ["That's not true, you should read it.", [false, false, false, null]],
+    ["I understand. Thank you. Take care.", [true, true, true, null]],
+    ["thanks", [true, true, false, null]],
+    ["Well I think you're wrong about the tax plan but thanks have a good day", [false, true, false, null]],
+    ["Fair enough. Have a great evening.", [true, false, true, null]],
+    ["Can I ask what you don't like about it? Her plan actually helps renters.", [false, false, false, null]]
+  ],
+  "plan": [
+    ["Awesome! When are you planning to vote?", [true, false, false, null]],
+    ["Great when do you think you'll vote and will you go in person or mail your ballot", [true, true, false, null]],
+    ["Thats great what will you be doing right before you go vote", [false, false, true, null]],
+    ["Great! When will you vote, where will you vote, and what are you doing before?", [true, true, true, null]],
+    ["Make sure you vote on Tuesday!", [false, false, false, null]],
+    ["Do you know where your polling place is?", [false, true, false, null]],
+    ["Are you voting by mail or at a drop box?", [false, true, false, null]],
+    ["Thanks for your support. Have a good day.", [false, false, false, null]],
+    ["what time on tuesday works for you to vote and what will you do after", [true, false, true, null]]
+  ],
+  "friends": [
+    ["Could you remind three friends to vote? Maybe your sister and a coworker? Could you text them right now?", [true, true, true, true]],
+    ["Thanks! Can you remind your friends and family to vote?", [true, false, false, false]],
+    ["would you text three people to remind them to vote", [true, true, false, false]],
+    ["Great, I have three more doors to knock. Bye!", [false, false, false, false]],
+    ["Can you remind your mom and your roommate to vote today?", [true, false, true, true]],
+    ["Text your sister right now and tell her to vote.", [true, false, false, false]],
+    ["Don't worry about reminding your friends", [false, false, false, false]],
+    ["Who are three people you could remind to vote, like your brother or a neighbor? Could you send them a text now?", [true, true, true, true]],
+    ["Are you voting right now?", [false, false, false, false]],
+    ["I'll remind my friends too", [false, false, false, false]]
+  ]
+}
