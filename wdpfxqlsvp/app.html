@@ -5563,7 +5563,7 @@ function micToggle(armOnly) {
     const card = $("#talk-live"), note = $("#tl-note");
     if (card) card.classList.remove("live", "talking", "warm", "go");
     if (micBlocked) { liveCardOff(); listenFold(false); const t0 = $("#talk-tray"); if (t0) t0.hidden = true; micModal(micWhy || "busy"); return; } /* version 94 (Robert): never the keyboard; a blocked mic freezes the lesson behind one clear card */
-    if (!heard) { if (note) note.textContent = "Nothing came through. Tap to talk and try again."; if (h) h.textContent = "Nothing came through. Tap to talk and try again."; return; }
+    if (!heard) { const tl = 'Nothing came through. Tap to talk and try again, or <button class="link" data-act="mic-type">type it instead</button>.'; if (note) note.innerHTML = tl; if (h) h.textContent = "Nothing came through. Tap to talk and try again."; return; } /* version 161: a recognizer that hears nothing offers the keyboard */
     if (send) send.hidden = false;
     if (box) autoGrow(box);
     if (recStop) { liveCardOff(); if (send) send.click(); return; }
@@ -5634,7 +5634,11 @@ function micType() {
   micOff();
   const ta = $("#say"), h = $("#talk-hint");
   if (ta) { ta.readOnly = false; ta.placeholder = "Type what you\u2019d say at the door"; }
+  try { liveCardOff(); listenFold(false); } catch (e) { /* ignore */ }
+  const b0 = $('#talk [data-act="talk"]'); if (b0) b0.classList.remove("on", "send");
+  heldWords = "";
   trayOpen(true);
+  const send = $("#talk-tray .composer [data-act]"); if (send) send.hidden = false;
   if (h) h.textContent = "Type it the way you\u2019d say it.";
 }
 async function micRetry() {

@@ -207,12 +207,18 @@ swap('function micOff() { const m = $("#mic-modal"); if (m) m.remove(); }',
      '  micOff();\n'
      '  const ta = $("#say"), h = $("#talk-hint");\n'
      '  if (ta) { ta.readOnly = false; ta.placeholder = "Type what you\\u2019d say at the door"; }\n'
+     '  try { liveCardOff(); listenFold(false); } catch (e) { /* ignore */ }\n'
+     '  const b0 = $(\'#talk [data-act="talk"]\'); if (b0) b0.classList.remove("on", "send");\n'
+     '  heldWords = "";\n'
      '  trayOpen(true);\n'
+     '  const send = $("#talk-tray .composer [data-act]"); if (send) send.hidden = false;\n'
      '  if (h) h.textContent = "Type it the way you\\u2019d say it.";\n'
      '}')
 swap('const keyHint = () => (isTouch() ? "Tap the mic on your keyboard and talk." : "Use your dictation key (like Wispr Flow) and talk.");',
      'const keyHint = () => (micTyped ? "Type it the way you\\u2019d say it." : isTouch() ? "Tap the mic on your keyboard and talk." : "Use your dictation key (like Wispr Flow) and talk.");')
 
+swap('if (!heard) { if (note) note.textContent = "Nothing came through. Tap to talk and try again."; if (h) h.textContent = "Nothing came through. Tap to talk and try again."; return; }',
+     'if (!heard) { const tl = \'Nothing came through. Tap to talk and try again, or <button class="link" data-act="mic-type">type it instead</button>.\'; if (note) note.innerHTML = tl; if (h) h.textContent = "Nothing came through. Tap to talk and try again."; return; } /* version 161: a recognizer that hears nothing offers the keyboard */')
 # ---------- styles for 1 to 3 ----------
 CSS1 = r"""
   /* ---------- version 161: one system. Paper, ink and one green; Newsreader speaks, Figtree works. ---------- */
