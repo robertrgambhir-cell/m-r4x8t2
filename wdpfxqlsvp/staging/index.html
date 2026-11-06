@@ -4748,11 +4748,11 @@ const TAB_ICONS = {
 /* version 47 (Maya Kaur, Robert, Oct 18): Practice, Library and Me are locked for users. Each shows a coming-soon screen until Robert asks
    Claude here to unlock it: set SOON_ON to false (or drop a tab from SOON_TABS) and republish. The demo menu's jumps land on the same screen. */
 const SOON_ON = true;
-const SOON_TABS = {}; /* version 139 (Robert, Nov 1): Practice opens too */ /* version 124 (Robert, Oct 27): Learn (library) and Progress (me) are open; Practice stays locked until Robert asks */
+const SOON_TABS = { me: "me" }; /* version 162 (Robert, Nov 6): Progress locked while the other parts get edited */ /* version 139 (Robert, Nov 1): Practice opens too */ /* version 124 (Robert, Oct 27): Learn (library) and Progress (me) are open; Practice stays locked until Robert asks */
 const SOON_COPY = {
   practice: ["Extra doors, any time you want them.", "Practice with the coach between lessons, as many doors as you like. Until then, your lessons live on Today."],
   library: ["Every lesson, in one place.", "Your five lessons, tough doors and notes from the campaign. Until then, each lesson opens from Today."],
-  me: ["Your shifts, streaks and badges.", "A record of the doors you knock and the lessons you finish. Until then, Today keeps your place."],
+  me: ["This is locked while we prioritize editing the other parts of the app.", "A record of the doors you knock and the lessons you finish. Until then, Today keeps your place."],
 };
 const soonNow = (screen) => SOON_ON && S.track === "gotv" && !!SOON_TABS[screen || S.screen];
 function vSoon() {
@@ -4760,8 +4760,8 @@ function vSoon() {
   return app(`
     <div class="soon">
       <span class="ring-wrap soon-ring">${ring(0.75, 112, ringW(112))}<span class="ring-num"><span class="soon-icon">${TAB_ICONS[k]}</span></span></span>
-      <p class="kicker">Coming soon</p>
-      <h1 class="h1">${c[0]}</h1>
+      <p class="kicker">${k === "me" ? "Locked" : "Coming soon"}</p>
+      <h1 class="h1"${k === "me" ? " style=\"font-size:24px;line-height:1.25\"" : ""}>${c[0]}</h1>
     </div>
   `, { tabs: k, stage: true }); /* version 57 (Robert): no body line on the coming-soon screens; SOON_COPY[k][1] stays unused */
 }
@@ -10171,10 +10171,10 @@ const G_STOPS = [
   { n: 8, name: "Practice", sub: "Extra doors, any time", k: "Practice", sample: "Sample progress: Rosa, five days in and door-ready.",
     h: "Knock any time. You never know who’s home.",
     b: "Practice doors come face down, like a real canvass. The coach only sends voters your saved lessons have prepared you for." },
-  { n: 9, name: "Progress", sub: "Streak, medals, record", k: "Progress", sample: "Sample progress: Rosa, five days in and door-ready.",
-    h: "Progress the volunteer owns.",
-    b: "A streak that forgives one missed day a week, medals for Door-ready and Briefed, and a record that travels from campaign to campaign.",
-    why: "The campaign sees status, never scores, so practice stays safe to get wrong." },
+  { n: 9, name: "Progress", sub: "Locked for now", k: "Progress", sample: "",
+    h: "Progress is locked for now.",
+    b: "This is locked while we prioritize editing the other parts of the app.",
+    why: "" },
 ];
 const G_AT = {
   video: 1, sms: 1, sms2: 1, pick: 1,
