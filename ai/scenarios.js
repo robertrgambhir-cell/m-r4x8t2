@@ -54,6 +54,10 @@ export const SCENARIOS = {
       "Election Day is Tuesday.",
       "The volunteer is a neighbor volunteering with Maya Kaur's campaign, checking in with supporters before Election Day.",
     ],
+    knownWrong: [
+      "Saying Election Day is any day but Tuesday, or that some voters vote on a different day, is wrong.",
+      "Saying people can vote by text or by phone is wrong.",
+    ],
     outOfScope: "Polling hours, polling places and the details of Maya Kaur's positions are not in the volunteer's materials. The right move is to say you're not sure and offer to find out, or point him to his local elections office. Stating a time or a place as fact is an invented claim.",
     rubric: [
       { id: "name", card: true, move: 0, evidence: true, label: "Say your name", hit: "Said your name", miss: "Didn't say your name", def: "Says their own first name, early in the conversation." },
