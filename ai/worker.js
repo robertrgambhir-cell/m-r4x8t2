@@ -16,6 +16,7 @@
    - Nothing said in a conversation is stored or logged: the logs hold the route, scenario, timing, tokens and cost. */
 
 import { SCENARIOS, publicScenario } from "./scenarios.js";
+import { NARRATOR } from "./scenarios-issues.js";
 import { isAdmin, isLearnerRoute, learnerRoute, LearnerError } from "./learner.js"; /* phase 1: progress, events, admin views */
 
 const DEFAULTS = {
@@ -32,7 +33,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "159-redteam-4"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "163-turn-1"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -422,6 +423,193 @@ async function speak(env, s, text, voice) {
   throw new HttpError(502, "voice_error", "The voice came back in a form the server didn't expect.");
 }
 
+/* ---------------- Nov 6, 2026: the fast spoken turn (POST /turn) and the narration (GET /narrate) ----------------
+   /turn is /voter and /speak in one streamed answer, so the voter starts talking while the rest of the line is still
+   being written. The model streams plain text; each sentence goes to the voice the moment it's complete, and the page
+   plays the first sentence while later ones are still being made. Same checks as /voter: the origin, signed voter
+   lines, the budget, the per-IP limit and the conduct, AI-question and care rules (those rare turns take the /voter
+   path whole, then stream as one sentence). The body is a stream of frames: 1 byte type, 4 bytes length, payload.
+   Type 1 is JSON ({t:"say",i,text}, {t:"done",say,mood,end,sig,care,ms}, {t:"error",code}); type 2 is audio, its
+   payload's first byte the sentence number and its second the format (1 = 16-bit PCM at 24 kHz, 2 = a whole MP3). */
+const enc8 = new TextEncoder();
+function frame(type, payload) { const b = new Uint8Array(5 + payload.length); b[0] = type; new DataView(b.buffer).setUint32(1, payload.length); b.set(payload, 5); return b; }
+const jsonFrame = (o) => frame(1, enc8.encode(JSON.stringify(o)));
+const audioFrame = (i, fmt, bytes) => { const p = new Uint8Array(2 + bytes.length); p[0] = i & 255; p[1] = fmt; p.set(bytes, 2); return frame(2, p); };
+const toU8 = (x) => (x instanceof Uint8Array ? x : ArrayBuffer.isView(x) ? new Uint8Array(x.buffer, x.byteOffset, x.byteLength) : new Uint8Array(x));
+let PCM_OK = true; /* off for the isolate's life if the voice service won't give raw audio */
+const isLimit = (m) => /limit|quota|neuron|4006|429/i.test(m);
+async function readAll(out) {
+  const st = out instanceof ReadableStream ? out : out && out.audio instanceof ReadableStream ? out.audio : null;
+  if (st) { const parts = []; const rd = st.getReader(); for (;;) { const { done, value } = await rd.read(); if (done) break; parts.push(toU8(value)); } const n = parts.reduce((a, p) => a + p.length, 0), all = new Uint8Array(n); let o = 0; for (const p of parts) { all.set(p, o); o += p.length; } return all; }
+  if (out instanceof ArrayBuffer || ArrayBuffer.isView(out)) return toU8(out);
+  if (out && typeof out.audio === "string") return Uint8Array.from(atob(out.audio), (ch) => ch.charCodeAt(0));
+  throw new HttpError(502, "voice_error", "The voice came back in a form the server didn't expect.");
+}
+/* the voice for one sentence, handed over as it arrives: raw PCM when the service streams it, else one MP3 */
+export async function voiceInto(env, speaker, text, onBytes) {
+  const ai = env.AI || env.API;
+  if (!ai || typeof ai.run !== "function") throw new HttpError(503, "no_voice", "The voice isn't connected on the server.");
+  const model = env.VOICE_MODEL || "@cf/deepgram/aura-2-en";
+  if (PCM_OK) {
+    let out;
+    try { out = await ai.run(model, { text, speaker, encoding: "linear16", sample_rate: 24000, container: "none" }); }
+    catch (e) { const m = String((e && e.message) || e); if (isLimit(m)) throw new HttpError(429, "voice_limit", "The voice is over its daily limit."); PCM_OK = false; console.log(JSON.stringify({ voice: "pcm_off", detail: m.slice(0, 200) })); }
+    if (PCM_OK) {
+      const st = out instanceof ReadableStream ? out : out && out.audio instanceof ReadableStream ? out.audio : null;
+      let carry = null, first = true;
+      const push = (v) => {
+        if (first) { first = false; if (v.length > 44 && v[0] === 82 && v[1] === 73 && v[2] === 70 && v[3] === 70) v = v.subarray(44); } /* a WAV header, if one came anyway */
+        if (carry) { const j = new Uint8Array(carry.length + v.length); j.set(carry); j.set(v, carry.length); v = j; carry = null; }
+        if (v.length % 2) { carry = v.slice(v.length - 1); v = v.subarray(0, v.length - 1); }
+        if (v.length) onBytes(1, v);
+      };
+      if (st) { const rd = st.getReader(); for (;;) { const { done, value } = await rd.read(); if (done) break; push(toU8(value)); } }
+      else push(await readAll(out));
+      return;
+    }
+  }
+  let out;
+  try { out = await ai.run(model, { text, speaker, encoding: "mp3" }); }
+  catch (e) { const m = String((e && e.message) || e); throw new HttpError(isLimit(m) ? 429 : 502, isLimit(m) ? "voice_limit" : "voice_error", "The voice didn't answer."); }
+  onBytes(2, await readAll(out));
+}
+/* the model's reply as a stream of text pieces; usage is counted toward the budget at the end */
+async function claudeStream(env, c, { model, system, user, maxTokens, timeout }, onText) {
+  if (!env.ANTHROPIC_API_KEY) throw new HttpError(503, "not_configured", "The AI key isn't set on the server.");
+  const ac = new AbortController(), timer = setTimeout(() => ac.abort(), timeout);
+  try {
+    let res;
+    try { res = await fetch(c.apiUrl, { method: "POST", signal: ac.signal, headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" }, body: JSON.stringify({ model, max_tokens: maxTokens, system, messages: [{ role: "user", content: user }], stream: true }) }); }
+    catch (e) { throw new HttpError(504, e && e.name === "AbortError" ? "timeout" : "upstream", "The AI didn't answer."); }
+    if (!res.ok) { let detail = ""; try { const e = await res.json(); detail = String((e && e.error && e.error.message) || "").slice(0, 300); } catch (e) { /* not json */ } console.log(JSON.stringify({ upstream: res.status, model, detail })); throw new HttpError(res.status === 429 || res.status === 529 ? 503 : 502, "upstream_" + res.status, "The AI service returned an error."); }
+    const usage = { input_tokens: 0, output_tokens: 0 };
+    const rd = res.body.getReader(), dec = new TextDecoder();
+    let buf = "";
+    for (;;) {
+      const { done, value } = await rd.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let i;
+      while ((i = buf.indexOf("\n\n")) >= 0) {
+        const ev = buf.slice(0, i); buf = buf.slice(i + 2);
+        const line = ev.split("\n").find((l) => l.startsWith("data:"));
+        if (!line) continue;
+        let d; try { d = JSON.parse(line.slice(5)); } catch (e) { continue; }
+        if (d.type === "message_start" && d.message && d.message.usage) usage.input_tokens = d.message.usage.input_tokens || 0;
+        else if (d.type === "content_block_delta" && d.delta && d.delta.type === "text_delta") onText(d.delta.text);
+        else if (d.type === "message_delta" && d.usage) usage.output_tokens = d.usage.output_tokens || usage.output_tokens;
+        else if (d.type === "error") throw new HttpError(502, "upstream_stream", "The AI service stopped mid-answer.");
+      }
+    }
+    const usd = await addSpend(env, model, usage);
+    return { usage, usd };
+  } catch (e) { if (e && e.name === "AbortError") throw new HttpError(504, "timeout", "The AI took too long to answer."); throw e; }
+  finally { clearTimeout(timer); }
+}
+const TURN_FORMAT = (name) => `\n\nHOW TO ANSWER (this replaces any mention of a tool or of setting end): write one mood word from this list: ${MOODS.join(", ")}. Then a vertical bar |. Then exactly what ${name} says out loud next, and nothing else. If these are ${name}'s last words and the conversation is over, finish with a space and <end>. Example: warm|Oh, good. So what would she actually do?`;
+/* sentence splitter: a sentence ends at . ! or ? followed by a space; the first piece may also end at a comma after four words,
+   so the voice can start sooner; nothing runs past about 16 words without a break */
+export function makeSplitter(name, onPiece) {
+  let raw = "", mood = null, ended = false, n = 0, total = 0;
+  const clean = (t) => dashes(t).replace(/\*[^*]*\*/g, "").replace(/<[^>]*>?/g, "").replace(/^["“\s]+|["”\s]+$/g, "").replace(new RegExp("^" + name + "\\s*:\\s*", "i"), "").replace(/\s+/g, " ").trim();
+  const emit = (t) => { const p = clean(t); if (!p || total > 320) return; total += p.length + 1; onPiece(p, n); n += 1; };
+  function feed(txt, force) {
+    raw += txt;
+    if (mood === null) {
+      const bar = raw.indexOf("|");
+      if (bar >= 0 && bar < 24) { mood = raw.slice(0, bar).trim().toLowerCase(); raw = raw.slice(bar + 1); }
+      else if (raw.length > 24 || force) mood = "neutral";
+      else return;
+    }
+    if (/<\s*end\s*>/i.test(raw)) { ended = true; raw = raw.replace(/<\s*end\s*>/gi, " "); }
+    for (;;) {
+      let cut = -1;
+      const m = raw.match(/^\s*[\s\S]+?[.!?]+["”’]?(\s+)/);
+      if (m) cut = m[0].length;
+      else if (n === 0) { const mc = raw.match(/^\s*(?:\S+\s+){3,}?\S+,\s/); if (mc) cut = mc[0].length; }
+      if (cut < 0) { const w = raw.trim().split(/\s+/); if (w.length > 16) { const idx = raw.indexOf(w[15]) + w[15].length; cut = idx; } }
+      if (cut < 0 && force && raw.trim() && !/^\s*<\s*e?n?d?\s*$/i.test(raw)) cut = raw.length;
+      if (cut < 0) break;
+      const piece = raw.slice(0, cut); raw = raw.slice(cut);
+      emit(piece);
+    }
+  }
+  return { feed: (t) => feed(t, false), end: () => feed("", true), get mood() { return mood || "neutral"; }, get ended() { return ended; }, get count() { return n; } };
+}
+async function voterOnce(env, c, s, scen, turns) {
+  const r = await claude(env, c, { model: c.voterModel, system: voterPrompt(s, turns), user: `The conversation so far:\n${transcriptText(turns, s.voter.name)}\n\nWrite ${s.voter.name}'s next turn. Don't repeat anything ${s.voter.name} already said.`, tool: VOTER_TOOL, maxTokens: DEFAULTS.VOTER_MAX_TOKENS, timeout: c.voterTimeout, retries: 1 });
+  const out = cleanVoter(r.input, s, turns);
+  out.sig = await signLine(env, scen, out.say, turns.length); /* signed for its place in the conversation */
+  if (needsCare(turns)) out.care = true;
+  if (conduct(turns)) out.end = true; /* a threat, a sexual comment or a second insult ends the conversation, whatever the model said */
+  { const you = turns.filter((t) => t.who === "you"); if (you.length && ASKS_AI.test(you[you.length - 1].text) && DENIES_AI.test(out.say)) { out.say = "Ha, I'm the practice voter, so not a real person. Want to keep going?"; out.sig = await signLine(env, scen, out.say, turns.length); } }
+  return { out, r };
+}
+function turnStream(env, c, s, scen, turns, h, t0) {
+  const ts = new TransformStream(), w = ts.writable.getWriter();
+  const write = (b) => w.write(b).catch(() => {});
+  const speaker = s.voter.voice || "luna", ms = { text1: 0, audio1: 0 };
+  let pump = Promise.resolve(), voiceErr = "";
+  const say1 = (text, i) => {
+    if (!ms.text1) ms.text1 = Date.now() - t0;
+    write(jsonFrame({ t: "say", i, text }));
+    const buf = []; let live = false;
+    const onBytes = (fmt, b) => { if (!ms.audio1) ms.audio1 = Date.now() - t0; if (live) write(audioFrame(i, fmt, b)); else buf.push([fmt, b]); };
+    const job = voiceInto(env, speaker, text, onBytes).catch((e) => { voiceErr = (e && e.code) || "voice_error"; });
+    pump = pump.then(async () => { live = true; for (const [f, b] of buf) write(audioFrame(i, f, b)); buf.length = 0; await job; });
+  };
+  (async () => {
+    try {
+      const you = turns.filter((t) => t.who === "you"), last = you.length ? you[you.length - 1].text : "";
+      let out, usd = 0, usage = {};
+      if (conduct(turns) || ASKS_AI.test(last)) {
+        const x = await voterOnce(env, c, s, scen, turns);
+        out = x.out; usd = x.r.usd; usage = x.r.usage;
+        say1(out.say, 0);
+      } else {
+        const said = [];
+        const sp2 = makeSplitter(s.voter.name, (p, i) => { said.push(p); say1(p, i); });
+        const r = await claudeStream(env, c, { model: c.voterModel, system: voterPrompt(s, turns) + TURN_FORMAT(s.voter.name), user: `The conversation so far:\n${transcriptText(turns, s.voter.name)}\n\nWrite ${s.voter.name}'s next turn. Don't repeat anything ${s.voter.name} already said.`, maxTokens: DEFAULTS.VOTER_MAX_TOKENS, timeout: c.voterTimeout }, (t) => sp2.feed(t));
+        sp2.end();
+        usd = r.usd; usage = r.usage;
+        if (!said.length) throw new HttpError(502, "bad_model_output", "the voter's reply was empty");
+        out = cleanVoter({ say: said.join(" "), mood: sp2.mood, end: sp2.ended }, s, turns);
+        out.say = said.join(" ");
+        out.sig = await signLine(env, scen, out.say, turns.length);
+        if (needsCare(turns)) out.care = true;
+      }
+      await pump;
+      ms.total = Date.now() - t0;
+      write(jsonFrame({ t: "done", say: out.say, mood: out.mood, end: !!out.end, sig: out.sig, care: !!out.care, voice: voiceErr || "ok", ms }));
+      console.log(JSON.stringify({ route: "/turn", scen, ms: ms.total, text1: ms.text1, audio1: ms.audio1, in: usage.input_tokens, out: usage.output_tokens, usd: +Number(usd || 0).toFixed(5), voice: voiceErr || "ok", pcm: PCM_OK }));
+    } catch (e) {
+      const code = e instanceof HttpError ? e.code : "server_error";
+      console.log(JSON.stringify({ route: "/turn", scen, ms: Date.now() - t0, error: code }));
+      await pump.catch(() => {});
+      write(jsonFrame({ t: "error", code }));
+    } finally { w.close().catch(() => {}); }
+  })();
+  return new Response(ts.readable, { status: 200, headers: { "content-type": "application/octet-stream", "cache-control": "no-store", "x-content-type-options": "nosniff", ...h } });
+}
+/* the narration of a rebuilt issue training: only the lines in its scenario, in the narrator's voice, as MP3, cached at the edge */
+async function narrate(env, c, url, h, ip) {
+  const scen = url.searchParams.get("s") || "", k = Number(url.searchParams.get("k")), s = SCENARIOS[scen];
+  if (!s || !Array.isArray(s.narration) || !Number.isInteger(k) || k < 0 || k >= s.narration.length) throw new HttpError(404, "not_found");
+  const v = url.searchParams.get("voice") || "", speaker = VOICES.includes(v) ? v : NARRATOR, text = s.narration[k];
+  const key = new Request("https://narrate.warmup/" + scen + "/" + k + "/" + speaker + "/" + encodeURIComponent(text).length + "/" + (await signLine(env, "narrate", text, k)));
+  const cache = typeof caches !== "undefined" && caches.default ? caches.default : null;
+  if (cache) { const hit = await cache.match(key); if (hit) return new Response(hit.body, { status: 200, headers: { "content-type": "audio/mpeg", "cache-control": "public, max-age=86400", "x-cache": "hit", ...h } }); }
+  await checkRate(env, ip, "narrate", c.voterPerHour);
+  const ai = env.AI || env.API;
+  if (!ai || typeof ai.run !== "function") throw new HttpError(503, "no_voice", "The voice isn't connected on the server.");
+  let out;
+  try { out = await ai.run(env.VOICE_MODEL || "@cf/deepgram/aura-2-en", { text, speaker, encoding: "mp3" }); }
+  catch (e) { const m = String((e && e.message) || e); throw new HttpError(isLimit(m) ? 429 : 502, isLimit(m) ? "voice_limit" : "voice_error", "The voice didn't answer."); }
+  const bytes = await readAll(out);
+  if (cache) await cache.put(key, new Response(bytes, { headers: { "content-type": "audio/mpeg", "cache-control": "public, max-age=2592000" } })).catch(() => {});
+  return new Response(bytes, { status: 200, headers: { "content-type": "audio/mpeg", "cache-control": "public, max-age=86400", "x-cache": "miss", ...h } });
+}
+
 /* ---------------- the server ---------------- */
 function cors(origin, c) {
   const ok = origin && c.origins.includes(origin);
@@ -451,7 +639,8 @@ export default {
         try { return await learnerRoute(req, env, route, { json: (o, st) => json(o, st || 200, h), origin, origins: c.origins, ip: ip0 }); }
         catch (e) { if (e instanceof LearnerError) { console.log(JSON.stringify({ route, ms: Date.now() - t0, error: e.code })); return json({ error: e.code, message: e.message }, e.status, h); } throw e; }
       }
-      if (req.method !== "POST" || (route !== "/voter" && route !== "/coach" && route !== "/speak")) throw new HttpError(404, "not_found");
+      if (route === "/narrate" && req.method === "GET") return await narrate(env, c, url, h, req.headers.get("cf-connecting-ip") || "local");
+      if (req.method !== "POST" || (route !== "/voter" && route !== "/coach" && route !== "/speak" && route !== "/turn")) throw new HttpError(404, "not_found");
       if (!c.origins.includes(origin)) throw new HttpError(403, "origin", "This page isn't allowed to use the practice AI.");
       const ip = req.headers.get("cf-connecting-ip") || "local";
       let body;
@@ -473,8 +662,13 @@ export default {
       /* the voter only continues conversations it wrote its side of (the test suite may skip this with the admin token);
          the coach takes any transcript, since a made-up one can only fake your own score */
       const admin = isAdmin(env, req); /* phase 1: constant-time, and a token under 24 characters counts as unset */
-      if (route === "/voter" && !admin) await checkLines(env, scen, s, turns);
+      if ((route === "/voter" || route === "/turn") && !admin) await checkLines(env, scen, s, turns);
       await checkBudget(env, c);
+      if (route === "/turn") {
+        if (s.coachOnly) throw new HttpError(400, "no_voter");
+        await checkRate(env, ip, "voter", c.voterPerHour);
+        return turnStream(env, c, s, scen, turns, h, t0);
+      }
       if (route === "/voter") {
         if (s.coachOnly) throw new HttpError(400, "no_voter");
         await checkRate(env, ip, "voter", c.voterPerHour);

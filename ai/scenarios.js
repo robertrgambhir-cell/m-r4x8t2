@@ -153,6 +153,10 @@ export const SCENARIOS = {
 
 SCENARIOS.opener_first_try.rubric = SCENARIOS.kevin_intro.rubric.filter((r) => r.card).map((r) => ({ ...r }));
 
+/* Nov 6, 2026: the two rebuilt issue trainings (electric bills, school vouchers) live in their own file */
+import { ISSUE_SCENARIOS } from "./scenarios-issues.js";
+Object.assign(SCENARIOS, ISSUE_SCENARIOS);
+
 /* What the browser may see: everything but the prompt material, for drawing the score card */
 export function publicScenario(id) {
   const s = SCENARIOS[id];
