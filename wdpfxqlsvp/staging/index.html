@@ -2106,7 +2106,9 @@
   .gp-list [aria-current="step"] b { color: var(--g-acc); }
   .gp-list .seen .gp-n { color: var(--g-acc); box-shadow: inset 0 0 0 1.5px var(--g-acc-2); }
   .gp-note { margin: 14px 0 0 10px; font-size: 12px; line-height: 1.45; color: var(--stage-muted); }
-  .g-show { position: fixed; left: 22px; bottom: 18px; z-index: 5; font: 600 13px/1 "Figtree", system-ui, sans-serif; color: var(--stage-muted); }
+  @media (max-height: 780px) { .g-sub { display: none; } .g-tag { margin-top: 14px; font-size: 30px; } .g-now { padding-top: 20px; } .g-h { font-size: 25px; } .g-b { font-size: 15px; margin-top: 8px; } .g-why, .g-demo { margin-top: 10px; } .g-foot { margin-top: 16px; gap: 8px; } }
+  .voter:not(.shut) .unit { opacity: 0; } .voter .unit { transition: opacity .25s ease; }
+  .g-show { padding: 10px 4px; position: fixed; left: 18px; bottom: 10px; z-index: 5; font: 600 13px/1 "Figtree", system-ui, sans-serif; color: var(--stage-muted); }
   .guide :focus-visible, .gpath :focus-visible, .g-show:focus-visible { outline: 3px solid var(--g-acc-2); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { .g-now.in > * { animation: none; } .g-next, .gp-n { transition: none; } }
   /* version 160: Practice's door stack and its line sit together in the middle of the spare height */
@@ -5228,7 +5230,7 @@ function homeScene(h, personaKey, o) {
     sign: `<g transform="rotate(-3 268 186)"><rect x="236" y="172" width="64" height="30" rx="3" fill="#FFFDF9" stroke="#3B3631" stroke-width="2"/><text x="268" y="185" text-anchor="middle" font-family="Figtree, sans-serif" font-weight="800" font-size="8.5" fill="#9A3F31">NO</text><text x="268" y="196" text-anchor="middle" font-family="Figtree, sans-serif" font-weight="800" font-size="7.5" fill="#9A3F31">SOLICITING</text></g>`,
   }[h.extra] || "";
   const panel = apt
-    ? `<rect x="122" y="80" width="76" height="66" rx="3" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="3"/><rect x="122" y="160" width="76" height="70" rx="3" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="3"/><circle cx="160" cy="100" r="3" fill="#2A2622"/><circle cx="198" cy="156" r="4.5" fill="#D9D2C4"/><rect x="144" y="66" width="32" height="18" rx="3" fill="#EDE3CF"/><text x="160" y="79.5" text-anchor="middle" font-family="Figtree, sans-serif" font-weight="700" font-size="11.5" fill="#3B3631">${h.num}</text>`
+    ? `<rect x="122" y="80" width="76" height="66" rx="3" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="3"/><rect x="122" y="160" width="76" height="70" rx="3" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="3"/><circle cx="160" cy="100" r="3" fill="#2A2622"/><circle cx="198" cy="156" r="4.5" fill="#D9D2C4"/><g class="unit"><rect x="144" y="66" width="32" height="18" rx="3" fill="#EDE3CF"/><text x="160" y="79.5" text-anchor="middle" font-family="Figtree, sans-serif" font-weight="700" font-size="11.5" fill="#3B3631">${h.num}</text></g>`
     : `${h.glass ? `<rect x="128" y="78" width="64" height="40" rx="3" fill="#F3E3C4" fill-opacity="0.55"/><path d="M160 78 V118 M128 98 H192" stroke="${h.door}" stroke-width="3"/>` : `<rect x="124" y="78" width="72" height="56" rx="3" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="3"/>`}<rect x="124" y="140" width="72" height="84" rx="3" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="3"/><circle cx="198" cy="160" r="4.5" fill="#F6C76B"/>`;
   const num = apt
     ? ""
@@ -9895,40 +9897,40 @@ const G_RING = '<svg width="30" height="30" viewBox="0 0 84 84" aria-hidden="tru
 const G_ARROW = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>';
 const gAI = () => { try { return typeof WAI !== "undefined" && !!WAI.ready && !!WAI.ready(); } catch (e) { return false; } };
 const G_STOPS = [
-  { n: 1, name: "Welcome", sub: "The candidate’s video", k: "A text from the campaign",
+  { n: 1, name: "Welcome", sub: "The candidate’s video", k: "The candidate’s welcome",
     h: "The candidate asks you to get ready.",
     b: "A volunteer signs up, gets a text from the campaign and taps the link. Nothing to download. The candidate explains the two courses in about a minute.",
     why: "The campaign leads. Volunteers show up for a candidate, so her name and her face open the app, and Warmup stays in the background." },
-  { n: 2, name: "Try it cold", sub: "Lesson 1 · Your 1st intro", k: "Lesson 1 · Part 1 of 4",
+  { n: 2, name: "Try it cold", sub: "Lesson 1 · Your 1st intro", k: () => `Lesson ${lessonNo()} · Part 1 of 4`,
     h: "Try it before any teaching.",
-    b: "Each five-minute lesson happens at a voter’s door. You knock and say your intro out loud, before you’re taught anything. This try isn’t scored.",
+    b: () => (lessonNo() === 1 ? "Each five-minute lesson happens at a voter’s door. You knock and say your intro out loud, before you’re taught anything. This try isn’t scored." : "Each five-minute lesson happens at a voter’s door. You try the lesson’s move out loud before you’re taught anything. This try isn’t scored."),
     why: "Trying first, even wrong, makes the teaching that follows stick. Researchers call it the pretesting effect." },
-  { n: 3, name: "Hear it, catch it", sub: "Parts 2 and 3", k: "Lesson 1 · Parts 2 and 3 of 4",
-    h: "Hear a good intro, then catch what’s missing.",
-    b: "A trained volunteer models all four parts of a good intro. Then the same door plays with one part left out, and you find it.",
-    why: "Practiced from memory. Picking out the missing part is retrieval, which beats rereading (Roediger and Karpicke, 2006)." },
-  { n: 4, name: "Say it, get feedback", sub: "Your 2nd intro", k: "Lesson 1 · Part 4 of 4",
+  { n: 3, name: "Hear it, catch it", sub: "Parts 2 and 3", k: () => `Lesson ${lessonNo()} · Parts 2 and 3 of 4`,
+    h: () => (lessonNo() === 1 ? "Hear a good intro, then catch what’s missing." : "Hear it done well, then catch what’s missing."),
+    b: "A trained volunteer models all four parts. Then the same door plays with one part left out, and you find it.",
+    why: "Picking out the missing part means pulling it from memory, and that kind of practice beats rereading (Roediger and Karpicke, 2006)." },
+  { n: 4, name: "Say it, get feedback", sub: "Your 2nd intro", k: () => `Lesson ${lessonNo()} · Part 4 of 4`,
     h: () => (gAI() ? "A real conversation with a new voter." : "Say it again, to a new voter."),
     b: () => (gAI() ? "The voter is played live by AI and answers whatever you say. When the door closes, the coach grades your own words against the four parts." : "A new voter answers the door. You say your intro out loud, and Warmup checks your words against the four parts."),
     why: "Instant feedback on the exact words you used, then a retry while it’s fresh (Hattie and Timperley, 2007).",
     alt: { score: { h: "Feedback on your own words.", b: "You see which of the four parts you hit and the one to add, then retry at the door or finish the lesson. Scores stay with the volunteer." },
            coachfull: { h: "The coach shows its work.", b: "Every part it credited points to the volunteer’s own words, word for word, with the full conversation underneath." },
-           close: { h: "Lesson 1, saved.", b: "The ring fills one fifth. Five lessons make a volunteer door-ready." } } },
+           close: { h: () => `Lesson ${lessonNo()}, saved.`, b: "The ring fills one fifth for each lesson. Five lessons make a volunteer door-ready." } } },
   { n: 5, name: "One a day", sub: "Today, after lesson 1", k: "Today", sample: "Sample progress: Rosa, the day after her first lesson.",
     h: "One lesson a day, then close the app.",
     b: "The next lesson opens tomorrow, and a text brings the volunteer back at 8 AM. Five mornings make a volunteer door-ready before the first shift.",
-    why: "Spaced over days. Spreading practice out beats cramming it into one training (Cepeda et al., 2006).",
+    why: "Spreading practice over days beats cramming it into one training (Cepeda et al., 2006).",
     demo: "The 8 AM text isn’t sent in this demo." },
   { n: 6, name: "Two courses", sub: "Learn, door-ready", k: "The curriculum", sample: "Sample progress: Rosa, five days in and door-ready.",
     h: "How to canvass, then the campaign’s issues.",
-    b: "Part 1 is made once by Warmup: five canvassing lessons in order, ending at Door-ready. Part 2 is the campaign’s own five issue lessons, drafted by AI from public sources, ending at Briefed." },
+    b: "Part 1 is made once by Warmup: five canvassing lessons in order, ending at Door-ready. Part 2 is the campaign’s own five issue lessons, drafted by AI from public sources for the campaign to approve, ending at Briefed." },
   { n: 7, name: "An issue lesson", sub: "What Maya stands for", k: "Part 2 · Maya’s issues", sample: "Sample progress: Rosa, five days in and door-ready.",
     h: "Where the candidate stands, in five minutes.",
-    b: "Learn covers the problem, the candidate’s plan and the opponent’s plan, each sourced. Then At the door: the volunteer explains it out loud to a voter and is graded on those three.",
+    b: "Learn covers the problem, the candidate’s plan and the opponent’s plan, each sourced. Then the volunteer explains it out loud to a voter at the door and is graded on those three.",
     demo: "The five issues here are adapted from real 2026 races." },
   { n: 8, name: "Practice", sub: "Extra doors, any time", k: "Practice", sample: "Sample progress: Rosa, five days in and door-ready.",
     h: "Knock any time. You never know who’s home.",
-    b: "Practice doors come face down, like a real canvass. The coach only sends voters the saved lessons have prepared the volunteer for." },
+    b: "Practice doors come face down, like a real canvass. The coach only sends voters your saved lessons have prepared you for." },
   { n: 9, name: "Progress", sub: "Streak, medals, record", k: "Progress", sample: "Sample progress: Rosa, five days in and door-ready.",
     h: "Progress the volunteer owns.",
     b: "A streak that forgives one missed day a week, medals for Door-ready and Briefed, and a record that travels from campaign to campaign.",
@@ -9943,8 +9945,11 @@ const G_AT = {
   library: 6, course: 6, training: 6, silver: 6, ready: 6,
   coach: 8, practice: 8, round: 8, warm: 8, warmtip: 8, warmready: 8, debrief: 8,
   me: 9, record: 9, statushow: 9,
+  how: 1, howworks: 1, note: 6,
 };
-const gState = { on: !/[?&]noguide\b/.test(location.search) && store.get("guide", true) !== false, at: 0, seen: {} };
+const gClean = /[?&]noguide\b/.test(location.search);
+const gState = { on: !gClean && store.get("guide", true) !== false, at: 0, seen: {}, sampled: /[?&](home|learn)\b/.test(location.search) };
+const G_WIDE = "(min-width: 1100px) and (min-height: 620px) and (pointer: fine)";
 function guideStop() {
   if (document.getElementById("issues-ov")) return 7;
   if (S.drill && ["main", "door", "score", "warmtip"].includes(S.screen)) return 8;
@@ -9969,11 +9974,11 @@ function guideBuild() {
   main.appendChild(p);
   const sh = document.createElement("button");
   sh.className = "g-show"; sh.dataset.g = "show"; sh.textContent = "Show the demo guide";
-  document.body.appendChild(sh);
+  if (!gClean) document.body.appendChild(sh);
   document.addEventListener("click", (e) => { const b = e.target.closest ? e.target.closest("[data-g]") : null; if (b) { e.preventDefault(); guideAct(b.dataset.g); } });
   document.addEventListener("keydown", (e) => {
     const t = e.target, typing = t && (t.tagName === "TEXTAREA" || t.tagName === "INPUT" || t.isContentEditable);
-    if (typing || e.metaKey || e.ctrlKey || e.altKey || !window.matchMedia("(min-width: 1100px) and (pointer: fine)").matches) return;
+    if (typing || e.metaKey || e.ctrlKey || e.altKey || !window.matchMedia(G_WIDE).matches) return;
     if (e.key === "g" || e.key === "G") { guideAct(gState.on ? "hide" : "show"); return; }
     if (!gState.on) return;
     if (e.key === "ArrowRight") { e.preventDefault(); guideAct("next"); }
@@ -9987,21 +9992,21 @@ function guideRender() {
   const at = guideStop(), now = $("#g-now");
   if (!now) return;
   const st = G_STOPS.find((x) => x.n === at);
-  const key = at + ":" + S.screen + ":" + (gAI() ? 1 : 0);
+  const key = at + ":" + S.screen + ":" + (gAI() ? 1 : 0) + ":" + lessonNo() + ":" + (gState.sampled ? 1 : 0);
   if (st) gState.seen[at] = true;
   $("#gpath").querySelectorAll("[data-g]").forEach((b) => { const n = Number(b.dataset.g); if (n === at) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current"); b.parentNode.classList.toggle("seen", !!gState.seen[n] && n !== at); });
   const nx = G_STOPS.find((x) => x.n === (at || 0) + 1);
   const nb = $("#g-next");
-  nb.hidden = !nx; if (nx) nb.innerHTML = `Next: ${nx.name}${G_ARROW}`;
+  nb.hidden = !at || !nx; if (at && nx) nb.innerHTML = `Next: ${nx.name}${G_ARROW}`;
   if (key === gState.at) return;
   gState.at = key;
   if (!st) { now.innerHTML = ""; return; }
   const alt = (st.alt && st.alt[S.screen]) || {};
-  now.innerHTML = `<p class="g-k">${st.k}<i>${String(st.n).padStart(2, "0")} / 09</i></p>
+  now.innerHTML = `<p class="g-k">${gVal(st.k)}<i>${String(st.n).padStart(2, "0")} / 09</i></p>
     <h2 class="g-h">${gVal(alt.h || st.h)}</h2>
     <p class="g-b">${gVal(alt.b || st.b)}</p>
     ${st.why ? `<p class="g-why"><b>Why it works</b>${st.why}</p>` : ""}
-    ${st.demo || st.sample ? `<p class="g-demo"><b>In this demo</b>${[st.sample || "", st.demo || ""].filter(Boolean).join(" ")}</p>` : ""}`;
+    ${(st.sample && gState.sampled) || st.demo ? `<p class="g-demo"><b>In this demo</b>${[gState.sampled ? st.sample || "" : "", st.demo || ""].filter(Boolean).join(" ")}</p>` : ""}`;
   now.classList.remove("in"); void now.offsetWidth; now.classList.add("in");
 }
 function guideSample(ready) {
@@ -10019,6 +10024,7 @@ function guideJump(n) {
   { const ov = document.getElementById("issues-ov"); if (ov) ov.remove(); }
   leaveScreen();
   S = fresh();
+  gState.sampled = n >= 5;
   if (n === 1) { render(); return; }
   if (n === 2) { startLesson5(1, true); return; }
   if (n === 3 || n === 4) {
@@ -10035,7 +10041,7 @@ function guideJump(n) {
 }
 function guideAct(a) {
   if (a === "hide" || a === "show") { gState.on = a === "show"; store.set("guide", gState.on); guideRender(); fitZoom(); return; }
-  if (a === "next") { const at = guideStop(); guideJump(Math.min(9, (at || 0) + 1)); return; }
+  if (a === "next") { const at = guideStop(); if (at) guideJump(Math.min(9, at + 1)); return; }
   const n = Number(a); if (n >= 1 && n <= 9) guideJump(n);
 }
 
