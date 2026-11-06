@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node tests/worker.test.mjs",
-    "live": "node tests/live-eval.mjs"
+    "test": "node tests/worker.test.mjs && node tests/learner.test.mjs && node tests/schedule.test.mjs && node tests/reminders.test.mjs",
+    "live": "node tests/live-eval.mjs",
+    "test:assess": "node tests/assess.test.mjs ../wdpfxqlsvp/app.html"
   }
 }

@@ -16,6 +16,7 @@
    - Nothing said in a conversation is stored or logged: the logs hold the route, scenario, timing, tokens and cost. */
 
 import { SCENARIOS, publicScenario } from "./scenarios.js";
+import { isAdmin, isLearnerRoute, learnerRoute, LearnerError } from "./learner.js"; /* phase 1: progress, events, admin views */
 
 const DEFAULTS = {
   VOTER_MODEL: "claude-haiku-5-5",
@@ -424,7 +425,7 @@ async function speak(env, s, text, voice) {
 /* ---------------- the server ---------------- */
 function cors(origin, c) {
   const ok = origin && c.origins.includes(origin);
-  return { "access-control-allow-origin": ok ? origin : c.origins[0], "access-control-allow-methods": "GET, POST, OPTIONS", "access-control-allow-headers": "content-type, x-admin-token", "access-control-max-age": "86400", vary: "origin" };
+  return { "access-control-allow-origin": ok ? origin : c.origins[0], "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS", "access-control-allow-headers": "content-type, x-admin-token, authorization", "access-control-max-age": "86400", vary: "origin" };
 }
 const json = (obj, status, h) => new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json", "cache-control": "no-store", ...h } });
 
@@ -438,12 +439,17 @@ export default {
       if (route === "/health" && req.method === "GET") {
         const b = await checkBudget(env, c).catch(() => ({ day: c.dailyCap, month: c.monthlyCap }));
         const open = b.day < c.dailyCap && b.month < c.monthlyCap;
-        if (url.searchParams.get("spend") === "1" && env.ADMIN_TOKEN && req.headers.get("x-admin-token") === env.ADMIN_TOKEN) return json({ ok: !!env.ANTHROPIC_API_KEY && open, dayUsd: +b.day.toFixed(3), monthUsd: +b.month.toFixed(3) }, 200, h);
-        return json({ ok: !!env.ANTHROPIC_API_KEY && open, voterModel: c.voterModel, coachModel: c.coachModel, voice: !!(env.AI || env.API), build: BUILD }, 200, h);
+        if (url.searchParams.get("spend") === "1" && isAdmin(env, req)) return json({ ok: !!env.ANTHROPIC_API_KEY && open, dayUsd: +b.day.toFixed(3), monthUsd: +b.month.toFixed(3) }, 200, h);
+        return json({ ok: !!env.ANTHROPIC_API_KEY && open, voterModel: c.voterModel, coachModel: c.coachModel, voice: !!(env.AI || env.API), progress: !!env.WARMUP_KV && String(env.LEARNER_KEY || "").length >= 32, reminders: false, build: BUILD }, 200, h);
       }
       if (route.startsWith("/scenario/") && req.method === "GET") {
         const p = publicScenario(route.slice(10));
         return p ? json(p, 200, h) : json({ error: "unknown_scenario" }, 404, h);
+      }
+      if (isLearnerRoute(route)) {
+        const ip0 = req.headers.get("cf-connecting-ip") || "local";
+        try { return await learnerRoute(req, env, route, { json: (o, st) => json(o, st || 200, h), origin, origins: c.origins, ip: ip0 }); }
+        catch (e) { if (e instanceof LearnerError) { console.log(JSON.stringify({ route, ms: Date.now() - t0, error: e.code })); return json({ error: e.code, message: e.message }, e.status, h); } throw e; }
       }
       if (req.method !== "POST" || (route !== "/voter" && route !== "/coach" && route !== "/speak")) throw new HttpError(404, "not_found");
       if (!c.origins.includes(origin)) throw new HttpError(403, "origin", "This page isn't allowed to use the practice AI.");
@@ -466,7 +472,7 @@ export default {
       const turns = readTurns(body, s);
       /* the voter only continues conversations it wrote its side of (the test suite may skip this with the admin token);
          the coach takes any transcript, since a made-up one can only fake your own score */
-      const admin = !!env.ADMIN_TOKEN && req.headers.get("x-admin-token") === env.ADMIN_TOKEN;
+      const admin = isAdmin(env, req); /* phase 1: constant-time, and a token under 24 characters counts as unset */
       if (route === "/voter" && !admin) await checkLines(env, scen, s, turns);
       await checkBudget(env, c);
       if (route === "/voter") {
