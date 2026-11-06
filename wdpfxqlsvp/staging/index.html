@@ -2307,7 +2307,7 @@ const andList = (xs) => (xs.length > 1 ? xs.slice(0, -1).join(", ") + " and " + 
 const MINUTE_ASK = /\ba (?:minute|moment|second|sec|quick minute)\b|\bquick (?:minute|second|sec)\b|\b(?:bad|good|okay|ok|better) time\b|\bbusy right now\b|\bare you busy\b|\b(?:got|have) (?:some |a little |any )?time (?:to talk|for)\b|\bdo you have (?:some |any )?time\b|\bcan i (?:talk to|ask) you\b|\bmay i (?:talk|ask)\b|\bmind if i\b|\bcan i steal\b|\bis now (?:okay|ok|good|fine)\b/;
 const LOCALW = ["neighbor", "i live", "live on", "live in", "live down", "live around", "live nearby", "live close", "live right", "live a few", "local", "down the street", "around the corner", "few blocks", "blocks over", "block over", "nearby", "this street", "same street", "the neighborhood", "your street"];
 /* version 161 (round 2 review): part 3 is when the election is. "Talk about the election?" names it without saying when, so it is a near miss */
-const WHY1 = /\belection day\b|\btuesday\b|\bpolls (?:open|close|are open)\b|\belection(?: is|'s)? (?:on|in|this|next|coming|soon|tomorrow|almost|right around)\b/;
+const WHY1 = /\belection day\b|\btuesday\b|\bpolls (?:open|close|are open)\b|\belection(?: is|'s)? (?:on|in|this|next|coming|soon|tomorrow|almost|right around)\b|\belection(?: day)?(?: is|'s)? (?:on )?(?:january|february|march|april|may|june|july|august|september|october|november|december)\b/;
 const WHY_NEAR = /\belections?\b|\bballots?\b|\bvot(?:e|es|ing)\b|\bpolls?\b/; /* version 138 (Robert, Nov 1): vote and voting no longer earn part 3, so a plan-to-vote question does not count as the Election Day reminder */
 const NAME_STOP = ["a", "an", "the", "with", "here", "just", "so", "from", "out", "on", "not", "sorry", "really", "also", "your", "one", "part", "volunteering", "volunteer", "checking", "calling", "knocking", "stopping", "going", "coming", "doing", "glad", "happy", "excited", "local", "wondering", "hoping", "reaching", "working", "running", "looking", "canvassing", "visiting", "talking", "asking", "trying", "in", "at", "to", "for", "now", "back", "over", "around", "supporting", "voting", "only", "still", "very", "super", "good", "great", "fine", "well", "new", "sure", "helping", "your", "a"];
 function saysName(t) {
@@ -2323,8 +2323,8 @@ function saysName(t) {
 /* Maya version 18: move 2 needs both a neighbor line and the campaign (Robert, Oct 16) */
 /* version 161: part 2 is volunteering for Maya Kaur. Her name after a cue (volunteering for, with, on behalf of) or before campaign or team;
    "voting for Maya" and "not with Maya" do not count, and "the campaign" without her name is a near miss */
-const CAMP_RE = /\b(?:volunteer(?:ing)?|campaign(?:ing)?|canvass(?:ing)?|knocking (?:doors )?|with|for|from|on behalf of|supporting|team)\b(?: [a-z'.]+){0,3}? (?:maya|kaur)\b|\b(?:maya|kaur)(?:'s)?(?: kaur(?:'s)?)? (?:campaign|team)\b/g;
-const CAMPW = { test(t) { CAMP_RE.lastIndex = 0; let m; while ((m = CAMP_RE.exec(t))) { const pre = t.slice(Math.max(0, m.index - 14), m.index + m[0].length); if (!/\bvot(?:e|ing|ed) for\b|\brooting for\b|\bnot (?:with|for|from)\b|n't (?:with|for|from)\b/.test(pre)) return true; } return false; } };
+const CAMP_RE = /\b(?:volunteer(?:ing)?|campaign(?:ing)?|canvass(?:ing)?|knocking (?:doors )?|with|for|from|on behalf of|supporting|team)\b(?: [a-z'.]+){0,3}? (?:maya|kaur)\b|\b(?:maya|kaur)(?:'s)?(?: kaur(?:'s)?)? (?:campaign|team|volunteer)\b/g;
+const CAMPW = { test(t) { CAMP_RE.lastIndex = 0; let m; while ((m = CAMP_RE.exec(t))) { const pre = t.slice(Math.max(0, m.index - 18), m.index + m[0].length); if (!/\bvot(?:e|ing|ed) for\b|\brooting for\b|\bnot (?:with|for|from|volunteer\w*|part of|on)\b|n't (?:with|for|from|volunteer\w*)\b/.test(pre)) return true; } return false; } };
 const CAMP_NEAR = /\bcampaign\b|\bsenate\b|\bvolunteer(?:ing)?\b|\bmaya\b|\bkaur\b/;
 const openHits = (t) => { const h = [saysName(t), has(t, CAMPW), has(t, WHY1)]; return h.concat([!has(t, MINUTE_ASK) && (h.some(Boolean) || wcount(t) >= 4)]); }; /* version 161: part 4 is earned by an opener that says something, never by a bare hello */ /* version 98: move 2 matches its name and the AI rubric (volunteering for Maya Kaur); a neighbor line is a bonus, not required */
 /* version 98 (Robert): the How you grew highlights need the words that carried each part. The scripted grader pulls them
@@ -2383,8 +2383,8 @@ const DECLINE_IN = ["stay out", "stay here", "i'll stay", "ill stay", "no thanks
 const FRIENDW = ["friend", "family", "coworker", "co-worker", "people", "neighbor", "roommate", "others", "someone", "folks", "brother", "sister", "mom", "dad", "cousin"];
 const REMINDW = ["remind", "text", "tell", "ask", "call", "bring", "make sure"];
 /* version 161: the ask names who to remind (tell me what people think is not it) */
-const FRIEND_ASK = /\b(?:remind|text|ask|call|bring|get|tell)\b(?! me\b)(?: [a-z']+){0,3}? (?:friends?|family|people|folks|coworkers?|co-workers?|neighbors?|others|them|sister|brother|mom|dad|roommates?|everyone)\b/;
-const THREEW = /\b(?:three|3)\b(?: [a-z']+){0,2}? (?:friends|people|folks|family|coworkers|neighbors|others|of them|more|of your|names)\b|\b(?:three|3)\?/; /* version 161: three friends, not any three */
+const FRIEND_ASK = /\b(?:remind|text|ask|call|bring|get|tell)\b(?! me\b)(?: [a-z']+){0,3}? (?:friends?|family|people|folks|coworkers?|co-workers?|neighbors?|others|them|sister|brother|mom|dad|roommates?|everyone)\b|\b(?:friends|people|folks|family|coworkers|neighbors)\b(?: [a-z']+){0,3}? (?:remind|text|tell|call|message)\b/;
+const THREEW = /\b(?:three|3)\b(?: [a-z']+){0,2}? (?:friends|people|folks|family|coworkers|neighbors|others|of them|of your|names)\b|\b(?:three|3)\?/; /* version 161: three friends, not any three */
 const WHOW = ["family", "coworker", "co-worker", "sister", "brother", "mom", "dad", "friend who", "forget", "neighbor", "roommate", "partner", "cousin", "work", "classmate", "teammate"];
 const NOWW = ["right now", " now", "today", "tonight", "while i'm here", "while im here"];
 /* earlier lessons, checked lightly on every later Your turn: [opener, asked a real question, didn't argue, asked when] */
@@ -2419,7 +2419,7 @@ const DEEP_REASK = ["0 to 10", "zero to ten", "scale", "where are you now", "whe
 const WHENQ = /\bwhen (?:will|are|do|would|can|could|might|is|were|did|you)\b|\bwhat (?:time|day|days)\b|\bwhich (?:day|time)\b|\bwhen\?/; /* version 161: asking when, not any when */
 const NARROW = ["morning", "afternoon", "evening", "what time", "which day", "what day", "saturday", "sunday", " time"];
 const HOW = /\bby mail\b|\bmail (?:it|in|your|ballot)\b|\bmailing\b|\bdrop ?box\b|\bdrop (?:it|off|your)\b|\bvot(?:e|ing) center\b|\bin person\b|\bpolling (?:place|location|station)\b|\bearly voting\b|\bhow (?:will|are|do|would|you|you're)\b(?: you)?(?: [a-z']+){0,2}? (?:vote|voting|get there|go|plan|planning|cast|turn|return)\b|\bwhere (?:will|are|do|would|you)\b(?: you)?(?: [a-z']+){0,1}? (?:vote|voting|go)\b/; /* version 161: "How are you?" is a greeting, not how they will vote */
-const ANCHOR = /\bcoming from\b|\bbefore (?:that|then|you|it|work|your|class|school|the)\b|\bafter (?:work|school|your|you|that|class|church|lunch|dinner|the)\b|\bon your way\b|\bbe doing\b|\bdoing that\b|\busually (?:up to|doing)\b|\bwhat (?:are|will) you (?:be )?doing\b|\bbeforehand\b|\bmornings\b/; /* version 161: "voted before?" is not what comes before */
+const ANCHOR = /\bcoming from\b|\bbefore (?:that|then|you|it|work|your|class|school|the)\b|\bafter (?:work|school|your|you|that|class|church|lunch|dinner|the)\b|\bon your way\b|\bbe doing\b|\bdoing that\b|\busually (?:up to|doing)\b|\bwhat (?:are|will) you (?:be )?doing\b|\bbeforehand\b|\b(?:do|doing) (?:before|after)\b|\bmornings\b/; /* version 161: "voted before?" is not what comes before */
 const SAYBACK = ["what's your plan", "what is your plan", "what's the plan", "what is the plan", "tell me your plan", "tell me the plan", "say it back", "walk me through", "recap", "run it back", "remind me", "repeat", "get that right", "got that right", "is that right", "sound right", "that right?", "sum it up", "so to sum up"];
 /* summing up: they restate the plan themselves (a day plus where or what comes before), or check it with the voter */
 const summed = (t) => has(t, SAYBACK) || (has(t, ["saturday", "sunday", "morning", "afternoon"]) && has(t, ["library", "drop box", "gym", "run", "after"]));
@@ -8002,7 +8002,7 @@ const FLOW = {
     did: ["asked a real question", "asked one thing at a time", "responded to what he said", "followed up"],
     watchFor: "One real question, one at a time, a reply to what he says and one follow-up.",
     situation: "The volunteer already said their opener. The supporter, Jamal, says, 'Oh, hey. Yeah, I like her.' This is the volunteer's next line.",
-    hits: (t) => { const q = QCOUNT(t); return [q >= 1 && has(t, ABOUTYOU), q === 1, has(t, HEARD), false]; },
+    hits: (t) => { const q = QCOUNT(t); return [q >= 1 && has(t, ABOUTYOU) && !/^ (?:hi |hey |hello )?how are you(?: doing)?(?: today)?\?? $/.test(t), q === 1, has(t, HEARD), false]; },
     spot: { lines: [["you", "Hi! I\u2019m {name}, a neighbor volunteering with Maya Kaur\u2019s campaign."], ["them", "Oh, hey. Yeah, I like her."], ["you", "Great! Are you voting this year? Do you know where to vote? Have you made a plan?"], ["them", "Uh, yes? I think so."]], miss: 1, missLine: "Three questions at once got one vague answer." },
     fix: { 1: { ask: "Now ask Jamal just one question.", model: "Are you planning to vote this year?", ok: (t) => QCOUNT(t) === 1, no: "Ask one question, then stop and wait." } },
   },
@@ -8029,7 +8029,7 @@ const FLOW = {
     did: ["asked him to remind friends", "asked for three", "helped him name three", "got a yes on when"],
     watchFor: "The ask to remind friends, the number three, help naming three and a yes on when.",
     situation: "The volunteer already said their opener. Omar, a supporter, says, 'Oh, I'm voting for her, don't worry.' This is the volunteer's next line.",
-    hits: (t) => [has(t, FRIEND_ASK) && (QCOUNT(t) >= 1 || /\b(?:could|would|can|will) you\b|\bplease\b/.test(t)), has(t, THREEW), whoCount(t) >= 2, has(t, NOWW) && QCOUNT(t) >= 1],
+    hits: (t) => [has(t, FRIEND_ASK) && (QCOUNT(t) >= 1 || /\b(?:could|would|can|will) you\b|\bplease\b|^ (?:please )?(?:text|call|remind|tell|ask)\b/.test(t)), has(t, THREEW), whoCount(t) >= 2, has(t, NOWW) && QCOUNT(t) >= 1 && /\b(?:text|call|remind|message|them|friends?)\b/.test(t)],
     spot: { lines: [["them", "Oh, I\u2019m voting for her, don\u2019t worry."], ["you", "Love it. Would you remind three friends to vote too?"], ["them", "Three? Sure. Who, though?"], ["you", "Anyone you like! Could you text them now, while I\u2019m here?"], ["them", "Um, I\u2019ll think about who later."]], miss: 2, missLine: "Without help picking, three friends turned into \u201clater.\u201d" },
     fix: { 2: { ask: "Now help Omar name three.", model: "Maybe family, coworkers or the friend who always forgets?", ok: (t) => whoCount(t) >= 2, no: "Suggest who: family, coworkers or the friend who always forgets." } },
   },

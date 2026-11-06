@@ -46,13 +46,13 @@ swap('const MINUTE_ASK = ["a minute", "a second", " a sec ", "a moment", "bad ti
      "const MINUTE_ASK = /\\ba (?:minute|moment|second|sec|quick minute)\\b|\\bquick (?:minute|second|sec)\\b|\\b(?:bad|good|okay|ok|better) time\\b|\\bbusy right now\\b|\\bare you busy\\b|\\b(?:got|have) (?:some |a little |any )?time (?:to talk|for)\\b|\\bdo you have (?:some |any )?time\\b|\\bcan i (?:talk to|ask) you\\b|\\bmay i (?:talk|ask)\\b|\\bmind if i\\b|\\bcan i steal\\b|\\bis now (?:okay|ok|good|fine)\\b/;")
 swap('const WHY1 = ["election", "tuesday", "ballot", "polls"];',
      '/* version 161 (round 2 review): part 3 is when the election is. "Talk about the election?" names it without saying when, so it is a near miss */\n'
-     "const WHY1 = /\\belection day\\b|\\btuesday\\b|\\bpolls (?:open|close|are open)\\b|\\belection(?: is|'s)? (?:on|in|this|next|coming|soon|tomorrow|almost|right around)\\b/;\n"
+     "const WHY1 = /\\belection day\\b|\\btuesday\\b|\\bpolls (?:open|close|are open)\\b|\\belection(?: is|'s)? (?:on|in|this|next|coming|soon|tomorrow|almost|right around)\\b|\\belection(?: day)?(?: is|'s)? (?:on )?(?:january|february|march|april|may|june|july|august|september|october|november|december)\\b/;\n"
      "const WHY_NEAR = /\\belections?\\b|\\bballots?\\b|\\bvot(?:e|es|ing)\\b|\\bpolls?\\b/;")
 swap('const CAMPW = ["maya", "kaur", "campaign", "senate"];',
      '/* version 161: part 2 is volunteering for Maya Kaur. Her name after a cue (volunteering for, with, on behalf of) or before campaign or team;\n'
      '   "voting for Maya" and "not with Maya" do not count, and "the campaign" without her name is a near miss */\n'
-     "const CAMP_RE = /\\b(?:volunteer(?:ing)?|campaign(?:ing)?|canvass(?:ing)?|knocking (?:doors )?|with|for|from|on behalf of|supporting|team)\\b(?: [a-z'.]+){0,3}? (?:maya|kaur)\\b|\\b(?:maya|kaur)(?:'s)?(?: kaur(?:'s)?)? (?:campaign|team)\\b/g;\n"
-     "const CAMPW = { test(t) { CAMP_RE.lastIndex = 0; let m; while ((m = CAMP_RE.exec(t))) { const pre = t.slice(Math.max(0, m.index - 14), m.index + m[0].length); if (!/\\bvot(?:e|ing|ed) for\\b|\\brooting for\\b|\\bnot (?:with|for|from)\\b|n't (?:with|for|from)\\b/.test(pre)) return true; } return false; } };\n"
+     "const CAMP_RE = /\\b(?:volunteer(?:ing)?|campaign(?:ing)?|canvass(?:ing)?|knocking (?:doors )?|with|for|from|on behalf of|supporting|team)\\b(?: [a-z'.]+){0,3}? (?:maya|kaur)\\b|\\b(?:maya|kaur)(?:'s)?(?: kaur(?:'s)?)? (?:campaign|team|volunteer)\\b/g;\n"
+     "const CAMPW = { test(t) { CAMP_RE.lastIndex = 0; let m; while ((m = CAMP_RE.exec(t))) { const pre = t.slice(Math.max(0, m.index - 18), m.index + m[0].length); if (!/\\bvot(?:e|ing|ed) for\\b|\\brooting for\\b|\\bnot (?:with|for|from|volunteer\\w*|part of|on)\\b|n't (?:with|for|from|volunteer\\w*)\\b/.test(pre)) return true; } return false; } };\n"
      "const CAMP_NEAR = /\\bcampaign\\b|\\bsenate\\b|\\bvolunteer(?:ing)?\\b|\\bmaya\\b|\\bkaur\\b/;")
 swap('const openHits = (t) => [saysName(t), has(t, CAMPW), has(t, WHY1), !has(t, MINUTE_ASK)];',
      'const openHits = (t) => { const h = [saysName(t), has(t, CAMPW), has(t, WHY1)]; return h.concat([!has(t, MINUTE_ASK) && (h.some(Boolean) || wcount(t) >= 4)]); }; /* version 161: part 4 is earned by an opener that says something, never by a bare hello */')
@@ -63,13 +63,13 @@ swap('const QCOUNT = (t) => t.split("?").length - 1;',
      "const QSPOKEN = /\\b(?:what|when|where|how|why|which|who)(?:'s|'re)?\\b(?: [a-z']+){0,4}? (?:you|your|ya)\\b|\\b(?:are|do|did|will|would|have|could|can|is|were)(?: you| your| ya)\\b/g;\n"
      'const QCOUNT = (t) => Math.max(t.split("?").length - 1, (String(t).match(QSPOKEN) || []).length);')
 swap('const THREEW = ["three", " 3 "];',
-     "const THREEW = /\\b(?:three|3)\\b(?: [a-z']+){0,2}? (?:friends|people|folks|family|coworkers|neighbors|others|of them|more|of your|names)\\b|\\b(?:three|3)\\?/; /* version 161: three friends, not any three */")
+     "const THREEW = /\\b(?:three|3)\\b(?: [a-z']+){0,2}? (?:friends|people|folks|family|coworkers|neighbors|others|of them|of your|names)\\b|\\b(?:three|3)\\?/; /* version 161: three friends, not any three */")
 swap('const WHENQ = ["when ", "when?", "what time", "what day", "which day"];',
      "const WHENQ = /\\bwhen (?:will|are|do|would|can|could|might|is|were|did|you)\\b|\\bwhat (?:time|day|days)\\b|\\bwhich (?:day|time)\\b|\\bwhen\\?/; /* version 161: asking when, not any when */")
 swap('const HOW = [" mail", "drop box", "dropbox", "drop off", "drop it", "vote center", "in person", "how will you", "how are you", "how do you", "polling"];',
      "const HOW = /\\bby mail\\b|\\bmail (?:it|in|your|ballot)\\b|\\bmailing\\b|\\bdrop ?box\\b|\\bdrop (?:it|off|your)\\b|\\bvot(?:e|ing) center\\b|\\bin person\\b|\\bpolling (?:place|location|station)\\b|\\bearly voting\\b|\\bhow (?:will|are|do|would|you|you're)\\b(?: you)?(?: [a-z']+){0,2}? (?:vote|voting|get there|go|plan|planning|cast|turn|return)\\b|\\bwhere (?:will|are|do|would|you)\\b(?: you)?(?: [a-z']+){0,1}? (?:vote|voting|go)\\b/; /* version 161: \"How are you?\" is a greeting, not how they will vote */")
 swap('const ANCHOR = ["coming from", "before", "after", "beforehand", "on your way", "be doing", "doing that", "usually up to", "usually doing", "mornings"];',
-     "const ANCHOR = /\\bcoming from\\b|\\bbefore (?:that|then|you|it|work|your|class|school|the)\\b|\\bafter (?:work|school|your|you|that|class|church|lunch|dinner|the)\\b|\\bon your way\\b|\\bbe doing\\b|\\bdoing that\\b|\\busually (?:up to|doing)\\b|\\bwhat (?:are|will) you (?:be )?doing\\b|\\bbeforehand\\b|\\bmornings\\b/; /* version 161: \"voted before?\" is not what comes before */")
+     "const ANCHOR = /\\bcoming from\\b|\\bbefore (?:that|then|you|it|work|your|class|school|the)\\b|\\bafter (?:work|school|your|you|that|class|church|lunch|dinner|the)\\b|\\bon your way\\b|\\bbe doing\\b|\\bdoing that\\b|\\busually (?:up to|doing)\\b|\\bwhat (?:are|will) you (?:be )?doing\\b|\\bbeforehand\\b|\\b(?:do|doing) (?:before|after)\\b|\\bmornings\\b/; /* version 161: \"voted before?\" is not what comes before */")
 # Kevin's door: react to a real ask for time, and keep part 4 unless they ask on the second line
 swap('        if (!h[3]) st.moves.delete(3);', '        if (has(t, MINUTE_ASK)) st.moves.delete(3); /* version 161 */')
 swap('      if (!h[3]) return { say: "Uh, sure, I guess. What', '      if (has(t, MINUTE_ASK)) return { say: "Uh, sure, I guess. What')
@@ -78,8 +78,10 @@ swap('has(t, BYE) && t.trim().split(" ").length <= 20, false]', 'has(t, BYE) && 
 swap('    hits: (t) => [!has(t, ARGUE), has(t, THANKW), has(t',
      '    hits: (t) => [!has(t, ARGUE) && wcount(t) >= 2, has(t, THANKW), has(t')
 swap('    hits: (t) => [has(t, FRIENDW) && has(t, REMINDW), h',
-     '    hits: (t) => [has(t, FRIEND_ASK) && (QCOUNT(t) >= 1 || /\\b(?:could|would|can|will) you\\b|\\bplease\\b/.test(t)), h')
-swap('const THREEW = /', "/* version 161: the ask names who to remind (tell me what people think is not it) */\nconst FRIEND_ASK = /\\b(?:remind|text|ask|call|bring|get|tell)\\b(?! me\\b)(?: [a-z']+){0,3}? (?:friends?|family|people|folks|coworkers?|co-workers?|neighbors?|others|them|sister|brother|mom|dad|roommates?|everyone)\\b/;\nconst THREEW = /")
+     '    hits: (t) => [has(t, FRIEND_ASK) && (QCOUNT(t) >= 1 || /\\b(?:could|would|can|will) you\\b|\\bplease\\b|^ (?:please )?(?:text|call|remind|tell|ask)\\b/.test(t)), h')
+swap('has(t, NOWW) && QCOUNT(t) >= 1]', 'has(t, NOWW) && QCOUNT(t) >= 1 && /\\b(?:text|call|remind|message|them|friends?)\\b/.test(t)]') # version 161: now means the reminders, not voting now
+swap('    hits: (t) => { const q = QCOUNT(t); return [q >= 1 && has(t, ABOUTYOU),', '    hits: (t) => { const q = QCOUNT(t); return [q >= 1 && has(t, ABOUTYOU) && !/^ (?:hi |hey |hello )?how are you(?: doing)?(?: today)?\\?? $/.test(t),') # version 161: a greeting is not a real question
+swap('const THREEW = /', "/* version 161: the ask names who to remind (tell me what people think is not it) */\nconst FRIEND_ASK = /\\b(?:remind|text|ask|call|bring|get|tell)\\b(?! me\\b)(?: [a-z']+){0,3}? (?:friends?|family|people|folks|coworkers?|co-workers?|neighbors?|others|them|sister|brother|mom|dad|roommates?|everyone)\\b|\\b(?:friends|people|folks|family|coworkers|neighbors)\\b(?: [a-z']+){0,3}? (?:remind|text|tell|call|message)\\b/;\nconst THREEW = /")
 
 # ---------- 2. the words behind each part, and the feedback rows that show them ----------
 EV = r"""
