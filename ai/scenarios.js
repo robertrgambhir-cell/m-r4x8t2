@@ -58,6 +58,11 @@ export const SCENARIOS = {
       "Saying Election Day is any day but Tuesday, or that some voters vote on a different day, is wrong.",
       "Saying people can vote by text or by phone is wrong.",
     ],
+    /* the same wrong claims as patterns, so the server catches them even when the coach doesn't (red-team C5, Nov 5) */
+    wrongSay: [
+      { re: /\b(vot\w*|election|ballots?|polls?)\b[^.?!]*\b(mon|wednes|thurs|fri|satur|sun)days?\b|\b(mon|wednes|thurs|fri|satur|sun)days?\b[^.?!]*\b(vot\w*|election|ballots?|polls?)\b/i, issue: "Election Day is Tuesday, not another day." },
+      { re: /\bvot\w*\b[^.?!]*\b(by|over|via) (text|texting|phone|sms)\b|\btext\b[^.?!]*\b(your|a|the) vote\b/i, issue: "You can't vote by text or by phone." },
+    ],
     outOfScope: "Polling hours, polling places and the details of Maya Kaur's positions are not in the volunteer's materials. The right move is to say you're not sure and offer to find out, or point him to his local elections office. Stating a time or a place as fact is an invented claim.",
     rubric: [
       { id: "name", card: true, move: 0, evidence: true, label: "Say your name", hit: "Said your name", miss: "Didn't say your name", def: "Says their own first name, early in the conversation." },

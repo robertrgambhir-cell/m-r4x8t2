@@ -105,6 +105,11 @@ const c2c = cleanCoach({ ...fake, invented: [{ quote: "polls close at eight", is
 ok(c2c.items.find((x) => x.id === "accurate").status === "missed", "a model miss on Stick to what you know stays missed when its quote is tidied");
 const c2d = cleanCoach({ ...fake, items: fake.items.filter((x) => x.id !== "nominute") }, K, conv);
 ok(c2d.items.find((x) => x.id === "nominute").status === "not_judged" && c2d.hits[3] === false, "an item the model skipped is not judged and not credited");
+const wed = T(K0, "Hi, I'm Dana with Maya Kaur. Maya voters vote on Wednesday this year.");
+const c2g = cleanCoach({ ...fake, invented: [], improvement: null, items: fake.items.map((x) => (x.id === "accurate" ? { ...x, status: "met" } : x)) }, K, wed);
+ok(c2g.items.find((x) => x.id === "accurate").status === "missed" && /Tuesday/.test(c2g.improvement.text), "red-team C5: a wrong voting day counts even when the coach marks it met, and the improvement names it");
+const rem = T(K0, "Hi, I'm Dana with Maya Kaur. Can I text you a reminder to vote on Tuesday?");
+ok(cleanCoach({ ...fake, invented: [] }, K, rem).invented.length === 0, "a text reminder to vote Tuesday is not a wrong claim");
 const c3 = cleanCoach({ ...fake, invented: [] }, K, conv);
 ok(c3.items.find((x) => x.id === "accurate").status === "met", "no checked invented claim, Stick to what you know is met");
 const c4 = cleanCoach({ ...fake, strength: { text: "Great energy!", quote: "I love canvassing" } }, K, conv);

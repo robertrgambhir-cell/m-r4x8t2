@@ -31,7 +31,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "159-redteam-3"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "159-redteam-4"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -310,6 +310,8 @@ export function cleanCoach(x, s, turns) {
   const claims = Array.isArray(x.invented) ? x.invented.filter((t) => t && (t.quote || t.issue)) : [];
   const invented = [], unsure = [];
   claims.forEach((t) => { const turn = t.quote ? learnerTurnFor(t.quote, turns) : ""; if (turn) invented.push({ quote: clip(turn, 160), issue: clip(t.issue || "", 160) }); else if (t.issue) unsure.push(clip(t.issue, 160)); });
+  /* a known wrong claim in the learner's own words always counts, whatever the model saw */
+  (s.wrongSay || []).forEach((w) => { turns.forEach((t) => { if (t.who === "you" && w.re.test(t.text) && !invented.some((v) => v.quote === clip(t.text, 160))) invented.push({ quote: clip(t.text, 160), issue: w.issue }); }); });
   const byId = {};
   x.items.forEach((it) => { if (it && it.id && !byId[it.id]) byId[it.id] = it; });
   const items = s.rubric.map((r) => {
@@ -342,6 +344,9 @@ export function cleanCoach(x, s, turns) {
   const card = s.rubric.map((r, i) => (r.card ? items[i] : null)).filter(Boolean);
   const st = x.strength && x.strength.text && x.strength.quote && inLearner(x.strength.quote, turns) ? { text: clip(x.strength.text, 120), quote: dashes(x.strength.quote) } : null;
   let imp = x.improvement && x.improvement.text ? { text: clip(x.improvement.text, 120), try_saying: clip(x.improvement.try_saying || "", 160) } : null;
+  /* a server-caught wrong claim the model's improvement doesn't mention comes first */
+  const caught = invented.find((v) => (s.wrongSay || []).some((w) => w.issue === v.issue));
+  if (caught && !(imp && /\b(tuesday|text|phone)\b/i.test(imp.text))) imp = { text: clip("Only say what's in your materials. " + caught.issue, 120), try_saying: "" };
   if (!imp && invented.length) imp = { text: clip("Only say what's in your materials. " + invented[0].issue, 120), try_saying: "" };
   return { items, hits: card.map((c) => c.status === "met"), invented, unsure: [...new Set(unsure)].slice(0, 3), transcription: heard, strength: st, improvement: imp, summary: clip(x.summary || "", 120) };
 }
