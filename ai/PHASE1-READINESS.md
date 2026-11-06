@@ -91,6 +91,8 @@ The journey runs in headless Chromium at 402x874 with touch, on a phone clock mo
 4. **You listen to the new line 9,** and decide whether the cut is good enough or wants a re-record.
 5. **Combine with Round 2** (section 9) and rerun every suite on the combined build. Don't deploy either branch alone over the other.
 
+**Your call, not a blocker:** Progress says "Maya's team sees your status, never your scores" and "Your record is yours for keeps, from campaign to campaign." No campaign view exists yet, and the record lives on one phone unless it's backed up. Neither line is a text promise, so I left them as designed.
+
 ## 7. Is it safe to merge?
 
 **Yes, once items 1, 2 and 5 above are done. Wait for items 3 and 4 before testers get the link.**
