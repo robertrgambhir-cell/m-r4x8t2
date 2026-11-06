@@ -3016,7 +3016,7 @@ const WELCOME = {
     { shot: "phone", text: "First, you\u2019ll try your own intro at a voter\u2019s door. Next, you\u2019ll hear a volunteer do it well, and catch a mistake in someone else\u2019s. Then, you\u2019ll practice out loud with an animated voter who talks back. After that, you\u2019ll see which parts you got and which one to work on." },
     { shot: "phone", text: "After those five, I\u2019ll brief you on the issues we\u2019re hearing most at the door. Five more lessons, one per issue, with where I stand and where my opponent stands." },
     { shot: "phone", text: "Each one ends at a voter\u2019s door, so you\u2019ll practice your answer out loud before a real voter asks." },
-    { shot: "phone", text: "The lessons come one a day. Finish today\u2019s, and we\u2019ll text you the next one tomorrow morning. Ten mornings in, you\u2019ll have the fundamentals down and know our campaign inside and out." },
+    { shot: "phone", text: "The lessons come one a day. Finish today\u2019s, and the next one opens tomorrow morning. Ten mornings in, you\u2019ll have the fundamentals down and know our campaign inside and out." },
     { shot: "wide", text: "If you have time, now is a great time for your first training. If now is not a good time, it\u2019ll be here for you when you\u2019re ready. Thanks and welcome to the team." },
   ],
 };
@@ -6303,9 +6303,9 @@ function vProgressG() {
   /* the one button: what to do now (version 148, Robert 11:43 AM PT) */
   const mid = !brief && S.lesson && !c.d5[S.lesson] && (S.lessonAt || 0) > 0 && S.lesson <= 5;
   const lastL = LESSONS5.filter((x) => c.d5[x.n]).pop();
-  const btn = brief ? [`Open ${first}’s issues`, "issues-open", ""] : mid ? [`Continue lesson ${S.lesson}`, "lesson5", String(S.lesson)] : lastL ? [`Retake lesson ${lastL.n}`, "retake5", String(lastL.n)] : ["Start lesson 1", "lesson5", "1"]; /* version 155: lesson in lower case on a button, as on Learn */
+  const btn = brief ? [`Open ${first}’s issues`, "issues-open", ""] : mid ? [`Continue lesson ${S.lesson}`, "lesson5", String(S.lesson)] : c.nd < 5 && P1.lessonOpen(c.nd + 1) ? [`Start lesson ${c.nd + 1}`, "lesson5", String(c.nd + 1)] : lastL ? [`Retake lesson ${lastL.n}`, "retake5", String(lastL.n)] : ["Start lesson 1", "lesson5", "1"]; /* phase 1: today's lesson when it's open */ /* version 155: lesson in lower case on a button, as on Learn */
   /* version 148 (Robert, 2:05 PM PT, "1"): say when to come back, under the button (lessons 2 to 5 open by text the next morning) */
-  const when = !brief && !mid && c.nd >= 1 && c.nd < 5 ? `Lesson ${c.nd + 1} opens tomorrow morning.` : "";
+  const when = !brief && !mid && c.nd >= 1 && c.nd < 5 && !P1.lessonOpen(c.nd + 1) ? `Lesson ${c.nd + 1} opens tomorrow morning.` : "";
   /* the streak and the last seven days, today at the right */
   const days = pathDays(), streak = pathStreak(days), best = Math.max(streak, S.bestStreak || 0); S.bestStreak = best;
   const today = new Date(), letters = ["S", "M", "T", "W", "T", "F", "S"];
@@ -9846,9 +9846,16 @@ var SCHED = (function () {
   var DAY_START_HOUR = 5, ISSUES = ["ga", "tx", "oh", "me", "mi"];
   /* the learner's calendar day for a moment, with the day starting at 5 AM; tz is an IANA zone (planner) or omitted (the phone's own) */
   function dayKey(t, tz) {
-    var d = new Date(t - DAY_START_HOUR * 3600000);
-    if (!tz) return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-    return new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+    /* the local calendar date and hour of t; before 5 AM it is still the day before. Done on the local clock, not by
+       subtracting hours, so the day starts at 5 AM on daylight saving days too */
+    var y, m, d, h;
+    if (!tz) { var x = new Date(t); y = x.getFullYear(); m = x.getMonth() + 1; d = x.getDate(); h = x.getHours(); }
+    else {
+      var parts = {}; new Intl.DateTimeFormat("en-US", { timeZone: tz, year: "numeric", month: "numeric", day: "numeric", hour: "numeric", hourCycle: "h23" }).formatToParts(new Date(t)).forEach(function (q) { parts[q.type] = q.value; });
+      y = Number(parts.year); m = Number(parts.month); d = Number(parts.day); h = Number(parts.hour) % 24;
+    }
+    if (h < DAY_START_HOUR) { var prev = new Date(Date.UTC(y, m - 1, d) - 86400000); y = prev.getUTCFullYear(); m = prev.getUTCMonth() + 1; d = prev.getUTCDate(); }
+    return y + "-" + String(m).padStart(2, "0") + "-" + String(d).padStart(2, "0");
   }
   function finishes(p) {
     var out = [], L = (p && p.lessons) || {}, I = (p && p.issues) || {};
@@ -9894,15 +9901,20 @@ var SCHED = (function () {
    Stored on the phone: which parts each lesson's first and best tries hit, the best try's own words (for the record sheet),
    finish times, issue lessons finished, practice doors, active days. Sent to the server: the same minus the words. */
 const P1 = (() => {
-  const KEY = "recognize-demo:p1", TOK = "recognize-demo:learner", EVQ = "recognize-demo:events", SEEN = "recognize-demo:lastSeen";
+  const KEY0 = "recognize-demo:p1", TOK = "recognize-demo:learner", EVQ0 = "recognize-demo:events", SEEN = "recognize-demo:lastSeen";
   const qs = new URLSearchParams(location.search);
   const DEV = true, REMIND = false;
-  const base = String(qs.get("ai") || (typeof WAI_URL_DEFAULT === "string" ? WAI_URL_DEFAULT : "") || "").replace(/\/+$/, "");
+  /* the server is Warmup's own; ?ai= may point elsewhere only in dev builds (a crafted link must never receive a learner's token) */
+  const base = String((DEV && qs.get("ai")) || (typeof WAI_URL_DEFAULT === "string" ? WAI_URL_DEFAULT : "") || "").replace(/\/+$/, "");
   const DEMO = ["home", "learn", "ready", "issues", "convo"].some((k) => qs.has(k)); /* presenter shortcuts never read or write a learner's record */
   let shift = 0;
   if (DEV && /^[+-]?\d{1,3}$/.test(qs.get("day") || "")) shift = Number(qs.get("day")) * 86400000; /* test clock, dev builds only: ?day=+1 is tomorrow */
+  /* a shifted clock runs in a sandbox: its own copy of the record, never synced, no events, so test days can't leak into real data */
+  const SANDBOX = shift !== 0;
   const now = () => Date.now() + shift;
   const ls = { get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } } };
+  const KEY = SANDBOX ? KEY0 + ":sandbox" : KEY0, EVQ = SANDBOX ? EVQ0 + ":sandbox" : EVQ0; /* sandbox events stay on the phone, never sent */
+  if (SANDBOX && ls.get(KEY, null) === null) ls.set(KEY, ls.get(KEY0, null));
   let serverOn = false, token = "", putTimer = 0, lastSaved = "", lastSent = "";
   const sid = Math.random().toString(36).slice(2, 12);
 
@@ -9918,6 +9930,20 @@ const P1 = (() => {
     return out;
   }
   const sched = (p) => ({ lessons: p.lessons, issues: p.issues });
+  /* every record read from the phone or the server is rebuilt from known fields only: lessons 1 to 5, the five issue ids,
+     booleans, numbers, short words; nothing else can reach the page (a crafted key must never reach HTML) */
+  const ISS = ["ga", "tx", "oh", "me", "mi"];
+  const b4 = (x) => (Array.isArray(x) && x.length === 4 && x.every((v) => typeof v === "boolean") ? x.slice() : null);
+  const tm = (x) => (Number.isFinite(x) && x > 1.6e12 && x < 4.1e12 ? x : null);
+  const dk = (x) => (typeof x === "string" && /^\d{4}-\d{2}-\d{2}$/.test(x) ? x : null);
+  function clean(p) {
+    if (!p || typeof p !== "object") return null;
+    const out = { v: 1, campaign: "kaur", lessons: {}, issues: {}, doors: Number.isInteger(p.doors) && p.doors >= 0 ? Math.min(p.doors, 1e5) : 0, practDays: (Array.isArray(p.practDays) ? p.practDays : []).map(dk).filter(Boolean).slice(-60), activeDays: (Array.isArray(p.activeDays) ? p.activeDays : []).map(dk).filter(Boolean).slice(-400) };
+    ["1", "2", "3", "4", "5"].forEach((n) => { const L = p.lessons && p.lessons[n]; if (!L || !b4(L.best) || !tm(L.at)) return; out.lessons[n] = { first: b4(L.first), best: b4(L.best), at: tm(L.at), retakes: Number.isInteger(L.retakes) && L.retakes >= 0 ? Math.min(L.retakes, 1000) : 0, words: typeof L.words === "string" ? L.words.slice(0, 400) : "" }; });
+    ISS.forEach((id) => { const t = tm(p.issues && p.issues[id]); if (t) out.issues[id] = t; });
+    return out;
+  }
+  const hasAny = (p) => !!(p && (Object.keys(p.lessons || {}).length || Object.keys(p.issues || {}).length));
   function into(p) {
     S.done5 = {}; S.best5 = {}; S.first5 = {}; S.doneAt = {}; S.p1Retakes = {};
     Object.entries(p.lessons || {}).forEach(([n, L]) => {
@@ -9956,25 +9982,36 @@ const P1 = (() => {
       const ac = new AbortController(); setTimeout(() => ac.abort(), 4000);
       const h = await fetch(base + "/health", { cache: "no-store", signal: ac.signal }).then((r) => r.json());
       if (!h || !h.progress) return;
-      const fromLink = qs.get("l");
-      if (fromLink && /^[A-Za-z0-9_-]{22}\.[A-Za-z0-9_-]{32}$/.test(fromLink)) { ls.set(TOK, fromLink); try { const u = new URL(location.href); u.searchParams.delete("l"); history.replaceState(null, "", u); } catch (e) { /* ignore */ } }
+      const fromLink = qs.get("l"), okTok = (t) => typeof t === "string" && /^[A-Za-z0-9_-]{22}\.[A-Za-z0-9_-]{32}$/.test(t);
+      if (fromLink) {
+        /* a personal link restores progress on a phone that has none of its own; it never takes over a phone that already has a record */
+        if (okTok(fromLink) && !hasAny(fromS())) ls.set(TOK, fromLink); else ev("error", { code: "link_ignored" });
+        try { const u = new URL(location.href); u.searchParams.delete("l"); history.replaceState(null, "", u); } catch (e) { /* ignore */ }
+      }
       token = ls.get(TOK, "");
-      if (!token) { token = (await api("POST", "/v1/learner")).token; ls.set(TOK, token); }
+      if (!okTok(token)) token = "";
+      let there = null;
+      if (token) { try { there = (await api("GET", "/v1/progress", null, token)).progress; } catch (e) { if (/bad_token/.test(String(e && e.message))) token = ""; else throw e; } }
+      if (!token) { token = (await api("POST", "/v1/learner")).token; ls.set(TOK, token); there = null; }
+      if (!okTok(token)) throw new Error("bad_token");
       serverOn = true;
-      const there = (await api("GET", "/v1/progress", null, token)).progress;
+      there = clean(there);
+      if (there) lastSent = JSON.stringify(forServer(there));
       if (there) {
-        const mine = fromS(), m = merge(mine, Object.assign({ practDays: [] }, there));
+        const mine = fromS(), m = merge(mine, there);
         if (JSON.stringify(m.lessons) !== JSON.stringify(mine.lessons) || JSON.stringify(m.issues) !== JSON.stringify(mine.issues)) {
           into(m); if (S.screen === "video" && Object.keys(m.lessons).length) { try { pauseVideo(); } catch (e) { /* ignore */ } S.screen = "welcome"; S.hist = []; }
           render();
         }
       }
-      push(true); flush();
+      push(false); flush();
     } catch (e) { serverOn = false; ev("error", { code: "sync_" + String((e && e.message) || "x").slice(0, 16).replace(/[^a-z0-9_]/gi, "") }); }
   }
   function push(force) {
-    if (!serverOn || DEMO) return;
-    const body = JSON.stringify(forServer(fromS()));
+    if (!serverOn || DEMO || SANDBOX) return;
+    const rec = fromS();
+    if (!hasAny(rec)) return; /* no record for someone who hasn't finished anything: saves the account's daily writes */
+    const body = JSON.stringify(forServer(rec));
     if (!force && body === lastSent) return;
     clearTimeout(putTimer);
     putTimer = setTimeout(() => { api("PUT", "/v1/progress", { progress: JSON.parse(body) }, token).then(() => { lastSent = body; }).catch(() => { /* the phone keeps it; the next change tries again */ }); }, force ? 0 : 1500);
@@ -9986,10 +10023,10 @@ const P1 = (() => {
     const q = ls.get(EVQ, []);
     q.push({ name, t: now(), sid, props: props || {} });
     ls.set(EVQ, q.slice(-300));
-    if (q.length >= 20 || name === "lesson_complete" || name === "issue_complete") flush();
+    if (q.length >= 40 || name === "lesson_complete" || name === "issue_complete") flush();
   }
   function flush() {
-    if (!serverOn || !token) return;
+    if (!serverOn || !token || SANDBOX) return;
     const q = ls.get(EVQ, []);
     if (!q.length) return;
     const batch = q.slice(0, 60), body = JSON.stringify({ token, events: batch });
@@ -10024,16 +10061,17 @@ const P1 = (() => {
   function after() {
     if (DEMO || S.screen === "video" && !Object.keys(S.doneAt || {}).length) { observe(); return; }
     const p = fromS(), key = JSON.stringify([p.lessons, p.issues, p.doors, p.practDays]);
-    if (key !== lastSaved) { lastSaved = key; ls.set(KEY, p); push(false); }
+    if (key !== lastSaved) { lastSaved = key; const stored = clean(ls.get(KEY, null)); ls.set(KEY, stored ? merge(stored, p) : p); push(false); } /* another tab's finished lessons are kept */
     observe();
   }
 
   /* ---- start ---- */
   function boot() {
     if (DEMO) return;
-    const p = ls.get(KEY, null), hadAny = !!(p && (Object.keys(p.lessons || {}).length || Object.keys(p.issues || {}).length));
+    const p = ls.get(KEY, null), hadAny = hasAny(clean(p));
     const today = SCHED.dayKey(now()), lastSeen = ls.get(SEEN, 0), days = lastSeen ? Math.round((now() - lastSeen) / 86400000) : -1;
-    if (p) into(p);
+    const pc = clean(p);
+    if (pc) { into(pc); if (JSON.stringify(pc) !== JSON.stringify(p)) ls.set(KEY, pc); } /* a damaged or crafted record is replaced by its clean copy */
     S.p1Days = [...new Set([...(S.p1Days || []), today])].slice(-400);
     ls.set(SEEN, now());
     ev("app_open", { entry: /^[a-z0-9_-]{1,24}$/i.test(qs.get("src") || "") ? qs.get("src") : "link", returning: hadAny, days });
@@ -10055,8 +10093,12 @@ const P1 = (() => {
     issuesNext: () => SCHED.next(prog(), now()),
     issueOpen: (id) => SCHED.issueOpen(prog(), id, now()),
     retake: (n) => { S.p1Retakes = S.p1Retakes || {}; S.p1Retakes[n] = (S.p1Retakes[n] || 0) + 1; },
-    erase: () => { try { [KEY, EVQ, SEEN].forEach((k) => localStorage.removeItem(k)); } catch (e) { /* ignore */ } if (serverOn) api("DELETE", "/v1/progress", null, token).catch(() => {}); },
-    status: () => ({ serverOn, hasToken: !!token, queued: ls.get(EVQ, []).length, shiftDays: shift / 86400000 }),
+    erase: async () => { /* not on any screen yet: for the pilot's "delete my data" requests */
+      if (serverOn && token) { try { await api("DELETE", "/v1/progress", null, token); } catch (e) { /* the phone is still cleared */ } }
+      try { [KEY0, KEY0 + ":sandbox", EVQ0, EVQ0 + ":sandbox", SEEN, TOK].forEach((k) => localStorage.removeItem(k)); } catch (e) { /* ignore */ }
+      serverOn = false; token = ""; into(clean({}) || { lessons: {}, issues: {} }); lastSaved = JSON.stringify([{}, {}, 0, []]); render();
+    },
+    status: () => ({ serverOn, hasToken: !!token, queued: ls.get(EVQ, []).length, shiftDays: shift / 86400000, sandbox: SANDBOX }),
   };
 })();
 window.__p1 = P1;
@@ -10093,7 +10135,7 @@ function issuesOpen(lesson) {
   ov.className = "issues-ov"; ov.id = "issues-ov";
   var dn = typeof window.__warmupBriefsDone === "function" ? window.__warmupBriefsDone() : ""; /* version 152: the briefing shows the same checks */
   var slot = window.__p1 && !window.__p1.issuesNext().open ? "&slot=0" : ""; /* phase 1: one new lesson a day on the issue page too */
-  ov.innerHTML = '<iframe src="issues/?all' + slot + (lesson ? "&lesson=" + lesson : "") + (dn ? "&done=" + dn : "") + '" title="Maya Kaur’s issue lessons" allow="microphone; autoplay"></iframe>'; /* version 146: once door-ready a chapter row opens its own brief */
+  ov.innerHTML = '<iframe src="issues/?all' + slot + (lesson ? "&lesson=" + encodeURIComponent(lesson) : "") + (dn ? "&done=" + encodeURIComponent(dn) : "") + '" title="Maya Kaur’s issue lessons" allow="microphone; autoplay"></iframe>'; /* version 146: once door-ready a chapter row opens its own brief */
   host.appendChild(ov);
 }
 window.addEventListener("message", function (e) { if (e && e.data && e.data.warmup === "issues-close") { var ov = document.getElementById("issues-ov"); if (ov) ov.remove(); } });

@@ -5,7 +5,7 @@
      POST /v1/learner                    -> { token }            a new anonymous learner (rate limited per connection)
      GET  /v1/progress                   -> { progress }         Authorization: Bearer <token>
      PUT  /v1/progress   { progress }    -> { progress }         merged with what the server has (see mergeProgress)
-     DELETE /v1/progress                 -> { erased: true }     the learner can erase their record
+     DELETE /v1/progress                 -> { erased: true }     erases the server copy (no screen calls it yet; P1.erase() does, for data requests)
      POST /v1/events     { token, events }                       accepts text/plain too, so navigator.sendBeacon works
      GET  /v1/admin/events?day=YYYY-MM-DD   x-admin-token        the raw events for one UTC day
      GET  /v1/admin/learners                x-admin-token        every learner's progress, no words
@@ -164,13 +164,13 @@ export async function learnerRoute(req, env, route, ctx) {
   }
   if (!origins.includes(origin)) throw new LearnerError(403, "origin", "This page isn't allowed to save progress here.");
   if (route === "/v1/learner" && req.method === "POST") {
-    rate(ip, "learner", 30);
+    rate(ip, "learner", 120); /* a group training on one Wi-Fi network can start many phones at once */
     const id = newId();
     return json({ token: await makeToken(env, id) });
   }
   if (route === "/v1/progress") {
     const id = await readToken(env, bearer(req));
-    rate(ip, "progress", 240);
+    rate(ip, "progress", 600); rate(id, "progress-learner", 60); /* per learner too, so one token can't burn the account's daily KV writes */
     const store = kv(env), key = "lp:" + id;
     if (req.method === "GET") return json({ progress: await kvTry(() => store.get(key, "json")) });
     if (req.method === "DELETE") { await kvTry(() => store.delete(key)); return json({ erased: true }); }
@@ -186,9 +186,10 @@ export async function learnerRoute(req, env, route, ctx) {
     throw new LearnerError(405, "method");
   }
   if (route === "/v1/events" && req.method === "POST") {
-    rate(ip, "events", 120);
+    rate(ip, "events", 600);
     let body; try { body = JSON.parse(await req.text()); } catch (e) { throw new LearnerError(400, "bad_json"); }
     const id = await readToken(env, body && body.token);
+    rate(id, "events-learner", 30);
     const events = cleanEvents(body && body.events);
     if (!events.length) return json({ stored: 0 });
     const t = Date.now(), key = "ev:" + utcDay(t) + ":" + id + ":" + t + b64u(crypto.getRandomValues(new Uint8Array(3)));

@@ -157,6 +157,58 @@ const noText = (t) => !/text you|get a text|by text/i.test(t);
   ok((await L.state(p)) === null, "erase clears the record on the phone");
   await c.close();
 
+
+  /* 11. the review's fixes: a crafted ?ai= link, a poisoned record, Progress agreeing with Today, a planted personal link,
+     a rejected token, the sandboxed test clock */
+  {
+    const fs = require("fs"), path = require("path"), cp = require("child_process");
+    const repo = path.resolve(__dirname, "..", "..");
+    cp.execFileSync("python3", ["ai/build-phase1.py", "wdpfxqlsvp/staging/index.html", "wdpfxqlsvp/issues/index.html", "wdpfxqlsvp/.p1-test-prod"], { cwd: repo });
+    await fetch(L.AI + "/__p1/reset");
+    const PROD = "http://127.0.0.1:8765/wdpfxqlsvp/.p1-test-prod/";
+    c = await L.ctx(b);
+    const hits = [];
+    await c.route("https://evil.example/**", (r) => { hits.push(r.request().url() + " " + (r.request().headers().authorization || "")); r.fulfill({ status: 200, contentType: "application/json", body: '{"ok":true,"progress":true}' }); });
+    await seed(c, rec({ 1: L1(now - DAY) }));
+    p = await c.newPage(); p.on("pageerror", (e) => errs.push(String(e).slice(0, 200)));
+    await p.goto(PROD + "?ai=https://evil.example", { waitUntil: "domcontentloaded", timeout: 180000 }); await p.waitForTimeout(5000);
+    ok(!hits.some((h) => /v1\/|Bearer/.test(h)), "a production build ignores ?ai= for progress: no token or record sent elsewhere: " + hits.join(" | ").slice(0, 200));
+    ok(await p.evaluate(() => typeof window.__p1S === "undefined"), "a production build exposes no test hooks and no test clock");
+    await c.close();
+    c = await L.ctx(b);
+    await seed(c, { v: 1, lessons: { 1: L1(now - 5 * DAY), 2: L1(now - 4 * DAY), 3: L1(now - 3 * DAY), 4: L1(now - 2 * DAY), 5: L1(now - DAY), "<img src=x onerror=window.__pwn=1>": L1(now) }, issues: { ga: now - DAY / 2, 'x" onload="window.__pwn=1" data-x="': now } });
+    p = await L.open(c, "?noai", errs);
+    await L.act(p, "issues-open"); await p.waitForTimeout(2500);
+    ok(!(await p.evaluate(() => window.__pwn)) && !/onload|onerror/.test(await p.evaluate(() => (document.querySelector("#issues-ov iframe") || {}).src || "")), "a poisoned record can't put script into the page");
+    const st = await L.state(p);
+    ok(Object.keys(st.lessons).join() === "1,2,3,4,5" && Object.keys(st.issues).join() === "ga", "and the stored record is rebuilt from known fields only: " + JSON.stringify(Object.keys(st.issues)));
+    await c.close();
+    c = await L.ctx(b);
+    await seed(c, rec({ 1: L1(now - 2 * DAY) }));
+    p = await L.open(c, "?noai", errs);
+    await L.act(p, "go", "me"); await p.waitForTimeout(800);
+    t = await L.screen(p);
+    ok(/Start lesson 2/.test(t) && !/Lesson 2 opens tomorrow/.test(t), "Progress offers lesson 2 when Today does: " + t.slice(0, 160));
+    await c.close();
+    /* a planted personal link doesn't take over a phone that has its own record; a rejected token is replaced */
+    c = await L.ctx(b);
+    await seed(c, rec({ 1: L1(now - DAY) }));
+    await c.addInitScript(() => { if (!localStorage.getItem("test-tok")) { localStorage.setItem("recognize-demo:learner", JSON.stringify("AAAAAAAAAAAAAAAAAAAAAA.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")); localStorage.setItem("test-tok", "1"); } });
+    p = await L.open(c, "?ai=" + encodeURIComponent(L.AI) + "&l=CCCCCCCCCCCCCCCCCCCCCC.DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", errs);
+    await p.waitForTimeout(4500);
+    const tk = await p.evaluate(() => JSON.parse(localStorage.getItem("recognize-demo:learner")));
+    ok(!/^CCCC/.test(tk) && !/^AAAA/.test(tk) && /^[A-Za-z0-9_-]{22}\./.test(tk), "a planted link is ignored and a rejected token is replaced with a fresh one: " + tk.slice(0, 8));
+    await c.close();
+    /* the test clock never touches the real record */
+    c = await L.ctx(b);
+    await seed(c, rec({ 1: L1(now - DAY) }));
+    p = await L.open(c, "?noai&day=3", errs);
+    await L.act(p, "lesson5", "2"); await p.waitForTimeout(1500);
+    const real = await L.realState(p);
+    ok(Object.keys(real.lessons).join() === "1" && real.lessons[1].at === now - DAY, "a page on the test clock leaves the real record alone");
+    await c.close();
+    fs.rmSync(path.join(repo, "wdpfxqlsvp", ".p1-test-prod"), { recursive: true, force: true });
+  }
   ok(errs.length === 0, "no page errors: " + errs.slice(0, 3).join(" | "));
   console.log(`phase 1: ${pass} pass, ${fail} fail`);
   await b.close();

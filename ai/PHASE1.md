@@ -28,10 +28,10 @@ Branch `phase1-foundations` only. Nothing here is deployed: Cloudflare builds th
 
 - `node ai/tests/worker.test.mjs`: 63 pass (unchanged).
 - `node ai/tests/learner.test.mjs`: 28 pass. Covers tokens, a forged signature, the missing or short secret, merges, junk and oversized records, the KV daily limit, no words stored, beacon events, admin views and erase.
-- `node ai/tests/schedule.test.mjs`: 17 pass. Covers 5 AM boundaries, a 2 AM night owl, order, missed days, door-ready, one issue a day and time zones.
+- `node ai/tests/schedule.test.mjs`: 19 pass. Covers 5 AM boundaries, a 2 AM night owl, order, missed days, door-ready, one issue a day, time zones and both daylight saving changes.
 - `node ai/tests/reminders.test.mjs`: 15 pass. Covers consent, opt-out, send hour, one a day, the quiet pause, plain ASCII and the sender's refusals. Fetch is stubbed; nothing was sent.
 - `node ai/tests/assess.test.mjs /abs/app.html`: 10 pass. Uses fixtures and synthetic labels only.
-- `NODE_PATH=$(npm root -g) node ai/tests/test-p1.cjs` with `node ai/tests/p1-server.mjs <repo root>` running: 38 pass, in headless Chromium at 402x874 against the real worker with fake storage. The walk:
+- `NODE_PATH=$(npm root -g) node ai/tests/test-p1.cjs` with `node ai/tests/p1-server.mjs <repo root>` running: 45 pass, in headless Chromium at 402x874 against the real worker with fake storage. The walk:
   - lesson 1 for real, then a reload;
   - the next day with a retake and lesson 2 for real, then the day after;
   - an interruption mid-lesson;
@@ -39,9 +39,29 @@ Branch `phase1-foundations` only. Nothing here is deployed: Cloudflare builds th
   - presenter shortcuts;
   - the server copy, and a personal link on a new phone;
   - the server down and storage full;
-  - erase.
+  - erase;
+  - the review's fixes (a production build, a crafted `?ai=` link, a poisoned record, Progress agreeing with Today, a planted personal link, a rejected token and the sandboxed test clock).
 - Regression: 13 main screens compared between staging and this build. 10 are identical. The differences are the two intended copy changes plus Practice's random door order.
 - Not runnable here: `test156.cjs` crashes the same way on unmodified staging in this headless browser (no page mic), so it gives no signal either way.
+
+## Fixes from an independent code review (Nov 6)
+
+A second reviewer read the branch before it was committed a second time. Fixed:
+
+- **Test clock sandboxed:** `?day=` works only in a `--dev` build. A page on the test clock keeps its own copy of the record and its own event queue, and sends neither to the server, so a test can never move a learner's real finish times.
+- **Server address:** `?ai=` changes the server only in a `--dev` build. A production page always talks to Warmup's own server, so a crafted link can't collect a learner's token or record.
+- **Crafted records:** every record from the phone or the server is rebuilt from known fields only (lessons 1 to 5, the five issue ids, booleans, times, short words), and a damaged copy on the phone is replaced by the clean one. The issue frame's address is encoded.
+- **Personal links:** `?l=` is used only on a phone with no record of its own; otherwise it's ignored and logged as an error event. A token the server rejects is replaced.
+- **Daylight saving:** the 5 AM day start uses the local clock, not a fixed offset.
+- **Progress:** its button and line follow the daily rule, so Progress offers the same lesson Today does.
+- **Rate limits:** per address and per learner on progress and events.
+- **Erase:** says plainly what it clears (this phone and the server copy).
+
+Known and left as is:
+
+- **The welcome video's voice:** the caption for line 9 now says "the next one opens tomorrow morning," but the recorded voice still says "we'll text you." Fixing it needs a re-recorded line.
+- **Lost events:** `sendBeacon` gives no delivery receipt, so a batch can be lost when a phone goes offline mid-send. The event log is for patterns, not exact counts.
+- **KV's shared daily write cap:** see deployment note 3.
 
 ## To build
 
@@ -58,6 +78,8 @@ python3 ai/build-phase1.py wdpfxqlsvp/staging/index.html wdpfxqlsvp/issues/index
    - change `ANTHROPIC_API_KEY`, `SIGNING_KEY` and `ADMIN_TOKEN` from Variables to Secrets;
    - give `SIGNING_KEY` and `ADMIN_TOKEN` new values (24 or more characters for the admin token).
 
+   The admin token must be 24 or more characters before the merge, or the red-team and live-eval admin routes stop working.
+
    This takes about 10 minutes. Until it's done, the progress routes answer "off" and the page saves on the phone only.
-2. Merge the branch to `main`. That redeploys the worker and publishes `wdpfxqlsvp/dev/` at yourwarmup.com/wdpfxqlsvp/dev/. Live (`/kaur`) and staging stay as they are until their own files are rebuilt from this builder.
+2. Build a learner copy without `--dev` (no test clock, no `?ai=`). Merge the branch to `main`. That redeploys the worker and publishes `wdpfxqlsvp/dev/` at yourwarmup.com/wdpfxqlsvp/dev/. Live (`/kaur`) and staging stay as they are until their own files are rebuilt from this builder.
 3. KV's free plan allows about 1,000 writes a day across all uses. That's enough for a pilot of about 10 to 20 testers. Beyond that, move progress and events to D1 (100,000 writes a day free) or a paid plan.

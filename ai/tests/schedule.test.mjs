@@ -37,5 +37,8 @@ p = P({ 1: la(6, 9) });
 ok(!SCHED.usedToday(p, la(7, 9), TZ), "yesterday's finish doesn't use today");
 /* time zones: the same instant is a different day in New York */
 ok(SCHED.dayKey(Date.UTC(2026, 10, 7, 10, 30), "America/New_York") === "2026-11-07" && SCHED.dayKey(Date.UTC(2026, 10, 7, 10, 30), TZ) === "2026-11-06", "the day starts at 5 AM local: 5:30 AM in New York is Nov 7 there and 2:30 AM, still Nov 6, in Los Angeles");
+/* daylight saving: the day still starts at 5 AM local (US 2027: spring forward Mar 14, fall back Nov 7) */
+ok(SCHED.dayKey(Date.UTC(2027, 2, 14, 12, 30), TZ) === "2027-03-14" && SCHED.dayKey(Date.UTC(2027, 2, 14, 11, 59), TZ) === "2027-03-13", "spring forward: 5:30 AM PDT is the new day, 4:59 AM PDT isn't");
+ok(SCHED.dayKey(Date.UTC(2026, 10, 1, 13, 0), TZ) === "2026-11-01" && SCHED.dayKey(Date.UTC(2026, 10, 1, 12, 59), TZ) === "2026-10-31", "fall back: 5:00 AM PST is the new day, 4:59 AM PST isn't");
 console.log(`schedule: ${pass} pass, ${fail} fail`);
 process.exit(fail ? 1 : 0);

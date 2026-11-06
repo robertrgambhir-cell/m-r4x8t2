@@ -79,6 +79,16 @@ if not REMIND:
     swap(': nx ? `<p><b>Lesson ${nx.n} comes by text tomorrow.</b></p>`',
          ': nx ? `<p><b>Lesson ${nx.n} opens tomorrow.</b></p>`')
 
+    # the welcome video's caption for line 9 (the recorded voice still says it; see ai/PHASE1.md)
+    swap("text: \"The lessons come one a day. Finish today\\u2019s, and we\\u2019ll text you the next one tomorrow morning.",
+         "text: \"The lessons come one a day. Finish today\\u2019s, and the next one opens tomorrow morning.")
+
+# ---------- Progress: the button and the line follow the daily rule ----------
+swap(': lastL ? [`Retake lesson ${lastL.n}`, "retake5", String(lastL.n)] : ["Start lesson 1", "lesson5", "1"];',
+     ': c.nd < 5 && P1.lessonOpen(c.nd + 1) ? [`Start lesson ${c.nd + 1}`, "lesson5", String(c.nd + 1)] : lastL ? [`Retake lesson ${lastL.n}`, "retake5", String(lastL.n)] : ["Start lesson 1", "lesson5", "1"]; /* phase 1: today\'s lesson when it\'s open */')
+swap("const when = !brief && !mid && c.nd >= 1 && c.nd < 5 ? `Lesson ${c.nd + 1} opens tomorrow morning.` : \"\";",
+     "const when = !brief && !mid && c.nd >= 1 && c.nd < 5 && !P1.lessonOpen(c.nd + 1) ? `Lesson ${c.nd + 1} opens tomorrow morning.` : \"\";")
+
 # ---------- door-ready: the issue lessons open the next morning, one a day ----------
 swap('<p class="lt-sub">Or close this. We@RQ@ll text you tomorrow at&nbsp;8&nbsp;AM.</p></div>`;',
      '<p class="lt-sub">${P1x.readyLine()}</p></div>`;')
@@ -101,7 +111,7 @@ swap('case "issues-open": issuesOpen(); break;', 'case "issues-open": P1.ev("iss
 # ---------- the issue frame: beside the dev page, told whether today's new lesson is free ----------
 swap("""ov.innerHTML = '<iframe src="../issues/?all' + (lesson ? "&lesson=" + lesson : "") + (dn ? "&done=" + dn : "") + '\"""",
      """var slot = window.__p1 && !window.__p1.issuesNext().open ? "&slot=0" : ""; /* phase 1: one new lesson a day on the issue page too */
-  ov.innerHTML = '<iframe src="issues/?all' + slot + (lesson ? "&lesson=" + lesson : "") + (dn ? "&done=" + dn : "") + '\"""")
+  ov.innerHTML = '<iframe src="issues/?all' + slot + (lesson ? "&lesson=" + encodeURIComponent(lesson) : "") + (dn ? "&done=" + encodeURIComponent(dn) : "") + '\"""")
 
 # ---------- the issue lessons page (a copy for the dev build) ----------
 swap("var ALL = /[?&#]all\\b/.test(location.search + location.hash), FAST = /[?&#]fast\\b/.test(location.search + location.hash);",

@@ -40,8 +40,10 @@ exports.say = async (p, text) => {
   await p.click(`#talk-tray [data-act="${a}"]`);
 };
 exports.screen = (p) => p.evaluate(() => document.querySelector("#screen") ? (window.__p1 && true, document.querySelector("#screen").innerText.replace(/\s+/g, " ")) : "");
-exports.state = (p) => p.evaluate(() => { try { return JSON.parse(localStorage.getItem("recognize-demo:p1")); } catch (e) { return null; } });
-exports.events = (p) => p.evaluate(() => { try { return JSON.parse(localStorage.getItem("recognize-demo:events")) || []; } catch (e) { return []; } });
+/* the record this page is using: a page on the test clock (?day=) keeps its own sandbox copy */
+exports.state = (p) => p.evaluate(() => { try { const sb = /[?&]day=[+-]?[1-9]/.test(location.search); return JSON.parse(localStorage.getItem("recognize-demo:p1" + (sb ? ":sandbox" : ""))); } catch (e) { return null; } });
+exports.realState = (p) => p.evaluate(() => { try { return JSON.parse(localStorage.getItem("recognize-demo:p1")); } catch (e) { return null; } });
+exports.events = (p) => p.evaluate(() => { try { return (JSON.parse(localStorage.getItem("recognize-demo:events")) || []).concat(JSON.parse(localStorage.getItem("recognize-demo:events:sandbox")) || []); } catch (e) { return []; } });
 /* lesson 1, all four parts on the first try (the shortcut path), then the 2nd intro, the end cards and Today */
 exports.lesson1 = async (p, fromVideo = true) => {
   if (fromVideo) { await exports.act(p, "video-skip"); await p.waitForTimeout(4300); }

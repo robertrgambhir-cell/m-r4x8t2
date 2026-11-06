@@ -9,9 +9,16 @@ var SCHED = (function () {
   var DAY_START_HOUR = 5, ISSUES = ["ga", "tx", "oh", "me", "mi"];
   /* the learner's calendar day for a moment, with the day starting at 5 AM; tz is an IANA zone (planner) or omitted (the phone's own) */
   function dayKey(t, tz) {
-    var d = new Date(t - DAY_START_HOUR * 3600000);
-    if (!tz) return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-    return new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+    /* the local calendar date and hour of t; before 5 AM it is still the day before. Done on the local clock, not by
+       subtracting hours, so the day starts at 5 AM on daylight saving days too */
+    var y, m, d, h;
+    if (!tz) { var x = new Date(t); y = x.getFullYear(); m = x.getMonth() + 1; d = x.getDate(); h = x.getHours(); }
+    else {
+      var parts = {}; new Intl.DateTimeFormat("en-US", { timeZone: tz, year: "numeric", month: "numeric", day: "numeric", hour: "numeric", hourCycle: "h23" }).formatToParts(new Date(t)).forEach(function (q) { parts[q.type] = q.value; });
+      y = Number(parts.year); m = Number(parts.month); d = Number(parts.day); h = Number(parts.hour) % 24;
+    }
+    if (h < DAY_START_HOUR) { var prev = new Date(Date.UTC(y, m - 1, d) - 86400000); y = prev.getUTCFullYear(); m = prev.getUTCMonth() + 1; d = prev.getUTCDate(); }
+    return y + "-" + String(m).padStart(2, "0") + "-" + String(d).padStart(2, "0");
   }
   function finishes(p) {
     var out = [], L = (p && p.lessons) || {}, I = (p && p.issues) || {};
