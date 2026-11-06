@@ -33,7 +33,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "163-turn-1"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "163-turn-2"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -479,7 +479,7 @@ async function claudeStream(env, c, { model, system, user, maxTokens, timeout },
   const ac = new AbortController(), timer = setTimeout(() => ac.abort(), timeout);
   try {
     let res;
-    try { res = await fetch(c.apiUrl, { method: "POST", signal: ac.signal, headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" }, body: JSON.stringify({ model, max_tokens: maxTokens, system, messages: [{ role: "user", content: user }], stream: true }) }); }
+    try { res = await fetch(c.apiUrl, { method: "POST", signal: ac.signal, headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" }, body: JSON.stringify({ model, max_tokens: maxTokens, system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }], messages: [{ role: "user", content: user }], stream: true }) }); }
     catch (e) { throw new HttpError(504, e && e.name === "AbortError" ? "timeout" : "upstream", "The AI didn't answer."); }
     if (!res.ok) { let detail = ""; try { const e = await res.json(); detail = String((e && e.error && e.error.message) || "").slice(0, 300); } catch (e) { /* not json */ } console.log(JSON.stringify({ upstream: res.status, model, detail })); throw new HttpError(res.status === 429 || res.status === 529 ? 503 : 502, "upstream_" + res.status, "The AI service returned an error."); }
     const usage = { input_tokens: 0, output_tokens: 0 };
@@ -496,7 +496,7 @@ async function claudeStream(env, c, { model, system, user, maxTokens, timeout },
         if (!line) continue;
         let d; try { d = JSON.parse(line.slice(5)); } catch (e) { continue; }
         if (d.type === "message_start" && d.message && d.message.usage) usage.input_tokens = d.message.usage.input_tokens || 0;
-        else if (d.type === "content_block_delta" && d.delta && d.delta.type === "text_delta") onText(d.delta.text);
+        else if (d.type === "content_block_delta" && d.delta && d.delta.type === "text_delta") { if (!usage.tok1) usage.tok1 = 1; onText(d.delta.text); }
         else if (d.type === "message_delta" && d.usage) usage.output_tokens = d.usage.output_tokens || usage.output_tokens;
         else if (d.type === "error") throw new HttpError(502, "upstream_stream", "The AI service stopped mid-answer.");
       }
@@ -567,12 +567,12 @@ function turnStream(env, c, s, scen, turns, h, t0) {
         out = x.out; usd = x.r.usd; usage = x.r.usage;
         say1(out.say, 0);
       } else {
-        const said = [];
+        const said = []; let rawText = "";
         const sp2 = makeSplitter(s.voter.name, (p, i) => { said.push(p); say1(p, i); });
-        const r = await claudeStream(env, c, { model: c.voterModel, system: voterPrompt(s, turns) + TURN_FORMAT(s.voter.name), user: `The conversation so far:\n${transcriptText(turns, s.voter.name)}\n\nWrite ${s.voter.name}'s next turn. Don't repeat anything ${s.voter.name} already said.`, maxTokens: DEFAULTS.VOTER_MAX_TOKENS, timeout: c.voterTimeout }, (t) => sp2.feed(t));
+        const r = await claudeStream(env, c, { model: c.voterModel, system: voterPrompt(s, turns) + TURN_FORMAT(s.voter.name), user: `The conversation so far:\n${transcriptText(turns, s.voter.name)}\n\nWrite ${s.voter.name}'s next turn. Don't repeat anything ${s.voter.name} already said.`, maxTokens: DEFAULTS.VOTER_MAX_TOKENS, timeout: c.voterTimeout }, (t) => { if (!ms.tok1) ms.tok1 = Date.now() - t0; rawText += t; sp2.feed(t); });
         sp2.end();
         usd = r.usd; usage = r.usage;
-        if (!said.length) throw new HttpError(502, "bad_model_output", "the voter's reply was empty");
+        if (!said.length) { console.log(JSON.stringify({ route: "/turn", scen, empty: rawText.slice(0, 200) })); const e = new HttpError(502, "bad_model_output", "the voter's reply was empty"); e.detail = rawText.slice(0, 200); throw e; }
         out = cleanVoter({ say: said.join(" "), mood: sp2.mood, end: sp2.ended }, s, turns);
         out.say = said.join(" ");
         out.sig = await signLine(env, scen, out.say, turns.length);
@@ -586,7 +586,7 @@ function turnStream(env, c, s, scen, turns, h, t0) {
       const code = e instanceof HttpError ? e.code : "server_error";
       console.log(JSON.stringify({ route: "/turn", scen, ms: Date.now() - t0, error: code }));
       await pump.catch(() => {});
-      write(jsonFrame({ t: "error", code }));
+      write(jsonFrame({ t: "error", code, ...(e && e.detail ? { detail: e.detail } : {}) }));
     } finally { w.close().catch(() => {}); }
   })();
   return new Response(ts.readable, { status: 200, headers: { "content-type": "application/octet-stream", "cache-control": "no-store", "x-content-type-options": "nosniff", ...h } });
