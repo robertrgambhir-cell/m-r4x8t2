@@ -20,7 +20,7 @@ COACH_PER_IP_HOUR = "30"
 # and paste the id it prints here.
 [[kv_namespaces]]
 binding = "WARMUP_KV"
-id = "2fe97fe2a1244dbdb97eae46777e5d8"
+id = "2fe97fe2a1244dbdbb97eae46777e5d8"
 
 # The key is a secret, never in this file:
 #   npx wrangler secret put ANTHROPIC_API_KEY
