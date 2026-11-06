@@ -56,6 +56,10 @@ const WAI = (() => {
       .then(async (r) => { if (!r.ok) { const j = await r.json().catch(() => ({})); if (j.error === "voice_limit" || j.error === "no_voice") voiceDown = true; return null; } return r.arrayBuffer(); })
       .catch(() => null).finally(() => clearTimeout(t));
   }
+  /* the opening line is the same every time: fetch its voice when the door is drawn, so the knock answers at once */
+  async function warmOpening() { await ping; const sc = scenFor(), pub = sc && WAI_PUB[sc]; if (ready() && pub && pub.voter && pub.voter.opening) prefetch(0, pub.voter.opening.say); }
+  /* the typing dots while the voice is fetched */
+  function dots() { const t = $("#thread"); if (!t) return null; const el = document.createElement("div"); el.className = "typing"; el.innerHTML = "<i></i><i></i><i></i>"; t.appendChild(el); scrollDown(); return el; }
   function prefetch(at, text) { if (!clips.has(at + "|" + text)) clips.set(at + "|" + text, fetchVoice(at, text)); }
   async function voiceClip(d, text) {
     if (!full(d) || voiceDown) return null;
@@ -170,7 +174,7 @@ const WAI = (() => {
     go("door");
     autoKnock();
   }
-  return { ready, settle, flagged, full, scenFor, voiceClip, voter, coachConvo, firstTry, failText, voterFailed, retry, recoach, rows, block, pill, issueLink, startIssue, autoKnock, state: () => state };
+  return { ready, settle, flagged, full, scenFor, voiceClip, warmOpening, dots, voter, coachConvo, firstTry, failText, voterFailed, retry, recoach, rows, block, pill, issueLink, startIssue, autoKnock, state: () => state };
 })();
 /* the full coaching: every rubric row with the volunteer's own words, anything to check, and the transcript */
 function vCoachFull() {

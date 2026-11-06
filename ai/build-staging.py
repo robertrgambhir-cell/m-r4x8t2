@@ -65,7 +65,18 @@ SWAPS = [
     ('<p class="note">Door ${(S.round ? S.round.i : 0) + 1} of 3 ',
      '${WAI.pill()}${S.drill.kind === "aiissue" ? `<p class="note">${esc(d.intro)}</p><p hidden>` : `<p class="note">`}Door ${(S.round ? S.round.i : 0) + 1} of 3 ', 1),
     ('<div class="thread" id="thread"></div>', '<div class="thread" id="thread">${WAI.pill()}</div>', 1),
-    ("  const clip = await voterClip(d.persona, text);", "  const clip = WAI.full(d) ? await WAI.voiceClip(d, text) : await voterClip(d.persona, text); /* version 157: the AI conversation speaks in a natural voice from the server; the phone@Q@s voice is the fallback */", 1),
+    # version 158 (Robert, Nov 5, 7:14 PM ET: the words popped up a second or two before the voice): on an AI door the line waits
+    # for its voice, the typing dots show meanwhile, and the bubble appears the moment he starts speaking
+    ("  setExpr(expr);@N@  addBubble(@DQ@them@DQ@, text);@N@  S.convo.turns.push({ who: @DQ@them@DQ@, text });@N@  const clip = await voterClip(d.persona, text);",
+     "  if (WAI.full(d)) { /* version 158: the words appear when the voice starts */@N@"
+     "    S.convo.turns.push({ who: @DQ@them@DQ@, text });@N@"
+     "    const dots = WAI.dots(), clip0 = await WAI.voiceClip(d, text);@N@"
+     "    if (dots) dots.remove();@N@"
+     "    setExpr(expr);@N@    addBubble(@DQ@them@DQ@, text);@N@"
+     "    if (clip0) { if (S.screen !== @DQ@door@DQ@) return; talk(true); await playWatchBuf(clip0); talk(false); return; }@N@"
+     "    await speak(text, { gender: GENDER[d.persona], role: @DQ@voter@DQ@, rate: d.rate || 1, onstart: () => talk(true), onend: () => talk(false) });@N@"
+     "    return;@N@  }@N@"
+     "  setExpr(expr);@N@  addBubble(@DQ@them@DQ@, text);@N@  S.convo.turns.push({ who: @DQ@them@DQ@, text });@N@  const clip = await voterClip(d.persona, text);", 1),
     ("shortDoor() ? 2 : 7", "WAI.full() ? 6 : shortDoor() ? 2 : 7", 3),
     # the turn: the tail becomes voterReply, so a failed answer can be asked for again
     ("  // The scripted voter always runs too: it tracks moves for the fallback score and covers any AI hiccup.@N@  const scripted = d.reply(S.convo.st, text);@N@  let r = scripted;@N@",
@@ -116,7 +127,7 @@ SWAPS = [
      "  setTimeout(() => { armTries = 0; micArm(); }, 0); /* version 111 */", 1),
     ('case "talk": talkTap(); break;',
      'case "talk": talkTap(); break;@N@case "wai-type": { S.typeMode = true; stopMic(); const sy = $("#say"); if (sy) { sy.readOnly = false; trayOpen(true); sy.focus(); } const tb = $("#talk .wai-type"); if (tb) tb.remove(); break; } /* version 156 */', 1),
-    ('function initConvo() {@N@', 'function initConvo() {@N@  S.typeMode = false; /* version 156: each conversation starts on the mic */@N@', 1),
+    ('function initConvo() {@N@', 'function initConvo() {@N@  S.typeMode = false; /* version 156: each conversation starts on the mic */@N@  setTimeout(() => WAI.warmOpening(), 0); /* version 158: the first line' + chr(39) + 's voice is fetched before the knock */@N@', 1),
     # keep the voter in view: in a live conversation only the last two lines show on the door (the whole transcript is on the coaching screen)
     ("  b.textContent = text;@N@  t.appendChild(b);@N@  scrollDown();@N@}",
      "  b.textContent = text;@N@  t.appendChild(b);@N@  if (WAI.full()) { const bs = t.querySelectorAll(@DQ@.bub@DQ@); bs.forEach((x, i) => x.classList.toggle(@DQ@old@DQ@, i < bs.length - 2)); } /* version 156 */@N@  scrollDown();@N@}", 1),
