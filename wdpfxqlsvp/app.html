@@ -2213,10 +2213,10 @@
   .td-steps li { display: grid; justify-items: center; gap: 5px; text-align: center; font-size: 12.5px; line-height: 1.25; font-weight: 600; color: var(--ink-2); }
   .td-steps b { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-ink); font-size: 12.5px; }
   /* the investor preview on a phone */
-  .tour-pill { position: fixed; z-index: 30; top: calc(env(safe-area-inset-top, 0px) + 10px); right: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px 7px 10px; border-radius: 999px; border: 0; background: #262320; color: #FCF8F2; font: 700 12.5px/1 "Figtree", system-ui, sans-serif; box-shadow: 0 6px 18px -6px rgba(0,0,0,.45); cursor: pointer; }
+  .tour-pill { position: fixed; z-index: 80; top: calc(env(safe-area-inset-top, 0px) + 10px); right: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px 7px 10px; border-radius: 999px; border: 0; background: #262320; color: #FCF8F2; font: 700 12.5px/1 "Figtree", system-ui, sans-serif; box-shadow: 0 6px 18px -6px rgba(0,0,0,.45); cursor: pointer; }
   .tour-pill i { width: 8px; height: 8px; border-radius: 50%; background: #35B57C; }
-  .tour-sheet { position: fixed; z-index: 31; left: 0; right: 0; bottom: 0; max-height: 82vh; overflow: auto; padding: 18px 18px calc(env(safe-area-inset-bottom, 0px) + 16px); border-radius: 22px 22px 0 0; background: var(--stage-bg); color: var(--stage-ink); box-shadow: 0 -12px 40px -10px rgba(0,0,0,.4); font-family: "Figtree", system-ui, sans-serif; }
-  .tour-scrim { position: fixed; inset: 0; z-index: 30; background: rgba(20,18,16,.42); }
+  .tour-sheet { position: fixed; z-index: 82; left: 0; right: 0; bottom: 0; max-height: 82vh; overflow: auto; padding: 18px 18px calc(env(safe-area-inset-bottom, 0px) + 16px); border-radius: 22px 22px 0 0; background: var(--stage-bg); color: var(--stage-ink); box-shadow: 0 -12px 40px -10px rgba(0,0,0,.4); font-family: "Figtree", system-ui, sans-serif; }
+  .tour-scrim { position: fixed; inset: 0; z-index: 81; background: rgba(20,18,16,.42); }
   .tour-sheet h2 { margin: 0; font-family: "Newsreader", Georgia, serif; font-weight: 500; font-size: 24px; }
   .tour-sheet .t-lab { display: inline-block; margin: 0 0 8px; padding: 4px 8px; border-radius: 6px; background: #F6E7C1; color: #6B4A06; font-size: 11.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
   .tour-sheet .t-now { margin: 12px 0 4px; padding: 12px 14px; border-radius: 16px; background: var(--g-soft); }
@@ -2438,7 +2438,7 @@ const HOME = {
 };
 /* the welcome series: 5 lessons, 5 minutes each (get out the vote at the door) */
 const LESSONS5 = [
-  { n: 1, title: "How to introduce yourself at the door", line: "Open with your name, that you live nearby and that the election is close.", ready: true },
+  { n: 1, title: "How to introduce yourself at the door", line: "Open with your name, that you\u2019re volunteering for Maya Kaur and that Election Day is Tuesday.", ready: true },
   { n: 2, title: "How to get a voter talking", line: "Ask one real question and let them finish.", ready: true },
   { n: 3, title: "How to leave a tough door gracefully", line: "Thank them, mark it and move on. You\u2019ll also get a quick safety tip.", ready: true },
   { n: 4, title: "How to help a voter make a plan to vote", line: "Help them say when, where and how they\u2019ll vote.", ready: true },
@@ -6121,7 +6121,7 @@ function vLearnG() {
     <p class="lp-links">${why}${retake}</p></section>`;
   const row2 = (bf, i) => { const ok = ready && !!bd[ids[i]]; return `<li class="lp-i${ok ? " done" : ready ? " open" : " later"}"><button class="lp-row lp-b" data-act="brief-open" data-arg="${esc(bf)}" data-lesson="${ids[i] || ""}" aria-label="Lesson ${i + 6}: ${esc(bf)}${ok ? ", done" : ready ? "" : ", opens when you’re door-ready"}"><span class="lp-art">${issueTile(i, !ready)}${ok ? TILE_CHECK : ""}</span><span class="lp-tx"><small>Lesson ${i + 6}</small><b>${esc(bf)}</b></span><span class="lp-st">${ok ? "Done" : ready ? "Open" : LOCK_SVG}</span></button></li>`; };
   const c2 = `<section class="lp-c lp-c2${ready ? "" : " shut"}" aria-label="Course 2, ${first}’s issues">
-    <header class="lp-h"><button class="lp-hb" data-act="issues-open" aria-label="Open ${first}’s issue lessons"><img src="${CAND_PHOTO}" alt=""><span><span class="lp-k">Course 2 · ${ready ? "Any order, one a day" : "After door-ready"}</span><span class="lp-t">${first}’s issues</span></span></button>${bar(ready ? nb : 0, 5, "blue")}<p class="lp-s">${briefed ? "Done. You’re briefed." : ready ? `${nb} of 5 done · five minutes each on what voters raise at the door` : "Where " + first + " stands on five issues voters raise at the door."}</p></header>
+    <header class="lp-h"><${ready ? `button class="lp-hb" data-act="issues-open" aria-label="Open ${first}’s issue lessons"` : `div class="lp-hb"`}><img src="${CAND_PHOTO}" alt=""><span><span class="lp-k">Course 2 · ${ready ? "Any order, one a day" : "After door-ready"}</span><span class="lp-t">${first}’s issues</span></span></${ready ? "button" : "div"}>${bar(ready ? nb : 0, 5, "blue")}<p class="lp-s">${briefed ? "Done. You’re briefed." : ready ? `${nb} of 5 done · five minutes each on what voters raise at the door` : "Where " + first + " stands on five issues voters raise at the door."}</p></header>
     <ol class="lp-l">${briefs.map(row2).join("")}${goal("brief", briefed, briefed ? "Earned" : "After all five", "Briefed", "")}</ol>
     ${ready && !briefed ? `<div class="lp-cta">${button([`Open ${first}’s issues`, "issues-open"])}</div>` : ""}</section>`;
   const mast = `<div class="lp-mast"><p class="kicker">GOTV canvassing · ${nd + (ready ? nb : 0)} of ${total} done</p><h1 class="h1 lp-h1">Ten lessons, one a day</h1></div>`;
@@ -7766,7 +7766,7 @@ const FLOW = {
 const EV_ALT = (xs) => new RegExp(xs.map((w) => w.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).filter(Boolean).map((w) => "\\b" + w + "\\b").join("|"));
 const EV_Q = /\b(?:what|when|where|how|why|which|who|are|do|did|will|would|have|could|can|is)\b(?: [a-z']+){0,8}?(?: you| your| ya)\b(?: [a-z']+){0,5}/;
 const EVR = {
-  open: [null, /\b(?:volunteer(?:ing)?|campaign(?:ing)?|with|for|on behalf of)\b(?: [a-z'.]+){0,3}? (?:maya|kaur)\b(?: kaur)?(?:'s)?(?: campaign)?|\bmaya(?: kaur)?(?:'s)? campaign\b/, null, null],
+  open: [/\b(?:i'm|im|i am|my name is|my name's|name's|this is) [a-z][a-z'-]*/, /\b(?:volunteer(?:ing)?|campaign(?:ing)?|with|for|on behalf of)\b(?: [a-z'.]+){0,3}? (?:maya|kaur)\b(?: kaur)?(?:'s)?(?: campaign)?|\bmaya(?: kaur)?(?:'s)? campaign\b/, null, null],
   listen: [EV_Q, EV_Q, EV_ALT(HEARD), null],
   noargue: [null, EV_ALT(THANKW), EV_ALT(BYE), null],
   plan: [WHENQ, HOW, ANCHOR, null],
@@ -7790,7 +7790,7 @@ function evMap(raw) {
   while ((m = re.exec(raw))) { toks.push({ a: m.index, b: m.index + m[0].length, at: low.length }); low += m[0].toLowerCase().replace(/[‘’]/g, "'") + " "; }
   return { toks, low };
 }
-function evFind(raw, re) {
+function evFind(raw, re, tight) {
   if (!raw || !re) return "";
   const mp = evMap(String(raw)), r = new RegExp(re.source, re.flags.replace("g", "")), m = r.exec(mp.low);
   if (!m) return "";
@@ -7804,13 +7804,13 @@ function evFind(raw, re) {
   while (ca > 0 && !/[.?!;,\u2014]/.test(str.charAt(ca - 1))) ca -= 1;
   while (cb < str.length && !/[.?!;,\u2014]/.test(str.charAt(cb))) cb += 1;
   const clause = str.slice(ca, cb).trim();
-  const q = clause.split(/\s+/).length <= 12 ? clause : str.slice(a, b).trim();
+  const q = tight ? str.slice(ca, b).trim() : clause.split(/\s+/).length <= 12 ? clause : str.slice(a, b).trim();
   return q.replace(/^[\s,;]+|[\s,;]+$/g, "");
 }
 /* what to show for part i: state y (credited), near, x (did the thing to avoid) or n (not yet), with a quote or a note */
 function evPart(k, i, raw, hit, phr) {
   const t = norm(raw), bad = EVBAD[k] && EVBAD[k][i];
-  if (bad && has(t, bad)) return { st: "x", quote: evFind(raw, bad) };
+  if (bad && has(t, bad)) return { st: "x", quote: evFind(raw, bad, true) };
   if (hit) {
     let quote = phr && phr[i] ? String(phr[i]) : "";
     if (!quote && k === "open" && i === 0) quote = (openPhrases(raw, [true, false, false, false])[0] || "");
