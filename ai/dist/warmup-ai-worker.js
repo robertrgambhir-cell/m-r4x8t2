@@ -159,7 +159,7 @@ var DEFAULTS = {
   VOTER_TIMEOUT_MS: 12e3,
   COACH_TIMEOUT_MS: 3e4
 };
-var BUILD = "159-redteam-2";
+var BUILD = "159-redteam-3";
 var MAX_TURNS = 24;
 var MAX_TURN_CHARS = 600;
 var MAX_TOTAL_CHARS = 9e3;
@@ -238,20 +238,37 @@ var HttpError = class extends Error {
   }
 };
 var mem = /* @__PURE__ */ new Map();
+var kvDown = false;
+var memAdd = (k, by) => {
+  const v = Number(mem.get(k) || 0) + by;
+  mem.set(k, v);
+  return v;
+};
 var store = (env) => ({
   async get(k) {
-    if (env.WARMUP_KV) return Number(await env.WARMUP_KV.get(k) || 0);
+    if (env.WARMUP_KV && !kvDown) {
+      try {
+        return Math.max(Number(await env.WARMUP_KV.get(k) || 0), Number(mem.get(k) || 0));
+      } catch (e) {
+        kvDown = true;
+        console.log(JSON.stringify({ kv: "read_failed" }));
+      }
+    }
     return Number(mem.get(k) || 0);
   },
   async add(k, by, ttl) {
-    if (env.WARMUP_KV) {
-      const v2 = Number(await env.WARMUP_KV.get(k) || 0) + by;
-      await env.WARMUP_KV.put(k, String(v2), { expirationTtl: ttl });
-      return v2;
+    const local = memAdd(k, by);
+    if (env.WARMUP_KV && !kvDown) {
+      try {
+        const v = Number(await env.WARMUP_KV.get(k) || 0) + by;
+        await env.WARMUP_KV.put(k, String(v), { expirationTtl: ttl });
+        return Math.max(v, local);
+      } catch (e) {
+        kvDown = true;
+        console.log(JSON.stringify({ kv: "write_failed", detail: String(e && e.message || e).slice(0, 120) }));
+      }
     }
-    const v = Number(mem.get(k) || 0) + by;
-    mem.set(k, v);
-    return v;
+    return local;
   }
 });
 var dayKey = () => (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
@@ -264,7 +281,7 @@ async function checkBudget(env, c) {
   return { day, month };
 }
 async function checkRate(env, ip, route, limit) {
-  const v = await store(env).add(`rl:${route}:${ip}:${hourKey()}`, 1, 7200);
+  const v = memAdd(`rl:${route}:${ip}:${hourKey()}`, 1);
   if (v > limit) throw new HttpError(429, "rate_limited", "Too many requests from this connection. Try again in a little while.");
 }
 async function addSpend(env, model, usage) {

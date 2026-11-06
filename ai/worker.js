@@ -31,7 +31,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "159-redteam-2"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "159-redteam-3"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -99,13 +99,24 @@ async function checkLines(env, scen, s, turns) {
 
 class HttpError extends Error { constructor(status, code, msg) { super(msg || code); this.status = status; this.code = code; } }
 
-/* counters: KV when bound (production), memory otherwise (local tests) */
+/* counters: KV when bound (production), memory otherwise (local tests). A counter must never take the app down: the free
+   plan allows about 1,000 KV writes a day, and on Nov 5 the red-team runs used them up and every call failed. Now a failed
+   read or write falls back to memory and the call goes on; the Anthropic account's own credit limit stays the hard stop. */
 const mem = new Map();
+let kvDown = false;
+const memAdd = (k, by) => { const v = Number(mem.get(k) || 0) + by; mem.set(k, v); return v; };
 const store = (env) => ({
-  async get(k) { if (env.WARMUP_KV) return Number((await env.WARMUP_KV.get(k)) || 0); return Number(mem.get(k) || 0); },
+  async get(k) {
+    if (env.WARMUP_KV && !kvDown) { try { return Math.max(Number((await env.WARMUP_KV.get(k)) || 0), Number(mem.get(k) || 0)); } catch (e) { kvDown = true; console.log(JSON.stringify({ kv: "read_failed" })); } }
+    return Number(mem.get(k) || 0);
+  },
   async add(k, by, ttl) {
-    if (env.WARMUP_KV) { const v = Number((await env.WARMUP_KV.get(k)) || 0) + by; await env.WARMUP_KV.put(k, String(v), { expirationTtl: ttl }); return v; }
-    const v = Number(mem.get(k) || 0) + by; mem.set(k, v); return v;
+    const local = memAdd(k, by);
+    if (env.WARMUP_KV && !kvDown) {
+      try { const v = Number((await env.WARMUP_KV.get(k)) || 0) + by; await env.WARMUP_KV.put(k, String(v), { expirationTtl: ttl }); return Math.max(v, local); }
+      catch (e) { kvDown = true; console.log(JSON.stringify({ kv: "write_failed", detail: String((e && e.message) || e).slice(0, 120) })); }
+    }
+    return local;
   },
 });
 const dayKey = () => new Date().toISOString().slice(0, 10);
@@ -119,7 +130,7 @@ async function checkBudget(env, c) {
   return { day, month };
 }
 async function checkRate(env, ip, route, limit) {
-  const v = await store(env).add(`rl:${route}:${ip}:${hourKey()}`, 1, 7200);
+  const v = memAdd(`rl:${route}:${ip}:${hourKey()}`, 1); /* in memory, per isolate: no KV write per call */
   if (v > limit) throw new HttpError(429, "rate_limited", "Too many requests from this connection. Try again in a little while.");
 }
 async function addSpend(env, model, usage) {
