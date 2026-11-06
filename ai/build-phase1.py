@@ -188,6 +188,9 @@ swap('<p class="pg-links"><button class="link" data-act="go" data-arg="statushow
 swap('case "issues-open": P1.ev("issue_open", {}); issuesOpen(); break;',
      'case "issues-open": P1.ev("issue_open", {}); issuesOpen(); break;\n    case "p1-link": P1x.copyLink(); break;\n    case "p1-erase": P1x.erasing = arg === "ask"; render(); break;\n    case "p1-erase-yes": P1x.eraseNow(); break;')
 
+# ---------- the laptop guide (Version 160): its stops load sample progress, so nothing is saved from the first jump ----------
+swap("function guideJump(n) {", "function guideJump(n) {\n  window.__wuPreview = true; /* phase 1: sample progress from here on; the learner's record is left alone (a reload brings it back) */")
+
 os.makedirs(os.path.join(OUT, "issues"), exist_ok=True)
 open(os.path.join(OUT, "index.html"), "w", encoding="utf-8").write(s)
 open(os.path.join(OUT, "issues", "index.html"), "w", encoding="utf-8").write(iss)

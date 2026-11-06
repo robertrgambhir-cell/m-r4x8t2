@@ -141,7 +141,7 @@ const closeIssues = (p) => p.evaluate(() => { const o = document.getElementById(
 async function tabs(p) {
   const out = {};
   await tab(p, "welcome"); out.today = await text(p);
-  await tab(p, "library"); out.learn = await text(p); out.learnDone = await p.evaluate(() => document.querySelectorAll(".chp-row .chp.done").length);
+  await tab(p, "library"); out.learn = await text(p); out.learnDone = await p.evaluate(() => document.querySelectorAll(".lp-i.done, .chp-row .chp.done").length); /* Version 161 shows Learn as one path (.lp-i) */
   await tab(p, "coach"); out.practice = await text(p);
   await tab(p, "me"); out.progress = await text(p); out.ring = await p.evaluate(() => Number((document.querySelector(".pg-num") || {}).textContent || -1));
   out.cta = await p.evaluate(() => (document.querySelector(".pg-cta") || {}).textContent || "");
@@ -152,7 +152,7 @@ const saveLine = (p) => p.evaluate(() => (document.querySelector(".pg-save") || 
 async function saveLineSettled(p, want, ms) { const t0 = Date.now(); let s = ""; while (Date.now() - t0 < (ms || 6000)) { await tab(p, "me"); s = await saveLine(p); if (want.test(s)) return s; await p.waitForTimeout(700); } return s; }
 
 (async () => {
-  cp.execFileSync("python3", ["ai/build-phase1.py", "wdpfxqlsvp/staging/index.html", "wdpfxqlsvp/issues/index.html", OUTDIR], { cwd: REPO });
+  cp.execFileSync("python3", ["ai/build-phase1.py", "wdpfxqlsvp/staging/index.html", "ai/assets/issues-source.html", OUTDIR], { cwd: REPO });
   await fetch(L.AI + "/__p1/reset"); await fetch(L.AI + "/__p1/nokey?on=0"); await fetch(L.AI + "/__p1/down?on=0"); await fetch(L.AI + "/__p1/kvfail?on=0");
   /* belt and braces: the browser can't even find Warmup's real server, so nothing a page does can reach production */
   const b = await require("playwright").chromium.launch({ args: ["--autoplay-policy=no-user-gesture-required", "--host-resolver-rules=MAP warmup-ai.robertrgambhir.workers.dev ~NOTFOUND"] }), errs = [];

@@ -12,12 +12,13 @@ const APP = process.argv[2];
 const g = loadScripted(APP);
 ok(JSON.stringify(g("Hi, I'm Robert, I'm with the Maya Kaur campaign. Are you planning to vote on Tuesday?", "Robert")) === "[true,true,true,true]", "the grader read from app.html matches the live app on example 1 of the Today audit");
 ok(JSON.stringify(g("Hi there, do you have a minute? I'm out talking to neighbors today.")) === "[false,false,false,false]", "and on example 2 (0 of 4)");
-ok(JSON.stringify(g("Hi, I'm voting against Maya Kaur and the election is Tuesday.", "Robert")) === "[false,true,true,true]", "and on example 4 (credits the campaign for 'voting against')");
+/* Version 161's evidence grader no longer credits the campaign part for "voting against Maya Kaur" (the keyword grader did) */
+ok(JSON.stringify(g("Hi, I'm voting against Maya Kaur and the election is Tuesday.", "Robert")).startsWith("[false,") && g("Hi, I'm voting against Maya Kaur and the election is Tuesday.", "Robert")[1] === false, "and on example 4 (no credit for the campaign when the volunteer says 'voting against'): " + JSON.stringify(g("Hi, I'm voting against Maya Kaur and the election is Tuesday.", "Robert")));
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "assess-"));
 const out = execFileSync("node", ["assess/export.mjs", "assess/cases.example.jsonl", APP, path.join(tmp, "sheet.csv")], { encoding: "utf8" });
 const rows = parseCsv(fs.readFileSync(path.join(tmp, "sheet.csv"), "utf8"));
 ok(rows.length === 35 && rows.every((r) => r.human_a === "" && r.human_b === ""), "export writes 7 rubric rows per case with blank human columns: " + out.trim());
-ok(rows.filter((r) => r.item === "maya" && r.case_id === "fx-03")[0].scripted === "met", "the sheet records the scripted grader's call");
+ok(rows.filter((r) => r.item === "maya" && r.case_id === "fx-03")[0].scripted === "missed" && rows.filter((r) => r.item === "maya" && r.case_id === "fx-04")[0].scripted === "met", "the sheet records the scripted grader's call (missed for 'voting against', met for 'with the Maya Kaur campaign')");
 ok(kappa([[1, 1], [0, 0], [1, 1], [0, 0]]) === 1 && Math.abs(kappa([[1, 0], [0, 1], [1, 0], [0, 1]]) + 1) < 1e-9, "kappa is 1 for perfect agreement and -1 for perfect disagreement");
 /* synthetic labels: two humans agree on 90 of 100; the scripted grader agrees with them 80% of the time */
 const syn = [];

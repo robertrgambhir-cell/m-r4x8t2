@@ -17,7 +17,10 @@ const P1 = (() => {
      read once and taken out of the address bar at once, before anything else loads */
   const okTok = (t) => typeof t === "string" && /^[A-Za-z0-9_-]{22}\.[A-Za-z0-9_-]{32}$/.test(t);
   const linkTok = (() => { let t = ""; try { t = new URLSearchParams(location.hash.slice(1)).get("l") || qs.get("l") || ""; if (t) { const u = new URL(location.href); u.searchParams.delete("l"); u.hash = ""; history.replaceState(null, "", u); } } catch (e) { /* ignore */ } return t; })();
-  const DEMO = ["home", "learn", "ready", "issues", "convo"].some((k) => qs.has(k)); /* presenter shortcuts never read or write a learner's record */
+  /* presenter shortcuts, the ?tour investor preview and the laptop guide's sample stops never read or write a learner's
+     record. The tour sets window.__wuPreview before this runs; the guide sets it the moment it loads sample progress */
+  const DEMO0 = ["home", "learn", "ready", "issues", "convo", "tour"].some((k) => qs.has(k));
+  const isDemo = () => DEMO0 || window.__wuPreview === true;
   let shift = 0;
   if (DEV && /^[+-]?\d{1,3}$/.test(qs.get("day") || "")) shift = Number(qs.get("day")) * 86400000; /* test clock, dev builds only: ?day=+1 is tomorrow */
   /* a shifted clock runs in a sandbox: its own copy of the record, never synced, no events, so test days can't leak into real data */
@@ -88,7 +91,7 @@ const P1 = (() => {
     return j;
   }
   async function connect() {
-    if (!base || qs.has("noai") || DEMO) return;
+    if (!base || qs.has("noai") || isDemo()) return;
     try {
       const ac = new AbortController(); setTimeout(() => ac.abort(), 4000);
       const h = await fetch(base + "/health", { cache: "no-store", signal: ac.signal }).then((r) => r.json());
@@ -121,7 +124,7 @@ const P1 = (() => {
     if (S.screen === "me") render(); /* Progress says where the record is saved */
   }
   function push(force) {
-    if (!serverOn || DEMO || SANDBOX) return;
+    if (!serverOn || isDemo() || SANDBOX) return;
     const rec = fromS();
     if (!hasAny(rec)) return; /* no record for someone who hasn't finished anything: saves the account's daily writes */
     const body = JSON.stringify(forServer(rec));
@@ -132,7 +135,7 @@ const P1 = (() => {
 
   /* ---- events ---- */
   function ev(name, props) {
-    if (DEMO) return;
+    if (isDemo()) return;
     const q = ls.get(EVQ, []);
     q.push({ name, t: now(), sid, id: Math.random().toString(36).slice(2, 12).padEnd(10, "0"), props: props || {} });
     ls.set(EVQ, q.slice(-300));
@@ -183,7 +186,7 @@ const P1 = (() => {
 
   /* ---- after every render: save if something real changed, then note what happened ---- */
   function after() {
-    if (DEMO || S.screen === "video" && !Object.keys(S.doneAt || {}).length) { observe(); return; }
+    if (isDemo() || S.screen === "video" && !Object.keys(S.doneAt || {}).length) { observe(); return; }
     const p = fromS(), key = JSON.stringify([p.lessons, p.issues, p.doors, p.practDays]);
     if (key !== lastSaved) { lastSaved = key; const stored = clean(ls.get(KEY, null)); localOk = ls.set(KEY, stored ? merge(stored, p) : p); push(false); } /* another tab's finished lessons are kept */
     observe();
@@ -191,7 +194,7 @@ const P1 = (() => {
 
   /* ---- start ---- */
   function boot() {
-    if (DEMO) return;
+    if (isDemo()) return;
     const p = ls.get(KEY, null), hadAny = hasAny(clean(p));
     const today = SCHED.dayKey(now()), lastSeen = ls.get(SEEN, 0), days = lastSeen ? Math.round((now() - lastSeen) / 86400000) : -1;
     const pc = clean(p);
@@ -212,7 +215,7 @@ const P1 = (() => {
   /* ---- the rule, read from the state the screens use ---- */
   const prog = () => sched(fromS());
   return {
-    now, boot, after, ev, flush, DEV, REMIND, DEMO,
+    now, boot, after, ev, flush, DEV, REMIND, get DEMO() { return isDemo(); },
     lessonOpen: (n) => SCHED.lessonOpen(prog(), n, now()),
     usedToday: () => SCHED.usedToday(prog(), now()),
     issuesNext: () => SCHED.next(prog(), now()),
@@ -233,7 +236,7 @@ const P1 = (() => {
       const rec = fromS();
       if (!hasAny(rec)) return "none";
       if (!localOk) return "nolocal";
-      if (!serverOn || SANDBOX || DEMO) return "local";
+      if (!serverOn || SANDBOX || isDemo()) return "local";
       return JSON.stringify(forServer(rec)) === lastSent ? "backed" : "pending";
     },
     link: () => (serverOn && okTok(token) && !SANDBOX ? location.origin + location.pathname + "#l=" + token : ""),

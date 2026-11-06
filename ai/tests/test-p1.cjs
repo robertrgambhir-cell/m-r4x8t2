@@ -163,7 +163,7 @@ const noText = (t) => !/text you|get a text|by text/i.test(t);
   {
     const fs = require("fs"), path = require("path"), cp = require("child_process");
     const repo = path.resolve(__dirname, "..", "..");
-    cp.execFileSync("python3", ["ai/build-phase1.py", "wdpfxqlsvp/staging/index.html", "wdpfxqlsvp/issues/index.html", "wdpfxqlsvp/.p1-test-prod"], { cwd: repo });
+    cp.execFileSync("python3", ["ai/build-phase1.py", "wdpfxqlsvp/staging/index.html", "ai/assets/issues-source.html", "wdpfxqlsvp/.p1-test-prod"], { cwd: repo });
     await fetch(L.AI + "/__p1/reset");
     const PROD = "http://127.0.0.1:8765/wdpfxqlsvp/.p1-test-prod/";
     c = await L.ctx(b);

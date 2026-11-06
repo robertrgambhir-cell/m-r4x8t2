@@ -78,16 +78,20 @@ Robert's "Final verification before deployment" brief, on this branch only:
 ## To build
 
 ```
-python3 ai/build-phase1.py wdpfxqlsvp/staging/index.html wdpfxqlsvp/issues/index.html wdpfxqlsvp/dev --dev
+python3 ai/build-phase1.py wdpfxqlsvp/staging/index.html ai/assets/issues-source.html wdpfxqlsvp/dev --dev
 ```
 
 `--dev` turns on the test clock (`?day=+1` is tomorrow, `?day=+2` the day after). A test-clock page keeps its own sandbox copy and sends nothing. Learners get the build without `--dev`, kept at `wdpfxqlsvp/p1/`:
 
 ```
-python3 ai/build-phase1.py wdpfxqlsvp/staging/index.html wdpfxqlsvp/issues/index.html wdpfxqlsvp/p1
+python3 ai/build-phase1.py wdpfxqlsvp/staging/index.html ai/assets/issues-source.html wdpfxqlsvp/p1
 ``` `--remind` keeps the old text-message copy and is only for when reminders really send.
 
-## What a deployment would need (Robert's decision; not done)
+## Released Nov 6, 2026
+
+Robert authorized one combined release of Versions 160 and 161 with Phase 1. The live `wdpfxqlsvp/app.html` is now the Phase 1 learner build of the Version 161 staging page. See `ai/RELEASE-NOV6.md` for the build order, what each address serves and the rollback. `?tour` and the laptop guide's sample stops never save or send anything (`ai/tests/test-demo-guard.cjs`).
+
+## What a deployment needed (kept for the record)
 
 1. In Cloudflare, for the warmup-ai worker:
    - add the secret `LEARNER_KEY` (32 or more random characters);
