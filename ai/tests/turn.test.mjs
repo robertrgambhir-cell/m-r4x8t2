@@ -59,7 +59,7 @@ ok(aud.length >= 2 && aud.every((x) => x.fmt === 1 && x.n % 2 === 0), "PCM arriv
 ok(aud.findIndex((x) => x.i === 1) > aud.findIndex((x) => x.i === 0), "sentence 1's audio comes after sentence 0's");
 ok(done && done.j.say === "Oh, good. So what would she actually do about it?" && done.j.mood === "warm" && done.j.end === false && done.j.voice === "ok", "done carries the whole line: " + JSON.stringify(done && done.j));
 ok(done && done.j.sig === (await signLine(env0, "oh_bills", done.j.say, 2)), "the line is signed for its place");
-ok(calls[calls.length - 1].stream === true && calls[calls.length - 1].model === "claude-haiku-5-5" && /HOW TO ANSWER/.test(calls[calls.length - 1].system), "the fast model streams with the answer format");
+ok(calls[calls.length - 1].stream === true && calls[calls.length - 1].model === "claude-haiku-5-5" && /HOW TO ANSWER/.test(JSON.stringify(calls[calls.length - 1].system)), "the fast model streams with the answer format");
 ok(voiceCalls[0].speaker === "cordelia" && voiceCalls[0].encoding === "linear16" && voiceCalls[0].sample_rate === 24000, "the voter's own voice, raw PCM");
 
 /* the next turn must carry the signed line */

@@ -33,7 +33,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "163-turn-2"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "163-turn-3"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -482,19 +482,22 @@ async function claudeStream(env, c, { model, system, user, maxTokens, timeout },
     try { res = await fetch(c.apiUrl, { method: "POST", signal: ac.signal, headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" }, body: JSON.stringify({ model, max_tokens: maxTokens, system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }], messages: [{ role: "user", content: user }], stream: true }) }); }
     catch (e) { throw new HttpError(504, e && e.name === "AbortError" ? "timeout" : "upstream", "The AI didn't answer."); }
     if (!res.ok) { let detail = ""; try { const e = await res.json(); detail = String((e && e.error && e.error.message) || "").slice(0, 300); } catch (e) { /* not json */ } console.log(JSON.stringify({ upstream: res.status, model, detail })); throw new HttpError(res.status === 429 || res.status === 529 ? 503 : 502, "upstream_" + res.status, "The AI service returned an error."); }
-    const usage = { input_tokens: 0, output_tokens: 0 };
+    const usage = { input_tokens: 0, output_tokens: 0, types: {}, head: "" };
     const rd = res.body.getReader(), dec = new TextDecoder();
     let buf = "";
     for (;;) {
       const { done, value } = await rd.read();
       if (done) break;
-      buf += dec.decode(value, { stream: true });
+      const chunk = dec.decode(value, { stream: true });
+      if (usage.head.length < 600) usage.head += chunk.slice(0, 600 - usage.head.length);
+      buf += chunk.replace(/\r\n/g, "\n");
       let i;
       while ((i = buf.indexOf("\n\n")) >= 0) {
         const ev = buf.slice(0, i); buf = buf.slice(i + 2);
         const line = ev.split("\n").find((l) => l.startsWith("data:"));
         if (!line) continue;
         let d; try { d = JSON.parse(line.slice(5)); } catch (e) { continue; }
+        usage.types[d.type + (d.delta && d.delta.type ? ":" + d.delta.type : d.content_block ? ":" + d.content_block.type : "")] = (usage.types[d.type + (d.delta && d.delta.type ? ":" + d.delta.type : d.content_block ? ":" + d.content_block.type : "")] || 0) + 1;
         if (d.type === "message_start" && d.message && d.message.usage) usage.input_tokens = d.message.usage.input_tokens || 0;
         else if (d.type === "content_block_delta" && d.delta && d.delta.type === "text_delta") { if (!usage.tok1) usage.tok1 = 1; onText(d.delta.text); }
         else if (d.type === "message_delta" && d.usage) usage.output_tokens = d.usage.output_tokens || usage.output_tokens;
@@ -572,7 +575,7 @@ function turnStream(env, c, s, scen, turns, h, t0) {
         const r = await claudeStream(env, c, { model: c.voterModel, system: voterPrompt(s, turns) + TURN_FORMAT(s.voter.name), user: `The conversation so far:\n${transcriptText(turns, s.voter.name)}\n\nWrite ${s.voter.name}'s next turn. Don't repeat anything ${s.voter.name} already said.`, maxTokens: DEFAULTS.VOTER_MAX_TOKENS, timeout: c.voterTimeout }, (t) => { if (!ms.tok1) ms.tok1 = Date.now() - t0; rawText += t; sp2.feed(t); });
         sp2.end();
         usd = r.usd; usage = r.usage;
-        if (!said.length) { console.log(JSON.stringify({ route: "/turn", scen, empty: rawText.slice(0, 200) })); const e = new HttpError(502, "bad_model_output", "the voter's reply was empty"); e.detail = rawText.slice(0, 200); throw e; }
+        if (!said.length) { console.log(JSON.stringify({ route: "/turn", scen, empty: rawText.slice(0, 200), types: r.usage.types })); const e = new HttpError(502, "bad_model_output", "the voter's reply was empty"); e.detail = JSON.stringify({ raw: rawText.slice(0, 200), types: r.usage.types, head: r.usage.head.slice(0, 400) }); throw e; }
         out = cleanVoter({ say: said.join(" "), mood: sp2.mood, end: sp2.ended }, s, turns);
         out.say = said.join(" ");
         out.sig = await signLine(env, scen, out.say, turns.length);
