@@ -5553,7 +5553,7 @@ function composer(act, placeholder, label) {
       <p class="talk-hint">${ICON.mic}<span id="talk-hint">${live ? "Listening\u2026" : keyHint()}</span></p>
       <div class="composer"><textarea class="field" id="say" rows="1" placeholder="Your words show up here" aria-label="What you said"${live ? " readonly" : ""}></textarea><button class="iconbtn primary" data-act="${act}" aria-label="${label || "Send"}">${ICON.send}</button></div>
     </div>
-    <button class="mic-btn" data-act="talk"><span class="mic-dot" aria-hidden="true">${ICON.mic}</span><span id="talk-label">${talkLabel()}</span></button>${live && S.screen === "door" && !S.typeMode && WAI.full() ? `<button class="link wai-type" data-act="wai-type">Type instead</button>` : ""}
+    <button class="mic-btn" data-act="talk"><span class="mic-dot" aria-hidden="true">${ICON.mic}</span><span id="talk-label">${talkLabel()}</span></button>
   </div>`; /* version 156 */
 }
 function trayOpen(focus) {
@@ -5836,7 +5836,7 @@ function micToggle(armOnly) {
     const card = $("#talk-live"), note = $("#tl-note");
     if (card) card.classList.remove("live", "talking", "warm", "go");
     if (micBlocked) { liveCardOff(); listenFold(false); const t0 = $("#talk-tray"); if (t0) t0.hidden = true; micModal(micWhy || "busy"); return; } /* version 94 (Robert): never the keyboard; a blocked mic freezes the lesson behind one clear card */
-    if (!heard) { const tl = 'Nothing came through. Tap to talk and try again, or <button class="link" data-act="mic-type">type it instead</button>.'; if (note) note.innerHTML = tl; if (h) h.textContent = "Nothing came through. Tap to talk and try again."; return; } /* version 161: a recognizer that hears nothing offers the keyboard */
+    if (!heard) { if (note) note.textContent = "Nothing came through. Tap to talk and try again."; /* version 163: audio only */ if (h) h.textContent = "Nothing came through. Tap to talk and try again."; return; } /* version 161: a recognizer that hears nothing offers the keyboard */
     if (send) send.hidden = false;
     if (box) autoGrow(box);
     if (recStop) { liveCardOff(); if (send) send.click(); return; }
@@ -5895,7 +5895,7 @@ function micModal(kind) {
   wrap.id = "mic-modal";
   wrap.setAttribute("role", "alertdialog");
   wrap.setAttribute("aria-label", "Microphone needed");
-  wrap.innerHTML = `<div class="mm-card"><div class="mm-ico" aria-hidden="true">${ICON.mic}</div><h2>${busy ? "We can\u2019t reach your microphone." : "Warmup needs your microphone."}</h2><p>${busy ? "Another app is probably using it, like FaceTime or a call. Close or mute that app, then tap Try again. Or type your words for now." : "Warmup works best out loud. Allow the microphone for this site in your browser settings, then tap Try again. Or type your words for now."}</p><button class="btn" data-act="mic-retry">Try again</button><button class="btn secondary mm-type" data-act="mic-type">Type it instead</button>${micErr ? `<p class="mm-why">${esc(micErr)}</p>` : ""}</div>`;
+  wrap.innerHTML = `<div class="mm-card"><div class="mm-ico" aria-hidden="true">${ICON.mic}</div><h2>${busy ? "We can\u2019t reach your microphone." : "Warmup needs your microphone."}</h2><p>${busy ? "Another app is probably using it, like FaceTime or a call. Close or mute that app, then tap Try again." : "Warmup works best out loud. Allow the microphone for this site in your browser settings, then tap Try again."}</p><button class="btn" data-act="mic-retry">Try again</button>${micErr ? `<p class="mm-why">${esc(micErr)}</p>` : ""}</div>`;
   host.appendChild(wrap);
 }
 function micOff() { const m = $("#mic-modal"); if (m) m.remove(); }
@@ -9973,7 +9973,7 @@ document.addEventListener("click", (e) => {
     case "coach-retry": WAI.recoach(); break;
     case "wai-issue": S.hist = []; WAI.startIssue(); break;
     case "mic-retry": micRetry(); break; /* version 94 */
-    case "mic-type": micType(); break; /* version 161 */
+    case "mic-type": break; /* version 163: audio only, typing is never offered */
     case "place-knock": placeKnock(); break;
     case "ask-open": askOpen(); break;
     case "ask-close": askClose(); break;
@@ -9985,7 +9985,7 @@ document.addEventListener("click", (e) => {
     case "mic": micHelp(); break;
     case "talk-again": liveCardOff(); if (!rec) talkTap(); break;
 case "talk": talkTap(); break;
-case "wai-type": { S.typeMode = true; stopMic(); const sy = $("#say"); if (sy) { sy.readOnly = false; trayOpen(true); sy.focus(); } const tb = $("#talk .wai-type"); if (tb) tb.remove(); break; } /* version 156 */
+case "wai-type": break; case "wai-type-off": { S.typeMode = true; stopMic(); const sy = $("#say"); if (sy) { sy.readOnly = false; trayOpen(true); sy.focus(); } const tb = $("#talk .wai-type"); if (tb) tb.remove(); break; } /* version 156 */
     case "rv-star": {
       const R = S.review, n = Number(arg), k = el.dataset.k;
       if (k === "overall") R.overall = n;
@@ -10188,7 +10188,7 @@ const G_AT = {
   how: 1, howworks: 1, note: 6,
 };
 const gClean = /[?&]noguide\b/.test(location.search);
-const gState = { on: !gClean && store.get("guide", true) !== false, at: 0, seen: {}, sampled: /[?&](home|learn)\b/.test(location.search) };
+const gState = { on: !gClean && (/[?&]guide\b/.test(location.search) || store.get("guide", false) === true), /* version 163: off unless asked for */ at: 0, seen: {}, sampled: /[?&](home|learn)\b/.test(location.search) };
 const G_WIDE = "(min-width: 1100px) and (min-height: 620px) and (pointer: fine)";
 function guideStop() {
   if (document.getElementById("issues-ov")) return 7;

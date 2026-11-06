@@ -1,7 +1,7 @@
 /* Version 156 (staging) UI checks: the live AI voter and coach inside the real app, against the real worker.js with a canned
    model (ai/tests/mock-server.mjs). This is plumbing, not model quality: turns reach the server and come back, the conversation
    runs past the old two-line cutoff, the voter ends it, failures say so and retry, the coach's rows and words land on the score
-   card, the full coaching screen, the issue conversation, Type instead, and the page with no server stays the scripted app.
+   card, the full coaching screen, the issue conversation, no Type instead (version 163), and the page with no server stays the scripted app.
    Usage: NODE_PATH=$(npm root -g) node test156.cjs /abs/site-root /abs/nourl.html /abs/outdir [w h]
    (start the mock first: node ai/tests/mock-server.mjs /abs/site-root) */
 const { chromium } = require('playwright');
@@ -56,8 +56,7 @@ const stats = async () => JSON.parse(await mock('stats'));
   ok((await stats()).voter - s0.voter === 1, 'a double tap on send makes one call, not two: ' + ((await stats()).voter - s0.voter));
   ok((await p.$$eval('#thread .bub.you', (x) => x.length)) === 1, 'a double tap adds one bubble');
   const ty = await p.evaluate(() => ({ mic: typeof pageMic === 'function' ? null : null, mode: !!__T.S.typeMode }));
-  if (typed) { await waitFor(p, () => { const s = document.querySelector('#say'); return s && !s.disabled; }, 15000); ok(ty.mode && (await p.evaluate(() => !document.querySelector('#say').readOnly)), 'Type instead keeps the box open for typing on the next turn'); }
-  else console.log('note: this browser has no page mic, so Type instead was not offered (expected in headless Chromium without speech recognition)');
+  ok(!typed && !ty.mode && !(await p.$('#talk .wai-type')), 'version 163: the AI door never offers Type instead (audio only)');
   await say(p, 'Great! Election Day is Tuesday, so I wanted to check in.');
   ok(await waitThem(p, 3), 'Kevin answers turn 2, past the old two-line cutoff');
   ok((await p.evaluate(() => __T.S.screen)) === 'door' && !(await p.evaluate(() => __T.S.convo.ended)), 'the conversation keeps going after two lines');
