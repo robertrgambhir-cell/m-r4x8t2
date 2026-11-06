@@ -33,7 +33,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "163-turn-3"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "163-turn-4"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -436,7 +436,7 @@ function frame(type, payload) { const b = new Uint8Array(5 + payload.length); b[
 const jsonFrame = (o) => frame(1, enc8.encode(JSON.stringify(o)));
 const audioFrame = (i, fmt, bytes) => { const p = new Uint8Array(2 + bytes.length); p[0] = i & 255; p[1] = fmt; p.set(bytes, 2); return frame(2, p); };
 const toU8 = (x) => (x instanceof Uint8Array ? x : ArrayBuffer.isView(x) ? new Uint8Array(x.buffer, x.byteOffset, x.byteLength) : new Uint8Array(x));
-let PCM_OK = true; /* off for the isolate's life if the voice service won't give raw audio */
+let PCM_OK = true, THINK_OFF_OK = true; /* off for the isolate's life if the voice service won't give raw audio */
 const isLimit = (m) => /limit|quota|neuron|4006|429/i.test(m);
 async function readAll(out) {
   const st = out instanceof ReadableStream ? out : out && out.audio instanceof ReadableStream ? out.audio : null;
@@ -479,7 +479,13 @@ async function claudeStream(env, c, { model, system, user, maxTokens, timeout },
   const ac = new AbortController(), timer = setTimeout(() => ac.abort(), timeout);
   try {
     let res;
-    try { res = await fetch(c.apiUrl, { method: "POST", signal: ac.signal, headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" }, body: JSON.stringify({ model, max_tokens: maxTokens, system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }], messages: [{ role: "user", content: user }], stream: true }) }); }
+    /* no thinking: a spoken turn has to start at once, and a thinking block can use up the whole token budget before a word */
+    const body = (noThink) => JSON.stringify({ model, max_tokens: maxTokens, system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }], messages: [{ role: "user", content: user }], stream: true, ...(noThink ? { thinking: { type: "disabled" } } : {}) });
+    const send = (noThink) => fetch(c.apiUrl, { method: "POST", signal: ac.signal, headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" }, body: body(noThink) });
+    try {
+      res = await send(THINK_OFF_OK);
+      if (res.status === 400 && THINK_OFF_OK) { const t = await res.clone().text(); if (/thinking/i.test(t)) { THINK_OFF_OK = false; console.log(JSON.stringify({ think_off: "refused", detail: t.slice(0, 200) })); res = await send(false); } }
+    }
     catch (e) { throw new HttpError(504, e && e.name === "AbortError" ? "timeout" : "upstream", "The AI didn't answer."); }
     if (!res.ok) { let detail = ""; try { const e = await res.json(); detail = String((e && e.error && e.error.message) || "").slice(0, 300); } catch (e) { /* not json */ } console.log(JSON.stringify({ upstream: res.status, model, detail })); throw new HttpError(res.status === 429 || res.status === 529 ? 503 : 502, "upstream_" + res.status, "The AI service returned an error."); }
     const usage = { input_tokens: 0, output_tokens: 0, types: {}, head: "" };
