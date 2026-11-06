@@ -209,6 +209,17 @@ const noText = (t) => !/text you|get a text|by text/i.test(t);
     await c.close();
     fs.rmSync(path.join(repo, "wdpfxqlsvp", ".p1-test-prod"), { recursive: true, force: true });
   }
+  /* 12. two tabs on one phone: a lesson finished in one tab survives the other tab's next save */
+  {
+    c = await L.ctx(b);
+    await seed(c, rec({ 1: L1(now - 2 * DAY) }));
+    const tA = await L.open(c, "?noai", errs), tB = await L.open(c, "?noai", errs);
+    await tA.evaluate((r) => { const x = JSON.parse(localStorage.getItem("recognize-demo:p1")); x.lessons[2] = r; localStorage.setItem("recognize-demo:p1", JSON.stringify(x)); }, L1(now - 3600000)); /* tab A finished lesson 2 */
+    await tB.evaluate(() => { const s = __p1S(); s.doorsN = 3; __p1.after(); }); await tB.waitForTimeout(400); /* tab B, still showing the old state, saves a practice door */
+    const both = await L.state(tB);
+    ok(both.lessons[2] && both.doors === 3 && (await tB.evaluate(() => __p1S().screen)) === "welcome", "a second tab's save keeps the lesson the first tab finished: " + JSON.stringify({ l2: !!both.lessons[2], doors: both.doors }));
+    await c.close();
+  }
   ok(errs.length === 0, "no page errors: " + errs.slice(0, 3).join(" | "));
   console.log(`phase 1: ${pass} pass, ${fail} fail`);
   await b.close();

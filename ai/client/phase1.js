@@ -8,8 +8,15 @@ const P1 = (() => {
   const KEY0 = "recognize-demo:p1", TOK = "recognize-demo:learner", EVQ0 = "recognize-demo:events", SEEN = "recognize-demo:lastSeen";
   const qs = new URLSearchParams(location.search);
   const DEV = __P1_DEV__, REMIND = __P1_REMIND__;
-  /* the server is Warmup's own; ?ai= may point elsewhere only in dev builds (a crafted link must never receive a learner's token) */
-  const base = String((DEV && qs.get("ai")) || (typeof WAI_URL_DEFAULT === "string" ? WAI_URL_DEFAULT : "") || "").replace(/\/+$/, "");
+  /* the server is Warmup's own. ?ai= is honored only in dev builds, and only for this computer or Warmup's own Cloudflare
+     account, so a crafted link can never send a learner's token or record anywhere else */
+  const AI_OK = /^(http:\/\/(127\.0\.0\.1|localhost)(:\d{2,5})?|https:\/\/warmup-ai[a-z0-9-]*\.robertrgambhir\.workers\.dev)$/;
+  const aiArg = String(qs.get("ai") || "").replace(/\/+$/, "");
+  const base = String((DEV && AI_OK.test(aiArg) && aiArg) || (typeof WAI_URL_DEFAULT === "string" ? WAI_URL_DEFAULT : "") || "").replace(/\/+$/, "");
+  /* a personal link carries the token after # (#l=...), so it never reaches a web server's logs; ?l= still works. It is
+     read once and taken out of the address bar at once, before anything else loads */
+  const okTok = (t) => typeof t === "string" && /^[A-Za-z0-9_-]{22}\.[A-Za-z0-9_-]{32}$/.test(t);
+  const linkTok = (() => { let t = ""; try { t = new URLSearchParams(location.hash.slice(1)).get("l") || qs.get("l") || ""; if (t) { const u = new URL(location.href); u.searchParams.delete("l"); u.hash = ""; history.replaceState(null, "", u); } } catch (e) { /* ignore */ } return t; })();
   const DEMO = ["home", "learn", "ready", "issues", "convo"].some((k) => qs.has(k)); /* presenter shortcuts never read or write a learner's record */
   let shift = 0;
   if (DEV && /^[+-]?\d{1,3}$/.test(qs.get("day") || "")) shift = Number(qs.get("day")) * 86400000; /* test clock, dev builds only: ?day=+1 is tomorrow */
@@ -19,7 +26,7 @@ const P1 = (() => {
   const ls = { get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } } };
   const KEY = SANDBOX ? KEY0 + ":sandbox" : KEY0, EVQ = SANDBOX ? EVQ0 + ":sandbox" : EVQ0; /* sandbox events stay on the phone, never sent */
   if (SANDBOX && ls.get(KEY, null) === null) ls.set(KEY, ls.get(KEY0, null));
-  let serverOn = false, token = "", putTimer = 0, lastSaved = "", lastSent = "";
+  let serverOn = false, token = "", putTimer = 0, lastSaved = "", lastSent = "", localOk = true, syncFailed = false, linkNote = "";
   const sid = Math.random().toString(36).slice(2, 12);
 
   /* ---- the record ---- */
@@ -85,12 +92,11 @@ const P1 = (() => {
     try {
       const ac = new AbortController(); setTimeout(() => ac.abort(), 4000);
       const h = await fetch(base + "/health", { cache: "no-store", signal: ac.signal }).then((r) => r.json());
-      if (!h || !h.progress) return;
-      const fromLink = qs.get("l"), okTok = (t) => typeof t === "string" && /^[A-Za-z0-9_-]{22}\.[A-Za-z0-9_-]{32}$/.test(t);
-      if (fromLink) {
+      if (!h || !h.progress) throw new Error("off"); /* progress saving isn't switched on: this phone only */
+      if (linkTok) {
         /* a personal link restores progress on a phone that has none of its own; it never takes over a phone that already has a record */
-        if (okTok(fromLink) && !hasAny(fromS())) ls.set(TOK, fromLink); else ev("error", { code: "link_ignored" });
-        try { const u = new URL(location.href); u.searchParams.delete("l"); history.replaceState(null, "", u); } catch (e) { /* ignore */ }
+        if (okTok(linkTok) && !hasAny(fromS())) { ls.set(TOK, linkTok); linkNote = "used"; }
+        else { linkNote = okTok(linkTok) ? "kept" : "bad"; ev("error", { code: "link_ignored" }); toast(linkNote === "kept" ? "This phone already has its own lessons, so the link wasn\u2019t used." : "That personal link isn\u2019t complete. Check that you copied all of it."); }
       }
       token = ls.get(TOK, "");
       if (!okTok(token)) token = "";
@@ -101,6 +107,7 @@ const P1 = (() => {
       serverOn = true;
       there = clean(there);
       if (there) lastSent = JSON.stringify(forServer(there));
+      if (linkNote === "used") toast(there && hasAny(there) ? "Your lessons are back on this phone." : "That link has no saved lessons yet.");
       if (there) {
         const mine = fromS(), m = merge(mine, there);
         if (JSON.stringify(m.lessons) !== JSON.stringify(mine.lessons) || JSON.stringify(m.issues) !== JSON.stringify(mine.issues)) {
@@ -110,6 +117,8 @@ const P1 = (() => {
       }
       push(false); flush();
     } catch (e) { serverOn = false; ev("error", { code: "sync_" + String((e && e.message) || "x").slice(0, 16).replace(/[^a-z0-9_]/gi, "") }); }
+    if (linkTok && !linkNote) toast("Warmup\u2019s server couldn\u2019t be reached, so the link couldn\u2019t bring your lessons back. Try it again later.");
+    if (S.screen === "me") render(); /* Progress says where the record is saved */
   }
   function push(force) {
     if (!serverOn || DEMO || SANDBOX) return;
@@ -118,26 +127,37 @@ const P1 = (() => {
     const body = JSON.stringify(forServer(rec));
     if (!force && body === lastSent) return;
     clearTimeout(putTimer);
-    putTimer = setTimeout(() => { api("PUT", "/v1/progress", { progress: JSON.parse(body) }, token).then(() => { lastSent = body; }).catch(() => { /* the phone keeps it; the next change tries again */ }); }, force ? 0 : 1500);
+    putTimer = setTimeout(() => { api("PUT", "/v1/progress", { progress: JSON.parse(body) }, token).then(() => { lastSent = body; syncFailed = false; }).catch(() => { syncFailed = true; /* the phone keeps it; the next change or the next visit tries again */ }).then(() => { if (S.screen === "me") render(); }); }, force ? 0 : 1500);
   }
 
   /* ---- events ---- */
   function ev(name, props) {
     if (DEMO) return;
     const q = ls.get(EVQ, []);
-    q.push({ name, t: now(), sid, props: props || {} });
+    q.push({ name, t: now(), sid, id: Math.random().toString(36).slice(2, 12).padEnd(10, "0"), props: props || {} });
     ls.set(EVQ, q.slice(-300));
     if (q.length >= 40 || name === "lesson_complete" || name === "issue_complete") flush();
   }
-  function flush() {
+  /* a batch leaves the phone's queue only after the server says it stored it. When the page is closing there is no time to
+     wait for that, so the beacon is a best try and the batch stays queued: the next visit sends it again, and the server's
+     admin view counts an event once by its id. An event is lost only if the learner never opens the app again. */
+  let flushing = false;
+  function flush(closing) {
     if (!serverOn || !token || SANDBOX) return;
     const q = ls.get(EVQ, []);
     if (!q.length) return;
-    const batch = q.slice(0, 60), body = JSON.stringify({ token, events: batch });
-    let sent = false;
-    try { sent = navigator.sendBeacon && navigator.sendBeacon(base + "/v1/events", new Blob([body], { type: "text/plain" })); } catch (e) { sent = false; }
-    if (!sent) { try { fetch(base + "/v1/events", { method: "POST", body, headers: { "content-type": "text/plain" }, keepalive: true }); sent = true; } catch (e) { sent = false; } }
-    if (sent) ls.set(EVQ, q.slice(batch.length));
+    const batch = q.slice(0, 60), body = JSON.stringify({ token, events: batch }), ids = new Set(batch.map((e) => e.id));
+    const drop = () => ls.set(EVQ, ls.get(EVQ, []).filter((e) => !ids.has(e.id)));
+    if (closing) {
+      try { if (navigator.sendBeacon) navigator.sendBeacon(base + "/v1/events", new Blob([body], { type: "text/plain" })); } catch (e) { /* the next visit tries again */ }
+      return;
+    }
+    if (flushing) return;
+    flushing = true;
+    fetch(base + "/v1/events", { method: "POST", body, headers: { "content-type": "text/plain" }, keepalive: true, cache: "no-store" })
+      .then((r) => { if (r.ok) { drop(); if (q.length > batch.length) setTimeout(() => flush(false), 0); } })
+      .catch(() => { /* kept on the phone for the next try */ })
+      .then(() => { flushing = false; });
   }
   const LESSON = new Set(["session", "try", "watch", "spot", "main", "door", "score", "close"]);
   const TABS = { welcome: "today", library: "learn", coach: "practice", me: "progress" };
@@ -165,7 +185,7 @@ const P1 = (() => {
   function after() {
     if (DEMO || S.screen === "video" && !Object.keys(S.doneAt || {}).length) { observe(); return; }
     const p = fromS(), key = JSON.stringify([p.lessons, p.issues, p.doors, p.practDays]);
-    if (key !== lastSaved) { lastSaved = key; const stored = clean(ls.get(KEY, null)); ls.set(KEY, stored ? merge(stored, p) : p); push(false); } /* another tab's finished lessons are kept */
+    if (key !== lastSaved) { lastSaved = key; const stored = clean(ls.get(KEY, null)); localOk = ls.set(KEY, stored ? merge(stored, p) : p); push(false); } /* another tab's finished lessons are kept */
     observe();
   }
 
@@ -182,8 +202,9 @@ const P1 = (() => {
     if (hadAny && days >= 1) ev("return_visit", { days });
     if (hadAny && !qs.has("video")) { S.track = "gotv"; S.intakeDone = true; S.mode = S.mode || "voice"; S.screen = "welcome"; S.hist = []; const nx = LESSONS5.find((x) => !(S.done5 || {})[x.n]); S.lesson = nx ? nx.n : 5; }
     lastSaved = JSON.stringify([fromS().lessons, fromS().issues, S.doorsN || 0, S.practDays || []]);
-    addEventListener("pagehide", () => { if (LESSON.has(S.screen) && !S.drill) ev("interruption", { screen: S.screen, lesson: S.lesson || 1, ms: t0 ? now() - t0 : 0 }); flush(); });
-    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") { if (LESSON.has(S.screen) && !S.drill) ev("interruption", { screen: S.screen, lesson: S.lesson || 1, ms: t0 ? now() - t0 : 0 }); flush(); } });
+    addEventListener("pagehide", () => { if (LESSON.has(S.screen) && !S.drill) ev("interruption", { screen: S.screen, lesson: S.lesson || 1, ms: t0 ? now() - t0 : 0 }); flush(true); });
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") { if (LESSON.has(S.screen) && !S.drill) ev("interruption", { screen: S.screen, lesson: S.lesson || 1, ms: t0 ? now() - t0 : 0 }); flush(true); } else flush(false); });
+    addEventListener("online", () => { push(false); flush(false); });
     let errs = 0; addEventListener("error", () => { if (errs++ < 3) ev("error", { code: "js" }); });
     connect();
   }
@@ -197,12 +218,26 @@ const P1 = (() => {
     issuesNext: () => SCHED.next(prog(), now()),
     issueOpen: (id) => SCHED.issueOpen(prog(), id, now()),
     retake: (n) => { S.p1Retakes = S.p1Retakes || {}; S.p1Retakes[n] = (S.p1Retakes[n] || 0) + 1; },
-    erase: async () => { /* not on any screen yet: for the pilot's "delete my data" requests */
-      if (serverOn && token) { try { await api("DELETE", "/v1/progress", null, token); } catch (e) { /* the phone is still cleared */ } }
+    /* Progress's "Erase my progress": the server copy first (when there is one), then everything on this phone; says which happened */
+    erase: async () => {
+      let server = "none";
+      if (serverOn && token) { try { await api("DELETE", "/v1/progress", null, token); server = "erased"; } catch (e) { server = "failed"; } }
       try { [KEY0, KEY0 + ":sandbox", EVQ0, EVQ0 + ":sandbox", SEEN, TOK].forEach((k) => localStorage.removeItem(k)); } catch (e) { /* ignore */ }
-      serverOn = false; token = ""; into(clean({}) || { lessons: {}, issues: {} }); lastSaved = JSON.stringify([{}, {}, 0, []]); render();
+      clearTimeout(putTimer); serverOn = false; token = ""; lastSent = ""; syncFailed = false;
+      into(clean({}) || { lessons: {}, issues: {} }); S.p1Days = []; lastSaved = JSON.stringify([{}, {}, 0, []]);
+      return server;
     },
-    status: () => ({ serverOn, hasToken: !!token, queued: ls.get(EVQ, []).length, shiftDays: shift / 86400000, sandbox: SANDBOX }),
+    /* where the record is saved, said only as far as it's true: "none" (nothing finished yet), "local" (this phone only),
+       "pending" (this phone; the backup hasn't confirmed yet), "backed" (this phone and the server copy match), "nolocal" */
+    saved: () => {
+      const rec = fromS();
+      if (!hasAny(rec)) return "none";
+      if (!localOk) return "nolocal";
+      if (!serverOn || SANDBOX || DEMO) return "local";
+      return JSON.stringify(forServer(rec)) === lastSent ? "backed" : "pending";
+    },
+    link: () => (serverOn && okTok(token) && !SANDBOX ? location.origin + location.pathname + "#l=" + token : ""),
+    status: () => ({ serverOn, hasToken: !!token, queued: ls.get(EVQ, []).length, shiftDays: shift / 86400000, sandbox: SANDBOX, localOk, syncFailed, linkNote }),
   };
 })();
 window.__p1 = P1;

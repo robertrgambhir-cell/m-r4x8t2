@@ -95,6 +95,7 @@ export function cleanEvents(list) {
   return list.slice(0, 60).map((e) => {
     if (!e || !EVENT_NAMES.includes(e.name)) return null;
     const out = { name: e.name, t: time(e.t) || Date.now(), sid: /^[A-Za-z0-9_-]{6,24}$/.test(e.sid || "") ? e.sid : "" };
+    if (/^[a-z0-9]{8,16}$/.test(e.id || "")) out.id = e.id; /* the phone's own id for the event: a batch sent twice (a beacon, then a retry) counts once */
     const p = e.props && typeof e.props === "object" ? e.props : {};
     for (const [k, kind] of Object.entries(PROP_KEYS)) {
       const v = p[k];
@@ -147,8 +148,9 @@ export async function learnerRoute(req, env, route, ctx) {
         }
         cursor = page.list_complete ? null : page.cursor;
       } while (cursor && out.length < 20000);
-      out.sort((a, b) => a.t - b.t);
-      return json({ day, count: out.length, events: out });
+      const seen = new Set(), uniq = out.filter((e) => { if (!e.id) return true; const k = e.learner + ":" + e.id; if (seen.has(k)) return false; seen.add(k); return true; });
+      uniq.sort((a, b) => a.t - b.t);
+      return json({ day, count: uniq.length, duplicates: out.length - uniq.length, events: uniq });
     }
     if (route === "/v1/admin/learners" && req.method === "GET") {
       const store = kv(env), out = [];
@@ -180,7 +182,8 @@ export async function learnerRoute(req, env, route, ctx) {
       if (raw.length > 16000) throw new LearnerError(413, "too_big");
       const mine = cleanProgress(body && body.progress), theirs = await kvTry(() => store.get(key, "json"));
       const merged = mergeProgress(theirs ? cleanProgress(theirs) : null, mine);
-      await kvTry(() => store.put(key, JSON.stringify(merged)));
+      const same = (x, y) => JSON.stringify({ ...x, updatedAt: 0 }) === JSON.stringify({ ...y, updatedAt: 0 });
+      if (!theirs || !same(merged, cleanProgress(theirs))) await kvTry(() => store.put(key, JSON.stringify(merged))); /* no write when nothing changed: saves the account's daily KV writes */
       return json({ progress: merged });
     }
     throw new LearnerError(405, "method");

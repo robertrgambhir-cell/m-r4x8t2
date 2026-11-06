@@ -15,8 +15,8 @@ Branch `phase1-foundations` only. Nothing here is deployed: Cloudflare builds th
 |---|---|---|
 | The daily rule | `ai/schedule.js` (+ `schedule.mjs` for node) | One new lesson each morning, starting at 5 AM local time: lessons 1 to 5 in order, then the five issue lessons in any order. A retake, a practice door or a redo never uses the day. A missed day isn't made up. The page and the reminder planner both use this file. |
 | Progress on the phone | `ai/client/phase1.js` | Saves finished lessons in `localStorage`: which parts each lesson's first and best tries hit, the best try's words (for the record sheet), first finish times, issue lessons, doors, active days and retakes. A returning learner lands on Today, not the video. Presenter shortcuts (`?home`, `?ready`, `?learn`, `?issues`, `?convo`) never read or write a learner's record. |
-| Progress on the server (optional) | `ai/learner.js` (routes added to `ai/worker.js`) | When `/health` reports `progress: true`, the page gets an anonymous signed learner token and keeps a server copy without any words. A personal link with `?l=<token>` restores progress on another phone. `DELETE /v1/progress` erases the server copy. |
-| Events | `phase1.js`, `/v1/events` | app_open, return_visit, video_start, video_leave, lesson_start, part_view, attempt (part, parts hit, voice or typed, AI or not), feedback_shown, lesson_complete (with time spent), issue_open, issue_complete, locked_view, tab_view, practice_door, interruption, error. No words or free text. Events are queued on the phone and sent in batches with `sendBeacon`. |
+| Progress on the server (optional) | `ai/learner.js` (routes added to `ai/worker.js`) | When `/health` reports `progress: true`, the page gets an anonymous signed learner token and keeps a server copy without any words. Progress shows where the record is saved, offers "Copy my personal link" (`#l=<token>`, which restores progress on a phone with no record of its own) and "Erase my progress" (this phone and the server copy). The server skips a write when nothing changed. |
+| Events | `phase1.js`, `/v1/events` | app_open, return_visit, video_start, video_leave, lesson_start, part_view, attempt (part, parts hit, voice or typed, AI or not), feedback_shown, lesson_complete (with time spent), issue_open, issue_complete, locked_view, tab_view, practice_door, interruption, error. No words or free text. Events are queued on the phone and leave the queue only when the server confirms it stored them. As a page closes, a beacon is a best try and the batch stays queued, so the next visit resends it; each event has an id, and the admin view counts it once. |
 | Inspecting the data | `GET /v1/admin/events?day=YYYY-MM-DD`, `GET /v1/admin/learners` | Both need the `x-admin-token` header. |
 | Honest copy | `ai/build-phase1.py` | With reminders off (the default), every reachable "we'll text you" line now says what really happens: "Lesson 2 opens tomorrow morning, right here." The issue lessons open the morning after door-ready. |
 | Issue page shares the rule | `build-phase1.py` (dev copy of `issues/index.html`) | The app tells the issue page `slot=0` when today's new lesson is used. Unfinished issue rows then show "Tomorrow" and can't start. A finished issue lesson keeps its first finish time. |
@@ -27,11 +27,11 @@ Branch `phase1-foundations` only. Nothing here is deployed: Cloudflare builds th
 ## Tests (all run in the build workspace on Nov 6)
 
 - `node ai/tests/worker.test.mjs`: 63 pass (unchanged).
-- `node ai/tests/learner.test.mjs`: 28 pass. Covers tokens, a forged signature, the missing or short secret, merges, junk and oversized records, the KV daily limit, no words stored, beacon events, admin views and erase.
+- `node ai/tests/learner.test.mjs`: 30 pass. Covers tokens, a forged signature, the missing or short secret, merges, junk and oversized records, the KV daily limit, no words stored, beacon events, admin views and erase.
 - `node ai/tests/schedule.test.mjs`: 19 pass. Covers 5 AM boundaries, a 2 AM night owl, order, missed days, door-ready, one issue a day, time zones and both daylight saving changes.
 - `node ai/tests/reminders.test.mjs`: 15 pass. Covers consent, opt-out, send hour, one a day, the quiet pause, plain ASCII and the sender's refusals. Fetch is stubbed; nothing was sent.
 - `node ai/tests/assess.test.mjs /abs/app.html`: 10 pass. Uses fixtures and synthetic labels only.
-- `NODE_PATH=$(npm root -g) node ai/tests/test-p1.cjs` with `node ai/tests/p1-server.mjs <repo root>` running: 45 pass, in headless Chromium at 402x874 against the real worker with fake storage. The walk:
+- `NODE_PATH=$(npm root -g) node ai/tests/test-p1.cjs` with `node ai/tests/p1-server.mjs <repo root>` running: 46 pass, in headless Chromium at 402x874 against the real worker with fake storage. The walk:
   - lesson 1 for real, then a reload;
   - the next day with a retake and lesson 2 for real, then the day after;
   - an interruption mid-lesson;
@@ -41,7 +41,8 @@ Branch `phase1-foundations` only. Nothing here is deployed: Cloudflare builds th
   - the server down and storage full;
   - erase;
   - the review's fixes (a production build, a crafted `?ai=` link, a poisoned record, Progress agreeing with Today, a planted personal link, a rejected token and the sandboxed test clock).
-- Regression: 13 main screens compared between staging and this build. 10 are identical. The differences are the two intended copy changes plus Practice's random door order.
+- `NODE_PATH=$(npm root -g) node ai/tests/test-journey.cjs` with the same server running: 76 pass. The learner build through ten mornings, from the first visit to a return after the tenth lesson, with offline, server failure, saving off, interruption, the personal link, a planted link, erase and a cleared browser (see ai/PHASE1-READINESS.md).
+- Regression: 13 main screens compared between staging and the learner build. 10 are identical. The differences are the two intended copy changes plus Practice's random door order.
 - Not runnable here: `test156.cjs` crashes the same way on unmodified staging in this headless browser (no page mic), so it gives no signal either way.
 
 ## Fixes from an independent code review (Nov 6)
@@ -63,23 +64,35 @@ Known and left as is:
 - **Lost events:** `sendBeacon` gives no delivery receipt, so a batch can be lost when a phone goes offline mid-send. The event log is for patterns, not exact counts.
 - **KV's shared daily write cap:** see deployment note 3.
 
+## Readiness review (Nov 6)
+
+Robert's "Final verification before deployment" brief, on this branch only:
+
+- **Learner build tested end to end:** `ai/tests/test-journey.cjs` runs the build learners would get (no test clock, no `?ai=`, no test hooks) through ten mornings on a moved browser clock. The page's calls to Warmup's real server address are answered by the local test server. The browser can't even resolve the real address, so nothing reaches production.
+- **The welcome video's voice:** line 9's recording no longer says "we'll text you." The sentence is cut out of the stand-in voice's own clip, with no new audio (`ai/assets/make-line9.py`, `welcome-line9-honest.mp3`). The caption matches, and the phone shot for that sentence goes with it. The line now says: "The lessons come one a day. Ten mornings in, you'll have the fundamentals down and know our campaign inside and out."
+- **Waiting lists in Learn:** "We'll text you when it's ready" now says "It'll show up in Learn when it's ready."
+- **The practice AI's server address:** a learner build ignores `?ai=` for the practice AI too (it used to send practice transcripts to any address in the link). A dev build accepts only this computer or Warmup's own Cloudflare account.
+- **Progress says where the record is saved,** and only as far as is true: "saved on this phone only"; "saved on this phone. It isn't backed up yet"; or "saved on this phone and backed up to Warmup" (only when the server's copy matches).
+- **Personal links:** the token comes after `#`, so it never reaches a web server's log, and it leaves the address bar before anything else loads. A link on a phone that has its own lessons is refused, with a message saying why.
+
 ## To build
 
 ```
 python3 ai/build-phase1.py wdpfxqlsvp/staging/index.html wdpfxqlsvp/issues/index.html wdpfxqlsvp/dev --dev
 ```
 
-`--dev` turns on the test clock (`?day=+1` is tomorrow, `?day=+2` the day after). Drop it for anything learners see. `--remind` keeps the old text-message copy and is only for when reminders really send.
+`--dev` turns on the test clock (`?day=+1` is tomorrow, `?day=+2` the day after). A test-clock page keeps its own sandbox copy and sends nothing. Learners get the build without `--dev`, kept at `wdpfxqlsvp/p1/`:
+
+```
+python3 ai/build-phase1.py wdpfxqlsvp/staging/index.html wdpfxqlsvp/issues/index.html wdpfxqlsvp/p1
+``` `--remind` keeps the old text-message copy and is only for when reminders really send.
 
 ## What a deployment would need (Robert's decision; not done)
 
 1. In Cloudflare, for the warmup-ai worker:
    - add the secret `LEARNER_KEY` (32 or more random characters);
-   - change `ANTHROPIC_API_KEY`, `SIGNING_KEY` and `ADMIN_TOKEN` from Variables to Secrets;
-   - give `SIGNING_KEY` and `ADMIN_TOKEN` new values (24 or more characters for the admin token).
+   - check that the `ADMIN_TOKEN` set on Nov 5 is 24 or more characters, or the admin views and the red-team's admin checks stop working.
 
-   The admin token must be 24 or more characters before the merge, or the red-team and live-eval admin routes stop working.
-
-   This takes about 10 minutes. Until it's done, the progress routes answer "off" and the page saves on the phone only.
+   `ANTHROPIC_API_KEY`, `SIGNING_KEY` and `ADMIN_TOKEN` were already rotated and moved to Secrets on Nov 5 (about 10 PM ET). Until `LEARNER_KEY` is set, the progress routes answer "off" and the page saves on the phone only (and says so).
 2. Build a learner copy without `--dev` (no test clock, no `?ai=`). Merge the branch to `main`. That redeploys the worker and publishes `wdpfxqlsvp/dev/` at yourwarmup.com/wdpfxqlsvp/dev/. Live (`/kaur`) and staging stay as they are until their own files are rebuilt from this builder.
-3. KV's free plan allows about 1,000 writes a day across all uses. That's enough for a pilot of about 10 to 20 testers. Beyond that, move progress and events to D1 (100,000 writes a day free) or a paid plan.
+3. KV's free plan allows 1,000 writes a day for the whole account, shared with the practice AI's spending counters (two writes per AI call). Once they run out, saving falls back to the phone, and the AI's dollar caps count in each server copy's memory, so they hold less well. For outside testers, upgrade to Workers Paid ($5 a month; 1 million KV writes a month included) and keep the Anthropic account on its prepaid credits with no card on file, as on Nov 5. That balance is the hard stop on AI spending.

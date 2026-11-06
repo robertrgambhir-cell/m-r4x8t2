@@ -55,8 +55,9 @@ j = await r.json();
 ok(r.status === 200 && j.progress.lessons[1].at === day0 && !j.progress.issues.zz && j.progress.campaign === "kaur", "junk fields are dropped and nothing is lost");
 r = await call("PUT", "/v1/progress", { token: tok, body: { progress: { pad: "x".repeat(20000) } } });
 ok(r.status === 413, "an oversized record is refused");
+{ const w0 = KV.writes; r = await call("PUT", "/v1/progress", { token: tok, body: { progress: p1 } }); ok(r.status === 200 && KV.writes === w0, "the same record sent again writes nothing (saves the daily KV writes)"); }
 KV.failWrites = true;
-r = await call("PUT", "/v1/progress", { token: tok, body: { progress: p1 } }); j = await r.json();
+r = await call("PUT", "/v1/progress", { token: tok, body: { progress: { ...p1, doors: 9 } } }); j = await r.json();
 ok(r.status === 503 && j.error === "storage_error", "a full KV day answers 503 with a plain message, no crash: " + JSON.stringify(j));
 KV.failWrites = false;
 r = await call("GET", "/v1/progress", { token: tok, e: { ...env, WARMUP_KV: undefined } });
@@ -79,6 +80,13 @@ r = await call("GET", "/v1/admin/events?day=" + new Date().toISOString().slice(0
 ok(r.status === 401, "admin views need the admin token");
 r = await call("GET", "/v1/admin/events?day=" + new Date().toISOString().slice(0, 10), { admin: ADMIN }); j = await r.json();
 ok(r.status === 200 && j.count === 3 && j.events[0].learner === tok.split(".")[0], "admin sees the day's events with the learner id: " + j.count);
+{ /* a batch sent twice (a beacon as the page closed, then the retry on the next visit) counts once */
+  const twice = [{ name: "interruption", t: day0 + 9000, sid: "s1abcdef", id: "abc123def0", props: { lesson: 2 } }];
+  await call("POST", "/v1/events", { raw: true, body: JSON.stringify({ token: tok, events: twice }) });
+  await call("POST", "/v1/events", { raw: true, body: JSON.stringify({ token: tok, events: twice }) });
+  r = await call("GET", "/v1/admin/events?day=" + new Date().toISOString().slice(0, 10), { admin: ADMIN }); j = await r.json();
+  ok(j.count === 4 && j.duplicates === 1 && j.events.filter((e) => e.id === "abc123def0").length === 1, "a resent event is counted once in the admin view: " + JSON.stringify({ count: j.count, dup: j.duplicates }));
+}
 r = await call("GET", "/v1/admin/learners", { admin: ADMIN }); j = await r.json();
 ok(r.status === 200 && j.count === 1 && j.learners[0].progress.lessons[1], "admin sees every learner's progress");
 r = await call("GET", "/v1/admin/learners", { admin: "short", e: { ...env, ADMIN_TOKEN: "short" } });

@@ -13,7 +13,7 @@ exports.SITE = "http://127.0.0.1:8765/wdpfxqlsvp/dev/";
 exports.AI = "http://127.0.0.1:8799";
 exports.launch = () => chromium.launch({ args: ["--autoplay-policy=no-user-gesture-required"] });
 exports.ctx = async (b, o = {}) => {
-  const c = await b.newContext({ viewport: { width: o.w || 402, height: o.h || 874 }, hasTouch: !o.desk, isMobile: !o.desk, deviceScaleFactor: 1 });
+  const c = await b.newContext(Object.assign({ viewport: { width: o.w || 402, height: o.h || 874 }, hasTouch: !o.desk, isMobile: !o.desk, deviceScaleFactor: 1 }, o.tz ? { timezoneId: o.tz } : {}));
   await c.route(/fonts\.googleapis\.com/, (r) => (CSS ? r.fulfill({ status: 200, contentType: "text/css", body: CSS }) : r.abort()));
   await c.route(/fonts\.gstatic\.com/, (r) => r.abort());
   await c.addInitScript(() => { window.SpeechRecognition = undefined; window.webkitSpeechRecognition = undefined; });
