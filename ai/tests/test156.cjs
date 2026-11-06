@@ -115,7 +115,7 @@ const stats = async () => JSON.parse(await mock('stats'));
   ok((await them(p))[0] === 'Hi. Can I help you?' && (await p.$eval('#thread', (t) => t.textContent)).includes('Live AI voter'), 'Bri' + "'" + 's door is the live AI and she opens like anyone would');
   await say(p, "Hi, I'm Sam with Maya Kaur. You're one of about 200,000 people who make too much for Medicaid but can't afford a plan.");
   ok(await waitThem(p, 2), 'Bri answers turn 1');
-  await say(p, 'Maya will push for full Medicaid expansion. Her opponent wants a smaller plan with work hours.');
+  await say(p, 'Maya will push for full Medicaid expansion. Her opponent wants a Pathways-style plan with work requirements.');
   ok(await waitThem(p, 3), 'Bri answers turn 2');
   await say(p, 'Thanks so much, bye!');
   ok(await waitFor(p, () => __T.S.screen === 'score', 25000), 'Bri' + "'" + 's conversation is coached');

@@ -2094,6 +2094,9 @@
   .cf-src { font-size: 12px; color: var(--ink-3); margin: 6px 0 0; }
   .talk .link.wai-type { display: block; margin: 2px auto 0; padding: 0 12px; min-height: 40px; font-size: 13.5px; }
   .thread .bub.old { display: none; }
+  .thread .wai-care { margin: 6px 0; padding: 10px 12px; border-radius: 14px; background: #EEF3FB; border: 1.5px solid #9DB5DE; color: var(--ink); font-size: 14px; line-height: 1.4; }
+  .thread .wai-care b { display: block; margin-bottom: 2px; }
+  .thread .wai-care a { color: #1F4C91; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -4772,7 +4775,7 @@ const WAI = (() => {
     if (inflight) throw { wai: true, code: "busy" }; /* one voter answer at a time, so a double tap can't make two */
     const at = turns.length;
     inflight = post("/voter", { scenario: scenFor(), turns: turnsOf(turns) }, 15000);
-    try { const j = await inflight; if (j.sig) sigs.set(at + "|" + j.say, j.sig); prefetch(at, j.say); return { say: j.say, expr: j.mood || "neutral", end: !!j.end }; } finally { inflight = null; }
+    try { const j = await inflight; if (j.sig) sigs.set(at + "|" + j.say, j.sig); if (j.care) showCare(); prefetch(at, j.say); return { say: j.say, expr: j.mood || "neutral", end: !!j.end }; } finally { inflight = null; }
   }
   /* the voice: the server reads the voter's own line in a natural voice (Deepgram Aura-2 on Cloudflare); fetched while the line is
      drawn, decoded into the app's audio, played through the voter's analyser so the mouth follows it. Any failure falls back to
@@ -4786,6 +4789,18 @@ const WAI = (() => {
     return fetch(base + "/speak", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenario: scenFor(), text, at, sig, voice: qs.get("voice") || "" }), signal: ac.signal })
       .then(async (r) => { if (!r.ok) { const j = await r.json().catch(() => ({})); if (j.error === "voice_limit" || j.error === "no_voice") voiceDown = true; return null; } return r.arrayBuffer(); })
       .catch(() => null).finally(() => clearTimeout(t));
+  }
+  /* outside the role-play: when the learner's words sound like they might hurt themselves, the server says care and the page
+     shows the 988 Suicide and Crisis Lifeline once per conversation, above the voter's next line (version 159, the red-team fix) */
+  function showCare() {
+    const t = $("#thread");
+    if (!t || t.querySelector(".wai-care")) return;
+    const el = document.createElement("div");
+    el.className = "wai-care";
+    el.setAttribute("role", "note");
+    el.innerHTML = `<b>Stepping out of practice for a second.</b> If you're going through something hard, you don't have to handle it alone. Call or text <a href="tel:988">988</a>, the Suicide and Crisis Lifeline, any time. <a href="sms:988">Text 988</a>`;
+    t.appendChild(el);
+    scrollDown();
   }
   /* the opening line is the same every time: fetch its voice when the door is drawn, so the knock answers at once */
   async function warmOpening() { await ping; const sc = scenFor(), pub = sc && WAI_PUB[sc]; if (ready() && pub && pub.voter && pub.voter.opening) prefetch(0, pub.voter.opening.say); }

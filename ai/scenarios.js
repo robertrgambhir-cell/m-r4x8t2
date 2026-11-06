@@ -121,11 +121,12 @@ export const SCENARIOS = {
       "Maya's plan: end Georgia Pathways, pass full Medicaid expansion and fund rural hospitals (Rural Care First). She'd push the legislature to pass them; the legislature passes laws, not the governor or a senator alone.",
       "Maya will push the legislature to pass full Medicaid expansion so adults like Bri qualify; the federal government pays 90%.",
       "Full Medicaid expansion covers adults earning up to about $22,000 a year.",
-      "Her Republican opponent wants a smaller plan that requires work hours, like Georgia Pathways, which covers fewer than 1 in 5 of the people the state expected. He calls it \"intelligent Medicaid expansion\" and says he'd close the coverage gap; how many it would cover isn't set.",
+      "Her Republican opponent promises to close the coverage gap with what he calls \"intelligent Medicaid expansion\": a Pathways-style plan with work requirements, through a federal waiver. He hasn't said what the income limit would be, and the details aren't published.",
       "Under a 2025 federal law, adults covered by expansion will also report work hours (80 a month, with exemptions).",
     ],
     knownWrong: [
-      "Saying her opponent is against Medicaid is wrong. He wants a smaller plan with work hours.",
+      "Saying her opponent is against Medicaid is wrong. He wants a Pathways-style plan with work requirements.",
+      "Saying his plan is smaller, or covers fewer people than Maya's, isn't supported: he hasn't said what the income limit would be.",
       "Saying Maya's plan has no work rules is wrong, because of the 2025 federal law.",
       "Promising free insurance for everyone is wrong.",
     ],
@@ -133,7 +134,7 @@ export const SCENARIOS = {
     rubric: [
       { id: "gap", card: true, evidence: true, label: "Who's left out today", hit: "Said who's left out today", miss: "Didn't say who's left out today", def: "Explains the coverage gap: people like Bri earn too much for Medicaid and too little to buy insurance (about 200,000 adults). Connecting it to her ('you're one of about 200,000') is ideal; the number is a plus, not required." },
       { id: "plan", card: true, evidence: true, label: "Maya's plan", hit: "Explained Maya's plan", miss: "Didn't explain Maya's plan", def: "Says Maya will push for full Medicaid expansion so people like Bri qualify. The 90% federal share or the $22,000 line is a plus." },
-      { id: "opp", card: true, evidence: true, label: "How her opponent's plan differs", hit: "Said how her opponent's plan differs", miss: "Didn't say how her opponent's plan differs", def: "Says the opponent wants a smaller plan that requires work hours, like Georgia Pathways. Partial if they only say his plan is smaller or different without the work hours." },
+      { id: "opp", card: true, evidence: true, label: "How her opponent's plan differs", hit: "Said how her opponent's plan differs", miss: "Didn't say how her opponent's plan differs", def: "Says the opponent wants a Pathways-style plan with work requirements (his \"intelligent Medicaid expansion\"). Partial if they only say his plan is different without the work requirements. Calling it smaller isn't supported, since he hasn't set an income limit." },
       { id: "accurate", card: true, evidence: false, label: "Stick to the facts", hit: "Stuck to the facts", miss: "Said something that isn't right", def: "Every claim matches the approved facts. Missed if they said anything in knownWrong or made up a number, date or promise. Met if no invented or wrong claims." },
       { id: "listen", evidence: true, label: "Connect it to her", hit: "Connected it to her situation", miss: "Didn't connect it to her", def: "Answers Bri's actual questions and ties the plan to her situation, instead of reciting the whole lesson at once." },
       { id: "close", evidence: true, label: "End it well", hit: "Ended it warmly", miss: "Didn't end it well", def: "Thanks her and lets her go when she needs to. Not_applicable if the conversation ended before anyone could say goodbye." },
