@@ -26,7 +26,7 @@ p = P({ 1: la(1, 9), 2: la(2, 9), 3: la(3, 9), 4: la(4, 9), 5: la(5, 21) });
 let n = SCHED.next(p, la(5, 22), TZ);
 ok(n.kind === "issues" && !n.open, "door-ready at 9 PM: the issue lessons open tomorrow, not tonight");
 n = SCHED.next(p, la(6, 6), TZ);
-ok(n.kind === "issues" && n.open && n.left.length === 5, "next morning: any of the five issue lessons");
+ok(n.kind === "issues" && n.open && n.left.length === 4, "next morning: any of the four issue lessons (Georgia hidden, version 164)");
 p.issues.oh = la(6, 7);
 ok(!SCHED.issueOpen(p, "ga", la(6, 12), TZ) && SCHED.issueOpen(p, "oh", la(6, 12), TZ), "after one issue lesson today, the others wait; the done one can be redone");
 ok(SCHED.issueOpen(p, "ga", la(7, 5, 30), TZ), "the next issue lesson opens the next morning");

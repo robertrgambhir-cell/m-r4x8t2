@@ -39,7 +39,7 @@ const noText = (t) => !/text you|get a text|by text/i.test(t);
   /* 3. the next morning: lesson 2 is open; a retake of lesson 1 doesn't use the day or move the clock */
   p = await L.open(c, "?noai&day=1", errs);
   t = await L.screen(p);
-  ok(/Today.s lesson is ready/.test(t) && /Lesson 2 of 10/.test(t), "the next day, lesson 2 is ready: " + t.slice(0, 160));
+  ok(/Today.s lesson is ready/.test(t) && /Lesson 2 of 9/.test(t), "the next day, lesson 2 is ready: " + t.slice(0, 160));
   await L.act(p, "go", "library"); await p.waitForTimeout(600); await L.act(p, "lesson5", "1"); await p.waitForTimeout(1500); if ((await scr(p)) === "session") { await L.act(p, "try-start"); } await p.waitForTimeout(4000);
   await L.lesson1(p, false);
   r = await L.state(p);
@@ -60,13 +60,13 @@ const noText = (t) => !/text you|get a text|by text/i.test(t);
   ok(r.lessons[2] && /See you tomorrow/.test(t) && /Lesson 3 opens tomorrow morning/.test(t), "lesson 2 saved; lesson 3 waits for tomorrow: " + t.slice(0, 200));
   await p.close();
   p = await L.open(c, "?noai&day=2", errs);
-  ok(/Today.s lesson is ready/.test(await L.screen(p)) && /Lesson 3 of 10/.test(await L.screen(p)), "two days on, lesson 3 is ready");
+  ok(/Today.s lesson is ready/.test(await L.screen(p)) && /Lesson 3 of 9/.test(await L.screen(p)), "two days on, lesson 3 is ready");
 
   /* 5. an interrupted lesson: reload mid-lesson comes back to Today with the lesson waiting, and the log says so */
   await L.act(p, "lesson5", "3"); await p.waitForTimeout(1500); await L.act(p, "try-start"); await p.waitForTimeout(2500);
   ok((await scr(p)) === "try", "lesson 3 started");
   await p.reload({ waitUntil: "domcontentloaded" }); await p.waitForFunction(() => window.__p1S); await p.waitForTimeout(1500);
-  ok((await scr(p)) === "welcome" && /Lesson 3 of 10/.test(await L.screen(p)), "after an interruption, Today offers lesson 3 again");
+  ok((await scr(p)) === "welcome" && /Lesson 3 of 9/.test(await L.screen(p)), "after an interruption, Today offers lesson 3 again");
   const ev = await L.events(p), names = ev.map((e) => e.name);
   ok(["app_open", "video_start", "video_leave", "lesson_start", "attempt", "feedback_shown", "lesson_complete", "return_visit", "interruption", "locked_view", "tab_view"].every((n) => names.includes(n)), "the event log has every kind of event: " + [...new Set(names)].join(" "));
   ok(!JSON.stringify(ev).match(/Robert|volunteering|Election Day/), "no words in the event log");
@@ -87,7 +87,7 @@ const noText = (t) => !/text you|get a text|by text/i.test(t);
   const fr = p.frames().find((f) => /issues\//.test(f.url()));
   await fr.waitForSelector(".hr", { timeout: 20000 });
   const rows = await fr.evaluate(() => [...document.querySelectorAll(".hr")].map((b) => (b.disabled ? "locked:" : "open:") + b.innerText.replace(/\s+/g, " ").slice(-12)));
-  ok(rows.length === 5 && rows.every((x) => /^locked:.*Tomorrow/.test(x)), "on the issue page every issue lesson waits for tomorrow: " + rows.join(" | "));
+  ok(rows.length === 4 && rows.every((x) => /^locked:.*Tomorrow/.test(x)), "on the issue page every issue lesson waits for tomorrow: " + rows.join(" | "));
   await p.evaluate(() => { const o = document.getElementById("issues-ov"); if (o) o.remove(); });
   await p.close();
   p = await L.open(c, "?noai&day=1", errs);
@@ -105,7 +105,7 @@ const noText = (t) => !/text you|get a text|by text/i.test(t);
   await p.evaluate(() => window.postMessage({ warmup: "brief-done", lesson: "oh" }, "*")); await p.waitForTimeout(600);
   ok((await L.state(p)).issues.oh === ohAt, "redoing an issue lesson keeps its first finish time");
   await L.act(p, "go", "library"); await p.waitForTimeout(600);
-  await p.evaluate(() => { const b = [...document.querySelectorAll('[data-act="brief-open"]')].find((x) => /Health/.test(x.dataset.arg || x.innerText)); b.click(); });
+  await p.evaluate(() => { const b = [...document.querySelectorAll('[data-act="brief-open"]')].find((x) => /Heating/.test(x.dataset.arg || x.innerText)); b.click(); }); /* version 164: Georgia hidden, so a lesson still on the issue page */
   await p.waitForTimeout(700);
   ok(!(await p.$("#issues-ov")) && /opens tomorrow morning/.test(await p.evaluate(() => document.body.innerText)), "a second new issue lesson the same day says it opens tomorrow");
   await p.close();

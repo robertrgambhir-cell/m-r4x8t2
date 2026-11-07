@@ -4777,7 +4777,7 @@ function vLocked() {
   return app(`
     <div class="soon">
       <span class="ring-wrap soon-ring">${ring(0.2, 112, ringW(112))}</span>
-      <p class="kicker">Lesson ${n} of 10</p>
+      <p class="kicker">Lesson ${n} of ${NL()}</p>
       <h1 class="h1">${isNext ? "Your next lesson opens tomorrow." : `Lesson ${n} opens on day&nbsp;${n}.`}</h1>
       <p class="lede">${LOCK_LINE(n)}</p>
     </div>
@@ -5465,7 +5465,9 @@ const ICON = {
 /* ---------- shell ---------- */
 /* version 105: the campaign skin is one config (name, the line under it, its one color and the lockup style). Get out the vote only. */
 /* version 153 (Robert, Nov 2): Maya runs for U.S. Senate in Woodbridge, a made-up state; four of her five briefs are Senate races */
-const CAMPAIGN = { gotv: { name: "Maya Kaur", line: "For U.S. Senate \u00b7 Woodbridge", lines: ["For U.S. Senate", "Woodbridge"], aria: "Maya Kaur for U.S. Senate in Woodbridge", track: "0.062em", color: "#1F4C91", soft: "rgba(31, 76, 145, 0.38)", lockup: "stack", briefs: ["Health insurance", "School vouchers", "Your electric bill", "Heating oil", "Tariffs and auto jobs"], briefIds: ["ga", "tx", "oh", "me", "mi"], briefShort: [["Health", "insurance"], ["School", "vouchers"], ["Electric", "bill"], ["Heating", "oil"], ["Tariffs and", "auto jobs"]] } }; /* version 149: the tile labels, two short lines each */ /* version 146: "Health insurance", never "coverage" (the playbook rule), and each brief\u2019s lesson id in issues/ for the door-ready deep link */ /* version 143: the five briefs in issues/, by short name, in the field director\u2019s order */ /* version 142: soft tints the path dots for the campaign briefs */
+const CAMPAIGN = { gotv: { name: "Maya Kaur", line: "For U.S. Senate \u00b7 Woodbridge", lines: ["For U.S. Senate", "Woodbridge"], aria: "Maya Kaur for U.S. Senate in Woodbridge", track: "0.062em", color: "#1F4C91", soft: "rgba(31, 76, 145, 0.38)", lockup: "stack", briefs: ["School vouchers", "Your electric bill", "Heating oil", "Tariffs and auto jobs"], briefIds: ["tx", "oh", "me", "mi"], briefShort: [["School", "vouchers"], ["Electric", "bill"], ["Heating", "oil"], ["Tariffs and", "auto jobs"]] } }; /* version 164 (Robert, Nov 6): only lessons from Democrats who won 2026 Senate races; Georgia (a governor's race) is hidden, not deleted */
+if (/[?&]unlock\b/.test(location.search)) { window.__wuPreview = true; window.__wuUnlock = true; } /* version 164: the investor link, every lesson open, nothing saved */
+const NB = () => ((CAMPAIGN.gotv || {}).briefIds || []).length, NL = () => 5 + NB(), NWORD = (n) => ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"][n] || String(n); /* version 149: the tile labels, two short lines each */ /* version 146: "Health insurance", never "coverage" (the playbook rule), and each brief\u2019s lesson id in issues/ for the door-ready deep link */ /* version 143: the five briefs in issues/, by short name, in the field director\u2019s order */ /* version 142: soft tints the path dots for the campaign briefs */
 const campNow = () => (S && CAMPAIGN[S.track]) || null;
 function campMark(c) {
   c = c || campNow();
@@ -6342,7 +6344,6 @@ function houseTall(h) {
 }
 /* the briefing's own issue icons (issues/index.html, ICONS), one tile each */
 const ISSUE_ICONS = [
-  ['<path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.2 0 3.6 1.3 5.3 3.3 1.7-2 3.1-3.3 5.3-3.3 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z" fill="#fff"/><path d="M12 9.3v6M9 12.3h6" stroke="COL" stroke-width="2.2" stroke-linecap="round"/>', "#e2557a"],
   ['<path d="M2.5 9.5 12 4.5l9.5 5-9.5 5z" fill="#fff"/><path d="M6.5 11.8v4.4c0 1.4 2.5 2.8 5.5 2.8s5.5-1.4 5.5-2.8v-4.4" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M20.5 10v5" stroke="#fff" stroke-width="2" stroke-linecap="round"/>', "#3b80b6"],
   ['<path d="M13.5 2 5 13.5h6L9.5 22 19 9.8h-6.2z" fill="#fff" stroke="#fff" stroke-width="1" stroke-linejoin="round"/>', "#e8a21a"],
   ['<path d="M12 22c4.4 0 7-2.9 7-6.8 0-3.6-2.4-5.6-3.6-8.6-.4 1.9-1.4 3-2.6 3.6.3-3.3-1.2-6.4-4-8.2.2 3.3-1.6 5.3-3.3 7.4C4.2 11.1 5 12.6 5 15.2 5 19.1 7.6 22 12 22z" fill="#fff"/><path d="M12 22c-1.9 0-3.1-1.3-3.1-3 0-2 1.6-3 2.4-4.6.9 1.2 3.8 2.2 3.8 4.6 0 1.7-1.2 3-3.1 3z" fill="COL"/>', "#f07c3c"],
@@ -6394,10 +6395,10 @@ function vLearnG() {
     <p class="lp-links">${why}${retake}</p></section>`;
   const row2 = (bf, i) => { const ok = ready && !!bd[ids[i]]; return `<li class="lp-i${ok ? " done" : ready ? " open" : " later"}"><button class="lp-row lp-b" data-act="brief-open" data-arg="${esc(bf)}" data-lesson="${ids[i] || ""}" aria-label="Lesson ${i + 6}: ${esc(bf)}${ok ? ", done" : ready ? "" : ", opens when you’re door-ready"}"><span class="lp-art">${issueTile(i, !ready)}${ok ? TILE_CHECK : ""}</span><span class="lp-tx"><small>Lesson ${i + 6}</small><b>${esc(bf)}</b></span><span class="lp-st">${ok ? "Done" : ready ? "Open" : LOCK_SVG}</span></button></li>`; };
   const c2 = `<section class="lp-c lp-c2${ready ? "" : " shut"}" aria-label="Course 2, ${first}’s issues">
-    <header class="lp-h"><${ready ? `button class="lp-hb" data-act="issues-open" aria-label="Open ${first}’s issue lessons"` : `div class="lp-hb"`}><img src="${CAND_PHOTO}" alt=""><span><span class="lp-k">Course 2 · ${ready ? "Any order, one a day" : "After door-ready"}</span><span class="lp-t">${first}’s issues</span></span></${ready ? "button" : "div"}>${bar(ready ? nb : 0, 5, "blue")}<p class="lp-s">${briefed ? "Done. You’re briefed." : ready ? `${nb} of 5 done · five minutes each on what voters raise at the door` : "Where " + first + " stands on five issues voters raise at the door."}</p></header>
-    <ol class="lp-l">${briefs.map(row2).join("")}${goal("brief", briefed, briefed ? "Earned" : "After all five", "Briefed", "")}</ol>
+    <header class="lp-h"><${ready ? `button class="lp-hb" data-act="issues-open" aria-label="Open ${first}’s issue lessons"` : `div class="lp-hb"`}><img src="${CAND_PHOTO}" alt=""><span><span class="lp-k">Course 2 · ${ready ? "Any order, one a day" : "After door-ready"}</span><span class="lp-t">${first}’s issues</span></span></${ready ? "button" : "div"}>${bar(ready ? nb : 0, briefs.length, "blue")}<p class="lp-s">${briefed ? "Done. You’re briefed." : ready ? `${nb} of ${briefs.length} done · five minutes each on what voters raise at the door` : "Where " + first + " stands on " + NWORD(briefs.length) + " issues voters raise at the door."}</p></header>
+    <ol class="lp-l">${briefs.map(row2).join("")}${goal("brief", briefed, briefed ? "Earned" : "After all " + NWORD(briefs.length), "Briefed", "")}</ol>
     ${ready && !briefed ? `<div class="lp-cta">${button([`Open ${first}’s issues`, "issues-open"])}</div>` : ""}</section>`;
-  const mast = `<div class="lp-mast"><p class="kicker">GOTV canvassing · ${nd + (ready ? nb : 0)} of ${total} done</p><h1 class="h1 lp-h1">Ten lessons, one a day</h1></div>`;
+  const mast = `<div class="lp-mast"><p class="kicker">GOTV canvassing · ${nd + (ready ? nb : 0)} of ${total} done</p><h1 class="h1 lp-h1">${NWORD(total).replace(/^./, (c) => c.toUpperCase())} lessons, one a day</h1></div>`;
   const after = `<p class="lrn-after">${LOCK_SVG}<span>After ${total}: more courses from Warmup and your campaign.</span></p>`;
   return app(`${mast}${ready && !briefed ? c2 + c1 : c1 + c2}${after}`, { tabs: "library", stage: true });
 }
@@ -6488,7 +6489,7 @@ const PG_LOCK = (c) => `<svg width="10" height="12" viewBox="0 0 10 12" aria-hid
 const PG_TICK = `<svg width="13" height="10" viewBox="0 0 13 10" aria-hidden="true"><path d="m1.5 5 3.4 3.4L11.5 1.4" fill="none" stroke="#FDFBF6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 function pgCounts() {
   const d5 = S.done5 || {}, nd = LESSONS5.filter((x) => d5[x.n]).length;
-  return { d5, nd, briefs: Math.min(5, S.briefsDone || 0), doors: nd * 2 + (S.doorsN || 0), recruits: S.recruits || 0 };
+  return { d5, nd, briefs: Math.min(NB(), S.briefsDone || 0), doors: nd * 2 + (S.doorsN || 0), recruits: S.recruits || 0 };
 }
 function pgRing(n, brief) {
   const on = brief ? "#1F4C91" : "#3E7C4F", off = brief ? "#D3DCEB" : "#D2DECB";
@@ -6505,11 +6506,11 @@ function pgPath(c, first) {
 }
 function vProgressG() {
   const c = pgCounts(), camp = CAMPAIGN[S.track] || CAMPAIGN.gotv, first = camp.name.split(" ")[0];
-  const brief = c.nd >= 5, n = brief ? c.briefs : c.nd, left = 5 - n;
+  const brief = c.nd >= 5, n = brief ? c.briefs : c.nd, left = (brief ? NB() : 5) - n;
   const word = brief ? "issue lesson" : "lesson", WORD = brief ? "ISSUE" : "LESSON"; /* version 155: after door-ready the ring counts issues, ISSUES DONE (ISSUE LESSONS DONE ran into the ring at 375 and on a laptop), and the take and the label say issue lessons (Robert, Nov 3: an issue lesson is a lesson, not a brief) */
   const take = brief ? (left ? `${left} issue lesson${left === 1 ? "" : "s"} to Briefed` : "You’re Briefed") : `${left} lesson${left === 1 ? "" : "s"} to door-ready`;
   const unlock = brief
-    ? `<b>Silver earned.</b> Briefed means you know where ${first} stands on all five issues.`
+    ? `<b>Silver earned.</b> Briefed means you know where ${first} stands on all ${NWORD(NB())} issues.`
     : `<b>Door-ready brings Silver:</b> <span class="nw">a&nbsp;thank-you</span> from ${first} and a card to share.`;
   /* the one button: what to do now (version 148, Robert 11:43 AM PT) */
   const mid = !brief && S.lesson && !c.d5[S.lesson] && (S.lessonAt || 0) > 0 && S.lesson <= 5;
@@ -6547,7 +6548,7 @@ function vRecordG() {
     <div class="rec rec-sheet"><div><b class="num">${nl}</b><small>lesson${nl === 1 ? "" : "s"}</small></div><div><b class="num">${c.doors}</b><small>door${c.doors === 1 ? "" : "s"}</small></div><div><b class="num">${best}</b><small>best streak</small></div><div><b class="num">1</b><small>campaign</small></div></div>
     <p class="rec-note">Yours for keeps, from campaign to campaign.</p>
     <p class="deb-q">Badges</p>
-    <ul class="rec-badges">${frac("Door-ready", c.nd, 5, "Five lessons on how to canvass")}${frac("Briefed", c.briefs, 5, "The campaign’s five issue lessons")}${frac("Sharp", c.doors, 20, "Doors knocked, lessons and practice")}${frac("Recruiter", c.recruits, 3, "Friends who join through your card")}</ul>
+    <ul class="rec-badges">${frac("Door-ready", c.nd, 5, "Five lessons on how to canvass")}${frac("Briefed", c.briefs, NB(), "The campaign’s " + NWORD(NB()) + " issue lessons")}${frac("Sharp", c.doors, 20, "Doors knocked, lessons and practice")}${frac("Recruiter", c.recruits, 3, "Friends who join through your card")}</ul>
   `, { back: "me", noBrand: true, footer: `<button class="btn" data-act="go" data-arg="me">Got it</button>` });
 }
 function vSilverG() {
@@ -6577,7 +6578,7 @@ function vStatusHow() {
     <h1 class="h1">How status works</h1>
     <p class="lede sh-p">You earn status by finishing courses: five lessons, one a day, every check passed. Your first course makes you door-ready and Silver.</p>
     <ul class="sh-list">${TIERS5.map((t) => `<li><b><span class="sh-medal m-${t[0].toLowerCase()}" aria-hidden="true"></span>${t[0]}</b><span>${t[1]} course${t[1] > 1 ? "s" : ""}</span><small>${t[2].replace("the candidate", first)}</small></li>`).join("")}</ul>
-    <p class="lede sh-p">After your ten lessons, the path keeps going: more courses from Warmup and from your campaign, one lesson a day.</p>
+    <p class="lede sh-p">After these lessons, the path keeps going: more courses from Warmup and from your campaign, one lesson a day.</p>
     <p class="lede sh-p">Status is for the year and starts fresh each January. Your record never resets, and if you come back next cycle, finishing the course puts you right back where you were.</p>
     <p class="lede sh-p">${first}\u2019s team sees your status, never your scores.</p>
   `, { back: "me", noBrand: true, footer: `<button class="btn" data-act="go" data-arg="me">Got it</button>` });
@@ -8484,7 +8485,7 @@ function vTodayG() {
   const row = lastL ? tdRow(lastL.n) : "";
   /* door-ready: Part 2 is open, the same moment Learn opens it (version 149) */
   if (!nx) {
-    /* version 155: the lowest open issue lesson, numbered as Learn numbers them */ const openI = (camp.briefIds || []).findIndex((id) => !(S.briefsDoneIds || {})[id]), line = briefs >= 5 ? "All 10 lessons done." : `Lesson ${6 + (openI < 0 ? briefs : openI)} of 10 next · briefed in ${mornings(5 - briefs)}`;
+    /* version 155: the lowest open issue lesson, numbered as Learn numbers them */ const openI = (camp.briefIds || []).findIndex((id) => !(S.briefsDoneIds || {})[id]), line = briefs >= NB() ? `All ${NL()} lessons done.` : `Lesson ${6 + (openI < 0 ? briefs : openI)} of ${NL()} next · briefed in ${mornings(NB() - briefs)}`;
     const card = `<div class="hero-next td2-card td2-brief"><p class="hn-k">Up next · ${first}’s issues</p><h2 class="hn-t">Pick an issue to learn</h2><div class="hn-art hn-cand" aria-hidden="true"><img src="${CAND_PHOTO}" alt=""></div><button class="btn" data-act="issues-open">Open ${first}\u2019s issues</button><p class="lt-sub">Or close this. We’ll text you tomorrow at&nbsp;8&nbsp;AM.</p></div>`;
     return app(`${head(`Door-ready, ${name}`, `${first}’s issue lessons are open.`, line)}${row}${card}`, { tabs: "today", stage: true, footer: pwLine() });
   }
@@ -8492,11 +8493,11 @@ function vTodayG() {
   if (nd > 0 && locked) {
     /* state 2: done for today */
     const card = `<div class="hero-next td2-card locked${pulse ? " pulse" : ""}"><p class="hn-k hn-tom">Tomorrow · Lesson ${nx.n}</p><h2 class="hn-t">${nx.title}</h2>${heroDoor(nx.n, true)}<p class="lt-sub">You can close this. We’ll text you lesson ${nx.n} tomorrow at&nbsp;8&nbsp;AM.</p><p class="lt-sub lt-more"><button class="link lt-knock" data-act="go" data-arg="coach">Or knock a few doors.</button></p><div class="hn-links"><button class="link" data-act="go" data-arg="whylock">Why one a day</button></div></div>`;
-    return app(`${head(`${words[nd]} down, ${name}`, "See you tomorrow.", `Lesson ${nx.n} of 10 next · door-ready in ${mornings(left)}`)}${row}${card}`, { tabs: "today", stage: true, footer: pwLine() });
+    return app(`${head(`${words[nd]} down, ${name}`, "See you tomorrow.", `Lesson ${nx.n} of ${NL()} next · door-ready in ${mornings(left)}`)}${row}${card}`, { tabs: "today", stage: true, footer: pwLine() });
   }
   /* state 1: a chapter is waiting */
   const card = `<div class="hero-next td2-card${pulse ? " pulse" : ""}"><p class="hn-k">Lesson ${nx.n} · GOTV</p><h2 class="hn-t">${nx.title}</h2>${heroDoor(nx.n, false)}${nd === 0 ? TD_STEPS : ""}${button([`Start · 5 min`, "lesson5", String(nx.n)])}</div>`;
-  return app(`${head(`Good morning, ${name}`, "Today’s lesson is ready.", `Lesson ${nx.n} of 10 · door-ready in ${mornings(left)}`)}${card}`, { tabs: "today", stage: true, footer: pwLine() });
+  return app(`${head(`Good morning, ${name}`, "Today’s lesson is ready.", `Lesson ${nx.n} of ${NL()} · door-ready in ${mornings(left)}`)}${card}`, { tabs: "today", stage: true, footer: pwLine() });
 }
 /* the done row's ring: the Warmup ring filled to the best score, a check in its center (fill = how well, check = done) */
 function tdRing(hits, size) {
@@ -8538,7 +8539,7 @@ function vWhyLock() {
       <div class="wl-chart"><svg class="wl-curve" viewBox="0 0 320 186" role="img" aria-label="Memory over time: one lesson a day stays high, all at once fades"><path d="M14 20 V160 H306" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/><path d="M10 26 L14 18 L18 26" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/><path d="M20 30 C50 92, 110 122, 304 134" fill="none" stroke="var(--ink-3)" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 7" opacity=".75"/><path d="M20 30 C40 52, 56 64, 76 70 L76 30 C96 46, 112 54, 132 58 L132 28 C152 40, 168 45, 188 48 L188 26 C208 34, 224 38, 244 40 L244 24 C264 29, 284 32, 304 34" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><g fill="var(--accent)"><circle cx="20" cy="30" r="5"/><circle cx="76" cy="30" r="5"/><circle cx="132" cy="28" r="5"/><circle cx="188" cy="26" r="5"/><circle cx="244" cy="24" r="5"/></g><text transform="rotate(-90)" x="-90" y="9" text-anchor="middle" font-family="Figtree, sans-serif" font-size="12.5" font-weight="700" fill="var(--ink-3)">Memory</text><text x="304" y="178" text-anchor="end" font-family="Figtree, sans-serif" font-size="12.5" font-weight="700" fill="var(--ink-3)">Time</text><text x="304" y="13" text-anchor="end" font-family="Figtree, sans-serif" font-size="12.5" font-weight="700" fill="var(--accent-ink)">One lesson a day</text><text x="304" y="118" text-anchor="end" font-family="Figtree, sans-serif" font-size="12.5" font-weight="700" fill="var(--ink-3)">All lessons at once</text></svg></div>
       <h1 class="h1">Why one lesson a day.</h1>
       <p class="lede">Warmup is built on behavioral science. One of its most reliable findings is that we remember far more when we learn a little at a time, with a pause in between, than when we cram.</p>
-      <p class="lede">So each lesson takes five minutes, and the next one opens the next morning. By your canvass, all ten will feel like second nature at the door.</p>
+      <p class="lede">So each lesson takes five minutes, and the next one opens the next morning. By your canvass, every one of them will feel like second nature at the door.</p>
     </div>
   `, { back: "welcome", stage: true, footer: `<button class="btn" data-act="back" data-arg="welcome">Got it</button>` });
 }
@@ -10111,22 +10112,22 @@ window.addEventListener("message", (e) => {
   const camp = CAMPAIGN[S.track] || CAMPAIGN.gotv;
   if (!(camp.briefIds || []).includes(d.lesson)) return;
   S.briefsDoneIds = Object.assign({}, S.briefsDoneIds, { [d.lesson]: Date.now() });
-  S.briefsDone = Object.keys(S.briefsDoneIds).length;
+  S.briefsDone = Object.keys(S.briefsDoneIds).filter((id) => NB() && CAMPAIGN.gotv.briefIds.includes(id)).length;
   render();
 });
 window.__warmupBriefsDone = () => Object.keys(S.briefsDoneIds || {}).join(",");
 /* version 136 (Robert, Nov 1; built as 135 while another chat took 135): ?home opens straight on Today as it looks right after lesson 1, for demos: lesson 1 saved at 3 of 4
    (the Election Day part still to practice) and lesson 2 locked, its clock starting at 24 hours. Nothing is stored, so the plain link is unchanged. */
 if (new URLSearchParams(location.search).has("home") && S.track === "gotv") S.first5 = { 1: [true, false, false, true] }; /* version 151: ?home's chapter 1 record shows a first try (2 of 4) under the best (3 of 4) */
-if ((new URLSearchParams(location.search).has("home") || new URLSearchParams(location.search).has("learn")) && S.track === "gotv") {
+if ((new URLSearchParams(location.search).has("home") || new URLSearchParams(location.search).has("learn") || window.__wuUnlock) && S.track === "gotv") {
   const homeText = "Hi, I'm " + me() + ". I'm volunteering for Maya Kaur, and I'm checking in with neighbors.";
   const homeHits = [true, true, false, true];
   S.lesson = 1; S.intakeDone = true; S.mode = S.mode || "voice";
   S.done5 = { 1: homeHits.slice() };
   S.best5 = { 1: { text: homeText, phr: typeof phrFinal === "function" ? phrFinal(homeText, homeHits, null) : null, hits: homeHits.slice() } };
   S.doneAt = { 1: Date.now() };
-  S.screen = new URLSearchParams(location.search).has("learn") ? "library" : "welcome"; S.hist = []; /* version 149: ?learn lands on the Learn tab */
-  if (new URLSearchParams(location.search).has("ready")) { /* version 152: ?learn&ready (or ?home&ready) opens door-ready, all five chapters saved, one a day */
+  S.screen = new URLSearchParams(location.search).has("learn") || window.__wuUnlock ? "library" : "welcome"; S.hist = []; /* version 149: ?learn lands on the Learn tab */
+  if (new URLSearchParams(location.search).has("ready") || window.__wuUnlock) { /* version 152: ?learn&ready (or ?home&ready) opens door-ready, all five chapters saved, one a day */
     S.done5 = {}; S.doneAt = {};
     LESSONS5.forEach((x) => { S.done5[x.n] = x.n === 1 ? homeHits.slice() : [true, true, true, true]; S.doneAt[x.n] = Date.now() - (6 - x.n) * 86400000; /* chapter 5 saved yesterday, so Today agrees Part 2 is open */ });
     S.lesson = 5;
@@ -10163,11 +10164,11 @@ const G_STOPS = [
     demo: "Reminder texts aren’t sent yet. The volunteer comes back to the same link." },
   { n: 6, name: "Two courses", sub: "Learn, door-ready", k: "The curriculum", sample: "Sample progress: Rosa, five days in and door-ready.",
     h: "How to canvass, then the campaign’s issues.",
-    b: "Part 1 is made once by Warmup: five canvassing lessons in order, ending at Door-ready. Part 2 is the campaign’s own five issue lessons, drafted by AI from public sources for the campaign to approve, ending at Briefed." },
+    b: "Part 1 is made once by Warmup: five canvassing lessons in order, ending at Door-ready. Part 2 is the campaign’s own issue lessons, drafted by AI from public sources for the campaign to approve, ending at Briefed." },
   { n: 7, name: "An issue lesson", sub: "What Maya stands for", k: "Part 2 · Maya’s issues", sample: "Sample progress: Rosa, five days in and door-ready.",
     h: "Where the candidate stands, in five minutes.",
     b: "Learn covers the problem, the candidate’s plan and the opponent’s plan, each sourced. Then the volunteer explains it out loud to a voter at the door and is graded on those three.",
-    demo: "The five issues here are adapted from real 2026 races." },
+    demo: "Each issue here is adapted from a Democrat who won a 2026 U.S. Senate race." },
   { n: 8, name: "Practice", sub: "Extra doors, any time", k: "Practice", sample: "Sample progress: Rosa, five days in and door-ready.",
     h: "Knock any time. You never know who’s home.",
     b: "Practice doors come face down, like a real canvass. The coach only sends voters your saved lessons have prepared you for." },
@@ -10355,6 +10356,7 @@ function issuesOpen(lesson) {
   var host = document.getElementById("device") || document.body, ov = document.createElement("div");
   ov.className = "issues-ov"; ov.id = "issues-ov";
   var dn = typeof window.__warmupBriefsDone === "function" ? window.__warmupBriefsDone() : ""; /* version 152: the briefing shows the same checks */
+  if (lesson === "oh" || lesson === "tx") { var dn1 = ("," + dn + ",").indexOf("," + lesson + ",") >= 0; ov.innerHTML = '<iframe src="/wdpfxqlsvp/train/?l=' + lesson + '&emb=1' + (dn1 ? '&done=1' : '') + '" title="Maya Kaur’s issue lesson" allow="microphone; autoplay"></iframe>'; host.appendChild(ov); return; } /* version 164: the rebuilt trainings */
   ov.innerHTML = '<iframe src="../issues/?all' + (lesson ? "&lesson=" + lesson : "") + (dn ? "&done=" + dn : "") + '" title="Maya Kaur’s issue lessons" allow="microphone; autoplay"></iframe>'; /* version 146: once door-ready a chapter row opens its own brief */
   host.appendChild(ov);
 }

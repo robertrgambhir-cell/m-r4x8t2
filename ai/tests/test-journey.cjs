@@ -119,8 +119,11 @@ async function issueLesson(p, which) {
   const states = await fr.evaluate(() => [...document.querySelectorAll(".hr")].map((b) => (b.disabled || b.querySelector(".hr-st.lock") ? "locked" : b.querySelector(".hr-st.ok") ? "done" : "open")));
   const k = which == null ? states.indexOf("open") : which;
   if (k < 0 || states[k] !== "open") return "locked";
-  await rows[k].click(); await p.waitForTimeout(1800);
   const before = Object.keys((await rec(p) || { issues: {} }).issues || {}).length;
+  await rows[k].click(); await p.waitForTimeout(1800);
+  /* version 164: electric bills and vouchers open the rebuilt training (tested end to end in test-train.cjs); here it is finished at once */
+  let tf = null; for (let w = 0; w < 40 && !tf; w += 1) { tf = p.frames().find((f) => /\/train\//.test(f.url())) || null; if (!tf) { const still = p.frames().find((f) => /issues\//.test(f.url())); if (still && w > 12 && await still.$(".st-h, .g12 .seg, #said").catch(() => null)) break; await p.waitForTimeout(250); } }
+  if (tf) { await tf.waitForFunction(() => window.__train, null, { timeout: 30000 }); await tf.evaluate(() => window.__train.go(window.__train.FLOW.length - 1)); for (let w = 0; w < 40; w += 1) { await p.waitForTimeout(250); if (Object.keys((await rec(p) || { issues: {} }).issues || {}).length > before) return "done"; } return "not finished"; }
   let tiles = 0, saids = 0;
   for (let s = 0; s < 60; s += 1) {
     const now = Object.keys((await rec(p) || { issues: {} }).issues || {}).length;
@@ -197,7 +200,7 @@ async function saveLineSettled(p, want, ms) { const t0 = Date.now(); let s = "";
   /* ---- day 1: lesson 2 opens; a retake first doesn't use it ---- */
   await setDay(c, 1); p = await reopen(p, c, errs);
   t = await text(p);
-  ok(/Today.s lesson is ready/.test(t) && /Lesson 2 of 10/.test(t), "day 1: lesson 2 is ready: " + t.slice(0, 120));
+  ok(/Today.s lesson is ready/.test(t) && /Lesson 2 of 9/.test(t), "day 1: lesson 2 is ready: " + t.slice(0, 120));
   T = await tabs(p);
   ok(/Start lesson 2/.test(T.cta) && T.ring === 1, "day 1: Progress offers lesson 2 as Today does: " + T.cta);
   ok(/Jamal|Maria|Omar|door/i.test(T.practice), "day 1: Practice opens with the doors lesson 1 taught");
@@ -218,7 +221,7 @@ async function saveLineSettled(p, want, ms) { const t0 = Date.now(); let s = "";
 
   /* ---- day 2: lesson 3 with no network at all ---- */
   await setDay(c, 2); p = await reopen(p, c, errs);
-  ok(/Lesson 3 of 10/.test(await text(p)), "day 2: lesson 3 is ready");
+  ok(/Lesson 3 of 9/.test(await text(p)), "day 2: lesson 3 is ready");
   await c.setOffline(true); c.__off = true;
   res = await lesson(p, 3);
   r = await rec(p);
@@ -249,7 +252,7 @@ async function saveLineSettled(p, want, ms) { const t0 = Date.now(); let s = "";
   res = await lesson(p, 5, { stopAt: (a) => a.includes("try-next") });
   p = await reopen(p, c, errs);
   t = await text(p);
-  ok(/Lesson 5 of 10/.test(t) && !(await rec(p)).lessons[5], "an interrupted lesson 5 comes back as today's lesson after a reload");
+  ok(/Lesson 5 of 9/.test(t) && !(await rec(p)).lessons[5], "an interrupted lesson 5 comes back as today's lesson after a reload");
   const evq = await p.evaluate(() => JSON.parse(localStorage.getItem("recognize-demo:events") || "[]"));
   K = await kv();
   const evAll = Object.entries(K).filter(([k]) => k.startsWith("ev:") && k.includes(id)).flatMap(([, v]) => JSON.parse(v)).concat(evq);
@@ -266,34 +269,34 @@ async function saveLineSettled(p, want, ms) { const t0 = Date.now(); let s = "";
   ok(res === "locked", "day 4: the issue page holds every issue lesson until tomorrow (" + res + ")");
   await closeIssues(p);
   T = await tabs(p);
-  ok(T.learnDone === 5 && T.ring === 0 && /door-ready|5 of 10|issue lesson/i.test(T.progress + T.learn), "day 4: Learn shows five done, and Progress (door-ready) starts counting issue lessons at 0: " + JSON.stringify({ learn: T.learnDone, ring: T.ring }));
+  ok(T.learnDone === 5 && T.ring === 0 && /door-ready|5 of 9|issue lesson/i.test(T.progress + T.learn), "day 4: Learn shows five done, and Progress (door-ready) starts counting issue lessons at 0: " + JSON.stringify({ learn: T.learnDone, ring: T.ring }));
 
-  /* ---- days 5 to 9: the five issue lessons, one a day, for real ---- */
-  for (let d = 5; d <= 9; d += 1) {
+  /* ---- days 5 to 8: the four issue lessons, one a day, for real (Georgia hidden, version 164) ---- */
+  for (let d = 5; d <= 8; d += 1) {
     await setDay(c, d); p = await reopen(p, c, errs);
     t = await text(p);
-    ok(/issue lessons are open|Lesson \d+ of 10/.test(t), "day " + d + ": an issue lesson is open: " + t.slice(0, 100));
+    ok(/issue lessons are open|Lesson \d+ of 9/.test(t), "day " + d + ": an issue lesson is open: " + t.slice(0, 100));
     const n0 = Object.keys((await rec(p)).issues).length;
     res = await issueLesson(p);
     const n1 = Object.keys((await rec(p)).issues).length;
     ok(res === "done" && n1 === n0 + 1, "day " + d + ": issue lesson " + (n0 + 1) + " finished inside the app (" + res + ")");
     await closeIssues(p); await tab(p, "welcome");
-    if (n1 < 5) {
+    if (n1 < 4) {
       res = await issueLesson(p);
       ok(res === "locked", "day " + d + ": a second new issue lesson waits for tomorrow (" + res + ")");
       await closeIssues(p);
     }
   }
   K = await kv();
-  ok(Object.keys(JSON.parse(K["lp:" + id]).issues).length === 5, "the server copy has all five issue lessons");
+  ok(Object.keys(JSON.parse(K["lp:" + id]).issues).length === 4, "the server copy has all four issue lessons");
 
   /* ---- day 10: coming back after the tenth lesson ---- */
   await setDay(c, 10); p = await reopen(p, c, errs);
   T = await tabs(p);
-  ok(T.ring === 5 && T.learnDone >= 5, "day 10: Progress shows all five issue lessons done after the five canvassing ones: " + JSON.stringify({ ring: T.ring, learn: T.learnDone }));
-  ok(/All 10 lessons done|issue lessons are open|briefed/i.test(T.today + T.learn), "day 10: Today and Learn show the path finished: " + T.today.slice(0, 120));
+  ok(T.ring === 4 && T.learnDone >= 5, "day 10: Progress shows all four issue lessons done after the five canvassing ones: " + JSON.stringify({ ring: T.ring, learn: T.learnDone }));
+  ok(/All 9 lessons done|issue lessons are open|briefed/i.test(T.today + T.learn), "day 10: Today and Learn show the path finished: " + T.today.slice(0, 120));
   r = await rec(p);
-  ok(Object.keys(r.lessons).length === 5 && Object.keys(r.issues).length === 5 && r.lessons[1].at === at1, "day 10: the record has all ten, with lesson 1's first finish time unchanged");
+  ok(Object.keys(r.lessons).length === 5 && Object.keys(r.issues).length === 4 && r.lessons[1].at === at1, "day 10: the record has all nine, with lesson 1's first finish time unchanged");
   const ats = [1, 2, 3, 4, 5].map((n) => new Date(r.lessons[n].at).toISOString().slice(0, 10));
   ok(new Set(ats).size === 5, "each canvassing lesson was finished on its own day: " + ats.join(" "));
   /* the parameters that drive the dev build's test clock and server do nothing here */
@@ -315,10 +318,10 @@ async function saveLineSettled(p, want, ms) { const t0 = Date.now(); let s = "";
   t = await text(p2);
   ok(/Your lessons are back on this phone/.test(t) || Object.keys((await rec(p2)) || { lessons: {} }).length, "the link on a new phone says the lessons are back");
   r = await rec(p2);
-  ok(r && Object.keys(r.lessons).length === 5 && Object.keys(r.issues).length === 5 && r.lessons[1].at === at1, "the new phone has all ten lessons with the same times");
+  ok(r && Object.keys(r.lessons).length === 5 && Object.keys(r.issues).length === 4 && r.lessons[1].at === at1, "the new phone has all nine lessons with the same times");
   ok(!(await p2.evaluate(() => location.href)).includes("l="), "the token leaves the address bar at once");
   await tab(p2, "me");
-  { const ring2 = await p2.evaluate(() => Number((document.querySelector(".pg-num") || {}).textContent || -1)); ok(ring2 === 5, "the new phone's Progress shows the finished path (five issue lessons after door-ready): " + ring2); }
+  { const ring2 = await p2.evaluate(() => Number((document.querySelector(".pg-num") || {}).textContent || -1)); ok(ring2 === 4, "the new phone's Progress shows the finished path (four issue lessons after door-ready): " + ring2); }
   /* a planted link on a phone that has its own lessons */
   const c3 = await phone(b, 10);
   let p3 = await open(c3, "", errs);

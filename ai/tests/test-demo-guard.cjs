@@ -57,7 +57,7 @@ const errs = [];
   await p.close(); watching = false;
   p = await open(c, "");
   const t = await p.evaluate(() => document.body.innerText.replace(/\s+/g, " "));
-  ok(/Lesson 2 of 10/.test(t) && JSON.parse(await rec(p)).lessons[1].at === REAL.lessons[1].at && !JSON.parse(await rec(p)).lessons[2], "opening the plain link afterward shows the volunteer's own progress (lesson 2 next), not the sample: " + t.slice(0, 90));
+  ok(/Lesson 2 of 9/.test(t) && JSON.parse(await rec(p)).lessons[1].at === REAL.lessons[1].at && !JSON.parse(await rec(p)).lessons[2], "opening the plain link afterward shows the volunteer's own progress (lesson 2 next), not the sample: " + t.slice(0, 90));
   await c.close();
 
   /* 3. the laptop guide: its sample stops never save into the record on that computer */

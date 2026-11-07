@@ -7,3 +7,8 @@ app.html sha256: e97076f55be3625394311a15ca429ada8d71dbae5166ce5769887d3d1b966bc
 
 update: 2026-11-06 Version 163, audio only and the guide off by default (ai/tools/v163-audio-only-guide-off.py)
 app.html sha256: 1eec42b945d8bd2a2c205da79046a1ca19cde36e7e8d386ef053296325faa3aa
+
+update: 2026-11-06 Version 164, the rebuilt issue trainings (train/?l=oh, ?l=tx), Georgia hidden, ?unlock for investors (ai/tools/v164-issue-trainings.py on all four app pages and the three issue pages; ai/tools/build-train.mjs for train/). Rebuild note: build-phase1 from staging, then the patch's Phase 1 lines (brief-open unlock, the slot line, the restored briefsDone filter) apply on top, as with v162 and v163.
+app.html sha256: b88e1967c29c45b6e6ccd00704c8309562c3ccb136766ccbe1c6d66cac222d5a
+issues sha256: 540aaf186284acc49bbdec518d62f585844819c3b8ae94e547af09496b75fb5c
+train sha256: 0d0430e13bc6919d0d7508acaae12ec1425708f7bb32af2616f8feae5d807a29
