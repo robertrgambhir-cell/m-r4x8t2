@@ -2288,6 +2288,20 @@
   .frame.convo-stage > .thread .typing { align-self: flex-start; background: rgba(255, 253, 249, .96); }
   .frame.convo-stage > .talk-live { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 3; margin: 0; box-shadow: 0 6px 24px rgba(0, 0, 0, .22); }
   .frame.convo-stage > .talk-live .tl-said { max-height: 3.9em; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
+
+  /* version 169 (Robert, Nov 15, 11:38 PM PT): the door goes full screen, like FaceTime. The picture runs edge to edge and
+     to the bottom of the phone; the main button floats over it; the picture zooms to the door and the voter sits higher. */
+  .app.ft > .content.stage { padding: 4px 0 0; overflow: hidden; }
+  .app.ft > .content.stage > :not(.frame):not(.rep-card) { margin-left: 20px; margin-right: 20px; }
+  .app.ft > .content.stage > .frame.convo-stage, .app.ft > .content.stage > .rep-card { flex: 1 1 auto; min-height: 0; margin: 10px 0 0; border-radius: 22px 22px 0 0; }
+  .app.ft > .content.stage > .rep-card { display: flex; flex-direction: column; padding: 0; background: none; border: 0; box-shadow: none; }
+  .app.ft > .content.stage > .rep-card > .frame { position: relative; flex: 1 1 auto; min-height: 0; height: auto; max-height: none; margin: 0; border: 0; border-radius: 22px 22px 0 0; }
+  .app.ft .rep-card > .frame > svg, .app.ft > .content.stage > .rep-card.whole .frame.full svg.voter { position: absolute; inset: 0; left: 0; top: 0; bottom: auto; width: 100%; height: 100%; margin: 0; display: block; }
+  .app.ft > .actions { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; padding: 10px 20px calc(18px + env(safe-area-inset-bottom, 0px)); background: none; }
+  .app.ft > .actions .btn { box-shadow: 0 6px 22px rgba(0, 0, 0, .28); }
+  .app.ft .frame.convo-stage > .thread { padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to top, rgba(28, 24, 20, .62) 0, rgba(28, 24, 20, .22) 30%, rgba(28, 24, 20, 0) 46%); }
+  .app.ft .frame.convo-stage > .talk-live { bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
+  @media (max-height: 760px) { .app.ft .frame.convo-stage > .thread .bub.you:has(~ .bub.them) { display: none; } } /* on a short phone only the voter's latest line stays, so her face stays clear */
   .frame.convo-stage:has(> .talk-live) > .thread .bub, .frame.convo-stage:has(> .talk-live) > .thread .typing { visibility: hidden; }
   .thread .wai-care { margin: 6px 0; padding: 10px 12px; border-radius: 14px; background: #EEF3FB; border: 1.5px solid #9DB5DE; color: var(--ink); font-size: 14px; line-height: 1.4; }
   .thread .wai-care b { display: block; margin-bottom: 2px; }
@@ -5663,7 +5677,7 @@ function app(inner, o = {}) {
   const tabs = o.tabs ? tabBar(o.tabs) : "";
   /* version 128 (Robert): a screen that is the canvasser's own, not the campaign's (Progress), wears no campaign lockup; without a back arrow the header strip goes too */
   const head = o.noBrand ? (back ? `<header class="appbar">${back}</header>` : "") : `<header class="appbar">${back}${brandMark(o.recognize)}${right}</header>`;
-  return `<div class="app${o.noBrand ? " no-brand" : ""}">${head}<div class="content${o.stage ? " stage" : ""}" id="content">${inner}</div>${actions}${powered}${tabs}</div>`;
+  return `<div class="app${o.noBrand ? " no-brand" : ""}${o.ft ? " ft" : ""}">${head}<div class="content${o.stage ? " stage" : ""}" id="content">${inner}</div>${actions}${powered}${tabs}</div>`;
 }
 /* Talking inside claude.ai: the page can\u2019t open the mic, so the keyboard\u2019s own dictation types into the box */
 function micHelp() {
@@ -7650,16 +7664,16 @@ function doorIntro(d, sk) {
 function vDoor() {
   const d = DOORS[doorKey()], sk = SK();
   if (S.drill && (S.drill.kind === "knock" || S.drill.kind === "aiissue")) return app(`
-    <div class="frame stage-frame door-stage convo-stage">${scene(d.scene, d.persona, { main: true, shut: true, label: `${d.name}, ${d.sub}` }).replace("<svg ", '<svg preserveAspectRatio="xMidYMid slice" ')}<video class="selfie" id="selfie" playsinline muted autoplay hidden></video><div class="thread" id="thread">${WAI.pill()}${S.drill.kind === "aiissue" ? `<p class="note">${esc(d.intro)}</p><p hidden>` : `<p class="note">`}Door ${(S.round ? S.round.i : 0) + 1} of 3 \u00b7 ${d.street}</p></div></div>
-  `, { back: "coach", stage: true, footer: composer("send", "Type what you\u2019d say") }); /* version 150: a Practice knock opens straight on the door */
+    <div class="frame stage-frame door-stage convo-stage">${scene(d.scene, d.persona, { main: true, shut: true, label: `${d.name}, ${d.sub}` }).replace(/<svg ([^>]*?)viewBox="[^"]*" /, '<svg $1').replace("<svg ", '<svg viewBox="0 18 320 222" preserveAspectRatio="xMidYMid slice" ')}<video class="selfie" id="selfie" playsinline muted autoplay hidden></video><div class="thread" id="thread">${WAI.pill()}${S.drill.kind === "aiissue" ? `<p class="note">${esc(d.intro)}</p><p hidden>` : `<p class="note">`}Door ${(S.round ? S.round.i : 0) + 1} of 3 \u00b7 ${d.street}</p></div></div>
+  `, { back: "coach", stage: true, ft: true, footer: composer("send", "Type what you\u2019d say") }); /* version 150: a Practice knock opens straight on the door; version 169: full screen */
   if (S.track === "gotv" && !S.drill && !S.try1 && !(S.convo && S.convo.knocked)) return doorIntro(d, sk); /* version 54; version 165: the 1st intro knocks straight away, nothing taught first */
   /* version 87 (Robert): too much empty space after the knock. The lesson's door keeps the stage the intro drew (the frame fills the spare
      height, as the 1st try's does), the voter's line and yours sit under it as bubbles, and the mic stays pinned below. Drills keep the
      old thread layout. */
   if (S.track === "gotv" && !S.drill) return app(`
     ${progressBar(repMoves().length + 1, S.convo ? Math.min(0.9, S.convo.turns.filter((x) => x.who === "you").length / (WAI.full() ? (shortDoor() ? 4 : 6) : shortDoor() ? 2 : 7)) : 0)}
-    <div class="frame stage-frame door-stage convo-stage">${scene(d.scene, d.persona, { main: true, sign: d.sign, shut: d.scene === "door", away: d.scene === "store", label: `${d.name}, ${d.sub}` }).replace("<svg ", '<svg preserveAspectRatio="xMidYMid slice" ')}<video class="selfie" id="selfie" playsinline muted autoplay hidden></video><div class="thread" id="thread">${WAI.pill()}</div></div>
-  `, { tag: "", back: "path", stage: true, footer: composer("send", "Type what you\u2019d say") }); /* version 168: the FaceTime door */
+    <div class="frame stage-frame door-stage convo-stage">${scene(d.scene, d.persona, { main: true, sign: d.sign, shut: d.scene === "door", away: d.scene === "store", label: `${d.name}, ${d.sub}` }).replace(/<svg ([^>]*?)viewBox="[^"]*" /, '<svg $1').replace("<svg ", '<svg viewBox="0 18 320 222" preserveAspectRatio="xMidYMid slice" ')}<video class="selfie" id="selfie" playsinline muted autoplay hidden></video><div class="thread" id="thread">${WAI.pill()}</div></div>
+  `, { tag: "", back: "path", stage: true, ft: true, footer: composer("send", "Type what you\u2019d say") }); /* version 168: the FaceTime door; version 169: full screen */
   const rule = sk.headsUp ? `<p class="rule-line"><b>Heads up:</b> ${sk.headsUp}</p>` : "";
   const footer = `${S.convo && S.convo.knocked ? composer("send", "Type what you\u2019d say") : `${S.drill && S.drill.kind === "warm" ? `<p class="door-goal"><b>From memory.</b> No chips this time.</p>` : (S.track === "gotv" && !S.drill ? doorChips() : `<p class="door-goal"><b>Your goal:</b> ${goalLine()}.</p>`)}${rule}<button class="btn" data-act="knock">${d.scene === "door" ? "Knock" : "Start"}</button>`}
     ${S.track === "gotv" ? "" : `<div class="door-links"><button class="link" data-act="suggest">Need a line?</button><button class="link" data-act="ask-open">Ask the campaign</button><button class="link" data-act="end-convo">End conversation</button></div>`}`;
@@ -8393,7 +8407,7 @@ function vTry() {
       ? composer("try-check", "", "Check my try") /* version 85 (Robert): the title already asks; no second question with the mic */
       : `<button class="btn" data-act="try-knock">Knock</button>`;
     const lede = knocked ? "" : `<p class="try-lede">Knock and try out your opening greeting.</p>`; /* version 41 (Robert): fewer words; the beat said the rest */
-    return app(`${head}${lede}${scenePart}`, { tag: "", footer, stage: true });
+    return app(`${head}${lede}${knocked ? scenePart : scenePart.replace(/<svg ([^>]*?)viewBox="[^"]*" /, '<svg $1').replace("<svg ", '<svg viewBox="0 18 320 222" preserveAspectRatio="xMidYMid slice" ')}`, { tag: "", footer, stage: true, ft: !knocked }); /* version 169: the Knock screen is full screen, zoomed to the door */
   }
   const hits = R.hits, c = hits.filter(Boolean).length, all = c === 4;
   /* version 41 (Maya Kaur, Robert): the concept before the score. "A good opener does four things." then the four, one by one, as You did or

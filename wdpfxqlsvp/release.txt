@@ -25,3 +25,6 @@ app.html sha256: 279498ba7f46561377b878eff23c881ebc6ea07a9f0fcd5af5911fa7dddb119
 
 update: 2026-11-15 Version 168, from Robert's 9:49 PM PT run: the FaceTime door (the voter fills the screen, the latest lines are captions over the picture, the live words card too) and punctuation for spoken words through the practice AI's /tidy (165-6, words never changed); the missing-part question asked plainly after a short greeting (ai/tools/v168-facetime-door.py on all four app pages).
 app.html sha256: 949f1e41c20ecdcc39294c6a0fe32b58181a9fe7dbf5b01a7aa4484a2621c5c6
+
+update: 2026-11-16 Version 169, from Robert's 11:38 PM PT run: the door goes full screen like FaceTime (the picture runs edge to edge and to the bottom, the main button floats over it, the picture shows the doorway) on the door conversation and the 1st intro's Knock screen; on a short phone only the voter's latest line stays (ai/tools/v169-full-screen-door.py on all four app pages).
+app.html sha256: 3b52f84a8664cc6fb58f161a9e7624c46924d492a74ea54af9e33a6103b5fb9f

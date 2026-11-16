@@ -61,11 +61,14 @@ const FAKE_SR = () => {
   await p.evaluate(() => { const S = __T.S; S.tryRes = null; S.tryKnocked = false; S.trySaid = false; S.tryHeard = false; S.tryPend = false; __T.go('try', { noBeat: true }); });
   await p.waitForTimeout(600);
   ok((await p.evaluate(() => __T.S.screen)) === 'try', 'the 1st intro opens on its knock screen');
+  await p.screenshot({ path: path.join(ROOT, '..', `t165-knock-${W}x${H}.png`) });
+  ok(await p.evaluate(() => { const f = document.querySelector('.app.ft .rep-card > .frame'), b = document.querySelector('.app.ft > .actions .btn'); if (!f || !b) return false; const fr = f.getBoundingClientRect(), br = b.getBoundingClientRect(); return fr.left <= 1 && fr.right >= innerWidth - 1 && br.top > fr.top && br.bottom <= fr.bottom + 1; }), 'the Knock screen is full screen with Knock over the picture (version 169)');
   await p.click('[data-act="try-knock"]', { force: true });
   ok(await waitFor(p, () => __T.S.screen === 'door' && __T.S.try1 === true, 5000), 'Knock opens the door screen in 1st intro mode');
   ok((await p.evaluate(() => __T.doorKey())) === 'sofia' && (await p.evaluate(() => __T.WAI.scenFor())) === 'sofia_intro', "it is Sofia's door, scenario sofia_intro");
   ok(!(await p.$('.door-four')), 'nothing is taught before the 1st intro (no four parts on the door)');
   ok(await waitThem(p, 1, 8000), 'Sofia opens the door');
+  ok(await p.evaluate(() => { const f = document.querySelector('.app.ft .frame.convo-stage'), b = document.querySelector('.app.ft > .actions'); if (!f || !b) return false; const fr = f.getBoundingClientRect(), br = b.getBoundingClientRect(); return fr.left <= 1 && fr.right >= innerWidth - 1 && fr.bottom >= br.bottom - 2; }), 'the door is full screen, the button floats over it (version 169)');
   ok((await them(p))[0] === 'Hi, can I help you?', "Sofia's first line: " + (await them(p))[0]);
   ok((await p.$eval('#thread', (t) => t.textContent)).includes('Live AI voter'), 'the door says the voter is the live AI');
   const s0 = await stats();
