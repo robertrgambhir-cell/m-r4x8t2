@@ -8299,7 +8299,7 @@ const COOL_MAP = [
 
 const lessonNo = () => S.lesson || 1;
 const tryNow = () => (S.tryRes && S.tryRes.lesson === lessonNo() ? S.tryRes : null);
-const skipNow = () => { const R = tryNow(); return !S.tryFull && !!(R && !R.pending && R.hits.every(Boolean)); };
+const skipNow = () => false; /* version 167 (Robert, Nov 15): the full lesson every time; version 67's skip after a perfect 1st try is retired */
 /* minutes per part, from the doc's minute-by-minute: Try, Watch, Spot, Your turn (lesson 1's door is the opener only); plus the opening and the wrap. Maya version 15: Spot is 0.5, since nothing is said out loud there */
 function partMins(n = lessonNo()) { const skip = skipNow(); return [0.75, skip ? 0 : 1, skip ? 0 : 0.5, n === 1 ? 1.5 : 2]; }
 const lessonMin = (n) => Math.max(1, Math.round(0.25 + [0.75, 1, 0.5, n === 1 ? 1.5 : 2].reduce((a, b) => a + b, 0) + 0.5));
@@ -8385,9 +8385,9 @@ function vTry() {
   const rows = sk.moves.map((m, i) => evLi(k, i, R.text, hits[i], R.phr, sk.moves, { kick: true, moves: true })).join(""); /* version 161: each part shows the words that earned it */
   const evParts = sk.moves.map((m, i) => evPart(k, i, R.text, hits[i], R.phr));
   /* version 50 (Maya Kaur, Robert): the summary by score */
-  const sum = all ? "Amazing job! Let\u2019s practice one more time." : (c >= 2 ? "That\u2019s a good start." : "Nice try.") + " Now listen to an opener that hits all four parts of a good introduction."; /* version 85 (Robert) */
-  const card = `<div class="fb try${anim ? " cascade" : ""}"><p class="you-said">You said: \u201c${evSaid(R.text, evParts)}\u201d</p><h3>${all ? "You already have all four." : n === 1 ? "A good introduction does four things." : "A good answer here does four things."}</h3><ul class="sc-list four-list">${rows}</ul><p class="try-lead had">${sum}</p><p class="ev-foot">Credit only for what your words say.</p></div>`;
-  return app(`${head}${card}`, { tag: "", stage: true, footer: `${button([all ? "Next: your 2nd intro" : "Next: hear it done", "try-next"]).replace('class="btn ', anim ? 'class="btn late ' : 'class="btn ')}${all ? `<button class="link center" data-act="try-full">See the full lesson</button>` : ""}` });
+  const sum = all ? "Amazing job! Now hear it done, then try it once more." : (c >= 2 ? "That\u2019s a good start." : "Nice try.") + " Now listen to an opener that hits all four parts of a good introduction."; /* version 85 (Robert) */
+  const card = `<div class="fb try${anim ? " cascade" : ""}">${R.convo ? "" : `<p class="you-said">You said: \u201c${evSaid(R.text, evParts)}\u201d</p>`}<h3>${all ? "You already have all four." : n === 1 ? "A good introduction does four things." : "A good answer here does four things."}</h3><ul class="sc-list four-list">${rows}</ul><p class="try-lead had">${sum}</p><p class="ev-foot">Credit only for what your words say.</p></div>`;
+  return app(`${head}${card}`, { tag: "", stage: true, footer: `${button(["Next: hear it done", "try-next"]).replace('class="btn ', anim ? 'class="btn late ' : 'class="btn ')}` }); /* version 167 (Robert): always on to Hear it done, no See the full lesson */
 }
 /* version 165: lesson 1's Knock opens the same full conversation as the 2nd intro, at Sofia's door, when the practice AI is on */
 function try1Start() {
@@ -8457,7 +8457,7 @@ async function checkTry() {
     if (S.screen !== "try" || !S.tryRes || S.tryRes.lesson !== n) return;
   }
   S.tryRes = { lesson: n, text, hits, phr: n === 1 ? phrFinal(text, hits, phrAI) : null, pending: false, at: Date.now() }; /* version 98: the words behind the How you grew highlights */
-  S.skipWatch = hits.every(Boolean);
+  S.skipWatch = false; /* version 167 */
   if (n === 1) { const c = hits.filter(Boolean).length; S.placement = [!hits[3] ? "weak" : c === 4 ? "strong" : c === 3 ? "ok" : "weak", openerNote(hits)]; S.placementSeen = true; S.placementText = text; }
   render();
   scrollDown();
@@ -9725,7 +9725,7 @@ async function finishConvo(d) {
   if (S.try1) { /* version 165: the 1st intro's conversation comes back to its own card, graded like the 2nd */
     const said1 = S.convo.turns.filter((x) => x.who === "you").map((x) => x.text), text1 = said1.slice(0, 2).join(" "), h1 = result.hits.slice(), c1 = h1.filter(Boolean).length;
     S.tryRes = { lesson: 1, text: text1, hits: h1, phr: phrFinal(text1, h1, result.phr || null), pending: false, at: Date.now(), convo: S.convo.turns.map((x) => ({ who: x.who, text: x.text })), coach: result.coach || null };
-    S.skipWatch = h1.every(Boolean);
+    S.skipWatch = false; /* version 167 */
     S.placement = [!h1[3] ? "weak" : c1 === 4 ? "strong" : c1 === 3 ? "ok" : "weak", openerNote(h1)]; S.placementSeen = true; S.placementText = text1;
     S.try1 = false;
     go("try", { noPush: true, noBeat: true });

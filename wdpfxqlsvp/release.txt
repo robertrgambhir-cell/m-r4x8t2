@@ -19,3 +19,6 @@ app.html sha256: 82020ca41233d1e9f99f630bbde8cde12ed879a25a5addedc09e296ae7de454
 update: 2026-11-15 Version 166, from Robert's phone run: lesson 1's voters check only the four parts (practice AI 165-3), Franklin for Woodbridge (the video caption keeps Maya's recorded word), the door picture holds its size, no Powered by on the video's last screen (ai/tools/v166-lesson1-friendly-franklin.py on all four app pages; build-train.mjs for train/, whose fine print now says conversations are kept 30 days).
 app.html sha256: 542533e87cc656ba2e6514acf44eaf995b1f1347d270cefc3a302daebdfd7baa
 train sha256: d7cd72f0d7a94d4622c6f8e77570fc2811bf732f7c418810dabf58664f2f229d
+
+update: 2026-11-15 Version 167, from Robert's 8:09 PM PT run: the 1st intro's card fits one screen (no repeat of everything said after a conversation), every lesson goes on to Hear it done after the 1st try (no See the full lesson), and practice AI 165-4 (the voter builds on what was said; the goodbye isn't marked missed when the voter closed the door) (ai/tools/v167-try-card-one-screen.py on all four app pages).
+app.html sha256: 279498ba7f46561377b878eff23c881ebc6ea07a9f0fcd5af5911fa7dddb119e

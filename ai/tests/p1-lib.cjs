@@ -52,6 +52,7 @@ exports.lesson1 = async (p, fromVideo = true) => {
   await exports.say(p, "Hi, I'm Robert. I'm volunteering with Maya Kaur's campaign. Election Day is Tuesday.");
   await p.waitForSelector('[data-act="try-next"]', { state: "visible", timeout: 20000 }); await p.waitForTimeout(1500);
   await exports.act(p, "try-next"); await p.waitForTimeout(4500);
+  await exports.toDoor(p); /* version 167: a perfect 1st try goes on to Hear it done and Catch the mistake too */
   await p.waitForSelector('[data-act="knock"]', { state: "visible", timeout: 15000 });
   await exports.act(p, "knock"); await p.waitForTimeout(3300);
   await exports.say(p, "Hi, I'm Robert. I'm volunteering with Maya Kaur's campaign. Election Day is Tuesday.");
@@ -59,4 +60,16 @@ exports.lesson1 = async (p, fromVideo = true) => {
   await exports.act(p, "go", "close"); await p.waitForTimeout(5500);
   await exports.act(p, "done-card"); await p.waitForTimeout(3000);
   await exports.act(p, "done-card"); await p.waitForTimeout(2000);
+};
+
+/* version 167: walk Hear it done and Catch the mistake until the 2nd intro's Knock shows */
+exports.toDoor = async (p) => {
+  for (let k = 0; k < 40; k += 1) {
+    if (await p.isVisible('[data-act="knock"]').catch(() => false)) return true;
+    const a = await p.evaluate(() => [...document.querySelectorAll("[data-act]")].filter((x) => x.offsetParent || getComputedStyle(x).position === "fixed").map((x) => x.dataset.act + (x.dataset.arg != null ? ":" + x.dataset.arg : "")));
+    const pick = ["watch-next", "spot-next", "go:main"].find((x) => a.includes(x)) || a.find((x) => x.startsWith("spot-pick")) || (a.includes("spot-skip") ? "spot-skip" : null) || (a.includes("spot-play") ? "spot-play" : null);
+    if (pick) { const [x, y] = pick.split(":"); await exports.act(p, x, y).catch(() => {}); await p.waitForTimeout(x === "spot-play" ? 6000 : 1800); }
+    else await p.waitForTimeout(1500);
+  }
+  return false;
 };
