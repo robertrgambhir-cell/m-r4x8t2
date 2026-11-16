@@ -19,7 +19,15 @@ let down = false;
 const realFetch = globalThis.fetch;
 globalThis.fetch = async (url, init) => {
   if (!String(url).includes("api.anthropic.com")) return realFetch(url, init);
-  const body = JSON.parse(init.body), tool = body.tools[0].name;
+  const body = JSON.parse(init.body);
+  if (body.stream) { /* version 165: the streamed voter (/turn) */
+    const enc = new TextEncoder(), text = "warm|Oh, hey. Yeah, I'm voting for her. Thanks for coming by. <end>";
+    return new Response(new ReadableStream({ start(ctl) {
+      ctl.enqueue(enc.encode(`event: message_start\ndata: ${JSON.stringify({ type: "message_start", message: { usage: { input_tokens: 100 } } })}\n\n`));
+      ctl.enqueue(enc.encode(`event: content_block_delta\ndata: ${JSON.stringify({ type: "content_block_delta", delta: { type: "text_delta", text } })}\n\n`));
+      ctl.enqueue(enc.encode(`event: message_delta\ndata: ${JSON.stringify({ type: "message_delta", usage: { output_tokens: 20 } })}\n\n`)); ctl.close(); } }), { status: 200 });
+  }
+  const tool = body.tools[0].name;
   const input = tool === "voter_turn" ? { say: "Oh, hey. Yeah, I'm voting for her. Thanks for coming by.", mood: "warm", end: true }
     : (() => { /* the mock coach credits every part with the volunteer's own first line as its quote, so the server's quote check passes */
       const said = ((JSON.stringify(body.messages).match(/\d+\. Volunteer: ([^\\]+)/) || [])[1] || "").trim();

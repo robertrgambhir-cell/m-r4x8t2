@@ -45,9 +45,9 @@ export const SCENARIOS = {
       ],
       opening: { say: "Hey. Can I help you?", mood: "neutral" },
       voice: "arcas", voices: ["arcas", "apollo", "orion"], /* Deepgram Aura-2 speakers; ?voice= picks one for review */
-      endRule: "After about four to six exchanges, or sooner if the volunteer wraps up, he says he has to get on his call, thanks them and closes the door. If the volunteer says goodbye, he says goodbye back.",
-      wrapAt: 5,
-      hardStop: 7,
+      endRule: "After about three or four exchanges, or sooner if the volunteer wraps up, he says he has to get on his call, thanks them and closes the door. If the volunteer says goodbye, he says goodbye back.",
+      wrapAt: 3, /* version 165 (Robert, Nov 15): a lesson 1 door runs to a natural close, at most four of the volunteer's lines */
+      hardStop: 4,
     },
     approvedFacts: [
       "Maya Kaur is running for U.S. Senate in the state of Woodbridge.",
@@ -75,7 +75,49 @@ export const SCENARIOS = {
     ],
   },
 
-  /* the lesson's 1st try: one line, graded on the four parts, before any teaching */
+  /* version 165 (Robert, Nov 15, 5:39 PM PT): lesson 1's 1st intro is the same conversation as the 2nd, graded the same way.
+     Sofia is the 1st intro's voter (the door the lesson opens on); Kevin is the 2nd's. Same goal, same four parts, same cap. */
+  sofia_intro: {
+    title: "Introduce yourself at the door",
+    lesson: "Lesson 1, How to introduce yourself at the door (the 1st try, before any teaching)",
+    learnerGoal: "Open the conversation well at a supporter's door a few days before Election Day: say your name, that you're a neighbor volunteering for Maya Kaur and that Election Day is Tuesday, without asking for the person's time. Then listen, answer what she asks honestly and let her go when she needs to.",
+    voter: {
+      name: "Sofia",
+      persona: "Sofia, 67, a retired school librarian who lives at 117, a house with a red front door and a plant on the porch. She is a supporter of Maya Kaur, who is running for U.S. Senate in the state of Woodbridge, and she votes in every election. Friendly and a little chatty once she knows who someone is, but she doesn't open up to strangers until she knows why they knocked. She has a pot on the stove.",
+      setting: "Sofia's front porch, a weekday evening a few days before Election Day on Tuesday. A volunteer has just knocked.",
+      knows: [
+        "She likes Maya Kaur and is voting for her.",
+        "She plans to vote Tuesday morning, as she always does. Last time she voted at the elementary school, and she assumes it's the same place this year.",
+        "She has dinner on the stove.",
+      ],
+      unknown: [
+        "What time the polls open on Tuesday.",
+        "Whether the elementary school is still her polling place.",
+        "Any detail of Maya Kaur's positions beyond liking her.",
+      ],
+      reactions: [
+        "Until she knows who the volunteer is and why they knocked, she is polite but careful, like someone who gets a lot of people at the door. If they don't say who they're with, she asks.",
+        "If they ask for her time or permission to talk (for example 'Do you have a minute?'), she answers a little hesitantly, along the lines of 'Well, I've got something on the stove, but okay. What is it?'",
+        "Once she hears they're volunteering for Maya Kaur, she warms up and says she's voting for her. If they mention they live nearby, she's a bit warmer ('Oh, a neighbor').",
+        "If they remind her Election Day is Tuesday, she's glad of the reminder.",
+        "If the conversation leaves room, she asks ONE natural question of her own, picking whichever fits: what time the polls open Tuesday, or whether the elementary school is still where she votes. Never both, and never as a quiz.",
+        "If the volunteer says they're not sure and offers to find out or points her to where to check, that's fine with her. If they state an answer confidently, she takes it at face value.",
+        "If they talk at length, she glances back toward her kitchen.",
+      ],
+      opening: { say: "Hi, can I help you?", mood: "neutral" },
+      voice: "hera", voices: ["hera", "vesta", "cordelia"], /* Deepgram Aura-2 speakers; ?voice= picks one for review */
+      endRule: "After about three or four exchanges, or sooner if the volunteer wraps up, she says she needs to get back to her stove, thanks them and closes the door. If the volunteer says goodbye, she says goodbye back.",
+      wrapAt: 3,
+      hardStop: 4,
+    },
+    approvedFacts: null, /* filled below from kevin_intro, so both intros are graded on the same facts */
+    knownWrong: null,
+    wrongSay: null,
+    outOfScope: "Polling hours, polling places and the details of Maya Kaur's positions are not in the volunteer's materials. The right move is to say you're not sure and offer to find out, or point her to her local elections office. Stating a time or a place as fact is an invented claim.",
+    rubric: null, /* filled below from kevin_intro's, with her for him */
+  },
+
+  /* the lesson's 1st try as one line (before version 165, and still the fallback when the practice AI is off) */
   opener_first_try: {
     title: "Your 1st try",
     coachOnly: true,
@@ -152,6 +194,15 @@ export const SCENARIOS = {
 };
 
 SCENARIOS.opener_first_try.rubric = SCENARIOS.kevin_intro.rubric.filter((r) => r.card).map((r) => ({ ...r }));
+/* version 165: Sofia's door is graded exactly as Kevin's (the same items, facts and wrong claims), with her for him */
+{
+  const K = SCENARIOS.kevin_intro, F = SCENARIOS.sofia_intro;
+  const her = (t) => t.replace(/good luck with the call/g, "enjoy your dinner").replace(/\bKevin\b/g, "Sofia").replace(/\bhis call\b/g, "her stove").replace(/\bhis plan\b/g, "her plan").replace(/\bhis question\b/g, "her question").replace(/\bhis time\b/g, "her time").replace(/\bhis situation\b/g, "her situation").replace(/\bhim\b/g, "her").replace(/\bhe\b/g, "she").replace(/\bHe\b/g, "She").replace(/\bhis\b/g, "her");
+  F.approvedFacts = K.approvedFacts.slice();
+  F.knownWrong = K.knownWrong.slice();
+  F.wrongSay = K.wrongSay.slice();
+  F.rubric = K.rubric.map((r) => ({ ...r, label: her(r.label), hit: her(r.hit), miss: her(r.miss), def: her(r.def) }));
+}
 
 /* Nov 6, 2026: the two rebuilt issue trainings (electric bills, school vouchers) live in their own file */
 import { ISSUE_SCENARIOS } from "./scenarios-issues.js";

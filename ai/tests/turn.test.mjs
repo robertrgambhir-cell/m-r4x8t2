@@ -88,5 +88,25 @@ const g = (q) => worker.fetch(new Request("https://w.example/narrate?" + q), env
 r = await g("s=oh_bills&k=1"); ok(r.status === 200 && r.headers.get("content-type") === "audio/mpeg" && voiceCalls[voiceCalls.length - 1].text === SCENARIOS.oh_bills.narration[1] && voiceCalls[voiceCalls.length - 1].speaker === "orpheus", "narration speaks only its own line, in the narrator's voice");
 r = await g("s=oh_bills&k=99"); ok(r.status === 404, "no line past the end");
 r = await g("s=kevin_intro&k=0"); ok(r.status === 404, "a scenario without narration has none");
+/* version 165: Sofia's 1st intro streams like Kevin's 2nd, graded on the same items, and lesson 1's doors stop at four lines */
+{
+  const F = SCENARIOS.sofia_intro, K = SCENARIOS.kevin_intro, SO = F.voter.opening.say;
+  ok(F.rubric.map((x) => x.id).join() === K.rubric.map((x) => x.id).join() && F.rubric.filter((x) => x.card).length === 4, "Sofia's door is graded on Kevin's items, four on the card");
+  ok(F.voter.hardStop === 4 && K.voter.hardStop === 4 && F.voter.wrapAt === 3 && K.voter.wrapAt === 3, "both lesson 1 doors wrap at three lines and stop at four");
+  ok(!/\bKevin\b|\bhis\b|\bhim\b/.test(JSON.stringify(F.rubric)), "Sofia's rubric never says Kevin, his or him");
+  modelText = "warm|Oh, a neighbor! Yes, I'm voting for her.";
+  let rs = await post({ scenario: "sofia_intro", turns: [{ who: "them", text: SO }, { who: "you", text: "Hi, I'm Sam, volunteering for Maya Kaur." }] });
+  let fr = await frames(rs), done = fr.find((x) => x.t === 1 && x.j.t === "done");
+  ok(rs.status === 200 && done && done.j.say === "Oh, a neighbor! Yes, I'm voting for her." && fr.some((x) => x.t === 2), "Sofia's turn streams text and voice");
+  const last = calls[calls.length - 1];
+  ok(/Sofia, 67/.test(JSON.stringify(last.system)) && voiceCalls[voiceCalls.length - 1].speaker === "hera", "Sofia's own persona and voice");
+  const four = [{ who: "them", text: SO }];
+  for (let i = 0; i < 4; i += 1) { four.push({ who: "you", text: "Line " + i }); if (i < 3) four.push({ who: "them", text: "Okay " + i, sig: await signLine(env0, "sofia_intro", "Okay " + i, four.length) }); }
+  modelText = "neutral|Sure, go on.";
+  rs = await post({ scenario: "sofia_intro", turns: four });
+  fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
+  ok(done && done.j.end === true, "the fourth line ends Sofia's door even if the model doesn't");
+  ok(/must end the conversation now/.test(JSON.stringify(calls[calls.length - 1].system)), "the prompt tells her to end at the fourth line");
+}
 console.log(`turn: ${pass} pass, ${fail} fail`);
 process.exit(fail ? 1 : 0);

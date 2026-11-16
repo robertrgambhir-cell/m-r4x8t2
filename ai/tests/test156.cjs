@@ -52,7 +52,7 @@ const stats = async () => JSON.parse(await mock('stats'));
   const s0 = await stats();
   await say(p, "Hi, I'm Sam. I live a few blocks over and I'm volunteering for Maya Kaur.", true);
   ok(await waitThem(p, 2), 'Kevin answers turn 1');
-  ok((await them(p))[1] === "Oh, hey. Yeah, I'm voting for her.", 'turn 1 came from the server: ' + (await them(p))[1]);
+  { let t1 = ''; for (let k = 0; k < 30 && t1 !== "Oh, hey. Yeah, I'm voting for her."; k++) { t1 = (await them(p))[1]; if (t1 !== "Oh, hey. Yeah, I'm voting for her.") await p.waitForTimeout(100); } ok(t1 === "Oh, hey. Yeah, I'm voting for her.", 'turn 1 came from the server, sentence by sentence (version 165): ' + t1); }
   ok((await stats()).voter - s0.voter === 1, 'a double tap on send makes one call, not two: ' + ((await stats()).voter - s0.voter));
   ok((await p.$$eval('#thread .bub.you', (x) => x.length)) === 1, 'a double tap adds one bubble');
   const ty = await p.evaluate(() => ({ mic: typeof pageMic === 'function' ? null : null, mode: !!__T.S.typeMode }));

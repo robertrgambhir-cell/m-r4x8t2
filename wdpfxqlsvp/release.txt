@@ -12,3 +12,6 @@ update: 2026-11-06 Version 164, the rebuilt issue trainings (train/?l=oh, ?l=tx)
 app.html sha256: b88e1967c29c45b6e6ccd00704c8309562c3ccb136766ccbe1c6d66cac222d5a
 issues sha256: 540aaf186284acc49bbdec518d62f585844819c3b8ae94e547af09496b75fb5c
 train sha256: 0d0430e13bc6919d0d7508acaae12ec1425708f7bb32af2616f8feae5d807a29
+
+update: 2026-11-15 Version 165, the 1st and 2nd intros as the same fast AI conversation (ai/tools/v165-door-conversation.py on all four app pages; it also refreshes WAI_PUB from ai/scenarios.js). Every AI door streams the voter from /turn, sends on 1 s of quiet and starts the answer at 0.45 s; lesson 1's Knock opens Sofia's door (sofia_intro) as a full conversation when the practice AI is on, graded like Kevin's; both lesson 1 doors stop at four lines. Practice AI 165-1. Rebuild note: build-phase1 from staging, then the v164 and v165 patches on top.
+app.html sha256: 82020ca41233d1e9f99f630bbde8cde12ed879a25a5addedc09e296ae7de4545
