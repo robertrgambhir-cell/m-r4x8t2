@@ -1,6 +1,6 @@
 /* Unit tests for the fast spoken turn (POST /turn) and the narration (GET /narrate), with the model and the voice stubbed.
    Run: node tests/turn.test.mjs */
-import worker, { makeSplitter, signLine, introParts, introPartsLine } from "../worker.js";
+import worker, { makeSplitter, signLine, introParts, introPartsLine, sameWords } from "../worker.js";
 import { SCENARIOS } from "../scenarios.js";
 
 let pass = 0, fail = 0;
@@ -164,6 +164,17 @@ r = await g("s=kevin_intro&k=0"); ok(r.status === 404, "a scenario without narra
   modelText = "warm|Oh, hi Robert. Oh, nice. Who are you volunteering with?";
   await frames(await post({ scenario: "sofia_intro", turns: Y("Hi I'm Robert, getting the word out about the election.") }));
   ok(/Who are you volunteering with/.test(JSON.stringify(calls[calls.length - 1].system)), "the line goes into the voter's instructions");
+}
+/* version 165-6: punctuation for the phone's speech-to-text, never a changed word */
+{
+  const raw = "Hi I'm Robert um I live down the street do you know there's an election on Tuesday";
+  ok(sameWords(raw, "Hi, I'm Robert. Um, I live down the street. Do you know there's an election on Tuesday?"), "punctuation and capitals pass");
+  ok(!sameWords(raw, "Hi, I'm Robert. I live down the street. Do you know there's an election on Tuesday?"), "a dropped word fails");
+  const tidy = (text) => worker.fetch(new Request("https://w.example/tidy", { method: "POST", headers: { origin: ORIGIN, "content-type": "application/json" }, body: JSON.stringify({ scenario: "sofia_intro", text }) }), env0).then((r) => r.json());
+  modelText = "Hi, I'm Robert. Um, I live down the street. Do you know there's an election on Tuesday?";
+  ok((await tidy(raw)).text === modelText, "the tidy returns the punctuated line");
+  modelText = "Hi, I'm Robert, and I live just down the street.";
+  ok((await tidy(raw)).text === raw, "a tidy that changes words falls back to what was said");
 }
 console.log(`turn: ${pass} pass, ${fail} fail`);
 process.exit(fail ? 1 : 0);

@@ -25,6 +25,9 @@ const voterLine = (you) => {
 globalThis.fetch = async (url, init) => {
   if (!String(url).includes("api.anthropic.com")) return realFetch(url, init);
   const body0 = JSON.parse(init.body);
+  if (body0.stream && /add punctuation/.test(JSON.stringify(body0.system))) { /* version 168: /tidy echoes the words with a period */
+    return new Response(sse(String(said(body0)).replace(/[.?!]?$/, ".")), { status: 200 });
+  }
   if (body0.stream) {
     const you0 = said(body0).split("\n").filter((l) => /^\d+\. Volunteer: /.test(l)).map((l) => l.replace(/^\d+\. Volunteer: /, ""));
     await new Promise((r) => setTimeout(r, 250));

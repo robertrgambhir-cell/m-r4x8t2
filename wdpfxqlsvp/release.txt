@@ -22,3 +22,6 @@ train sha256: d7cd72f0d7a94d4622c6f8e77570fc2811bf732f7c418810dabf58664f2f229d
 
 update: 2026-11-15 Version 167, from Robert's 8:09 PM PT run: the 1st intro's card fits one screen (no repeat of everything said after a conversation), every lesson goes on to Hear it done after the 1st try (no See the full lesson), and practice AI 165-4 (the voter builds on what was said; the goodbye isn't marked missed when the voter closed the door) (ai/tools/v167-try-card-one-screen.py on all four app pages).
 app.html sha256: 279498ba7f46561377b878eff23c881ebc6ea07a9f0fcd5af5911fa7dddb119e
+
+update: 2026-11-15 Version 168, from Robert's 9:49 PM PT run: the FaceTime door (the voter fills the screen, the latest lines are captions over the picture, the live words card too) and punctuation for spoken words through the practice AI's /tidy (165-6, words never changed); the missing-part question asked plainly after a short greeting (ai/tools/v168-facetime-door.py on all four app pages).
+app.html sha256: 949f1e41c20ecdcc39294c6a0fe32b58181a9fe7dbf5b01a7aa4484a2621c5c6

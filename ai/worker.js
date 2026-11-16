@@ -33,7 +33,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "165-5"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "165-6"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -196,9 +196,13 @@ export function introParts(turns) {
 export function introPartsLine(turns) {
   if (!turns.some((t) => t.who === "you")) return "";
   const p = introParts(turns), done = [p.name && "their name", p.maya && "that they're with Maya Kaur's campaign", p.why && "why they came (the election)"].filter(Boolean);
-  const ask = !p.name ? "Sorry, and you are?" : !p.maya ? "Oh, nice. Who are you volunteering with?" : !p.why ? "What's this about?" : "";
-  return `WHAT THEY'VE SAID SO FAR: ${done.length ? done.join(", ") : "nothing yet about who they are"}. ` + (ask ? `React briefly to what they just said, then end your turn with this question, word for word: "${ask}" Ask nothing else.` : "They've said who they are, who they're with and why they came, so don't ask them anything; just respond warmly.");
+  const ask = !p.name ? "Sorry, and you are?" : !p.maya ? "Who are you volunteering with?" : !p.why ? "What's this about?" : "";
+  return `WHAT THEY'VE SAID SO FAR: ${done.length ? done.join(", ") : "nothing yet about who they are"}. ` + (ask ? `Your whole turn is a short, natural greeting (a few words, like "Oh, hi Robert!" if they gave a name) followed by this question, word for word: "${ask}" Say nothing else: no comment on Tuesday or the election, no "oh, nice", no second question.` : "They've said who they are, who they're with and why they came, so don't ask them anything; just respond warmly in a sentence."); /* version 165-6 (Robert, Nov 15, 9:49 PM PT: "Oh, nice" in the middle made no sense) */
 }
+const TIDY_PROMPT = "You add punctuation and capital letters to a transcript of something a person said out loud. Keep every word exactly as it is, in the same order: never add, drop, fix or reorder a word, and keep fillers like um. Only add periods, commas, question marks, apostrophes and capitals. Reply with the punctuated text and nothing else.";
+/* the tidy may only add punctuation and capitals: the words must match one for one */
+export const wordsOf = (t) => String(t).toLowerCase().replace(/[‘’]/g, "'").replace(/[^a-z0-9' ]+/g, " ").replace(/'/g, "").split(/\s+/).filter(Boolean);
+export const sameWords = (a, b) => { const x = wordsOf(a), y = wordsOf(b); return x.length > 0 && x.length === y.length && x.every((w, i) => w === y[i]); };
 export function voterPrompt(s, turns) {
   const v = s.voter, n = turns.filter((t) => t.who === "you").length;
   const lines = [
@@ -706,7 +710,7 @@ export default {
       }
       if (route === "/log" && req.method === "GET") return await readLog(env, url, h); /* version 165-2 */
       if (route === "/narrate" && req.method === "GET") return await narrate(env, c, url, h, req.headers.get("cf-connecting-ip") || "local");
-      if (req.method !== "POST" || (route !== "/voter" && route !== "/coach" && route !== "/speak" && route !== "/turn")) throw new HttpError(404, "not_found");
+      if (req.method !== "POST" || (route !== "/voter" && route !== "/coach" && route !== "/speak" && route !== "/turn" && route !== "/tidy")) throw new HttpError(404, "not_found");
       if (!c.origins.includes(origin)) throw new HttpError(403, "origin", "This page isn't allowed to use the practice AI.");
       const ip = req.headers.get("cf-connecting-ip") || "local";
       let body;
@@ -714,6 +718,15 @@ export default {
       const s = SCENARIOS[body && body.scenario];
       scen = String((body && body.scenario) || "");
       if (!s) throw new HttpError(400, "unknown_scenario");
+      if (route === "/tidy") { /* version 165-6 (Robert, Nov 15): the phone's speech-to-text has no punctuation; this adds it, and only it */
+        const raw = String((body && body.text) || "").replace(/\s+/g, " ").trim().slice(0, 600);
+        if (!raw) return json({ text: "" }, 200, h);
+        await checkRate(env, ip, "voter", c.voterPerHour);
+        let txt = "";
+        await claudeStream(env, c, { model: c.voterModel, system: TIDY_PROMPT, user: raw, maxTokens: 400, timeout: 8000 }, (t) => { txt += t; });
+        txt = txt.trim().replace(/^["“]|["”]$/g, "");
+        return json({ text: sameWords(raw, txt) ? txt : raw }, 200, h);
+      }
       if (route === "/speak") {
         /* only the voter's opening or a line the server signed for this conversation, so the voice can't read anything else */
         const text = String((body && body.text) || "").slice(0, 400), at = Number(body && body.at);
