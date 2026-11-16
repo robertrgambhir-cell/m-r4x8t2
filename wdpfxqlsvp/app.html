@@ -2274,6 +2274,13 @@
   .cf-src { font-size: 12px; color: var(--ink-3); margin: 6px 0 0; }
   .talk .link.wai-type { display: block; margin: 2px auto 0; padding: 0 12px; min-height: 40px; font-size: 13.5px; }
   .thread .bub.old { display: none; }
+
+  /* version 166 (Robert, Nov 15): on an AI door the voter's picture holds one size; the conversation lives under it and the
+     oldest line slides up out of view when a new one doesn't fit (no scrolling back: a real door has no transcript) */
+  .content.stage > .frame.convo-stage { flex: 0 0 44%; min-height: 0; }
+  .content.stage > .frame.convo-stage + .thread { flex: 1 1 0; min-height: 0; overflow: hidden; justify-content: flex-end; -webkit-mask-image: linear-gradient(transparent 0, #000 22px); mask-image: linear-gradient(transparent 0, #000 22px); }
+  .content.stage > .frame.convo-stage + .thread > .note.wai-pill { order: -1; margin-bottom: auto; }
+  .content.stage > .frame.convo-stage ~ .talk-live .tl-said { height: 3.9em; max-height: 3.9em; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
   .thread .wai-care { margin: 6px 0; padding: 10px 12px; border-radius: 14px; background: #EEF3FB; border: 1.5px solid #9DB5DE; color: var(--ink); font-size: 14px; line-height: 1.4; }
   .thread .wai-care b { display: block; margin-bottom: 2px; }
   .thread .wai-care a { color: #1F4C91; font-weight: 600; }
@@ -2808,7 +2815,7 @@ const SKILLS = {
     whyLine: "people decide in seconds whether to keep talking. A warm, clear opener earns the rest of the conversation.",
     headsUp: "Never ask \u201cDo you have a minute?\u201d",
     stretch: 1,
-    context: "The volunteer knocks on doors for Maya Kaur, who is running for U.S. Senate in the state of Woodbridge, a few days before Election Day on Tuesday. Everyone on the list is a supporter. This lesson covers only the opener, the first ten seconds at the door: the volunteer's name, that they are a neighbor volunteering for Maya Kaur and that Election Day is Tuesday, without asking 'Do you have a minute?'",
+    context: "The volunteer knocks on doors for Maya Kaur, who is running for U.S. Senate in the state of Franklin, a few days before Election Day on Tuesday. Everyone on the list is a supporter. This lesson covers only the opener, the first ten seconds at the door: the volunteer's name, that they are a neighbor volunteering for Maya Kaur and that Election Day is Tuesday, without asking 'Do you have a minute?'",
     moves: ["Say your name", "Say you\u2019re volunteering for Maya Kaur", "Remind them Election Day is Tuesday", "Don\u2019t ask \u201cDo you have a minute?\u201d"],
     hitNames: ["Said your name", "Said you\u2019re volunteering for Maya Kaur", "Reminded them Election Day is Tuesday", "Didn\u2019t ask \u201cDo you have a minute?\u201d"],
     missNames: ["Didn\u2019t say your name", "Didn\u2019t say you\u2019re volunteering for Maya Kaur", "Didn\u2019t remind them Election Day is Tuesday", "Asked \u201cDo you have a minute?\u201d"],
@@ -2873,7 +2880,7 @@ const SKILLS = {
     whyLine: "a real question turns a pitch into a conversation, and listening is what earns an honest answer.",
     headsUp: "Ask one thing, then stop talking and wait.",
     stretch: 3,
-    context: "The volunteer knocks on doors for Maya Kaur, who is running for U.S. Senate in the state of Woodbridge, a few days before Election Day on Tuesday, talking with supporters on their list. This lesson is about asking one real question and listening: ask about the voter (like 'Are you planning to vote this year?'), one question at a time, respond to what they actually said, then follow up once.",
+    context: "The volunteer knocks on doors for Maya Kaur, who is running for U.S. Senate in the state of Franklin, a few days before Election Day on Tuesday, talking with supporters on their list. This lesson is about asking one real question and listening: ask about the voter (like 'Are you planning to vote this year?'), one question at a time, respond to what they actually said, then follow up once.",
     moves: ["Ask one real question", "One question at a time", "Respond to what they said", "Follow up once"],
     hitNames: ["Asked a real question", "Asked one question at a time", "Responded to what they said", "Followed up once"],
     missNames: ["Didn\u2019t ask a real question", "Asked more than one question at once", "Didn\u2019t respond to what they said", "Didn\u2019t follow up"],
@@ -2938,7 +2945,7 @@ const SKILLS = {
     whyLine: "in the final days, your time belongs to supporters. A calm thank-you and the next door beats any debate.",
     headsUp: "Never go inside. Trust your gut: if something feels off, leave.",
     stretch: 3,
-    context: "The volunteer knocks on doors for Maya Kaur, who is running for U.S. Senate in the state of Woodbridge, a few days before Election Day. Some people on the list have changed their minds or get heated. This lesson is about not arguing: stay calm, thank them, wrap up in a line or two and move to the next door. Never go inside, even if invited.",
+    context: "The volunteer knocks on doors for Maya Kaur, who is running for U.S. Senate in the state of Franklin, a few days before Election Day. Some people on the list have changed their minds or get heated. This lesson is about not arguing: stay calm, thank them, wrap up in a line or two and move to the next door. Never go inside, even if invited.",
     moves: ["Stay calm, don\u2019t argue", "Thank them", "Wrap up fast", "Stay outside"],
     hitNames: ["Stayed calm, didn\u2019t argue", "Thanked them", "Wrapped up fast", "Stayed outside"],
     missNames: ["Argued back", "Didn\u2019t thank them", "Stayed too long", "Didn\u2019t clearly stay outside"],
@@ -3001,7 +3008,7 @@ const SKILLS = {
     whyLine: "a reminder from a friend works better than almost anything a campaign can send.",
     headsUp: "Ask for three by name, then ask them to text now.",
     stretch: 3,
-    context: "The volunteer knocks on doors for Maya Kaur, who is running for U.S. Senate in the state of Woodbridge, a few days before Election Day, talking with supporters. This lesson is about vote tripling: ask the supporter to remind three friends to vote, help them name three and get a yes on texting them, ideally right now.",
+    context: "The volunteer knocks on doors for Maya Kaur, who is running for U.S. Senate in the state of Franklin, a few days before Election Day, talking with supporters. This lesson is about vote tripling: ask the supporter to remind three friends to vote, help them name three and get a yes on texting them, ideally right now.",
     moves: ["Ask them to remind friends", "Ask for three", "Help them name three", "Get a yes on when"],
     hitNames: ["Asked them to remind friends", "Asked for three", "Helped them name three", "Got a yes on when"],
     missNames: ["Didn\u2019t ask them to remind friends", "Didn\u2019t ask for three", "Didn\u2019t help them name three", "Didn\u2019t get a yes on when"],
@@ -3065,7 +3072,7 @@ const SKILLS = {
     headsUp: "Say \u201cmost of your neighbors are voting,\u201d never \u201cturnout is low.\u201d",
     stretch: 3,
     where: "at a supporter\u2019s door",
-    context: "The volunteer is knocking on doors in the final two weeks before Election Day, talking with a known supporter of Maya Kaur, a candidate for U.S. Senate in the state of Woodbridge. The goal is a specific voting plan, not persuasion.",
+    context: "The volunteer is knocking on doors in the final two weeks before Election Day, talking with a known supporter of Maya Kaur, a candidate for U.S. Senate in the state of Franklin. The goal is a specific voting plan, not persuasion.",
     moves: ["Ask when, specifically", "Ask where and how", "Ask what comes before", "Sum up the plan"],
     hitNames: ["Asked when, specifically", "Asked where and how", "Asked what comes before", "Summed up the plan"],
     missNames: ["Didn\u2019t pin down a day and a time", "Didn\u2019t ask where and how", "Didn\u2019t ask what comes before", "Didn\u2019t sum up the plan"],
@@ -4386,7 +4393,7 @@ const DOORS = {
   },
   priya: {
     persona: "priya", scene: "door", name: "Priya", sub: "Supporter on your list, 36", brief: "a supporter on your list with a three-month-old napping inside", rate: 1.0,
-    bio: "36, a physical therapist on maternity leave with a three-month-old, a supporter of Maya Kaur, who is running for U.S. Senate in the state of Woodbridge. Tired and a little distracted.",
+    bio: "36, a physical therapist on maternity leave with a three-month-old, a supporter of Maya Kaur, who is running for U.S. Senate in the state of Franklin. Tired and a little distracted.",
     behavior: "Answer quietly because the baby is napping. Be friendly. If the volunteer asks you a real question about voting, say you want to vote but with the baby you're not sure when you'd get out. If they stack several questions at once, answer only part and seem a little overwhelmed. If they respond to what you said (the baby, being tired), warm up. If they follow up with a question about your situation, think out loud: probably when your husband gets home around six, or with the stroller. If they just push a message without listening, give short answers. Say goodbye kindly when they wrap up.",
     end: "the volunteer thanks you or says goodbye, or about six exchanges have passed", place: "at the door of her townhouse",
     intro: "You\u2019re at Priya\u2019s townhouse. Knock when you\u2019re ready.",
@@ -4448,7 +4455,7 @@ const DOORS = {
   },
   brianna: {
     persona: "brianna", scene: "door", name: "Brianna", sub: "Supporter on your list, 23", brief: "a supporter on your list who shares an apartment with two roommates", rate: 1.08,
-    bio: "23, a nursing student who shares apartment 2F with two roommates, a supporter of Maya Kaur, who is running for U.S. Senate in the state of Woodbridge. Friendly, busy with exams, and assumes her friends probably vote already.",
+    bio: "23, a nursing student who shares apartment 2F with two roommates, a supporter of Maya Kaur, who is running for U.S. Senate in the state of Franklin. Friendly, busy with exams, and assumes her friends probably vote already.",
     behavior: "Say you're voting for Maya. If asked to remind friends, say sure, you could tell some people. If they ask for three, agree but ask who, since your friends probably vote already. If they suggest who (roommates, family, coworkers, the friend who forgets), name your roommates Jess and Kai and your sister. If they ask you to text them now, do it and say 'Sent!' Otherwise say you'll do it later. Wrap up warmly.",
     end: "the volunteer thanks you or says goodbye, or about six exchanges have passed", place: "at the door of apartment 2F",
     intro: "You\u2019re outside apartment 2F. Knock when you\u2019re ready.",
@@ -4488,7 +4495,7 @@ const DOORS = {
   },
   kevin: {
     persona: "kevin", scene: "door", name: "Kevin", sub: "Supporter on your list, 29", brief: "a supporter on your list who works from home in apartment 3B", rate: 1.04,
-    bio: "29, a software tester who works from home in apartment 3B, a supporter of Maya Kaur, who is running for U.S. Senate in the state of Woodbridge. Friendly but a little wary of knocks, since he gets a lot of deliveries and sales pitches.",
+    bio: "29, a software tester who works from home in apartment 3B, a supporter of Maya Kaur, who is running for U.S. Senate in the state of Franklin. Friendly but a little wary of knocks, since he gets a lot of deliveries and sales pitches.",
     behavior: "Open the door cautiously. If the volunteer says their name, that they live nearby, that they're volunteering for Maya Kaur and why they are there, relax and say you are voting for Maya. If they ask 'Do you have a minute?', say 'Uh, sure, I guess. What's up?' a little warily. If they don't say who they are or why they are there, ask who they're with. Once you know why they're there, be friendly, answer any question briefly (you'll probably vote Tuesday after work at the library drop box) and let them wrap up. Thank them when they say goodbye.",
     end: "the volunteer has said their opener: one line, two at most", place: "at the door of apartment 3B", short: true,
     intro: "You\u2019re outside apartment 3B. Knock when you\u2019re ready.",
@@ -4519,7 +4526,7 @@ const DOORS = {
   },
   denise: {
     persona: "denise", scene: "door", name: "Denise", sub: "Supporter on your list, 41", brief: "a supporter on your list with dinner on the stove", rate: 1.06,
-    bio: "41, an ER nurse and a supporter of Maya Kaur, who is running for U.S. Senate in the state of Woodbridge, with dinner on the stove. Friendly but busy.",
+    bio: "41, an ER nurse and a supporter of Maya Kaur, who is running for U.S. Senate in the state of Franklin, with dinner on the stove. Friendly but busy.",
     behavior: "Start vague, like 'I will vote, don't worry.' Give specifics only when asked specific questions: you will vote Saturday morning before your shift, using the drop box at the library, coming from the gym. If the volunteer only reminds you to vote, give them one more chance ('Anything else?') before you wrap up. If they sum up your plan and check it with you, confirm it. If they ask you to say it back, say it. Get more impatient after about six exchanges because of the stove.",
     end: "the volunteer thanks you or says goodbye, or about six exchanges have passed", place: "at a front door",
     intro: "You\u2019re at Denise\u2019s door. Knock when you\u2019re ready.",
@@ -5589,8 +5596,8 @@ const ICON = {
 
 /* ---------- shell ---------- */
 /* version 105: the campaign skin is one config (name, the line under it, its one color and the lockup style). Get out the vote only. */
-/* version 153 (Robert, Nov 2): Maya runs for U.S. Senate in Woodbridge, a made-up state; four of her five briefs are Senate races */
-const CAMPAIGN = { gotv: { name: "Maya Kaur", line: "For U.S. Senate \u00b7 Woodbridge", lines: ["For U.S. Senate", "Woodbridge"], aria: "Maya Kaur for U.S. Senate in Woodbridge", track: "0.062em", color: "#1F4C91", soft: "rgba(31, 76, 145, 0.38)", lockup: "stack", briefs: ["School vouchers", "Your electric bill", "Heating oil", "Tariffs and auto jobs"], briefIds: ["tx", "oh", "me", "mi"], briefShort: [["School", "vouchers"], ["Electric", "bill"], ["Heating", "oil"], ["Tariffs and", "auto jobs"]] } }; /* version 164 (Robert, Nov 6): only lessons from Democrats who won 2026 Senate races; Georgia (a governor's race) is hidden, not deleted */
+/* version 153 (Robert, Nov 2): Maya runs for U.S. Senate in Franklin, a made-up state; four of her five briefs are Senate races */
+const CAMPAIGN = { gotv: { name: "Maya Kaur", line: "For U.S. Senate \u00b7 Franklin", lines: ["For U.S. Senate", "Franklin"], aria: "Maya Kaur for U.S. Senate in Franklin", track: "0.062em", color: "#1F4C91", soft: "rgba(31, 76, 145, 0.38)", lockup: "stack", briefs: ["School vouchers", "Your electric bill", "Heating oil", "Tariffs and auto jobs"], briefIds: ["tx", "oh", "me", "mi"], briefShort: [["School", "vouchers"], ["Electric", "bill"], ["Heating", "oil"], ["Tariffs and", "auto jobs"]] } }; /* version 164 (Robert, Nov 6): only lessons from Democrats who won 2026 Senate races; Georgia (a governor's race) is hidden, not deleted */
 if (/[?&]unlock\b/.test(location.search)) { window.__wuPreview = true; window.__wuUnlock = true; } /* version 164: the investor link, every lesson open, nothing saved */
 const NB = () => ((CAMPAIGN.gotv || {}).briefIds || []).length, NL = () => 5 + NB(), NWORD = (n) => ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"][n] || String(n); /* version 149: the tile labels, two short lines each */ /* version 146: "Health insurance", never "coverage" (the playbook rule), and each brief\u2019s lesson id in issues/ for the door-ready deep link */ /* version 143: the five briefs in issues/, by short name, in the field director\u2019s order */ /* version 142: soft tints the path dots for the campaign briefs */
 const campNow = () => (S && CAMPAIGN[S.track]) || null;
@@ -6299,7 +6306,7 @@ function vVideo() {
       <div class="vid-head">${campNow() ? `<span class="vid-camp">${campMark()}</span><span class="vid-sp"></span>` : `<span class="seal" aria-hidden="true">${t.org.seal}</span><b>${t.org.name.replace(" for ", " for<br>")}</b>`}
         ${ended ? "" : `<button class="vid-pp" data-act="video-toggle" aria-label="${V.playing ? "Pause" : "Play"}">${pp}</button>`}${ended ? "" : `<button data-act="video-skip">Skip</button>`}</div></div>
     ${ended
-      ? `<div class="vid-end"><button class="btn" data-act="video-skip">Start lesson 1: Introduce yourself</button><button class="link" data-act="video-again">Watch again</button>${campNow() ? pwLine() : ""}</div>`
+      ? `<div class="vid-end"><button class="btn" data-act="video-skip">Start lesson 1: Introduce yourself</button><button class="link" data-act="video-again">Watch again</button></div>` /* version 166 (Robert): no Powered by here */
       : `<div class="vid-cap" aria-live="polite" id="vid-cap"><p>${V.started ? esc(WELCOME.lines[Math.min(V.i, n - 1)].text) : "A welcome from Maya Kaur"}</p></div>`}
     ${!V.started ? `<button class="vid-play" data-act="video-toggle" aria-label="Play the welcome video"><svg width="26" height="26" viewBox="0 0 14 14" aria-hidden="true"><path d="M3.5 1.5 L12.5 7 L3.5 12.5 Z" fill="currentColor"/></svg></button>` : ""}
   </div>`;
@@ -9822,8 +9829,8 @@ async function placeKnock() {
 const CAMPAIGN_NOTES = [
   "Election Day is Tuesday. Polls are open 7 AM to 8 PM.",
   "Vote-by-mail ballots can go in the drop box outside the public library on Main Street until 8 PM Tuesday, or in any mailbox, no stamp needed, if postmarked by Tuesday.",
-  "Not registered, or moved? In Woodbridge you can register and vote the same day at the county elections office or any vote center, through Election Day.",
-  "Maya Kaur is running for U.S. Senate to make Woodbridge, her state, more affordable. She\u2019ll push for full Medicaid expansion, make data centers pay the full cost of their own power, push to end the war that\u2019s driving up heating oil prices and fund more heating aid, back targeted tariffs that build jobs here and fight private school vouchers going nationwide.", /* version 153: her five briefs, as a Senate candidate */
+  "Not registered, or moved? In Franklin you can register and vote the same day at the county elections office or any vote center, through Election Day.",
+  "Maya Kaur is running for U.S. Senate to make Franklin, her state, more affordable. She\u2019ll push for full Medicaid expansion, make data centers pay the full cost of their own power, push to end the war that\u2019s driving up heating oil prices and fund more heating aid, back targeted tariffs that build jobs here and fight private school vouchers going nationwide.", /* version 153: her five briefs, as a Senate candidate */
   "Anything not covered here: say you\u2019ll find out, and the campaign will follow up.",
 ];
 const ASK_FIND_OUT = "Good question. I don\u2019t want to guess, so I\u2019ll find out and the campaign will get back to you.";
@@ -9848,7 +9855,7 @@ function askScripted(q) {
   if (hit) return hit[1];
   if (has(t, ["register", "registration", "moved", "sign up to vote"])) return ASK_STARTERS[2][1];
   for (const [keys, line] of ASK_ISSUES) if (has(t, keys)) return line; /* version 153: her five briefs */
-  if (has(t, ["running for", "what office", "which office", "what race", "which race", "what seat"])) return "She\u2019s running for U.S. Senate, here in Woodbridge.";
+  if (has(t, ["running for", "what office", "which office", "what race", "which race", "what seat"])) return "She\u2019s running for U.S. Senate, here in Franklin.";
   if (has(t, ["costs", "cost of living", "prices", "afford", "stand for", "stand on", "where does she stand", "running on", "platform", "his plan", "her plan", "issue", "about?"])) return ASK_STARTERS[1][1];
   if (has(t, ["where", "polling", "poll ", "drop box", "dropbox", "vote center", "mail", "ballot"])) return ASK_STARTERS[0][1];
   if (has(t, ["when", "what time", "hours", "open", "election day"])) return "Election Day is Tuesday, and polls are open 7 AM to 8 PM.";
@@ -9856,7 +9863,7 @@ function askScripted(q) {
 }
 async function askAI(q) {
   const prompt = [
-    `A volunteer is at a door for the Maya Kaur campaign (U.S. Senate, the state of Woodbridge). The voter just asked: "${q}"`,
+    `A volunteer is at a door for the Maya Kaur campaign (U.S. Senate, the state of Franklin). The voter just asked: "${q}"`,
     "",
     "Campaign notes:",
     ...CAMPAIGN_NOTES.map((n) => "- " + n),

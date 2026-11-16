@@ -1,5 +1,5 @@
 /* The two rebuilt issue trainings (Nov 6, 2026): Maya Kaur's electric bill and school voucher lessons.
-   Maya Kaur and the state of Woodbridge are a sample campaign. Each training is built from a real Democrat who won a
+   Maya Kaur and the state of Franklin are a sample campaign. Each training is built from a real Democrat who won a
    competitive U.S. Senate race on Nov 3, 2026 (AP called all four Senate races these lessons come from), and the
    learner hears that once, at the end. The figures are that state's real ones; the page's sources sheet links each.
    One file holds what the server needs (the voter, the facts the coach checks, the narration it may speak) so the
@@ -28,7 +28,7 @@ export const ISSUE_SCENARIOS = {
     ],
     voter: {
       name: "Barb",
-      persona: "Barb, 67, a retired school bus driver who lives alone on a fixed income in the state of Woodbridge. Her electric bill has jumped to about $145 a month and she has been keeping the heat low to save money. She likes Maya Kaur but is tired of politicians promising things. Friendly, blunt, a little worn down.",
+      persona: "Barb, 67, a retired school bus driver who lives alone on a fixed income in the state of Franklin. Her electric bill has jumped to about $145 a month and she has been keeping the heat low to save money. She likes Maya Kaur but is tired of politicians promising things. Friendly, blunt, a little worn down.",
       setting: "Barb's front porch on a chilly evening a few days before Election Day. A volunteer has knocked and she has opened the door.",
       knows: [
         "Her electric bill went from under $90 a month a few years ago to about $145 now.",
@@ -103,7 +103,7 @@ export const ISSUE_SCENARIOS = {
     ],
     voter: {
       name: "Ray",
-      persona: "Ray, 48, a ranch foreman and dad of two kids at the public school in his small town in the state of Woodbridge. There's no private school within an hour of town. His sister in the city got a voucher for her daughter, who is doing well at a small private school. He's undecided about vouchers: fair-minded, plain-spoken, proud of his kids' school and loyal to his sister.",
+      persona: "Ray, 48, a ranch foreman and dad of two kids at the public school in his small town in the state of Franklin. There's no private school within an hour of town. His sister in the city got a voucher for her daughter, who is doing well at a small private school. He's undecided about vouchers: fair-minded, plain-spoken, proud of his kids' school and loyal to his sister.",
       setting: "Ray's driveway late on a weekday afternoon, a few days before Election Day. He's just gotten home and is standing by his truck when a volunteer walks up.",
       knows: [
         "His kids' school is the only school in town, and there's no private school within an hour.",

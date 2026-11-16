@@ -359,7 +359,7 @@ function btn(label, id, cls) { return '<button class="btn' + (cls ? " " + cls : 
 function vCover() {
   top({}); tag("Cover");
   var locked = qs.get("slot") === "0" && !qs.has("done");
-  $("#scr").innerHTML = '<div style="margin-top:14px"><span class="camp" role="img" aria-label="Maya Kaur for U.S. Senate in Woodbridge"><b>MAYA KAUR</b><small>FOR U.S. SENATE · WOODBRIDGE</small></span></div>' +
+  $("#scr").innerHTML = '<div style="margin-top:14px"><span class="camp" role="img" aria-label="Maya Kaur for U.S. Senate in Franklin"><b>MAYA KAUR</b><small>FOR U.S. SENATE · FRANKLIN</small></span></div>' +
     '<h1 class="lg">' + esc(D.coverH) + '</h1>' +
     '<ul class="kp">' + D.points.map(function (p) { return '<li><span class="ic" style="background:' + p[1] + '">' + p[2] + '</span><span>' + esc(p[0]) + '</span></li>'; }).join("") + '</ul>' +
     '<div class="parts"><span style="color:var(--green-d)">' + ICON.book + 'Learn 1 min</span><span style="color:var(--maya)">' + ICON.door + 'At the door 3 min</span></div>' +
@@ -635,7 +635,7 @@ function sources() {
   var sh = document.createElement("div"); sh.className = "sheet";
   sh.innerHTML = '<div role="dialog" aria-label="Sources"><h2>Sources</h2><p class="sub" style="margin:0">' + esc(D.sourcesSub) + '</p>' +
     D.sources.map(function (g) { return '<h3>' + esc(g[0]) + '</h3><ol>' + g[1].map(function (s) { return '<li>' + esc(s[0]) + ': <a href="' + esc(s[1]) + '" target="_blank" rel="noopener">' + esc(s[2]) + '</a></li>'; }).join("") + '</ol>'; }).join("") +
-    '<p class="fine">The narrator and the voters are AI voices. Maya Kaur and the state of Woodbridge are a sample campaign. Nothing you say is stored.</p><div class="foot"><button class="btn ghost" id="shx" style="flex:1">Close</button></div></div>';
+    '<p class="fine">The narrator and the voters are AI voices. Maya Kaur and the state of Franklin are a sample campaign. Practice conversations are kept for 30 days to improve Warmup.</p><div class="foot"><button class="btn ghost" id="shx" style="flex:1">Close</button></div></div>';
   document.body.appendChild(sh);
   sh.addEventListener("click", function (e) { if (e.target === sh || e.target.id === "shx") sh.remove(); });
 }

@@ -214,7 +214,7 @@ export const LESSONS = {
     cards: ["bill", "why", "plan", "opp", "accurate"],
     doneH: "You’re ready for the electric bill question",
     doneSub: "Their bill, the reason, then Maya’s fix: data centers pay their own way.",
-    credit: "This training was built from <b>Sherrod Brown</b>’s winning 2026 campaign for U.S. Senate in Ohio. The figures are Ohio’s. Maya Kaur and Woodbridge are a sample campaign.",
+    credit: "This training was built from <b>Sherrod Brown</b>’s winning 2026 campaign for U.S. Senate in Ohio. The figures are Ohio’s. Maya Kaur and Franklin are a sample campaign.",
     sourcesSub: "Every number and quote in this lesson, with links.",
     sources: [
       ["The facts", [
@@ -259,7 +259,7 @@ export const LESSONS = {
     cards: ["money", "plan", "respect", "opp", "accurate"],
     doneH: "You’re ready for the voucher question",
     doneSub: "Where the money goes, Maya’s view, and respect for every family’s choice.",
-    credit: "This training was built from <b>James Talarico</b>’s winning 2026 campaign for U.S. Senate in Texas. The figures are Texas’s. Maya Kaur and Woodbridge are a sample campaign.",
+    credit: "This training was built from <b>James Talarico</b>’s winning 2026 campaign for U.S. Senate in Texas. The figures are Texas’s. Maya Kaur and Franklin are a sample campaign.",
     sourcesSub: "Every number and quote in this lesson, with links.",
     sources: [
       ["The facts", [

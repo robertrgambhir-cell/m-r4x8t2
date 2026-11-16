@@ -71,6 +71,7 @@ const FAKE_SR = () => {
   const s0 = await stats();
   const lines = ["Hi, I'm Sam. I live a few blocks over and I'm volunteering for Maya Kaur.", "Election Day is Tuesday, so I'm checking in with neighbors.", "I'm not sure, but I can find out for you. Thanks so much, have a good night."];
   const lat = [];
+  const frameH = [await p.evaluate(() => { const f = document.querySelector('#screen .frame.convo-stage'); return f ? Math.round(f.getBoundingClientRect().height) : 0; })];
   for (let i = 0; i < lines.length; i += 1) {
     const t0 = await speakLine(p, lines[i]);
     const sent = await waitFor(p, (k) => document.querySelectorAll('#thread .bub.you').length >= k, 2500, i + 1);
@@ -79,10 +80,12 @@ const FAKE_SR = () => {
     const got = await waitThem(p, i + 2, 15000);
     lat.push(Date.now() - t0);
     ok(got, `Sofia answers line ${i + 1}`);
+    frameH.push(await p.evaluate(() => { const f = document.querySelector('#screen .frame.convo-stage'); return f ? Math.round(f.getBoundingClientRect().height) : 0; }));
     if (i === 1) await p.screenshot({ path: path.join(ROOT, '..', `t165-sofia-door-${W}x${H}.png`) });
     await waitFor(p, () => __T.S.screen !== 'door' || !__T.S.convo || !__T.S.convo.busy, 15000);
     if (await p.evaluate(() => __T.S.screen !== 'door' || __T.S.convo.ended)) break;
   }
+  ok(frameH.length > 1 && frameH.every((h) => h > 0 && Math.abs(h - frameH[frameH.length - 1]) <= 6), 'the voter\'s picture holds its size through the conversation (version 166): ' + frameH.join(', '));
   const s1 = await stats();
   const nYou = (await p.evaluate(() => (__T.S.convo ? __T.S.convo.turns : []).filter((x) => x.who === 'you').length)) || lines.length;
   ok(s1.voter - s0.voter <= nYou + 1, `about one voter request per line, the early answer reused (requests ${s1.voter - s0.voter}, lines ${nYou})`);
