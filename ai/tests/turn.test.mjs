@@ -1,6 +1,6 @@
 /* Unit tests for the fast spoken turn (POST /turn) and the narration (GET /narrate), with the model and the voice stubbed.
    Run: node tests/turn.test.mjs */
-import worker, { makeSplitter, signLine } from "../worker.js";
+import worker, { makeSplitter, signLine, introParts, introPartsLine } from "../worker.js";
 import { SCENARIOS } from "../scenarios.js";
 
 let pass = 0, fail = 0;
@@ -152,6 +152,18 @@ r = await g("s=kevin_intro&k=0"); ok(r.status === 404, "a scenario without narra
   const nLog = () => [...kv.m.keys()].filter((k) => k.startsWith("log:")).length, kv0 = nLog();
   await frames(await postL({ scenario: "sofia_intro", turns: T1 }, { ...envL, LOG_CONVERSATIONS: "off" }));
   ok(nLog() === kv0, "LOG_CONVERSATIONS off stops the log");
+}
+/* version 165-5: the server works out which parts of the introduction are still missing (Robert's 8:09 PM PT line) */
+{
+  const Y = (t) => [{ who: "them", text: "Hi, can I help you?" }, { who: "you", text: t }];
+  const r = introParts(Y("Hi I'm Robert um I live down the street I'm volunteering getting the word out about the election do you know there's an election next Tuesday"));
+  ok(r.name && !r.maya && r.why, "Robert's line: name and why said, the campaign missing");
+  ok(/Who are you volunteering with\?/.test(introPartsLine(Y("Hi I'm Robert, I'm volunteering, getting the word out about the election."))), "so the voter asks who he's volunteering with");
+  ok(/Sorry, and you are\?/.test(introPartsLine(Y("I'm volunteering with Maya Kaur. Election Day is Tuesday."))), "\"I'm volunteering\" isn't a name");
+  ok(/don't ask them anything/.test(introPartsLine(Y("Hi, I'm Sam, volunteering for Maya Kaur. Election Day is Tuesday."))), "all three said: no question");
+  modelText = "warm|Oh, hi Robert. Oh, nice. Who are you volunteering with?";
+  await frames(await post({ scenario: "sofia_intro", turns: Y("Hi I'm Robert, getting the word out about the election.") }));
+  ok(/Who are you volunteering with/.test(JSON.stringify(calls[calls.length - 1].system)), "the line goes into the voter's instructions");
 }
 console.log(`turn: ${pass} pass, ${fail} fail`);
 process.exit(fail ? 1 : 0);

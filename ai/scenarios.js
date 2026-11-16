@@ -46,6 +46,7 @@ export const SCENARIOS = {
       opening: { say: "Hey. Can I help you?", mood: "neutral" },
       voice: "arcas", voices: ["arcas", "apollo", "orion"], /* Deepgram Aura-2 speakers; ?voice= picks one for review */
       endRule: "Once the volunteer has said their name, that they're volunteering for Maya Kaur and that Election Day is Tuesday, or after about three exchanges, he thanks them, says he has to get on his call, says goodbye and closes the door. If the volunteer says goodbye, he says goodbye back.",
+      introParts: true, /* version 165-5: the server tells the voter which part is still missing */
       wrapAt: 3, /* version 165 (Robert, Nov 15): a lesson 1 door runs to a natural close, at most four of the volunteer's lines */
       hardStop: 4,
     },
@@ -107,6 +108,7 @@ export const SCENARIOS = {
       opening: { say: "Hi, can I help you?", mood: "neutral" },
       voice: "hera", voices: ["hera", "vesta", "cordelia"], /* Deepgram Aura-2 speakers; ?voice= picks one for review */
       endRule: "Once the volunteer has said their name, that they're volunteering for Maya Kaur and that Election Day is Tuesday, or after about three exchanges, she thanks them for coming by, says goodbye and closes the door. If the volunteer says goodbye, she says goodbye back.",
+      introParts: true,
       wrapAt: 3,
       hardStop: 4,
     },

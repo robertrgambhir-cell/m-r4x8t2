@@ -33,7 +33,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "165-4"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "165-5"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -185,6 +185,20 @@ const DENIES_AI = /\b(not an? (ai|bot|robot|computer)|i'?m (a )?real (person|guy
 export const needsCare = (turns) => { const you = turns.filter((t) => t.who === "you"); return !!you.length && CARE.test(you[you.length - 1].text); };
 
 /* ---------------- the voter ---------------- */
+/* version 165-5 (Robert's 8:09 PM PT run): in lesson 1 the server, not the model, works out which parts of an introduction
+   the volunteer has already said, and tells the voter the one question to ask, so it never asks about something already said */
+const NOT_NAME = "volunteering|volunteer|with|here|a|an|the|just|from|out|getting|so|calling|knocking|checking|really|happy|glad|good|great|fine|well|not|sorry|on|in|your|part|voting|going|doing|okay|ok|um|uh|like|also|reaching|working|helping|canvassing|stopping|coming|talking|walking|a|actually|sure|right|literally|kind|trying|hoping|wondering|calling";
+export function introParts(turns) {
+  const said = turns.filter((t) => t.who === "you").map((t) => t.text).join(" ");
+  const nm = new RegExp(`\\b(?:i'?m|i am|my name is|my name's|name's|this is|it's)\\s+(?!(?:${NOT_NAME})\\b)[a-z]{2,}`, "i");
+  return { name: nm.test(said), maya: /\b(maya|kaur|mia car|maya core|maya care|myra)\b/i.test(said), why: /\b(election|tuesday|vote|voting|polls|ballot)\b/i.test(said) };
+}
+export function introPartsLine(turns) {
+  if (!turns.some((t) => t.who === "you")) return "";
+  const p = introParts(turns), done = [p.name && "their name", p.maya && "that they're with Maya Kaur's campaign", p.why && "why they came (the election)"].filter(Boolean);
+  const ask = !p.name ? "Sorry, and you are?" : !p.maya ? "Oh, nice. Who are you volunteering with?" : !p.why ? "What's this about?" : "";
+  return `WHAT THEY'VE SAID SO FAR: ${done.length ? done.join(", ") : "nothing yet about who they are"}. ` + (ask ? `React briefly to what they just said, then end your turn with this question, word for word: "${ask}" Ask nothing else.` : "They've said who they are, who they're with and why they came, so don't ask them anything; just respond warmly.");
+}
 export function voterPrompt(s, turns) {
   const v = s.voter, n = turns.filter((t) => t.who === "you").length;
   const lines = [
@@ -218,6 +232,7 @@ export function voterPrompt(s, turns) {
     "",
     `The volunteer has spoken ${n} time${n === 1 ? "" : "s"} so far.`,
   ];
+  if (v.introParts) { const pl = introPartsLine(turns); if (pl) lines.push(pl); } /* version 165-5 */
   const bad = conduct(turns);
   if (bad) lines.push(`The volunteer's last line was ${bad}. Say briefly and calmly that it's not okay, don't repeat their words, say goodbye and set end to true.`);
   else if (n >= v.hardStop) lines.push("You must end the conversation now: say a short, polite goodbye in your own words and set end to true.");
