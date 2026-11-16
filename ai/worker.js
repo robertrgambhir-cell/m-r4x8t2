@@ -33,7 +33,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "165-1"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "165-2"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -214,6 +214,7 @@ export function voterPrompt(s, turns) {
     "",
     "ENDING", v.endRule,
     "Set end to true only on the turn where you say your last words and the conversation is over.",
+    "Once you've said goodbye, the conversation is over: if the volunteer says one more thing, just say a two- or three-word goodbye and end it. Always speak as yourself at the door; never talk about the conversation, lines, turns or what you can or can't say.", /* version 165-2 (Robert's test, Nov 15: after her goodbye Sofia's next line broke character) */
     "",
     `The volunteer has spoken ${n} time${n === 1 ? "" : "s"} so far.`,
   ];
@@ -236,12 +237,20 @@ const VOTER_TOOL = {
     required: ["say", "mood", "end"],
   },
 };
+/* version 165-2: the goodbye and the character guard. A voter line that says goodbye ends the door; a line after the voter
+   already said goodbye is a short goodbye, not a model call; a line that steps out of character (talks about lines, turns,
+   the conversation or what it can't write) is never voiced, and the door ends with a plain goodbye instead. */
+export const FAREWELL = /\b(good ?night|goodbye|bye( now)?|have a (good|great|nice|lovely) (night|evening|one|day|afternoon|weekend)|take care|see you( later| around)?|thanks for (coming|stopping) by)\b/i;
+export const outOfCharacter = (p, name) => new RegExp(`\\b(I (can'?t|cannot|won'?t|am unable to|'m unable to) (write|continue|generate|produce|give|provide)|next (line|turn|response)|(this|the) (exchange|conversation|scene|role-?play|transcript|dialogue)\\b[^.]*\\b(ended|over|already|reached)|${name}'s (next|final|last) (line|words|turn)|as an AI\\b|language model|the volunteer\\b|if you'?re practicing|role-?play)`, "i").test(p);
+export const GOODBYE = "Bye now!";
+const saidBye = (turns) => { const you = turns.filter((t) => t.who === "you").length; const them = turns.filter((t) => t.who === "them"); return you >= 2 && them.length >= 2 && FAREWELL.test(them[them.length - 1].text); };
 export function cleanVoter(x, s, turns) {
   if (!x || typeof x.say !== "string" || !x.say.trim()) throw new HttpError(502, "bad_model_output", "the voter's reply was empty");
   let say = dashes(x.say).replace(/^["“]+|["”]+$/g, "").replace(new RegExp("^" + s.voter.name + "\\s*:\\s*", "i"), "").replace(/\*[^*]+\*/g, "").replace(/\s+/g, " ").trim();
   if (say.length > 320) say = say.slice(0, 320).replace(/[^.!?]*$/, "") || say.slice(0, 320);
   const n = turns.filter((t) => t.who === "you").length;
-  return { say, mood: MOODS.includes(x.mood) ? x.mood : "neutral", end: !!x.end || n >= s.voter.hardStop };
+  if (outOfCharacter(say, s.voter.name)) return { say: GOODBYE, mood: "warm", end: true, broke: true }; /* version 165-2 */
+  return { say, mood: MOODS.includes(x.mood) ? x.mood : "neutral", end: !!x.end || n >= s.voter.hardStop || (n >= 2 && FAREWELL.test(say)) };
 }
 
 /* ---------------- the coach ---------------- */
@@ -515,7 +524,7 @@ async function claudeStream(env, c, { model, system, user, maxTokens, timeout },
   } catch (e) { if (e && e.name === "AbortError") throw new HttpError(504, "timeout", "The AI took too long to answer."); throw e; }
   finally { clearTimeout(timer); }
 }
-const TURN_FORMAT = (name) => `\n\nHOW TO ANSWER (this replaces any mention of a tool or of setting end): write one mood word from this list: ${MOODS.join(", ")}. Then a vertical bar |. Then exactly what ${name} says out loud next, and nothing else. If these are ${name}'s last words and the conversation is over, finish with a space and <end>. Example: warm|Oh, good. So what would she actually do?`;
+const TURN_FORMAT = (name) => `\n\nHOW TO ANSWER (this replaces any mention of a tool or of setting end): write one mood word from this list: ${MOODS.join(", ")}. Then a vertical bar |. Then exactly what ${name} says out loud next, and nothing else. If these are ${name}'s last words and the conversation is over (a goodbye), finish with a space and <end>. Speak only as ${name}, out loud at the door, never about the conversation itself. Example: warm|Oh, good. So what would she actually do?`;
 /* sentence splitter: a sentence ends at . ! or ? followed by a space; the first piece may also end at a comma after four words,
    so the voice can start sooner; nothing runs past about 16 words without a break */
 export function makeSplitter(name, onPiece) {
@@ -554,7 +563,7 @@ async function voterOnce(env, c, s, scen, turns) {
   { const you = turns.filter((t) => t.who === "you"); if (you.length && ASKS_AI.test(you[you.length - 1].text) && DENIES_AI.test(out.say)) { out.say = "Ha, I'm the practice voter, so not a real person. Want to keep going?"; out.sig = await signLine(env, scen, out.say, turns.length); } }
   return { out, r };
 }
-function turnStream(env, c, s, scen, turns, h, t0) {
+function turnStream(env, c, s, scen, turns, h, t0, ip) {
   const ts = new TransformStream(), w = ts.writable.getWriter();
   const write = (b) => w.write(b).catch(() => {});
   const speaker = s.voter.voice || "luna", ms = { text1: 0, audio1: 0 };
@@ -571,29 +580,37 @@ function turnStream(env, c, s, scen, turns, h, t0) {
     try {
       const you = turns.filter((t) => t.who === "you"), last = you.length ? you[you.length - 1].text : "";
       let out, usd = 0, usage = {};
-      if (conduct(turns) || ASKS_AI.test(last)) {
+      if (!conduct(turns) && saidBye(turns)) { /* version 165-2: the voter already said goodbye */
+        out = { say: GOODBYE, mood: "warm", end: true };
+        out.sig = await signLine(env, scen, out.say, turns.length);
+        say1(out.say, 0);
+      } else if (conduct(turns) || ASKS_AI.test(last)) {
         const x = await voterOnce(env, c, s, scen, turns);
         out = x.out; usd = x.r.usd; usage = x.r.usage;
         say1(out.say, 0);
       } else {
         const said = []; let rawText = "";
-        const sp2 = makeSplitter(s.voter.name, (p, i) => { said.push(p); say1(p, i); });
+        let broke = false;
+        const sp2 = makeSplitter(s.voter.name, (p) => { if (broke) return; if (outOfCharacter(p, s.voter.name)) { broke = true; if (!said.length) { said.push(GOODBYE); say1(GOODBYE, 0); } return; } said.push(p); say1(p, said.length - 1); }); /* version 165-2 */
         const r = await claudeStream(env, c, { model: c.voterModel, system: voterPrompt(s, turns) + TURN_FORMAT(s.voter.name), user: `The conversation so far:\n${transcriptText(turns, s.voter.name)}\n\nWrite ${s.voter.name}'s next turn. Don't repeat anything ${s.voter.name} already said.`, maxTokens: DEFAULTS.VOTER_MAX_TOKENS, timeout: c.voterTimeout }, (t) => { if (!ms.tok1) ms.tok1 = Date.now() - t0; rawText += t; sp2.feed(t); });
         sp2.end();
         usd = r.usd; usage = r.usage;
         if (!said.length) { console.log(JSON.stringify({ route: "/turn", scen, empty: rawText.slice(0, 200), types: r.usage.types })); const e = new HttpError(502, "bad_model_output", "the voter's reply was empty"); e.detail = JSON.stringify({ raw: rawText.slice(0, 200), types: r.usage.types, head: r.usage.head.slice(0, 400) }); throw e; }
-        out = cleanVoter({ say: said.join(" "), mood: sp2.mood, end: sp2.ended }, s, turns);
+        out = cleanVoter({ say: said.join(" "), mood: sp2.mood, end: sp2.ended || broke }, s, turns);
         out.say = said.join(" ");
+        if (broke) { out.end = true; out.broke = true; }
         out.sig = await signLine(env, scen, out.say, turns.length);
         if (needsCare(turns)) out.care = true;
       }
       await pump;
       ms.total = Date.now() - t0;
       write(jsonFrame({ t: "done", say: out.say, mood: out.mood, end: !!out.end, sig: out.sig, care: !!out.care, voice: voiceErr || "ok", ms }));
+      await logConvo(env, ip, { route: "/turn", scen, turns, say: out.say, mood: out.mood, end: !!out.end, broke: !!out.broke, ms: ms.total, audio1: ms.audio1 }); /* version 165-2 */
       console.log(JSON.stringify({ route: "/turn", scen, ms: ms.total, text1: ms.text1, audio1: ms.audio1, in: usage.input_tokens, out: usage.output_tokens, usd: +Number(usd || 0).toFixed(5), voice: voiceErr || "ok", pcm: PCM_OK }));
     } catch (e) {
       const code = e instanceof HttpError ? e.code : "server_error";
       console.log(JSON.stringify({ route: "/turn", scen, ms: Date.now() - t0, error: code }));
+      await logConvo(env, ip, { route: "/turn", scen, turns, error: code });
       await pump.catch(() => {});
       write(jsonFrame({ t: "error", code, ...(e && e.detail ? { detail: e.detail } : {}) }));
     } finally { w.close().catch(() => {}); }
@@ -626,6 +643,30 @@ function cors(origin, c) {
 }
 const json = (obj, status, h) => new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json", "cache-control": "no-store", ...h } });
 
+/* version 165-2 (Robert, Nov 15, 6:55 PM PT): every practice conversation is kept for 30 days so Claude can read a test run
+   back. On for all testing; LOG_CONVERSATIONS = "off" in wrangler.toml turns it off once real paying customers use Warmup.
+   Who is a short one-way hash of the connection, never the address. Read with GET /log?k=<read key>; only the key's hash
+   lives here. */
+const LOG_KEY_SHA = "3af4b854d025565b2f6445193835f492f60059d5c7f37b8c11f3aa7ea9ea45ab";
+async function sha256hex(t) { const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, "0")).join(""); }
+async function logConvo(env, ip, entry) {
+  if (!env.WARMUP_KV || String(env.LOG_CONVERSATIONS || "on").toLowerCase() === "off") return;
+  try {
+    const ts = Date.now(), who = (await sha256hex(String(ip) + "|warmup-log")).slice(0, 8);
+    const turns = (entry.turns || []).map((t) => ({ who: t.who, text: String(t.text || "").slice(0, 600) }));
+    await env.WARMUP_KV.put(`log:${String(9e15 - ts).padStart(16, "0")}:${Math.random().toString(36).slice(2, 8)}`, JSON.stringify({ ts, at: new Date(ts).toISOString(), who, ...entry, turns }), { expirationTtl: 30 * 86400 });
+  } catch (e) { /* the log never breaks a conversation */ }
+}
+async function readLog(env, url, h) {
+  if (!env.WARMUP_KV || (await sha256hex(url.searchParams.get("k") || "")) !== (env.LOG_KEY_SHA || LOG_KEY_SHA)) throw new HttpError(404, "not_found"); /* LOG_KEY_SHA in env: tests only */
+  const n = Math.min(200, Math.max(1, Number(url.searchParams.get("n")) || 40));
+  const list = await env.WARMUP_KV.list({ prefix: "log:", limit: n });
+  const out = [];
+  for (const k of list.keys) { const v = await env.WARMUP_KV.get(k.name); if (v) out.push(JSON.parse(v)); }
+  return json({ n: out.length, entries: out }, 200, { ...h, "cache-control": "no-store" });
+}
+export { logConvo, readLog };
+
 export default {
   async fetch(req, env) {
     const c = cfg(env), origin = req.headers.get("origin") || "", h = cors(origin, c), url = new URL(req.url);
@@ -648,6 +689,7 @@ export default {
         try { return await learnerRoute(req, env, route, { json: (o, st) => json(o, st || 200, h), origin, origins: c.origins, ip: ip0 }); }
         catch (e) { if (e instanceof LearnerError) { console.log(JSON.stringify({ route, ms: Date.now() - t0, error: e.code })); return json({ error: e.code, message: e.message }, e.status, h); } throw e; }
       }
+      if (route === "/log" && req.method === "GET") return await readLog(env, url, h); /* version 165-2 */
       if (route === "/narrate" && req.method === "GET") return await narrate(env, c, url, h, req.headers.get("cf-connecting-ip") || "local");
       if (req.method !== "POST" || (route !== "/voter" && route !== "/coach" && route !== "/speak" && route !== "/turn")) throw new HttpError(404, "not_found");
       if (!c.origins.includes(origin)) throw new HttpError(403, "origin", "This page isn't allowed to use the practice AI.");
@@ -676,7 +718,7 @@ export default {
       if (route === "/turn") {
         if (s.coachOnly) throw new HttpError(400, "no_voter");
         await checkRate(env, ip, "voter", c.voterPerHour);
-        return turnStream(env, c, s, scen, turns, h, t0);
+        return turnStream(env, c, s, scen, turns, h, t0, ip);
       }
       if (route === "/voter") {
         if (s.coachOnly) throw new HttpError(400, "no_voter");
@@ -688,12 +730,14 @@ export default {
         if (conduct(turns)) out.end = true; /* a threat, a sexual comment or a second insult ends the conversation, whatever the model said */
         { const you = turns.filter((t) => t.who === "you"); if (you.length && ASKS_AI.test(you[you.length - 1].text) && DENIES_AI.test(out.say)) { out.say = "Ha, I'm the practice voter, so not a real person. Want to keep going?"; out.sig = await signLine(env, scen, out.say, turns.length); } }
         console.log(JSON.stringify({ route, scen, ms: r.ms, in: r.usage.input_tokens, out: r.usage.output_tokens, usd: +r.usd.toFixed(5) }));
+        await logConvo(env, ip, { route, scen, turns, say: out.say, end: !!out.end, broke: !!out.broke, ms: r.ms }); /* version 165-2 */
         return json(out, 200, h);
       }
       await checkRate(env, ip, "coach", c.coachPerHour);
       const r = await claude(env, c, { model: c.coachModel, system: coachPrompt(s), user: `The transcript (Volunteer lines are speech-to-text):\n${transcriptText(turns, s.voter.name)}\n\nJudge it with the coach_report tool.`, tool: coachTool(s), maxTokens: DEFAULTS.COACH_MAX_TOKENS, timeout: c.coachTimeout, retries: 1 });
       const out = cleanCoach(r.input, s, turns);
       console.log(JSON.stringify({ route, scen, ms: r.ms, in: r.usage.input_tokens, out: r.usage.output_tokens, usd: +r.usd.toFixed(5) }));
+      await logConvo(env, ip, { route, scen, turns, coach: { summary: out.summary, items: (out.items || []).map((x) => ({ id: x.id, status: x.status, evidence: x.evidence })), improvement: out.improvement && out.improvement.text }, ms: r.ms }); /* version 165-2 */
       return json({ ...out, model: c.coachModel }, 200, h);
     } catch (e) {
       const status = e instanceof HttpError ? e.status : 500, code = e instanceof HttpError ? e.code : "server_error";

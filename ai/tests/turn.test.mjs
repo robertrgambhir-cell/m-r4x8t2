@@ -108,5 +108,50 @@ r = await g("s=kevin_intro&k=0"); ok(r.status === 404, "a scenario without narra
   ok(done && done.j.end === true, "the fourth line ends Sofia's door even if the model doesn't");
   ok(/must end the conversation now/.test(JSON.stringify(calls[calls.length - 1].system)), "the prompt tells her to end at the fourth line");
 }
+/* version 165-2: Robert's Nov 15 test. After Sofia's goodbye he said "You too goodnight" and the model stepped out of character
+   ("I can't write Sofia's next line..."), which was voiced. Now: a line after her goodbye gets a short goodbye with no model call,
+   an out-of-character piece is never voiced, and a goodbye ends the door. */
+{
+  const SO = SCENARIOS.sofia_intro.voter.opening.say;
+  const conv = [{ who: "them", text: SO }, { who: "you", text: "Hi, I'm Robert, volunteering for Maya Kaur. Election Day is Tuesday." }];
+  conv.push({ who: "them", text: "Oh nice, I'm voting for her.", sig: await signLine(env0, "sofia_intro", "Oh nice, I'm voting for her.", conv.length) });
+  conv.push({ who: "you", text: "Great. Have a good night." });
+  conv.push({ who: "them", text: "Thanks, Robert, you have a good evening too.", sig: await signLine(env0, "sofia_intro", "Thanks, Robert, you have a good evening too.", conv.length) });
+  conv.push({ who: "you", text: "You too goodnight" });
+  const n0 = calls.length;
+  let rs = await post({ scenario: "sofia_intro", turns: conv }), fr = await frames(rs), done = fr.find((x) => x.t === 1 && x.j.t === "done");
+  ok(done && done.j.say === "Bye now!" && done.j.end === true && calls.length === n0, "a line after her goodbye: a short goodbye, the door ends, no model call");
+  modelText = "neutral|I can't write Sofia's next line in this exchange, because the conversation already reached its goodbye. If you're practicing, start over.";
+  rs = await post({ scenario: "sofia_intro", turns: conv.slice(0, 4) }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
+  const says = fr.filter((x) => x.t === 1 && x.j.t === "say").map((x) => x.j.text).join(" ");
+  ok(done && done.j.end === true && !/can't write|next line|practicing/i.test(says + done.j.say) && done.j.say === "Bye now!", "an out-of-character line is never shown or voiced: " + (done && done.j.say));
+  modelText = "warm|Oh, how nice. You have a good night now, Robert.";
+  rs = await post({ scenario: "sofia_intro", turns: conv.slice(0, 4) }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
+  ok(done && done.j.end === true, "her goodbye ends the door even without the end marker");
+  modelText = "warm|Oh, a neighbor! Yes, I'm voting for her.";
+  rs = await post({ scenario: "sofia_intro", turns: conv.slice(0, 2) }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
+  ok(done && done.j.end === false, "a normal first answer doesn't end the door");
+}
+/* version 165-2: the conversation log (30 days, read only with the key; this test uses a key of its own) */
+{
+  const TK = "test-key-for-the-log-only", sha = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(TK)))].map((b) => b.toString(16).padStart(2, "0")).join("");
+  class KV { constructor() { this.m = new Map(); } async get(k, t) { const v = this.m.has(k) ? this.m.get(k) : null; return v && t === "json" ? JSON.parse(v) : v; } async put(k, v) { this.m.set(k, v); } async list({ prefix, limit }) { return { keys: [...this.m.keys()].filter((k) => k.startsWith(prefix)).sort().slice(0, limit).map((name) => ({ name })) }; } }
+  const kv = new KV(), envL = { ...env0, WARMUP_KV: kv, LOG_KEY_SHA: sha };
+  const postL = (body, env) => worker.fetch(new Request("https://w.example/turn", { method: "POST", headers: { origin: ORIGIN, "content-type": "application/json", "cf-connecting-ip": "3.3.3.3" }, body: JSON.stringify(body) }), env || envL);
+  const T1 = [{ who: "them", text: SCENARIOS.sofia_intro.voter.opening.say }, { who: "you", text: "Hi, I'm Sam." }];
+  modelText = "warm|Oh, a neighbor! Yes, I'm voting for her.";
+  await frames(await postL({ scenario: "sofia_intro", turns: T1 }));
+  const keys = [...kv.m.keys()].filter((k) => k.startsWith("log:")); /* the same store also holds the spend counters */
+  ok(keys.length === 1 && /^log:\d{16}:/.test(keys[0]), "each turn is logged");
+  const e = JSON.parse(kv.m.get(keys[0]));
+  ok(e.scen === "sofia_intro" && e.turns.length === 2 && e.say === "Oh, a neighbor! Yes, I'm voting for her." && !JSON.stringify(e).includes("3.3.3.3"), "the entry has the conversation and the reply, never the address");
+  const get = (q) => worker.fetch(new Request("https://w.example/log" + q, { method: "GET" }), envL);
+  ok((await get("?k=wrong")).status === 404 && (await get("")).status === 404, "the log is closed without the key");
+  const r1 = await get("?k=" + TK), j1 = await r1.json();
+  ok(r1.status === 200 && j1.n === 1 && j1.entries[0].say === e.say, "the key reads the log");
+  const nLog = () => [...kv.m.keys()].filter((k) => k.startsWith("log:")).length, kv0 = nLog();
+  await frames(await postL({ scenario: "sofia_intro", turns: T1 }, { ...envL, LOG_CONVERSATIONS: "off" }));
+  ok(nLog() === kv0, "LOG_CONVERSATIONS off stops the log");
+}
 console.log(`turn: ${pass} pass, ${fail} fail`);
 process.exit(fail ? 1 : 0);

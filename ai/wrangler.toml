@@ -14,6 +14,8 @@ DAILY_USD_CAP = "6"
 MONTHLY_USD_CAP = "150"
 VOTER_PER_IP_HOUR = "400"
 COACH_PER_IP_HOUR = "30"
+# Every practice conversation is kept 30 days so test runs can be read back (Robert, Nov 15). Set to "off" once real paying customers use Warmup.
+LOG_CONVERSATIONS = "on"
 
 # Counters for the rate limits and the dollar ceilings. Create it with
 #   npx wrangler kv namespace create WARMUP_KV
