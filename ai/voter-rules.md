@@ -22,16 +22,17 @@ Every rule here came from Robert testing the app on his phone. Each one says wha
 
 ## Every door
 
-6. **A goodbye ends the door (Robert, Nov 15).** When the voter says goodbye, the door closes and grading starts; the canvasser gets no extra turn. A line that arrives after her goodbye gets "Bye now!" with no AI call. *Enforced:* FAREWELL and saidBye in worker.js; turn.test.mjs; the replays.
+6. **A goodbye ends the door (Robert, Nov 15).** When the voter says goodbye, the door closes and grading starts; the canvasser gets no extra turn. A line that arrives after her goodbye gets "Bye now!" with no AI call. The canvasser's goodbye works the same way: she says goodbye back and the door closes, even if a part of the introduction is still missing (before 165-10 she answered "Thanks, bye now!" with "You too, bye! And what brings you by?"). *Enforced:* FAREWELL and saidBye in worker.js, and the missing-part question is skipped after a goodbye; turn.test.mjs; the replays.
 7. **The voter never steps out of character (Robert, Nov 15).** Before (after his "You too goodnight"): "I can't write Sofia's next line in this exchange, because the conversation already reached its goodbye..." After: any line that talks about lines, turns, the conversation, practicing or being an AI is never shown or spoken, and the door ends with a plain goodbye. *Enforced:* outOfCharacter in worker.js; turn.test.mjs; the replays.
 8. **The goodbye isn't the canvasser's to miss when the voter closed the door (Nov 15).** *Enforced:* the close item's definition (scenarios.js).
 9. **Spoken words get punctuation, never changed words (Robert, Nov 15).** *Enforced:* /tidy and sameWords in worker.js; turn.test.mjs.
 
 ## On screen
 
-10. **A FaceTime call, not a transcript (Robert, Nov 15).** The voter fills the screen edge to edge, the button floats over the picture, and only the latest lines show as captions (on a short phone, only the voter's). *Enforced:* versions 168 and 169 (the app pages); test165.cjs checks the layout.
+10. **A FaceTime call, not a transcript (Robert, Nov 15).** The voter fills the screen edge to edge, the button floats over the picture, and only the latest lines show as captions (on a short phone, only the voter's). Her face sits in the top third of the picture and the captions sit over her chest, never her face (Robert, Nov 16: "We want to be able to see their face there moving"). *Enforced:* versions 168, 169 and 170 (the app pages; version 170 draws a taller doorway on the conversation screen); test165.cjs checks the layout.
 
 ## Changelog
 
 - 2026-11-16: written from Robert's Nov 15 and 16 phone runs (versions 165 to 169, practice AI 165-1 to 165-7).
 - 2026-11-16: practice AI 165-8 and 165-9. The first replay run caught Sofia skipping the weather one run in two; the server now makes sure small talk gets a reply. 18 of 18 replays pass live.
+- 2026-11-16: version 170 and practice AI 165-10. The face sits above the captions; a goodbye from the canvasser closes the door with no question tacked on (found by test156 while checking version 170).

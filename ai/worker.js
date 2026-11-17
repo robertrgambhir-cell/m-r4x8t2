@@ -33,7 +33,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "165-9"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "165-10"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -641,7 +641,7 @@ function turnStream(env, c, s, scen, turns, h, t0, ip) {
         const x = await voterOnce(env, c, s, scen, turns);
         out = x.out; usd = x.r.usd; usage = x.r.usage;
         say1(out.say, 0);
-      } else if (s.voter.introParts && turns.filter((t) => t.who === "you").length < (s.voter.hardStop || 99) && introPlan(turns).ask) { /* version 165-7: a few words from the voter, then the server's question */
+      } else if (s.voter.introParts && you.length < (s.voter.hardStop || 99) && !(you.length >= 2 && FAREWELL.test(last)) && introPlan(turns).ask) { /* 165-10: once the canvasser says goodbye, the voter says it back and the door closes; no question */ /* version 165-7: a few words from the voter, then the server's question */
         const plan = introPlan(turns);
         let txt = "";
         const r = await claudeStream(env, c, { model: c.voterModel, system: voterPrompt(s, turns) + REACT_FORMAT(s.voter.name), user: `The conversation so far:\n${transcriptText(turns, s.voter.name)}\n\nWrite ${s.voter.name}'s short reaction.`, maxTokens: 60, timeout: c.voterTimeout }, (t) => { txt += t; });

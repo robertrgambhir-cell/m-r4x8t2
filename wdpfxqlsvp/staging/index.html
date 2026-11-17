@@ -2302,6 +2302,7 @@
   .app.ft .frame.convo-stage > .thread { padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to top, rgba(28, 24, 20, .62) 0, rgba(28, 24, 20, .22) 30%, rgba(28, 24, 20, 0) 46%); }
   .app.ft .frame.convo-stage > .talk-live { bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
   @media (max-height: 760px) { .app.ft .frame.convo-stage > .thread .bub.you:has(~ .bub.them) { display: none; } } /* on a short phone only the voter's latest line stays, so her face stays clear */
+  .app.ft .content.stage .frame.convo-stage > svg.voter { left: 0; top: 0; width: 100%; height: 100%; margin: 0; transform: none; } /* version 170: the face in the top third, the captions over the chest */
   .frame.convo-stage:has(> .talk-live) > .thread .bub, .frame.convo-stage:has(> .talk-live) > .thread .typing { visibility: hidden; }
   .thread .wai-care { margin: 6px 0; padding: 10px 12px; border-radius: 14px; background: #EEF3FB; border: 1.5px solid #9DB5DE; color: var(--ink); font-size: 14px; line-height: 1.4; }
   .thread .wai-care b { display: block; margin-bottom: 2px; }
@@ -5463,7 +5464,7 @@ function talk(on) {
   talkTimer = setInterval(() => { setMouth(m, seq[i % seq.length]); i += 1; }, 115);
 }
 
-function figure(p) {
+function figure(p, tall) { /* version 170: tall runs the shirt on below the old bottom edge */
   const back = {
     bob: `<path d="M128 152 C124 114 142 104 160 104 C178 104 196 114 192 152 C193 166 195 177 197 185 C187 188 182 178 182 166 L138 166 C138 178 133 188 123 185 C125 177 127 166 128 152 Z" fill="${p.hair}"/>`,
     long: `<path d="M126 150 C122 110 142 100 160 100 C178 100 198 110 194 150 L199 216 C189 217 184 198 182 172 L138 172 C136 198 131 217 121 216 Z" fill="${p.hair}"/>`,
@@ -5481,7 +5482,7 @@ function figure(p) {
   }[p.style] || "";
   const beard = p.beard ? `<path d="M136.5 148 C137.5 167 148 177.5 160 177.5 C172 177.5 182.5 167 183.5 148 C178.5 158 170.5 162.5 160 162.5 C149.5 162.5 141.5 158 136.5 148 Z" fill="${p.hair}"/>` : "";
   return `<g class="fig">${back}
-    <path d="M108 248 C110 209 128 191 160 191 C192 191 210 209 212 248 Z" fill="${p.shirt}"/>
+    <path d="${tall ? "M108 380 V248" : "M108 248"} C110 209 128 191 160 191 C192 191 210 209 212 248${tall ? " V380" : ""} Z" fill="${p.shirt}"/>
     ${p.phones ? `<g><path d="M141 197 C141 214 179 214 179 197" fill="none" stroke="#2A2A2E" stroke-width="4.5" stroke-linecap="round"/><rect x="134" y="191" width="11" height="15" rx="4" fill="#2A2A2E"/><rect x="175" y="191" width="11" height="15" rx="4" fill="#2A2A2E"/></g>` : ""}
     ${p.vneck ? `<path d="M147 192 L160 208 L173 192" fill="none" stroke="${p.shirtShade}" stroke-width="2.6" stroke-linejoin="round"/>` : ""}
     ${p.badge ? `<rect x="178" y="207" width="12" height="16" rx="2" fill="#FCF8F2" stroke="${p.shirtShade}" stroke-width="1.5"/>` : ""}
@@ -5510,17 +5511,17 @@ function realDoor(p, o) {
 }
 function homeScene(h, personaKey, o) {
   const id = "sc" + (svgSeq += 1);
-  const fig = figure(LOOKS[personaKey]);
+  const fig = figure(LOOKS[personaKey], o.tall);
   const cls = ["voter", "expr-neutral", o.main ? "main" : "", o.shut ? "shut" : ""].join(" ").trim();
   const apt = h.kind === "apt";
   const label = esc(o.label || (apt ? "A voter at an apartment door" : "A voter at the front door"));
   const vb = o.crop === "tight" ? "0 36 320 184" : o.crop ? "0 26 320 214" : "0 0 320 240";
-  const D = "M106 244 V62 H214 V244 Z";
+  const B = o.tall ? 380 : 244, D = `M106 ${B} V62 H214 V${B} Z`; /* version 170 */
   let tex = "";
-  if (h.texture === "boards") tex = `<g stroke="${h.line}" stroke-width="1.5">${[24, 48, 72, 96, 120, 144, 168, 192, 216].map((y) => `<path d="M0 ${y} H320"/>`).join("")}</g>`;
-  if (h.texture === "brick") { let p = ""; for (let r = 0; r < 15; r += 1) { const y = r * 16; p += `M0 ${y} H320 `; for (let x = r % 2 ? 16 : 0; x <= 320; x += 32) p += `M${x} ${y} V${y + 16} `; } tex = `<path d="${p}" fill="none" stroke="${h.line}" stroke-width="1.6"/>`; }
+  if (h.texture === "boards") tex = `<g stroke="${h.line}" stroke-width="1.5">${[24, 48, 72, 96, 120, 144, 168, 192, 216, ...(o.tall ? [240, 264, 288, 312, 336, 360] : [])].map((y) => `<path d="M0 ${y} H320"/>`).join("")}</g>`;
+  if (h.texture === "brick") { let p = ""; for (let r = 0; r < (o.tall ? 24 : 15); r += 1) { const y = r * 16; p += `M0 ${y} H320 `; for (let x = r % 2 ? 16 : 0; x <= 320; x += 32) p += `M${x} ${y} V${y + 16} `; } tex = `<path d="${p}" fill="none" stroke="${h.line}" stroke-width="1.6"/>`; }
   const base = apt
-    ? `<rect y="196" width="320" height="44" fill="${h.floor}"/><path d="M0 196 H320" stroke="#00000014" stroke-width="3"/><circle cx="51" cy="81" r="24" fill="#F6C76B" fill-opacity="0.2"/><rect x="36" y="70" width="30" height="22" rx="4" fill="#F3EBDD" stroke="#CFC5B5" stroke-width="2"/>`
+    ? `<rect y="196" width="320" height="${o.tall ? 184 : 44}" fill="${h.floor}"/><path d="M0 196 H320" stroke="#00000014" stroke-width="3"/><circle cx="51" cy="81" r="24" fill="#F6C76B" fill-opacity="0.2"/><rect x="36" y="70" width="30" height="22" rx="4" fill="#F3EBDD" stroke="#CFC5B5" stroke-width="2"/>`
     : `<circle cx="64" cy="90" r="24" fill="#F6C76B" fill-opacity="0.22"/><rect x="58" y="78" width="12" height="18" rx="3" fill="#3B3631"/><circle cx="64" cy="90" r="5" fill="#F6C76B"/>`;
   const win = h.window ? `<rect x="238" y="74" width="56" height="62" rx="3" fill="#EEF2F2" stroke="${h.frame}" stroke-width="5"/><path d="M266 74 V136 M238 105 H294" stroke="${h.frame}" stroke-width="3"/>` : "";
   const extra = {
@@ -5536,19 +5537,19 @@ function homeScene(h, personaKey, o) {
     ? ""
     : `<text x="64" y="134" text-anchor="middle" font-family="Newsreader, Georgia, serif" font-size="15" fill="${h.numColor || "#3B3631"}">${h.num}</text>`;
   return `<svg class="${cls}" viewBox="${vb}" role="img" aria-label="${label}"><defs><clipPath id="${id}"><path d="${D}"/></clipPath></defs>
-    <rect width="320" height="240" fill="${h.wall}"/>${tex}${base}${win}${extra}
+    <rect width="320" height="${o.tall ? 380 : 240}" fill="${h.wall}"/>${tex}${base}${win}${extra}
     <path d="${D}" fill="#F7E7C8"/>
     <g clip-path="url(#${id})"><g class="fig-wrap">${fig}</g></g>
     <g class="door-panel"><path d="${D}" fill="${h.door}"/>${panel}</g>
-    <path d="M102 244 V58 H218 V244" fill="none" stroke="${h.frame}" stroke-width="${apt ? 5 : 6}"/>
+    <path d="M102 ${B} V58 H218 V${B}" fill="none" stroke="${h.frame}" stroke-width="${apt ? 5 : 6}"/>
     ${num}
-    <rect x="${apt ? 96 : 86}" y="${apt ? 232 : 234}" width="${apt ? 128 : 148}" height="${apt ? 8 : 6}" rx="2" fill="${apt ? "#8C6B52" : "#B9AE9C"}"/>
+    ${o.tall ? "" : `<rect x="${apt ? 96 : 86}" y="${apt ? 232 : 234}" width="${apt ? 128 : 148}" height="${apt ? 8 : 6}" rx="2" fill="${apt ? "#8C6B52" : "#B9AE9C"}"/>`}
   </svg>`;
 }
 function scene(kind, personaKey, o = {}) {
   if (kind === "door" && HOME[personaKey]) return homeScene(HOME[personaKey], personaKey, o);
   const id = "sc" + (svgSeq += 1);
-  const fig = personaKey ? figure(LOOKS[personaKey]) : "";
+  const fig = personaKey ? figure(LOOKS[personaKey], o.tall && kind !== "store") : "";
   const cls = ["voter", "expr-neutral", o.main ? "main" : "", o.shut ? "shut" : "", o.away ? "away" : ""].join(" ").trim();
   const label = esc(o.label || (kind === "store" ? "A person stopping at the table" : "A voter at the front door"));
   const vb = o.crop === "tight" ? "0 36 320 184" : o.crop ? "0 26 320 214" : "0 0 320 240";
@@ -5569,19 +5570,20 @@ function scene(kind, personaKey, o = {}) {
       <g transform="rotate(-5 236 214)"><rect x="208" y="196" width="56" height="42" rx="4" fill="#FFFDF9" stroke="var(--ink)" stroke-width="2"/><rect x="227" y="191" width="18" height="8" rx="2" fill="var(--ink)"/><path d="M217 210 H255 M217 218 H249 M217 226 H253" stroke="#C9BFAF" stroke-width="2"/></g>
     </svg>`;
   }
-  const siding = [22, 44, 66, 88, 110, 132, 154, 176, 198, 220].map((y) => `<path d="M0 ${y} H320"/>`).join("");
+  const B = o.tall ? 380 : 244; /* version 170 */
+  const siding = [22, 44, 66, 88, 110, 132, 154, 176, 198, 220, ...(o.tall ? [242, 264, 286, 308, 330, 352, 374] : [])].map((y) => `<path d="M0 ${y} H320"/>`).join("");
   return `<svg class="${cls}" viewBox="${vb}" role="img" aria-label="${label}">
-    <defs><clipPath id="${id}"><path d="M104 244 V104 A56 56 0 0 1 216 104 V244 Z"/></clipPath></defs>
-    <rect width="320" height="240" fill="#F0E8DC"/>
+    <defs><clipPath id="${id}"><path d="M104 ${B} V104 A56 56 0 0 1 216 104 V${B} Z"/></clipPath></defs>
+    <rect width="320" height="${B === 244 ? 240 : B}" fill="#F0E8DC"/>
     <g stroke="#E5DACA" stroke-width="1.5">${siding}</g>
     <circle cx="64" cy="98" r="30" fill="#F6C76B" fill-opacity="0.25"/>
     <rect x="58" y="86" width="12" height="20" rx="3" fill="#3B3631"/>
     <circle cx="64" cy="100" r="5" fill="#F6C76B"/>
-    <path d="M104 244 V104 A56 56 0 0 1 216 104 V244 Z" fill="#F7E7C8"/>
+    <path d="M104 ${B} V104 A56 56 0 0 1 216 104 V${B} Z" fill="#F7E7C8"/>
     <g clip-path="url(#${id})"><g class="fig-wrap">${fig}</g></g>
-    <g class="door-panel"><path d="M104 244 V104 A56 56 0 0 1 216 104 V244 Z" fill="var(--door)"/><path d="M118 236 V112 A42 42 0 0 1 202 112 V236" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="3"/><circle cx="196" cy="174" r="4" fill="#F6C76B"/></g>
-    <path d="M100 244 V104 A60 60 0 0 1 220 104 V244" fill="none" stroke="#3B3631" stroke-width="4"/>
-    <rect x="86" y="234" width="148" height="6" fill="#D9CEBC"/>
+    <g class="door-panel"><path d="M104 ${B} V104 A56 56 0 0 1 216 104 V${B} Z" fill="var(--door)"/><path d="M118 236 V112 A42 42 0 0 1 202 112 V236" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="3"/><circle cx="196" cy="174" r="4" fill="#F6C76B"/></g>
+    <path d="M100 ${B} V104 A60 60 0 0 1 220 104 V${B}" fill="none" stroke="#3B3631" stroke-width="4"/>
+    ${o.tall ? "" : `<rect x="86" y="234" width="148" height="6" fill="#D9CEBC"/>`}
     <text x="244" y="118" font-family="Newsreader, Georgia, serif" font-size="15" fill="#3B3631">2418</text>
   </svg>`;
 }
@@ -7671,7 +7673,7 @@ function doorIntro(d, sk) {
 function vDoor() {
   const d = DOORS[doorKey()], sk = SK();
   if (S.drill && (S.drill.kind === "knock" || S.drill.kind === "aiissue")) return app(`
-    <div class="frame stage-frame door-stage convo-stage">${scene(d.scene, d.persona, { main: true, shut: true, label: `${d.name}, ${d.sub}` }).replace(/<svg ([^>]*?)viewBox="[^"]*" /, '<svg $1').replace("<svg ", '<svg viewBox="0 18 320 222" preserveAspectRatio="xMidYMid slice" ')}<video class="selfie" id="selfie" playsinline muted autoplay hidden></video><div class="thread" id="thread">${WAI.pill()}${S.drill.kind === "aiissue" ? `<p class="note">${esc(d.intro)}</p><p hidden>` : `<p class="note">`}Door ${(S.round ? S.round.i : 0) + 1} of 3 \u00b7 ${d.street}</p></div></div>
+    <div class="frame stage-frame door-stage convo-stage">${scene(d.scene, d.persona, { main: true, shut: true, tall: true, label: `${d.name}, ${d.sub}` }).replace(/<svg ([^>]*?)viewBox="[^"]*" /, '<svg $1').replace("<svg ", d.scene === "store" ? '<svg viewBox="0 18 320 222" preserveAspectRatio="xMidYMid slice" ' : '<svg viewBox="0 60 320 256" preserveAspectRatio="xMidYMin slice" ')}<video class="selfie" id="selfie" playsinline muted autoplay hidden></video><div class="thread" id="thread">${WAI.pill()}${S.drill.kind === "aiissue" ? `<p class="note">${esc(d.intro)}</p><p hidden>` : `<p class="note">`}Door ${(S.round ? S.round.i : 0) + 1} of 3 \u00b7 ${d.street}</p></div></div>
   `, { back: "coach", stage: true, ft: true, footer: composer("send", "Type what you\u2019d say") }); /* version 150: a Practice knock opens straight on the door; version 169: full screen */
   if (S.track === "gotv" && !S.drill && !S.try1 && !(S.convo && S.convo.knocked)) return doorIntro(d, sk); /* version 54; version 165: the 1st intro knocks straight away, nothing taught first */
   /* version 87 (Robert): too much empty space after the knock. The lesson's door keeps the stage the intro drew (the frame fills the spare
@@ -7679,7 +7681,7 @@ function vDoor() {
      old thread layout. */
   if (S.track === "gotv" && !S.drill) return app(`
     ${progressBar(repMoves().length + 1, S.convo ? Math.min(0.9, S.convo.turns.filter((x) => x.who === "you").length / (WAI.full() ? (shortDoor() ? 4 : 6) : shortDoor() ? 2 : 7)) : 0)}
-    <div class="frame stage-frame door-stage convo-stage">${scene(d.scene, d.persona, { main: true, sign: d.sign, shut: d.scene === "door", away: d.scene === "store", label: `${d.name}, ${d.sub}` }).replace(/<svg ([^>]*?)viewBox="[^"]*" /, '<svg $1').replace("<svg ", '<svg viewBox="0 18 320 222" preserveAspectRatio="xMidYMid slice" ')}<video class="selfie" id="selfie" playsinline muted autoplay hidden></video><div class="thread" id="thread">${WAI.pill()}</div></div>
+    <div class="frame stage-frame door-stage convo-stage">${scene(d.scene, d.persona, { main: true, sign: d.sign, shut: d.scene === "door", away: d.scene === "store", tall: true, label: `${d.name}, ${d.sub}` }).replace(/<svg ([^>]*?)viewBox="[^"]*" /, '<svg $1').replace("<svg ", d.scene === "store" ? '<svg viewBox="0 18 320 222" preserveAspectRatio="xMidYMid slice" ' : '<svg viewBox="0 60 320 256" preserveAspectRatio="xMidYMin slice" ')}<video class="selfie" id="selfie" playsinline muted autoplay hidden></video><div class="thread" id="thread">${WAI.pill()}</div></div>
   `, { tag: "", back: "path", stage: true, ft: true, footer: composer("send", "Type what you\u2019d say") }); /* version 168: the FaceTime door; version 169: full screen */
   const rule = sk.headsUp ? `<p class="rule-line"><b>Heads up:</b> ${sk.headsUp}</p>` : "";
   const footer = `${S.convo && S.convo.knocked ? composer("send", "Type what you\u2019d say") : `${S.drill && S.drill.kind === "warm" ? `<p class="door-goal"><b>From memory.</b> No chips this time.</p>` : (S.track === "gotv" && !S.drill ? doorChips() : `<p class="door-goal"><b>Your goal:</b> ${goalLine()}.</p>`)}${rule}<button class="btn" data-act="knock">${d.scene === "door" ? "Knock" : "Start"}</button>`}

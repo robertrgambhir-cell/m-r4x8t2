@@ -85,7 +85,10 @@ const FAKE_SR = () => {
     ok(got, `Sofia answers line ${i + 1}`);
     frameH.push(await p.evaluate(() => { const f = document.querySelector('#screen .frame.convo-stage'); return f ? Math.round(f.getBoundingClientRect().height) : 0; }));
     await waitFor(p, () => __T.S.screen !== 'door' || !__T.S.convo || !__T.S.convo.busy, 15000);
-    if (i === 1) { await p.waitForTimeout(900); await p.screenshot({ path: path.join(ROOT, '..', `t165-sofia-door-${W}x${H}.png`) }); }
+    if (i === 1) { await p.waitForTimeout(900); await p.screenshot({ path: path.join(ROOT, '..', `t165-sofia-door-${W}x${H}.png`) });
+      /* version 170 (Robert, Nov 16): the captions sit over her chest, never her face */
+      const g = await p.evaluate(() => { const face = [...document.querySelectorAll('#screen .frame.convo-stage > svg ellipse')].find((e) => e.getAttribute('rx') === '26'); const tops = [...document.querySelectorAll('#thread .bub')].filter((x) => getComputedStyle(x).display !== 'none' && getComputedStyle(x).visibility !== 'hidden').map((x) => x.getBoundingClientRect().top); return face ? { chin: face.getBoundingClientRect().bottom, cap: Math.min(...tops) } : null; });
+      ok(g && g.chin < g.cap, 'the voter\'s face is above the captions: ' + JSON.stringify(g)); }
     if (await p.evaluate(() => __T.S.screen !== 'door' || __T.S.convo.ended)) break;
   }
   ok(frameH.length > 1 && frameH.slice(1).every((h) => h > 0 && Math.abs(h - frameH[frameH.length - 1]) <= 6), 'the voter\'s picture holds its size through the conversation (version 166): ' + frameH.join(', '));

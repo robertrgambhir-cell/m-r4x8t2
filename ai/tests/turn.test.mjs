@@ -195,6 +195,14 @@ r = await g("s=kevin_intro&k=0"); ok(r.status === 404, "a scenario without narra
   modelText = "neutral|Oh, hi Robert!";
   rs = await post({ scenario: "sofia_intro", turns: [{ who: "them", text: SO }, { who: "you", text: "Hi, I'm Robert, I'm volunteering for Maya Kaur. Boy, it sure is sunny today." }] }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
   ok(done && done.j.say === "Ha, it sure is! What's this about?", "small talk gets an answer even when the AI's reaction skips it (165-9): " + (done && done.j.say));
+  /* 165-10: a goodbye from the canvasser closes the door, even with a part missing (the old code tacked "And what brings you by?" onto her goodbye) */
+  const bye = [{ who: "them", text: SO }, { who: "you", text: "Hi, I'm Sam with Maya Kaur." }];
+  modelText = "warm|Oh, hi Sam.";
+  rs = await post({ scenario: "sofia_intro", turns: bye }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
+  bye.push({ who: "them", text: done.j.say, sig: done.j.sig }, { who: "you", text: "Thanks, bye now!" });
+  modelText = "warm|You too, bye!";
+  rs = await post({ scenario: "sofia_intro", turns: bye }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
+  ok(done && done.j.say === "You too, bye!" && done.j.end === true, "the canvasser's goodbye gets a goodbye and ends the door, no question: " + (done && JSON.stringify(done.j.say) + " end " + done.j.end));
 }
 console.log(`turn: ${pass} pass, ${fail} fail`);
 process.exit(fail ? 1 : 0);

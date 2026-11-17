@@ -28,3 +28,6 @@ app.html sha256: 949f1e41c20ecdcc39294c6a0fe32b58181a9fe7dbf5b01a7aa4484a2621c5c
 
 update: 2026-11-16 Version 169, from Robert's 11:38 PM PT run: the door goes full screen like FaceTime (the picture runs edge to edge and to the bottom, the main button floats over it, the picture shows the doorway) on the door conversation and the 1st intro's Knock screen; on a short phone only the voter's latest line stays (ai/tools/v169-full-screen-door.py on all four app pages).
 app.html sha256: 3b52f84a8664cc6fb58f161a9e7624c46924d492a74ea54af9e33a6103b5fb9f
+
+update: 2026-11-16 Version 170, from Robert's 8:51 PM PT run: on the door conversation the voter's face sits in the top third of the picture and the captions sit over her chest (a taller doorway is drawn for the conversation screen only; every other screen draws the door as before). Practice AI 165-10: when the canvasser says goodbye, the voter says it back and the door closes, with no missing-part question tacked on. Patch ai/tools/v170-face-above-captions.py.
+app.html sha256: 7031192675aa4276c1a1b4b8540106e84fe669fa28be710637418c32639fb379
