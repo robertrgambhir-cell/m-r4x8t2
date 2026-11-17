@@ -33,7 +33,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "165-6"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "165-7"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -193,8 +193,35 @@ export function introParts(turns) {
   const nm = new RegExp(`\\b(?:i'?m|i am|my name is|my name's|name's|this is|it's)\\s+(?!(?:${NOT_NAME})\\b)[a-z]{2,}`, "i");
   return { name: nm.test(said), maya: /\b(maya|kaur|mia car|maya core|maya care|myra)\b/i.test(said), why: /\b(election|tuesday|vote|voting|polls|ballot)\b/i.test(said) };
 }
+/* version 165-7 (Robert's Nov 16, 8:14 PM PT run: asked twice for his name, the model said "Sorry, I'm a bit confused by what
+   you're after. Your name first? Then you're volunteering for someone?"). When a part is missing, the server writes the question
+   itself: the model only adds a few words of reaction. A question asked once is asked a second way once; after that the voter
+   moves on to the next missing part instead of pressing. */
+const ASKS = [["name", ["Sorry, and you are?", "Sorry, I didn't catch your name."]], ["maya", ["Who are you volunteering with?", "And who are you volunteering for?"]], ["why", ["What's this about?", "And what brings you by?"]]];
+export function introPlan(turns) {
+  if (!turns.some((t) => t.who === "you")) return { ask: "" };
+  const p = introParts(turns), them = turns.filter((t) => t.who === "them").map((t) => t.text);
+  for (const [k, qs] of ASKS) {
+    if (p[k]) continue;
+    const times = them.filter((l) => qs.some((q) => l.includes(q))).length;
+    if (times >= 2) continue;
+    return { ask: qs[times], part: k };
+  }
+  return { ask: "" };
+}
+const REACT_FORMAT = (name) => `\n\nHOW TO ANSWER THIS TURN: write one mood word from this list: ${MOODS.join(", ")}. Then a vertical bar |. Then ONLY a short, friendly reaction from ${name} to what they just said, at most eight words, like "Oh, hi there." or "Ha, it sure is." or "Oh, hi Robert!". No question, nothing about what they haven't said yet, no goodbye. A question will follow it. Example: warm|Oh, hi there.`;
+export function cleanReaction(txt, name) {
+  let w = String(txt || "").replace(/<end>/gi, "").trim();
+  const m = w.match(/^([a-z]+)\s*\|\s*([\s\S]*)$/i);
+  const mood = m && MOODS.includes(m[1].toLowerCase()) ? m[1].toLowerCase() : "neutral";
+  if (m) w = m[2].trim();
+  w = (w.split(/(?<=[.!?])\s+/)[0] || "").trim().replace(/^["\u201c]|["\u201d]$/g, "");
+  const bad = !w || /\?/.test(w) || w.split(/\s+/).length > 10 || outOfCharacter(w, name) || /confus|what you'?re after|your name|volunteer|who are you|what'?s this/i.test(w);
+  return { mood, say: bad ? "" : w };
+}
 export function introPartsLine(turns) {
   if (!turns.some((t) => t.who === "you")) return "";
+  if (introPlan(turns).ask) return ""; /* version 165-7: the server asks this one itself */
   const p = introParts(turns), done = [p.name && "their name", p.maya && "that they're with Maya Kaur's campaign", p.why && "why they came (the election)"].filter(Boolean);
   const ask = !p.name ? "Sorry, and you are?" : !p.maya ? "Who are you volunteering with?" : !p.why ? "What's this about?" : "";
   return `WHAT THEY'VE SAID SO FAR: ${done.length ? done.join(", ") : "nothing yet about who they are"}. ` + (ask ? `Your whole turn is a short, natural greeting (a few words, like "Oh, hi Robert!" if they gave a name) followed by this question, word for word: "${ask}" Say nothing else: no comment on Tuesday or the election, no "oh, nice", no second question.` : "They've said who they are, who they're with and why they came, so don't ask them anything; just respond warmly in a sentence."); /* version 165-6 (Robert, Nov 15, 9:49 PM PT: "Oh, nice" in the middle made no sense) */
@@ -607,6 +634,17 @@ function turnStream(env, c, s, scen, turns, h, t0, ip) {
         const x = await voterOnce(env, c, s, scen, turns);
         out = x.out; usd = x.r.usd; usage = x.r.usage;
         say1(out.say, 0);
+      } else if (s.voter.introParts && turns.filter((t) => t.who === "you").length < (s.voter.hardStop || 99) && introPlan(turns).ask) { /* version 165-7: a few words from the voter, then the server's question */
+        const plan = introPlan(turns);
+        let txt = "";
+        const r = await claudeStream(env, c, { model: c.voterModel, system: voterPrompt(s, turns) + REACT_FORMAT(s.voter.name), user: `The conversation so far:\n${transcriptText(turns, s.voter.name)}\n\nWrite ${s.voter.name}'s short reaction.`, maxTokens: 60, timeout: c.voterTimeout }, (t) => { txt += t; });
+        usd = r.usd; usage = r.usage;
+        const re = cleanReaction(txt, s.voter.name);
+        if (re.say) say1(re.say, 0);
+        say1(plan.ask, re.say ? 1 : 0);
+        out = { say: [re.say, plan.ask].filter(Boolean).join(" "), mood: re.mood, end: false };
+        out.sig = await signLine(env, scen, out.say, turns.length);
+        if (needsCare(turns)) out.care = true;
       } else {
         const said = []; let rawText = "";
         let broke = false;

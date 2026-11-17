@@ -1,6 +1,6 @@
 /* Unit tests for the fast spoken turn (POST /turn) and the narration (GET /narrate), with the model and the voice stubbed.
    Run: node tests/turn.test.mjs */
-import worker, { makeSplitter, signLine, introParts, introPartsLine, sameWords } from "../worker.js";
+import worker, { makeSplitter, signLine, introParts, introPartsLine, introPlan, cleanReaction, sameWords } from "../worker.js";
 import { SCENARIOS } from "../scenarios.js";
 
 let pass = 0, fail = 0;
@@ -95,7 +95,7 @@ r = await g("s=kevin_intro&k=0"); ok(r.status === 404, "a scenario without narra
   ok(F.voter.hardStop === 4 && K.voter.hardStop === 4 && F.voter.wrapAt === 3 && K.voter.wrapAt === 3, "both lesson 1 doors wrap at three lines and stop at four");
   ok(!/\bKevin\b|\bhis\b|\bhim\b/.test(JSON.stringify(F.rubric)), "Sofia's rubric never says Kevin, his or him");
   modelText = "warm|Oh, a neighbor! Yes, I'm voting for her.";
-  let rs = await post({ scenario: "sofia_intro", turns: [{ who: "them", text: SO }, { who: "you", text: "Hi, I'm Sam, volunteering for Maya Kaur." }] });
+  let rs = await post({ scenario: "sofia_intro", turns: [{ who: "them", text: SO }, { who: "you", text: "Hi, I'm Sam, volunteering for Maya Kaur. Election Day is Tuesday." }] });
   let fr = await frames(rs), done = fr.find((x) => x.t === 1 && x.j.t === "done");
   ok(rs.status === 200 && done && done.j.say === "Oh, a neighbor! Yes, I'm voting for her." && fr.some((x) => x.t === 2), "Sofia's turn streams text and voice");
   const last = calls[calls.length - 1];
@@ -138,7 +138,7 @@ r = await g("s=kevin_intro&k=0"); ok(r.status === 404, "a scenario without narra
   class KV { constructor() { this.m = new Map(); } async get(k, t) { const v = this.m.has(k) ? this.m.get(k) : null; return v && t === "json" ? JSON.parse(v) : v; } async put(k, v) { this.m.set(k, v); } async list({ prefix, limit }) { return { keys: [...this.m.keys()].filter((k) => k.startsWith(prefix)).sort().slice(0, limit).map((name) => ({ name })) }; } }
   const kv = new KV(), envL = { ...env0, WARMUP_KV: kv, LOG_KEY_SHA: sha };
   const postL = (body, env) => worker.fetch(new Request("https://w.example/turn", { method: "POST", headers: { origin: ORIGIN, "content-type": "application/json", "cf-connecting-ip": "3.3.3.3" }, body: JSON.stringify(body) }), env || envL);
-  const T1 = [{ who: "them", text: SCENARIOS.sofia_intro.voter.opening.say }, { who: "you", text: "Hi, I'm Sam." }];
+  const T1 = [{ who: "them", text: SCENARIOS.sofia_intro.voter.opening.say }, { who: "you", text: "Hi, I'm Sam, volunteering for Maya Kaur. Election Day is Tuesday." }];
   modelText = "warm|Oh, a neighbor! Yes, I'm voting for her.";
   await frames(await postL({ scenario: "sofia_intro", turns: T1 }));
   const keys = [...kv.m.keys()].filter((k) => k.startsWith("log:")); /* the same store also holds the spend counters */
@@ -158,8 +158,8 @@ r = await g("s=kevin_intro&k=0"); ok(r.status === 404, "a scenario without narra
   const Y = (t) => [{ who: "them", text: "Hi, can I help you?" }, { who: "you", text: t }];
   const r = introParts(Y("Hi I'm Robert um I live down the street I'm volunteering getting the word out about the election do you know there's an election next Tuesday"));
   ok(r.name && !r.maya && r.why, "Robert's line: name and why said, the campaign missing");
-  ok(/Who are you volunteering with\?/.test(introPartsLine(Y("Hi I'm Robert, I'm volunteering, getting the word out about the election."))), "so the voter asks who he's volunteering with");
-  ok(/Sorry, and you are\?/.test(introPartsLine(Y("I'm volunteering with Maya Kaur. Election Day is Tuesday."))), "\"I'm volunteering\" isn't a name");
+  ok(introPlan(Y("Hi I'm Robert, I'm volunteering, getting the word out about the election.")).ask === "Who are you volunteering with?", "so the voter asks who he's volunteering with");
+  ok(introPlan(Y("I'm volunteering with Maya Kaur. Election Day is Tuesday.")).ask === "Sorry, and you are?", "\"I'm volunteering\" isn't a name");
   ok(/don't ask them anything/.test(introPartsLine(Y("Hi, I'm Sam, volunteering for Maya Kaur. Election Day is Tuesday."))), "all three said: no question");
   modelText = "warm|Oh, hi Robert. Oh, nice. Who are you volunteering with?";
   await frames(await post({ scenario: "sofia_intro", turns: Y("Hi I'm Robert, getting the word out about the election.") }));
@@ -175,6 +175,23 @@ r = await g("s=kevin_intro&k=0"); ok(r.status === 404, "a scenario without narra
   ok((await tidy(raw)).text === modelText, "the tidy returns the punctuated line");
   modelText = "Hi, I'm Robert, and I live just down the street.";
   ok((await tidy(raw)).text === raw, "a tidy that changes words falls back to what was said");
+}
+/* version 165-7: Robert's Nov 16, 8:14 PM PT run. The question for a missing part is the server's own; the model adds only a short reaction */
+{
+  const SO = SCENARIOS.sofia_intro.voter.opening.say;
+  const conv = [{ who: "them", text: SO }, { who: "you", text: "Hi um I'm here" }];
+  modelText = "neutral|Oh, hi there.";
+  let rs = await post({ scenario: "sofia_intro", turns: conv }), fr = await frames(rs), done = fr.find((x) => x.t === 1 && x.j.t === "done");
+  ok(done && done.j.say === "Oh, hi there. Sorry, and you are?" && done.j.end === false, "no name: a short reaction, then the server's question: " + (done && done.j.say));
+  conv.push({ who: "them", text: done.j.say, sig: done.j.sig }, { who: "you", text: "Hi I'm here knocking on neighbor's doors do you know about the election on Tuesday" });
+  modelText = "neutral|Sorry, I'm a bit confused by what you're after. Your name first?";
+  rs = await post({ scenario: "sofia_intro", turns: conv }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
+  ok(done && done.j.say === "Sorry, I didn't catch your name.", "asked again, a second way; the confused reaction is dropped: " + (done && done.j.say));
+  conv.push({ who: "them", text: done.j.say, sig: done.j.sig }, { who: "you", text: "Yeah so the election is Tuesday" });
+  modelText = "warm|Oh, right.";
+  rs = await post({ scenario: "sofia_intro", turns: conv }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
+  ok(done && done.j.say === "Oh, right. Who are you volunteering with?", "after two asks it moves on to the next missing part: " + (done && done.j.say));
+  ok(cleanReaction("warm|Ha, it sure is. So who are you?", "Sofia").say === "Ha, it sure is.", "a reaction keeps only its first sentence, no question");
 }
 console.log(`turn: ${pass} pass, ${fail} fail`);
 process.exit(fail ? 1 : 0);
