@@ -10,7 +10,7 @@ Every rule here came from Robert testing the app on his phone. Each one says wha
 
 ## The bar for every practice door
 
-- **All three, always (Robert, Nov 15):** the voter answers at once or close to it, over a real back-and-forth, and to what the canvasser actually said. "Boy, it sure is sunny today" gets a reply about the weather, not "Who are you with?" *Enforced:* the streamed voter (/turn), the 1 s pause rule on the page, the live replays.
+- **All three, always (Robert, Nov 15):** the voter answers at once or close to it, over a real back-and-forth, and to what the canvasser actually said. "Boy, it sure is sunny today" gets a reply about the weather, not "Who are you with?" *Enforced:* the streamed voter (/turn), the 1 s pause rule on the page, smallTalk in worker.js (small talk always gets a reply before the voter's question), the live replays.
 
 ## Lesson 1 (Sofia's 1st intro and Kevin's 2nd intro)
 
@@ -34,3 +34,4 @@ Every rule here came from Robert testing the app on his phone. Each one says wha
 ## Changelog
 
 - 2026-11-16: written from Robert's Nov 15 and 16 phone runs (versions 165 to 169, practice AI 165-1 to 165-7).
+- 2026-11-16: practice AI 165-8 and 165-9. The first replay run caught Sofia skipping the weather one run in two; the server now makes sure small talk gets a reply. 18 of 18 replays pass live.
