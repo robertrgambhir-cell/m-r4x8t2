@@ -31,3 +31,6 @@ app.html sha256: 3b52f84a8664cc6fb58f161a9e7624c46924d492a74ea54af9e33a6103b5fb9
 
 update: 2026-11-16 Version 170, from Robert's 8:51 PM PT run: on the door conversation the voter's face sits in the top third of the picture and the captions sit over her chest (a taller doorway is drawn for the conversation screen only; every other screen draws the door as before). Practice AI 165-10: when the canvasser says goodbye, the voter says it back and the door closes, with no missing-part question tacked on. Patch ai/tools/v170-face-above-captions.py.
 app.html sha256: 7031192675aa4276c1a1b4b8540106e84fe669fa28be710637418c32639fb379
+
+update: 2026-11-16 Version 171, from Robert's 10:02 PM PT run ("a really, really long trunk"): every voter gets a real upper body, square shoulders to the doorframe, arms at the sides and a crew neckline over the bottom of the neck (none with a v-neck or headphones). Patch ai/tools/v171-voter-body.py.
+app.html sha256: 82e1cd56330c024714b1a233e36ff948277866b29afaad399ad685a38c2e1ba2

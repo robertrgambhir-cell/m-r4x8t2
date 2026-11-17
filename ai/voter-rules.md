@@ -29,7 +29,7 @@ Every rule here came from Robert testing the app on his phone. Each one says wha
 
 ## On screen
 
-10. **A FaceTime call, not a transcript (Robert, Nov 15).** The voter fills the screen edge to edge, the button floats over the picture, and only the latest lines show as captions (on a short phone, only the voter's). Her face sits in the top third of the picture and the captions sit over her chest, never her face (Robert, Nov 16: "We want to be able to see their face there moving"). *Enforced:* versions 168, 169 and 170 (the app pages; version 170 draws a taller doorway on the conversation screen); test165.cjs checks the layout.
+10. **A FaceTime call, not a transcript (Robert, Nov 15).** The voter fills the screen edge to edge, the button floats over the picture, and only the latest lines show as captions (on a short phone, only the voter's). Her face sits in the top third of the picture and the captions sit over her chest, never her face (Robert, Nov 16: "We want to be able to see their face there moving"). Every voter has a normal upper body, square shoulders, arms at the sides and a neckline, not a long rounded tube (Robert, Nov 16, version 171). *Enforced:* versions 168, 169, 170 and 171 (the app pages; version 170 draws a taller doorway on the conversation screen); test165.cjs checks the layout.
 
 ## Changelog
 
