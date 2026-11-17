@@ -33,7 +33,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "165-7"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "165-8"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -209,7 +209,7 @@ export function introPlan(turns) {
   }
   return { ask: "" };
 }
-const REACT_FORMAT = (name) => `\n\nHOW TO ANSWER THIS TURN: write one mood word from this list: ${MOODS.join(", ")}. Then a vertical bar |. Then ONLY a short, friendly reaction from ${name} to what they just said, at most eight words, like "Oh, hi there." or "Ha, it sure is." or "Oh, hi Robert!". No question, nothing about what they haven't said yet, no goodbye. A question will follow it. Example: warm|Oh, hi there.`;
+const REACT_FORMAT = (name) => `\n\nHOW TO ANSWER THIS TURN: write one mood word from this list: ${MOODS.join(", ")}. Then a vertical bar |. Then ONLY a short, friendly reaction from ${name} to the LAST thing they said, at most eight words. If they made small talk (the weather, asking how ${name} is), answer it ("Ha, it sure is!", "Oh, I'm good, thanks."); otherwise a short greeting ("Oh, hi there.", "Oh, hi Robert!"). No question, nothing about what they haven't said yet, no goodbye. A question will follow it. Example: warm|Ha, it sure is!`; /* version 165-8: the replays caught small talk being skipped */
 export function cleanReaction(txt, name) {
   let w = String(txt || "").replace(/<end>/gi, "").trim();
   const m = w.match(/^([a-z]+)\s*\|\s*([\s\S]*)$/i);
