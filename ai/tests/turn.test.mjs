@@ -200,7 +200,7 @@ r = await g("s=kevin_intro&k=0"); ok(r.status === 404, "a scenario without narra
   modelText = "warm|Oh, hi Sam.";
   rs = await post({ scenario: "sofia_intro", turns: bye }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
   bye.push({ who: "them", text: done.j.say, sig: done.j.sig }, { who: "you", text: "Thanks, bye now!" });
-  modelText = "warm|You too, bye!";
+  modelText = "warm|Oh, you're leaving already? You too, bye!";
   rs = await post({ scenario: "sofia_intro", turns: bye }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
   ok(done && done.j.say === "You too, bye!" && done.j.end === true, "the canvasser's goodbye gets a goodbye and ends the door, no question: " + (done && JSON.stringify(done.j.say) + " end " + done.j.end));
 }

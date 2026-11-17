@@ -33,7 +33,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "165-10"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "165-11"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -657,10 +657,12 @@ function turnStream(env, c, s, scen, turns, h, t0, ip) {
       } else {
         const said = []; let rawText = "";
         let broke = false;
-        const sp2 = makeSplitter(s.voter.name, (p) => { if (broke) return; if (outOfCharacter(p, s.voter.name)) { broke = true; if (!said.length) { said.push(GOODBYE); say1(GOODBYE, 0); } return; } said.push(p); say1(p, said.length - 1); }); /* version 165-2 */
+        const byeNow = you.length >= 2 && FAREWELL.test(last); /* 165-11: after the canvasser's goodbye the voter asks nothing ("Oh, you're leaving already?" was spoken in a live replay) */
+        const sp2 = makeSplitter(s.voter.name, (p) => { if (broke) return; if (byeNow && /\?/.test(p)) return; if (outOfCharacter(p, s.voter.name)) { broke = true; if (!said.length) { said.push(GOODBYE); say1(GOODBYE, 0); } return; } said.push(p); say1(p, said.length - 1); }); /* version 165-2 */
         const r = await claudeStream(env, c, { model: c.voterModel, system: voterPrompt(s, turns) + TURN_FORMAT(s.voter.name), user: `The conversation so far:\n${transcriptText(turns, s.voter.name)}\n\nWrite ${s.voter.name}'s next turn. Don't repeat anything ${s.voter.name} already said.`, maxTokens: DEFAULTS.VOTER_MAX_TOKENS, timeout: c.voterTimeout }, (t) => { if (!ms.tok1) ms.tok1 = Date.now() - t0; rawText += t; sp2.feed(t); });
         sp2.end();
         usd = r.usd; usage = r.usage;
+        if (!said.length && byeNow) { said.push(GOODBYE); say1(GOODBYE, 0); } /* 165-11 */
         if (!said.length) { console.log(JSON.stringify({ route: "/turn", scen, empty: rawText.slice(0, 200), types: r.usage.types })); const e = new HttpError(502, "bad_model_output", "the voter's reply was empty"); e.detail = JSON.stringify({ raw: rawText.slice(0, 200), types: r.usage.types, head: r.usage.head.slice(0, 400) }); throw e; }
         out = cleanVoter({ say: said.join(" "), mood: sp2.mood, end: sp2.ended || broke }, s, turns);
         out.say = said.join(" ");
