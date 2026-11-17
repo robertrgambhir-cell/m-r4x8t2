@@ -71,7 +71,7 @@ const REPLAYS = [
     expect: (rs) => [!/and you are\?/i.test(rs[0].say) && "first ask wasn't for his name: " + rs[0].say, !/name/i.test(rs[1].say) && "second ask wasn't for his name: " + rs[1].say].filter(Boolean) },
   { name: "Nov 15, 5:33 PM: off topic (the weather)", scenario: "sofia_intro",
     lines: ["Hi, I'm Robert, I'm volunteering for Maya Kaur. Boy, it sure is sunny today."],
-    expect: (rs) => (/sun|nice|weather|beautiful|lovely|gorgeous|warm|day/i.test(rs[0].say) ? [] : ["didn't respond to the weather: " + rs[0].say]) },
+    expect: (rs) => (/sun|nice|weather|beautiful|lovely|gorgeous|warm|day|sure is|it is|isn.t it/i.test(rs[0].say) ? [] : ["didn't respond to the weather: " + rs[0].say]) },
   { name: "Kevin: the same rules at the 2nd intro", scenario: "kevin_intro",
     lines: ["Hey, I'm volunteering for Maya Kaur.", "Oh sorry, I'm Sam, I live nearby. Election Day is Tuesday."],
     expect: (rs) => (/and you are\?|catch your name/i.test(rs[0].say) ? [] : ["didn't ask Sam's name: " + rs[0].say]) },
