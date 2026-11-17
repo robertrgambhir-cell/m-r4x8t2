@@ -192,6 +192,9 @@ r = await g("s=kevin_intro&k=0"); ok(r.status === 404, "a scenario without narra
   rs = await post({ scenario: "sofia_intro", turns: conv }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
   ok(done && done.j.say === "Oh, right. Who are you volunteering with?", "after two asks it moves on to the next missing part: " + (done && done.j.say));
   ok(cleanReaction("warm|Ha, it sure is. So who are you?", "Sofia").say === "Ha, it sure is.", "a reaction keeps only its first sentence, no question");
+  modelText = "neutral|Oh, hi Robert!";
+  rs = await post({ scenario: "sofia_intro", turns: [{ who: "them", text: SO }, { who: "you", text: "Hi, I'm Robert, I'm volunteering for Maya Kaur. Boy, it sure is sunny today." }] }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
+  ok(done && done.j.say === "Ha, it sure is! What's this about?", "small talk gets an answer even when the AI's reaction skips it (165-9): " + (done && done.j.say));
 }
 console.log(`turn: ${pass} pass, ${fail} fail`);
 process.exit(fail ? 1 : 0);

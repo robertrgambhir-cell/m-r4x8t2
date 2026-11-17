@@ -33,7 +33,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "165-8"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "165-9"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -210,6 +210,13 @@ export function introPlan(turns) {
   return { ask: "" };
 }
 const REACT_FORMAT = (name) => `\n\nHOW TO ANSWER THIS TURN: write one mood word from this list: ${MOODS.join(", ")}. Then a vertical bar |. Then ONLY a short, friendly reaction from ${name} to the LAST thing they said, at most eight words. If they made small talk (the weather, asking how ${name} is), answer it ("Ha, it sure is!", "Oh, I'm good, thanks."); otherwise a short greeting ("Oh, hi there.", "Oh, hi Robert!"). No question, nothing about what they haven't said yet, no goodbye. A question will follow it. Example: warm|Ha, it sure is!`; /* version 165-8: the replays caught small talk being skipped */
+/* small talk in the volunteer's last line, and the answer the voter gives it if the AI's reaction skipped it */
+export function smallTalk(turns) {
+  const you = turns.filter((t) => t.who === "you"), last = you.length ? you[you.length - 1].text : "";
+  if (/\b(sunny|sunshine|rain(y|ing)?|weather|hot (one|today|out)|cold (one|today|out)|beautiful day|nice day|lovely day|gorgeous day)\b/i.test(last)) return { say: "Ha, it sure is!", heard: /sure is|it is|isn'?t it|sun|weather|lovely|beautiful|gorgeous|nice|rain|hot|cold|warm/i };
+  if (/\bhow are you( doing)?\b|\bhow'?s (it going|your day)\b/i.test(last)) return { say: "Oh, I'm good, thanks.", heard: /good|fine|well|great|thanks|not bad/i };
+  return null;
+}
 export function cleanReaction(txt, name) {
   let w = String(txt || "").replace(/<end>/gi, "").trim();
   const m = w.match(/^([a-z]+)\s*\|\s*([\s\S]*)$/i);
@@ -640,6 +647,8 @@ function turnStream(env, c, s, scen, turns, h, t0, ip) {
         const r = await claudeStream(env, c, { model: c.voterModel, system: voterPrompt(s, turns) + REACT_FORMAT(s.voter.name), user: `The conversation so far:\n${transcriptText(turns, s.voter.name)}\n\nWrite ${s.voter.name}'s short reaction.`, maxTokens: 60, timeout: c.voterTimeout }, (t) => { txt += t; });
         usd = r.usd; usage = r.usage;
         const re = cleanReaction(txt, s.voter.name);
+        const st = smallTalk(turns); /* version 165-9: small talk always gets an answer before the question (the replays caught it skipped one run in two) */
+        if (st && !st.heard.test(re.say)) re.say = st.say;
         if (re.say) say1(re.say, 0);
         say1(plan.ask, re.say ? 1 : 0);
         out = { say: [re.say, plan.ask].filter(Boolean).join(" "), mood: re.mood, end: false };
