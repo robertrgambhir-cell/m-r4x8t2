@@ -255,6 +255,88 @@ const FAKE_SR = () => {
       await p2.close();
     }
   }
+  /* ---------- F. found by an independent review of version 173 (Nov 18) ---------- */
+  /* F1. an issue practice is a whole conversation: it is not cut at lesson 1's four lines. Sarah keeps asking until she is
+     asked for her vote, here on the canvasser's fifth line. */
+  p = await open(PAGE + '?convo=oil');
+  ok(await waitThem(p, 1, 12000), "F1: Sarah's door opens");
+  { const five = [T.oil.say[0], "The state's heating help covers renters too.", 'I can text you the link.', T.oil.say[2], T.oil.say[3]];
+    for (let k = 0; k < five.length; k += 1) {
+      await speakLine(p, five[k]);
+      await waitFor(p, (n) => document.querySelectorAll('#thread .bub.you').length >= n, 9000, k + 1);
+      if (k < five.length - 1) ok(await waitThem(p, k + 2, 12000), `F1: Sarah answers line ${k + 1} of five`);
+      if (k === 3) { await p.waitForTimeout(2500); ok(await p.evaluate(() => __T.S.screen === 'door' && !!__T.S.convo), 'F1: after four of the canvasser\'s lines the door is still open (it used to shut here, on her open question)'); }
+    }
+    ok(await waitFor(p, () => __T.S.screen === 'score', 30000), 'F1: she ends it once she is asked for her vote, on line five');
+    await p.waitForTimeout(700);
+    ok((await p.evaluate(() => (document.querySelector('.ring-num') || {}).textContent)) === '4/4', 'F1: all four parts are credited across the five lines: ' + await p.evaluate(() => (document.querySelector('.ring-num') || {}).textContent)); }
+  await p.close();
+
+  /* F2. the practice only opens where the canvasser still is. Here the check at load fails and every later answer takes
+     2.5 s: the canvasser taps Practice, gives up, closes the training and goes elsewhere. No door may open over that. */
+  const slowPage = async (url) => {
+    const q = await ctx.newPage();
+    q.on('pageerror', (e) => errs.push(String(e)));
+    q.on('request', (r) => { if (/workers\.dev|yourwarmup\.com/.test(r.url())) outside.push(r.url()); });
+    await realFonts(q);
+    let n = 0;
+    await q.route(AI + '/health', async (route) => { n += 1; if (n === 1) { await route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify({ ok: false }) }); return; } await new Promise((r) => setTimeout(r, 2500)); await route.continue().catch(() => {}); });
+    await q.goto(url, { waitUntil: 'load', timeout: 180000 }); await q.waitForTimeout(2600); await q.evaluate(() => document.fonts.ready);
+    return q;
+  };
+  const tapPractice = async (q) => {
+    await (await row(q, 'oil')).click(); await q.waitForSelector('#issues-ov iframe'); await q.waitForTimeout(1500);
+    const f = frame(q);
+    await f.evaluate(() => window.Lesson.show(window.Lesson.total - 1, 1)); await q.waitForTimeout(500);
+    await f.click('.screen.is-active .practice'); await q.waitForTimeout(300);
+    return f;
+  };
+  const quiet = (q) => q.evaluate(() => { const x = document.getElementById('toast'); return !x || x.hidden; });
+  p = await slowPage(PAGE + '?unlock&v=173f');
+  ok((await p.evaluate(() => __T.WAI.state())) === 'down', 'F2: the first check failed, so the tap has to ask the server again');
+  fr = await tapPractice(p);
+  await fr.click('#close');
+  ok(await waitFor(p, () => !document.getElementById('issues-ov'), 3000), 'F2: the canvasser closes the training while the server is still answering');
+  await p.evaluate(() => __T.go('welcome'));
+  await p.waitForTimeout(4200);
+  ok(await p.evaluate(() => __T.S.screen === 'welcome' && !__T.S.drill) && (await quiet(p)), 'F2: the answer comes back and nothing opens over Today: ' + await p.evaluate(() => __T.S.screen));
+  await p.close();
+  p = await slowPage(PAGE + '?unlock&v=173h'); /* a fresh page: the first one has heard from the server by now */
+  fr = await tapPractice(p);
+  await fr.click('#close');
+  await waitFor(p, () => !document.getElementById('issues-ov'), 3000);
+  await p.waitForTimeout(4200);
+  ok(await p.evaluate(() => __T.S.screen === 'library' && !__T.S.drill && !document.getElementById('issues-ov')) && (await quiet(p)), 'F2: closed and still on Learn: no door opens either');
+  await p.close();
+  /* F3. the Practice tab lists a finished training's conversation even though the first check failed; the tap asks again */
+  p = await slowPage(PAGE + '?unlock&v=173i');
+  ok((await p.evaluate(() => __T.WAI.state())) === 'down', 'F3: the first check failed');
+  await p.evaluate(() => { __T.S.briefsDoneIds = { oil: Date.now() }; __T.go('coach'); }); await p.waitForTimeout(400);
+  ok(!!(await p.$('[data-act="wai-issue"][data-arg="oil"]')), 'F3: the Practice tab offers the conversation though the check at load failed');
+  await p.click('[data-act="wai-issue"][data-arg="oil"]');
+  ok(await waitFor(p, () => __T.S.screen === 'door' && __T.S.drill && __T.S.drill.door === 'oil', 9000) && await waitThem(p, 1, 9000), 'F3: the tap asks the server again and the door opens');
+  await p.close();
+
+  /* F4. leaving an issue door between the knock and her first line: she says nothing on the next screen */
+  p = await open(PAGE + '?unlock&v=173g');
+  await p.evaluate(() => __T.WAI.startIssue('oil', { knock: true, back: 'library' }));
+  ok(await waitFor(p, () => __T.S.screen === 'door' && !!document.querySelector('[data-act="knock"]'), 9000), 'F4: the door waits for a knock');
+  await p.click('[data-act="knock"]'); await p.waitForTimeout(250);
+  await p.evaluate(() => __T.go('library'));
+  await p.waitForTimeout(3200);
+  ok(await p.evaluate(() => __T.S.screen === 'library' && !(__T.S.convo && __T.S.convo.turns.some((x) => x.who === 'them')) && !document.querySelector('#thread .bub.them')), 'F4: knock, then straight back to Learn: Sarah says nothing there');
+  await p.close();
+
+  /* F5. on a laptop, the presenter guide keeps the practice after an issue training at its issues stop (7), not at Practice (8) */
+  if (pane) {
+    p = await open(PAGE + '?unlock&guide');
+    await p.evaluate(() => __T.WAI.startIssue('oil', { knock: true, back: 'library' }));
+    await waitFor(p, () => __T.S.screen === 'door', 9000); await p.waitForTimeout(700);
+    const stop = await p.evaluate(() => { const b0 = document.querySelector('#gpath [aria-current="step"]'); return b0 ? b0.dataset.g : 'no guide'; });
+    ok(stop === '7', 'F5: the guide stays on stop 7 while the issue practice is open: ' + stop);
+    await p.close();
+  }
+
   ok(errs.length === 0, 'no page errors: ' + errs.join(' | '));
   ok(outside.length === 0, 'nothing reached the live site or the live AI server: ' + [...new Set(outside)].join(' '));
   await b.close();

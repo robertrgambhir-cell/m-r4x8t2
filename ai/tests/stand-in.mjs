@@ -17,16 +17,19 @@ export function standIn(stats = { voter: 0, coach: 0 }) {
     return /bye|thanks|have a good/.test(last) && n > 1 ? { say: "You too, bye!", mood: "warm", end: true } : { say: lines[Math.min(n - 1, 3)], mood: n === 1 ? "warm" : "neutral", end: n >= 4 };
   };
   /* version 173: the issue practice's voters, Sarah and Linda, get canned lines of their own, so a test's screenshots read like
-     their doors (still a stand-in: it says nothing about how the real model plays them) */
+     their doors (still a stand-in: it says nothing about how the real model plays them). She keeps asking until she is asked
+     for her vote (or six lines), so a conversation can run past lesson 1's four lines, as her voter sheet allows. */
   const ISSUE_LINES = {
-    Sarah: ["Thanks. I just don't know how I'm supposed to pay for heat.", "Wait, renters can get that help too?", "That makes sense. So what would Maya do?", "Okay. I'll think about it. I have to get back inside where it's warm."],
-    Linda: ["So my check doesn't just stop?", "He told me he'd never cut Social Security.", "Does ending the cap fix it for good?", "A big share, not all of it. All right. I have to get back inside."],
+    Sarah: { lines: ["Thanks. I just don't know how I'm supposed to pay for heat.", "Wait, renters can get that help too?", "That makes sense. So what would Maya do?", "And how is that different from Jack Dufner?", "Okay. What do you need from me?"], close: "Okay. I'll think about it. I have to get back inside where it's warm." },
+    Linda: { lines: ["So my check doesn't just stop?", "He told me he'd never cut Social Security.", "Does ending the cap fix it for good?", "A big share, not all of it. All right.", "So what are you asking me to do?"], close: "All right. I'll think it over. I have to get back inside." },
   };
   const voterLineFor = (body, you) => {
     const m = JSON.stringify(body.system || "").match(/role-playing (Sarah|Linda)\b/), L = m && ISSUE_LINES[m[1]];
     if (!L) return voterLine(you);
     const n = you.length, last = (you[n - 1] || "").toLowerCase();
-    return /\b(bye|have a good|take care)\b/.test(last) && n > 1 ? { say: "You too. Bye now!", mood: "warm", end: true } : { say: L[Math.min(n - 1, 3)], mood: n >= 3 ? "warm" : "neutral", end: n >= 4 };
+    if (/\b(bye|have a good|take care)\b/.test(last) && n > 1) return { say: "You too. Bye now!", mood: "warm", end: true };
+    if (/count on your vote/.test(last) || n >= 6) return { say: L.close, mood: "warm", end: true };
+    return { say: L.lines[Math.min(n - 1, L.lines.length - 1)], mood: n >= 3 ? "warm" : "neutral", end: false };
   };
   const fetch = async (url, init) => {
     if (!String(url).includes("api.anthropic.com")) return realFetch(url, init);

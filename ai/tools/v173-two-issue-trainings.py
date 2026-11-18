@@ -72,7 +72,7 @@ DOORS_NEW = '''  /* version 173 (Robert, Nov 18): the spoken practice after each
 '''
 
 ISSUE_LINK = '''  function issueLink() { /* version 173: once an issue training is done, its conversation stays open on the Practice tab */
-    if (!ready()) return "";
+    if (state === "off") return ""; /* shown whenever the practice AI is set up, even if the check from when the page opened failed or hasn\u2019t answered: the tap asks the server again */
     const ids = (CAMPAIGN.gotv || {}).briefIds || [], bd = S.briefsDoneIds || {};
     return ids.filter((id) => bd[id] && DOORS[id] && DOORS[id].ai).map((id) => `<button class="link center" data-act="wai-issue" data-arg="${id}">Practice the ${DOORS[id].topic} conversation with ${DOORS[id].name}</button>`).join("");
   }'''
@@ -84,11 +84,15 @@ START_ISSUE = '''  /* version 173: a "not reachable" answer from when the page o
     try { const j = await fetch(base + "/health", { cache: "no-store", signal: ac.signal }).then((r) => r.json()); if (j && j.ok) state = "on"; } catch (e) { /* still not reachable */ } finally { clearTimeout(t); }
   }
   /* version 173: any issue door (door is its training's id). o.knock leaves the door shut until the canvasser taps Knock;
-     o.back is the screen Done for now goes to. Says so and returns false when the practice AI can't be reached. */
+     o.back is the screen Done for now goes to. Says so and returns false when the practice AI can't be reached. The
+     server's answer can take 4 s: if the canvasser has moved on by then (another screen, or o.still says the training was
+     closed), nothing opens and nothing is said. */
   async function startIssue(door, o = {}) {
     if (!DOORS[door] || !DOORS[door].ai) return false;
+    const from = S.screen, still = () => S.screen === from && (!o.still || o.still());
     await ping;
     if (state === "down") await recheck();
+    if (!still()) return false;
     if (!ready()) { toast(state === "down" ? FAIL.network : FAIL.off); return false; }
     if (!S.drill) S.drillBack = { lesson: lessonNo(), skipWatch: S.skipWatch };
     S.round = null;
@@ -113,9 +117,10 @@ let issuePracticeBusy = false;
 async function issuePractice(id) {
   if (issuePracticeBusy || !DOORS[id] || !DOORS[id].ai) return;
   issuePracticeBusy = true;
+  const ov0 = document.getElementById("issues-ov"); /* the training this tap came from: the door only opens while it is still open */
   let opened = false;
-  try { opened = await WAI.startIssue(id, { knock: true, back: "library" }); } catch (e) { /* the page already said why */ } finally { issuePracticeBusy = false; }
-  if (opened) { const ov = document.getElementById("issues-ov"); if (ov) ov.remove(); } /* when the door can't open, the training stays, so the canvasser can try again */
+  try { opened = await WAI.startIssue(id, { knock: true, back: "library", still: () => !!ov0 && document.getElementById("issues-ov") === ov0 }); } catch (e) { /* the page already said why */ } finally { issuePracticeBusy = false; }
+  if (opened && ov0) ov0.remove(); /* when the door can't open, the training stays, so the canvasser can try again */
 }
 /* a tap that will lead to a voice later wakes the sound while the browser still counts it as a tap: the tap that opens a
    training, and taps inside its frame (Practice the conversation is one) */
@@ -232,6 +237,19 @@ def patch(path):
          'case "door-again": if (S.drill && S.drill.kind === "aiissue") S.drill.knock = false; go("door"); if (S.drill && S.drill.kind === "aiissue") WAI.autoKnock(); break; /* version 173: this tap is the knock */')
     swap('case "wai-issue": S.hist = []; WAI.startIssue(); break;', 'case "wai-issue": S.hist = []; WAI.startIssue(arg); break; /* version 173: arg is the training\\u2019s id */')
     swap('case "coach-back": endDrillState(); go("coach"); break;', 'case "coach-back": { const to = (S.drill && S.drill.back) || "coach"; endDrillState(); go(VIEWS[to] ? to : "coach"); break; } /* version 173: an issue practice opened from its training goes back to Learn */')
+
+    # 4b. an issue practice runs to its voter sheet's end (the server wraps up at five of the canvasser's lines and stops
+    # at seven), not lesson 1's four lines; the presenter guide keeps it at the issues stop; and if the canvasser leaves
+    # an issue door between the knock and the voter's first line, she stays quiet. Each is for issue doors only: the
+    # canvassing doors run exactly as before.
+    swap('const shortDoor = () => S.track === "gotv" && (S.lesson || 1) === 1;',
+         'const shortDoor = () => S.track === "gotv" && (S.lesson || 1) === 1 && !(S.drill && S.drill.kind === "aiissue"); /* version 173: an issue practice is a whole conversation, not lesson 1\u2019s four lines */')
+    swap('  if (S.drill && ["main", "door", "score", "warmtip"].includes(S.screen)) return 8;',
+         '  if (S.drill && ["main", "door", "score", "warmtip"].includes(S.screen)) return S.drill.kind === "aiissue" ? 7 : 8; /* version 173: the practice after an issue training is part of the issues stop */')
+    swap('async function knock() {\n  const d = DOORS[doorKey()];\n',
+         'async function knock() {\n  const d = DOORS[doorKey()], issueDoor = !!(S.drill && S.drill.kind === "aiissue"); /* version 173 */\n')
+    swap('    await wait(900);\n    await voterSays(d.first.say, d.first.expr, d);\n',
+         '    await wait(900);\n    if (issueDoor && (S.screen !== "door" || !S.convo)) return; /* version 173: the canvasser left an issue door before she spoke */\n    await voterSays(d.first.say, d.first.expr, d);\n')
 
     # 5. opening the trainings and hearing from them
     resub(r'case "issues-open": (P1\.ev\("issue_open", \{\}\); )?issuesOpen\(\); break;',

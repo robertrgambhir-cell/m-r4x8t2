@@ -4917,7 +4917,7 @@ const skKey = () => (S.track === "gotv" ? LESSON_SKILL[S.lesson || 1] || "open" 
 const SK = () => SKILLS[skKey()];
 const doorKey = () => (S.try1 && !S.drill ? "sofia" : S.drill && (S.drill.kind === "knock" || S.drill.kind === "aiissue") ? S.drill.door : SK().door); /* version 165: the 1st intro's door */ /* version 150: a Practice knock plays its own door */
 /* version 63 (Monday option B, Robert's call Oct 11): lesson 1's Your turn is a short door, the opener and Kevin's answer, since only the opener is graded */
-const shortDoor = () => S.track === "gotv" && (S.lesson || 1) === 1;
+const shortDoor = () => S.track === "gotv" && (S.lesson || 1) === 1 && !(S.drill && S.drill.kind === "aiissue"); /* version 173: an issue practice is a whole conversation, not lesson 1’s four lines */
 const skinNow = () => (settings.look === "org" ? T().skin : "recognize");
 
 /* ---------- voices: the device's built-in speech ---------- */
@@ -5154,7 +5154,7 @@ const WAI = (() => {
   /* a stated fact that isn't in the materials keeps a perfect card from reading Excellent */
   const flagged = (L) => !!(L && L.coach && L.coach.items.some((x) => x.id === "accurate" && x.status === "missed"));
   function issueLink() { /* version 173: once an issue training is done, its conversation stays open on the Practice tab */
-    if (!ready()) return "";
+    if (state === "off") return ""; /* shown whenever the practice AI is set up, even if the check from when the page opened failed or hasn’t answered: the tap asks the server again */
     const ids = (CAMPAIGN.gotv || {}).briefIds || [], bd = S.briefsDoneIds || {};
     return ids.filter((id) => bd[id] && DOORS[id] && DOORS[id].ai).map((id) => `<button class="link center" data-act="wai-issue" data-arg="${id}">Practice the ${DOORS[id].topic} conversation with ${DOORS[id].name}</button>`).join("");
   }
@@ -5166,11 +5166,15 @@ const WAI = (() => {
     try { const j = await fetch(base + "/health", { cache: "no-store", signal: ac.signal }).then((r) => r.json()); if (j && j.ok) state = "on"; } catch (e) { /* still not reachable */ } finally { clearTimeout(t); }
   }
   /* version 173: any issue door (door is its training's id). o.knock leaves the door shut until the canvasser taps Knock;
-     o.back is the screen Done for now goes to. Says so and returns false when the practice AI can't be reached. */
+     o.back is the screen Done for now goes to. Says so and returns false when the practice AI can't be reached. The
+     server's answer can take 4 s: if the canvasser has moved on by then (another screen, or o.still says the training was
+     closed), nothing opens and nothing is said. */
   async function startIssue(door, o = {}) {
     if (!DOORS[door] || !DOORS[door].ai) return false;
+    const from = S.screen, still = () => S.screen === from && (!o.still || o.still());
     await ping;
     if (state === "down") await recheck();
+    if (!still()) return false;
     if (!ready()) { toast(state === "down" ? FAIL.network : FAIL.off); return false; }
     if (!S.drill) S.drillBack = { lesson: lessonNo(), skipWatch: S.skipWatch };
     S.round = null;
@@ -9636,7 +9640,7 @@ function setComposer(on) {
   if (!say || !say.value.trim()) trayClose();
 }
 async function knock() {
-  const d = DOORS[doorKey()];
+  const d = DOORS[doorKey()], issueDoor = !!(S.drill && S.drill.kind === "aiissue"); /* version 173 */
   if (S.convo.knocking) return; S.convo.knocking = true; if (WAI.scenFor()) await WAI.settle(); /* only AI doors wait for the check, at most 4 s */ if (!S.convo || S.screen !== "door") return; S.convo.wai = WAI.full(d); /* version 156 */
   S.convo.knocked = true;
   const fr0 = $("#screen .frame.door-stage"), h0 = fr0 ? fr0.getBoundingClientRect().height : 0; /* version 87: where the intro's door sat */
@@ -9655,6 +9659,7 @@ async function knock() {
     shake.classList.remove("knock");
     svg.classList.remove("shut");
     await wait(900);
+    if (issueDoor && (S.screen !== "door" || !S.convo)) return; /* version 173: the canvasser left an issue door before she spoke */
     await voterSays(d.first.say, d.first.expr, d);
   } else {
     svg.classList.remove("away");
@@ -10349,9 +10354,10 @@ let issuePracticeBusy = false;
 async function issuePractice(id) {
   if (issuePracticeBusy || !DOORS[id] || !DOORS[id].ai) return;
   issuePracticeBusy = true;
+  const ov0 = document.getElementById("issues-ov"); /* the training this tap came from: the door only opens while it is still open */
   let opened = false;
-  try { opened = await WAI.startIssue(id, { knock: true, back: "library" }); } catch (e) { /* the page already said why */ } finally { issuePracticeBusy = false; }
-  if (opened) { const ov = document.getElementById("issues-ov"); if (ov) ov.remove(); } /* when the door can't open, the training stays, so the canvasser can try again */
+  try { opened = await WAI.startIssue(id, { knock: true, back: "library", still: () => !!ov0 && document.getElementById("issues-ov") === ov0 }); } catch (e) { /* the page already said why */ } finally { issuePracticeBusy = false; }
+  if (opened && ov0) ov0.remove(); /* when the door can't open, the training stays, so the canvasser can try again */
 }
 /* a tap that will lead to a voice later wakes the sound while the browser still counts it as a tap: the tap that opens a
    training, and taps inside its frame (Practice the conversation is one) */
@@ -10446,7 +10452,7 @@ const gState = { on: !gClean && (/[?&]guide\b/.test(location.search) || store.ge
 const G_WIDE = "(min-width: 1100px) and (min-height: 620px) and (pointer: fine)";
 function guideStop() {
   if (document.getElementById("issues-ov")) return 7;
-  if (S.drill && ["main", "door", "score", "warmtip"].includes(S.screen)) return 8;
+  if (S.drill && ["main", "door", "score", "warmtip"].includes(S.screen)) return S.drill.kind === "aiissue" ? 7 : 8; /* version 173: the practice after an issue training is part of the issues stop */
   return G_AT[S.screen] || 0;
 }
 function gVal(v) { return typeof v === "function" ? v() : v; }
