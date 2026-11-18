@@ -170,6 +170,7 @@ const FAKE_SR = () => {
       const w = await p.evaluate(() => ({ grading: !!(__T.S.last && __T.S.last.grading), rows: [...document.querySelectorAll('.sc-card.grading .sc-list li.wait')].map((x) => x.textContent), head: (document.querySelector('.sc-top.grading') || {}).textContent || '', who: (document.querySelector('.sc-voter svg, .sc-voter [aria-label]') || { getAttribute: () => '' }).getAttribute('aria-label') || '', noBack: !document.querySelector('header [data-act="back"]') }));
       ok(w.grading && w.rows.join('|') === 'Agree with Sarah|Offer the heating help|Give the choice|Ask for her vote', `${id}: the card opens while the coach reads, listing the four parts of her door answer: ` + w.rows.join(' | '));
       ok(/Checking your conversation/.test(w.head) && /Your coach is reading the conversation/.test(await text(p)), `${id}: and says the coach is reading`);
+      ok((await p.$$eval('footer [data-act]', (xs) => xs.map((x) => x.dataset.act + ':' + x.textContent)).catch(() => [])).join('|') === 'coach-back:Done for now', `${id}: the waiting card of a practice has one way out, Done for now`);
       await p.waitForTimeout(500);
       await shot(p, `${id}-score-reading`);
     }
@@ -361,12 +362,34 @@ const FAKE_SR = () => {
     ok(await waitThem(p, 1, 12000), "F6: Sarah's door opens");
     for (let k = 0; k < T.oil.say.length; k += 1) { await speakLine(p, T.oil.say[k]); await waitFor(p, (n) => document.querySelectorAll('#thread .bub.you').length >= n, 9000, k + 1); if (k < T.oil.say.length - 1) await waitThem(p, k + 2, 12000); }
     ok(await waitFor(p, () => __T.S.screen === 'score' && !!__T.S.last && __T.S.last.grading === true, 30000), 'F6: the card is open and the coach is still reading');
-    await p.evaluate(() => __T.go('library'));
+    await p.click('footer [data-act="coach-back"]'); /* Done for now, on the waiting card */
+    ok(await waitFor(p, () => __T.S.screen === 'library' && !__T.S.drill, 3000), 'F6: Done for now on the waiting card goes back to Learn');
     await p.waitForTimeout(7500); /* the slow coach answers in here */
     ok((await snap()) === before6, 'F6: the grade that came back after the canvasser left is not saved as a lesson result');
     ok((await p.evaluate(() => JSON.stringify(__T.S.last || null))) === last6, 'F6: and the last result is what it was before the practice (no waiting card left behind): ' + (await p.evaluate(() => JSON.stringify(__T.S.last || null))).slice(0, 80));
     ok(await p.evaluate(() => __T.S.screen === 'library' && !__T.S.drill), 'F6: the canvasser is still on Learn'); }
   await mock('coach-delay?ms=0');
+  await p.close();
+
+  /* F7. a goodbye still playing from an issue practice the canvasser left must not end the next one. After a first try:
+     Try this conversation again, talk, leave with the back arrow while Sarah is saying goodbye, and tap Try this
+     conversation again once more. The old goodbye used to shut the new door with "no score". */
+  p = await open(PAGE + '?convo=oil');
+  ok(await waitThem(p, 1, 12000), "F7: Sarah's door opens");
+  { const talkAll = async (stopAtBye) => { for (let k = 0; k < T.oil.say.length; k += 1) { await speakLine(p, T.oil.say[k]); await waitFor(p, (n) => document.querySelectorAll('#thread .bub.you').length >= n, 9000, k + 1); if (k < T.oil.say.length - 1) await waitThem(p, k + 2, 12000); } if (stopAtBye) await waitThem(p, T.oil.say.length + 1, 12000); };
+    await talkAll(false);
+    ok(await cardFilled(p, 30000), 'F7: the first try is scored');
+    await p.click('[data-act="door-again"]');
+    ok(await waitThem(p, 1, 9000), 'F7: the second door opens');
+    await talkAll(true); /* her goodbye has started (its words are on screen) and its sound is still playing */
+    const left = await p.evaluate(() => { const b0 = document.querySelector('header [data-act="back"]'); if (!b0) return 'no back arrow'; b0.click(); const again = document.querySelector('[data-act="door-again"]'); if (!again) return 'no retry button on ' + __T.S.screen; again.click(); return 'ok'; });
+    ok(left === 'ok', 'F7: back during her goodbye returns to the first card, and Try this conversation again opens a third door: ' + left);
+    const conv3 = await p.evaluate(() => { window.__c3 = __T.S.convo; return !!window.__c3; });
+    ok(conv3 && await waitThem(p, 1, 9000), 'F7: the third door opens and Sarah says her first line');
+    await p.waitForTimeout(4500); /* the second door's goodbye has finished playing by now */
+    ok(await p.evaluate(() => __T.S.screen === 'door' && __T.S.convo === window.__c3 && !__T.S.convo.ended && !__T.S.convo.finishing), 'F7: the old goodbye does nothing to the new conversation: ' + await p.evaluate(() => JSON.stringify({ screen: __T.S.screen, same: __T.S.convo === window.__c3, ended: !!(__T.S.convo && __T.S.convo.ended) })));
+    await speakLine(p, T.oil.say[0]);
+    ok(await waitThem(p, 2, 12000), 'F7: and the new conversation goes on'); }
   await p.close();
 
   ok(errs.length === 0, 'no page errors: ' + errs.join(' | '));

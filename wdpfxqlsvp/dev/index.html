@@ -5176,7 +5176,7 @@ const WAI = (() => {
     if (!ready()) { toast(state === "down" ? FAIL.network : FAIL.off); return false; }
     if (!S.drill) S.drillBack = { lesson: lessonNo(), skipWatch: S.skipWatch };
     S.round = null;
-    S.drill = { kind: "aiissue", door, step: 1, knock: !!o.knock, back: o.back || "coach", lastWas: S.last || null };
+    S.drill = { kind: "aiissue", door, step: 1, knock: !!o.knock, back: o.back || "coach", lastWas: S.last && !S.last.grading ? S.last : null };
     S.lesson = 1; S.skipWatch = false; S.sayNow = null; S.mode = S.mode || "voice";
     go("door");
     if (!o.knock) autoKnock();
@@ -7749,7 +7749,7 @@ function baLine(after) {
 function vScore() {
   if (S.last && S.last.grading) { /* version 173: the card opens while the coach reads, then fills in */
     const G = S.last, gd = S.track === "gotv" ? DOORS[S.drill ? S.drill.door : SK().door] : null;
-    return app(`${S.track === "gotv" ? progressBar(repMoves().length + 2, 1) : ""}${gd ? `<div class="frame stage-frame sc-voter">${scene(gd.scene, gd.persona, { main: true, label: `${gd.name}, ${gd.sub}` })}<div class="sc-top grading"><h1 class="h1 verdict-h" style="margin:0">Checking your conversation\u2026</h1></div></div>` : ""}<div class="sc-card grading"><ul class="sc-list">${G.gradeRows.map((m, i) => `<li class="wait" style="--i:${i}">${esc(m)}</li>`).join("")}</ul></div><p class="sc-coach">Your coach is reading the conversation\u2026</p>`, { tag: S.drill ? "Practice" : "Feedback", noBack: true, stage: !!gd });
+    return app(`${S.track === "gotv" ? progressBar(repMoves().length + 2, 1) : ""}${gd ? `<div class="frame stage-frame sc-voter">${scene(gd.scene, gd.persona, { main: true, label: `${gd.name}, ${gd.sub}` })}<div class="sc-top grading"><h1 class="h1 verdict-h" style="margin:0">Checking your conversation\u2026</h1></div></div>` : ""}<div class="sc-card grading"><ul class="sc-list">${G.gradeRows.map((m, i) => `<li class="wait" style="--i:${i}">${esc(m)}</li>`).join("")}</ul></div><p class="sc-coach">Your coach is reading the conversation\u2026</p>`, { tag: S.drill ? "Practice" : "Feedback", noBack: true, stage: !!gd, footer: S.drill && S.drill.kind === "aiissue" ? `<button class="link center" data-act="coach-back">Done for now</button>` : "" }); /* version 174: an issue practice’s waiting card has a way out */
   }
   const L = S.last, sk = SKILLS[L.skill], g = S.track === "gotv", drill = g ? S.drill : null, warm = !!drill && drill.kind === "warm";
   const hits = L.moves.filter(Boolean).length;
@@ -9750,11 +9750,12 @@ async function sendTurn() {
 /* version 156: the voter's answer, split out of sendTurn so WAI.retry can ask again for the same turn */
 async function voterReply(d, scripted, typing) {
   let r = scripted;
-  const full = WAI.full(d);
+  const full = WAI.full(d), conv0 = S.convo; /* version 174: conv0 is the conversation this reply belongs to */
   if (S.convo.mode === "live" && full) { /* version 165: the streamed voter */
     let o = null;
     try { o = await WAI.liveTurn(d, typing); } catch (e) { if (typing && typing.parentNode) typing.remove(); if (S.screen === "door" && S.convo && !(e && e.code === "aborted")) WAI.voterFailed(d, e, scripted); return; }
     if (!o || S.screen !== "door") return;
+    if (S.drill && S.drill.kind === "aiissue" && S.convo !== conv0) return; /* version 174: that was an issue practice the canvasser already left */
     const yt = S.convo.turns.filter((x) => x.who === "you").length;
     if (o.end || yt >= (shortDoor() ? 4 : 10)) { await endConvo(d); return; } /* lesson 1: four of your lines at most (Robert, Nov 15) */
     S.convo.busy = false;

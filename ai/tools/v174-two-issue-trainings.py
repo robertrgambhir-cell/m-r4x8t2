@@ -29,7 +29,8 @@ App pages (live app.html, staging, dev and p1):
   - The voter drawing learns short curls and earrings (for Linda).
   - Gone from the pages: the four older issue lessons (tx, oh, me, mi), Bri's door and her link, ?convo=bri.
 
-To undo: git revert the Version 174 commits. Usage: python3 ai/tools/v174-two-issue-trainings.py APP.html ... (edits in place)
+To undo: git revert the Version 174 commits. Section 4c below edits a few lines that main's Version 173 (no wait after a
+door) wrote in finishConvo, vScore and voterReply, so 173 can only be undone after 174, or by hand. Usage: python3 ai/tools/v174-two-issue-trainings.py APP.html ... (edits in place)
 """
 import json
 import os
@@ -96,7 +97,7 @@ START_ISSUE = '''  /* version 174: a "not reachable" answer from when the page o
     if (!ready()) { toast(state === "down" ? FAIL.network : FAIL.off); return false; }
     if (!S.drill) S.drillBack = { lesson: lessonNo(), skipWatch: S.skipWatch };
     S.round = null;
-    S.drill = { kind: "aiissue", door, step: 1, knock: !!o.knock, back: o.back || "coach", lastWas: S.last || null };
+    S.drill = { kind: "aiissue", door, step: 1, knock: !!o.knock, back: o.back || "coach", lastWas: S.last && !S.last.grading ? S.last : null };
     S.lesson = 1; S.skipWatch = false; S.sayNow = null; S.mode = S.mode || "voice";
     go("door");
     if (!o.knock) autoKnock();
@@ -266,6 +267,28 @@ def patch(path):
          '''  if (!back && !here) return;
   if (drill0 && drill0.kind === "aiissue" && S.drill !== drill0) { if (ph && S.last === ph) S.last = drill0.lastWas || null; return; } /* version 174: the canvasser left an issue practice before its grade came back: it is not a lesson\u2019s result, so nothing is saved */
   if (t1) {''')
+    # the waiting card of an issue practice has a way out. A lesson's card keeps its lesson bar; a practice door has no bar,
+    # no back arrow and no buttons there, and a slow coach can take a minute. Done for now leaves, and the guard above then
+    # drops the late grade.
+    swap('''{ tag: S.drill ? "Practice" : "Feedback", noBack: true, stage: !!gd });
+  }
+  const L = S.last,''',
+         '''{ tag: S.drill ? "Practice" : "Feedback", noBack: true, stage: !!gd, footer: S.drill && S.drill.kind === "aiissue" ? `<button class="link center" data-act="coach-back">Done for now</button>` : "" }); /* version 174: an issue practice\u2019s waiting card has a way out */
+  }
+  const L = S.last,''')
+    # a goodbye still playing from an issue practice the canvasser has already left must not end the next one (leave
+    # during her goodbye, tap Try this conversation again: the old goodbye used to shut the new door with no score)
+    swap('''async function voterReply(d, scripted, typing) {
+  let r = scripted;
+  const full = WAI.full(d);''',
+         '''async function voterReply(d, scripted, typing) {
+  let r = scripted;
+  const full = WAI.full(d), conv0 = S.convo; /* version 174: conv0 is the conversation this reply belongs to */''')
+    swap('''    if (!o || S.screen !== "door") return;
+    const yt = S.convo.turns.filter((x) => x.who === "you").length;''',
+         '''    if (!o || S.screen !== "door") return;
+    if (S.drill && S.drill.kind === "aiissue" && S.convo !== conv0) return; /* version 174: that was an issue practice the canvasser already left */
+    const yt = S.convo.turns.filter((x) => x.who === "you").length;''')
 
     # 5. opening the trainings and hearing from them
     resub(r'case "issues-open": (P1\.ev\("issue_open", \{\}\); )?issuesOpen\(\); break;',
