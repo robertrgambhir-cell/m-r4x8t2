@@ -16,6 +16,7 @@
    - Nothing said in a conversation is stored or logged: the logs hold the route, scenario, timing, tokens and cost. */
 
 import { SCENARIOS, publicScenario } from "./scenarios.js";
+import { ISSUE_SCENARIOS } from "./scenarios-issues.js"; /* 173-2: which sheets are issue doors */
 import { isAdmin, isLearnerRoute, learnerRoute, LearnerError } from "./learner.js"; /* phase 1: progress, events, admin views */
 
 const DEFAULTS = {
@@ -32,7 +33,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "173-1"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "173-2"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -169,12 +170,25 @@ export const CARE = /\b(kill(ing)? myself|end(ing)? (my|it) (life|all)|suicid\w*
 const THREAT = /\b(or (we|i)'?ll\b(?! (text|call|send|follow))|(we'?ll|i'?ll) remember (this|your) (house|place|door|face)|i know where you live|i'?ll be back (tonight|later|for you)|should (shoot|kill|hurt|beat)\b|(shoot|kill|hurt|beat up) (him|her|you|them)\b|report you to (immigration|ice|the police|the cops)|you'?ll regret|watch your back|or else[.!?]*\s*$)/i;
 const SEXUAL = /\b(you'?re (so )?(hot|cute|sexy|gorgeous|beautiful|fine)|hey,? (gorgeous|sexy|beautiful|babe|baby|hottie)|are you single|you single|what are you wearing|come in for a (bit|while)|give me your number,? (gorgeous|babe|beautiful))/i;
 const INSULT = /\b(idiot|stupid|moron|loser|dumbass|dumb|pathetic|shut up|piece of (crap|shit)|bitch|asshole|jerk|clown)\b/gi;
-export function conduct(turns) {
+/* 173-2: the issue practice's doors (Sarah, Linda) run longer than the intro doors and are about cuts, care and help. The
+   checks above were written for short introductions, and there they read ordinary sentences as a threat, a come-on, an
+   insult or a goodbye: "A cut like that would hurt you", "Congress has to act, or we'll see smaller checks", "I want to
+   make sure you're fine this winter", "a stupid war", "kids to take care of", "see you at the polls". For the issue sheets
+   only, the same checks with tighter wording: a violent verb needs "I" or "we" in front of it, "or we'll ..." is how a
+   consequence is said, "fine" needs "so", a put-down word counts when it is aimed at "you", and "take care of" and
+   "see you at ..." are not goodbyes. Every other door uses the checks above, unchanged. */
+const ISSUE_SHEETS = new WeakSet(Object.values(ISSUE_SCENARIOS));
+export const isIssue = (s) => !!s && typeof s === "object" && ISSUE_SHEETS.has(s);
+const THREAT_ISSUE = /\b((we'?ll|i'?ll) remember (this|your) (house|place|door|face)|i know where you live|i'?ll be back (tonight|later|for you)|should (shoot|kill|hurt|beat)\b|(?:i(?:'?ll|'?m (?:going to|gonna))?|we(?:'ll|'re (?:going to|gonna))?|(?:i|we) (?:will|would|could|can|might|should|want to|wanna|am going to|are going to)) (?:shoot|kill|hurt|beat up) (?:him|her|you|them)\b|report you to (immigration|ice|the police|the cops)|you'?ll regret|watch your back|or else[.!?]*\s*$)/i;
+const SEXUAL_ISSUE = /\b(you'?re (so )?(hot|cute|sexy|gorgeous|beautiful)|you'?re so fine|hey,? (gorgeous|sexy|beautiful|babe|baby|hottie)|are you single|you single|what are you wearing|come in for a (bit|while)|give me your number,? (gorgeous|babe|beautiful))/i;
+const INSULT_ISSUE = /\b(idiot|moron|loser|dumbass|shut up|piece of (crap|shit)|bitch|asshole|jerk|clown|you(?:'?re| are)?(?: \w+)? (?:stupid|dumb|pathetic))\b/gi;
+export function conduct(turns, s) {
+  const issue = isIssue(s), threat = issue ? THREAT_ISSUE : THREAT, sexual = issue ? SEXUAL_ISSUE : SEXUAL, insult = issue ? INSULT_ISSUE : INSULT;
   const you = turns.filter((t) => t.who === "you");
   const last = you.length ? you[you.length - 1].text : "";
-  if (THREAT.test(last)) return "a threat";
-  if (SEXUAL.test(last)) return "a sexual comment";
-  const insults = you.reduce((a, t) => a + ((t.text.match(INSULT) || []).length), 0), lastIns = (last.match(INSULT) || []).length;
+  if (threat.test(last)) return "a threat";
+  if (sexual.test(last)) return "a sexual comment";
+  const insults = you.reduce((a, t) => a + ((t.text.match(insult) || []).length), 0), lastIns = (last.match(insult) || []).length;
   if (lastIns && insults >= 2) return "a second insult";
   return "";
 }
@@ -282,7 +296,7 @@ export function voterPrompt(s, turns) {
     `The volunteer has spoken ${n} time${n === 1 ? "" : "s"} so far.`,
   ];
   if (v.introParts) { const pl = introPartsLine(turns); if (pl) lines.push(pl); } /* version 165-5 */
-  const bad = conduct(turns);
+  const bad = conduct(turns, s);
   if (bad) lines.push(`The volunteer's last line was ${bad}. Say briefly and calmly that it's not okay, don't repeat their words, say goodbye and set end to true.`);
   else if (n >= v.hardStop) lines.push("You must end the conversation now: say a short, polite goodbye in your own words and set end to true.");
   else if (n >= v.wrapAt) lines.push("It's time to start wrapping up: unless the volunteer just asked you something you'd answer, close politely and set end to true.");
@@ -307,14 +321,16 @@ const VOTER_TOOL = {
 export const FAREWELL = /\b(good ?night|goodbye|bye( now)?|have a (good|great|nice|lovely) (night|evening|one|day|afternoon|weekend)|take care|see you( later| around)?|thanks for (coming|stopping) by)\b/i;
 export const outOfCharacter = (p, name) => new RegExp(`\\b(I (can'?t|cannot|won'?t|am unable to|'m unable to) (write|continue|generate|produce|give|provide)|next (line|turn|response)|(this|the) (exchange|conversation|scene|role-?play|transcript|dialogue)\\b[^.]*\\b(ended|over|already|reached)|${name}'s (next|final|last) (line|words|turn)|as an AI\\b|language model|the volunteer\\b|if you'?re practicing|role-?play)`, "i").test(p);
 export const GOODBYE = "Bye now!";
-const saidBye = (turns) => { const you = turns.filter((t) => t.who === "you").length; const them = turns.filter((t) => t.who === "them"); return you >= 2 && them.length >= 2 && FAREWELL.test(them[them.length - 1].text); };
+export const FAREWELL_ISSUE = /\b(good ?night|goodbye|bye( now)?|have a (good|great|nice|lovely) (night|evening|one|day|afternoon|weekend)|take care(?! of\b)|see you (later|around|soon|then)|thanks for (coming|stopping) by)\b/i; /* 173-2: for the issue sheets (see conduct) */
+const farewell = (s) => (isIssue(s) ? FAREWELL_ISSUE : FAREWELL);
+const saidBye = (turns, s) => { const you = turns.filter((t) => t.who === "you").length; const them = turns.filter((t) => t.who === "them"); return you >= 2 && them.length >= 2 && farewell(s).test(them[them.length - 1].text); };
 export function cleanVoter(x, s, turns) {
   if (!x || typeof x.say !== "string" || !x.say.trim()) throw new HttpError(502, "bad_model_output", "the voter's reply was empty");
   let say = dashes(x.say).replace(/^["“]+|["”]+$/g, "").replace(new RegExp("^" + s.voter.name + "\\s*:\\s*", "i"), "").replace(/\*[^*]+\*/g, "").replace(/\s+/g, " ").trim();
   if (say.length > 320) say = say.slice(0, 320).replace(/[^.!?]*$/, "") || say.slice(0, 320);
   const n = turns.filter((t) => t.who === "you").length;
   if (outOfCharacter(say, s.voter.name)) return { say: GOODBYE, mood: "warm", end: true, broke: true }; /* version 165-2 */
-  return { say, mood: MOODS.includes(x.mood) ? x.mood : "neutral", end: !!x.end || n >= s.voter.hardStop || (n >= 2 && FAREWELL.test(say)) };
+  return { say, mood: MOODS.includes(x.mood) ? x.mood : "neutral", end: !!x.end || n >= s.voter.hardStop || (n >= 2 && farewell(s).test(say)) };
 }
 
 /* ---------------- the coach ---------------- */
@@ -624,7 +640,7 @@ async function voterOnce(env, c, s, scen, turns) {
   const out = cleanVoter(r.input, s, turns);
   out.sig = await signLine(env, scen, out.say, turns.length); /* signed for its place in the conversation */
   if (needsCare(turns)) out.care = true;
-  if (conduct(turns)) out.end = true; /* a threat, a sexual comment or a second insult ends the conversation, whatever the model said */
+  if (conduct(turns, s)) out.end = true; /* a threat, a sexual comment or a second insult ends the conversation, whatever the model said */
   { const you = turns.filter((t) => t.who === "you"); if (you.length && ASKS_AI.test(you[you.length - 1].text) && DENIES_AI.test(out.say)) { out.say = "Ha, I'm the practice voter, so not a real person. Want to keep going?"; out.sig = await signLine(env, scen, out.say, turns.length); } }
   return { out, r };
 }
@@ -645,11 +661,11 @@ function turnStream(env, c, s, scen, turns, h, t0, ip) {
     try {
       const you = turns.filter((t) => t.who === "you"), last = you.length ? you[you.length - 1].text : "";
       let out, usd = 0, usage = {};
-      if (!conduct(turns) && saidBye(turns)) { /* version 165-2: the voter already said goodbye */
+      if (!conduct(turns, s) && saidBye(turns, s)) { /* version 165-2: the voter already said goodbye */
         out = { say: GOODBYE, mood: "warm", end: true };
         out.sig = await signLine(env, scen, out.say, turns.length);
         say1(out.say, 0);
-      } else if (conduct(turns) || ASKS_AI.test(last)) {
+      } else if (conduct(turns, s) || ASKS_AI.test(last)) {
         const x = await voterOnce(env, c, s, scen, turns);
         out = x.out; usd = x.r.usd; usage = x.r.usage;
         say1(out.say, 0);
@@ -669,7 +685,7 @@ function turnStream(env, c, s, scen, turns, h, t0, ip) {
       } else {
         const said = []; let rawText = "";
         let broke = false;
-        const byeNow = you.length >= 2 && FAREWELL.test(last); /* 165-11: after the canvasser's goodbye the voter asks nothing ("Oh, you're leaving already?" was spoken in a live replay) */
+        const byeNow = you.length >= 2 && farewell(s).test(last); /* 165-11: after the canvasser's goodbye the voter asks nothing ("Oh, you're leaving already?" was spoken in a live replay) */
         const sp2 = makeSplitter(s.voter.name, (p) => { if (broke) return; if (byeNow && /\?/.test(p)) return; if (outOfCharacter(p, s.voter.name)) { broke = true; if (!said.length) { said.push(GOODBYE); say1(GOODBYE, 0); } return; } said.push(p); say1(p, said.length - 1); }); /* version 165-2 */
         const r = await claudeStream(env, c, { model: c.voterModel, system: voterPrompt(s, turns) + TURN_FORMAT(s.voter.name), user: `The conversation so far:\n${transcriptText(turns, s.voter.name)}\n\nWrite ${s.voter.name}'s next turn. Don't repeat anything ${s.voter.name} already said.`, maxTokens: DEFAULTS.VOTER_MAX_TOKENS, timeout: c.voterTimeout }, (t) => { if (!ms.tok1) ms.tok1 = Date.now() - t0; rawText += t; sp2.feed(t); });
         sp2.end();
@@ -796,7 +812,7 @@ export default {
         const out = cleanVoter(r.input, s, turns);
         out.sig = await signLine(env, scen, out.say, turns.length); /* signed for its place in the conversation */
         if (needsCare(turns)) out.care = true;
-        if (conduct(turns)) out.end = true; /* a threat, a sexual comment or a second insult ends the conversation, whatever the model said */
+        if (conduct(turns, s)) out.end = true; /* a threat, a sexual comment or a second insult ends the conversation, whatever the model said */
         { const you = turns.filter((t) => t.who === "you"); if (you.length && ASKS_AI.test(you[you.length - 1].text) && DENIES_AI.test(out.say)) { out.say = "Ha, I'm the practice voter, so not a real person. Want to keep going?"; out.sig = await signLine(env, scen, out.say, turns.length); } }
         console.log(JSON.stringify({ route, scen, ms: r.ms, in: r.usage.input_tokens, out: r.usage.output_tokens, usd: +r.usd.toFixed(5) }));
         await logConvo(env, ip, { route, scen, turns, say: out.say, end: !!out.end, broke: !!out.broke, ms: r.ms }); /* version 165-2 */

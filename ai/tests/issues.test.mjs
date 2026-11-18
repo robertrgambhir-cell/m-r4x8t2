@@ -3,7 +3,7 @@
    that the prompts are built from them, that the coach's card is the four parts of the door answer and that a credit
    still needs the canvasser's own words. How well the real model plays Sarah and Linda needs the deployed server.
    Run: node tests/issues.test.mjs */
-import worker, { voterPrompt, coachPrompt, signLine } from "../worker.js";
+import worker, { voterPrompt, coachPrompt, signLine, conduct, cleanVoter, isIssue, FAREWELL, FAREWELL_ISSUE } from "../worker.js";
 import { SCENARIOS, publicScenario } from "../scenarios.js";
 import { ISSUE_IDS, ISSUE_SCENARIOS, checkSheet } from "../scenarios-issues.js";
 import { ISSUE_SCENARIOS_V2 } from "../voters/scenarios.js";
@@ -43,6 +43,26 @@ ok(ISSUE_SCENARIOS.oil === ISSUE_SCENARIOS_V2.oil, "the server uses the voter sh
   const five = JSON.parse(JSON.stringify(ISSUE_SCENARIOS_V2.oil)); five.rubric[4].card = true;
   let m4 = ""; try { checkSheet("oil", five); } catch (e) { m4 = e.message; }
   ok(/four/.test(m4), "the card must be the four parts: " + m4); }
+
+/* 173-2: an issue conversation is about cuts, care and help. On the issue doors an ordinary sentence about those is not a
+   threat, a come-on, an insult or a goodbye; a real one still is; and every other door keeps its checks as they were. */
+{ const T = (lines) => [{ who: "them", text: "x" }].concat(lines.map((x) => ({ who: "you", text: x })));
+  const L = SCENARIOS.social, SA = SCENARIOS.oil, K = SCENARIOS.kevin_intro;
+  ok(isIssue(L) && isIssue(SA) && !isIssue(K) && !isIssue(SCENARIOS.sofia_intro) && !isIssue(SCENARIOS.bri_health) && !isIssue(undefined), "the tighter wording is for the issue sheets and no other door");
+  for (const line of ["A cut like that would hurt you.", "It would really hurt them.", "That may well hurt you.", "The cuts were going to hurt them.", "Congress has to act, or we'll see checks cut by 22%.", "I want to make sure you're fine this winter."])
+    ok(conduct(T([line]), L) === "" && conduct(T([line]), SA) === "", "on an issue door this is an ordinary sentence: " + line + " -> " + conduct(T([line]), L));
+  ok(conduct(T(["A cut like that would hurt you."]), K) === "a threat" && conduct(T(["I want to make sure you're fine this winter."]), K) === "a sexual comment" && conduct(T(["A cut like that would hurt you."])) === "a threat", "the intro doors keep their checks exactly as they were");
+  for (const line of ["I'll hurt you.", "We will kill them.", "I'm going to hurt you.", "I know where you live.", "You'll regret this.", "Vote for her or else."])
+    ok(conduct(T([line]), L) === "a threat", "on an issue door a threat is still a threat: " + line);
+  for (const line of ["You're so fine.", "Hey gorgeous.", "Are you single?"])
+    ok(conduct(T([line]), SA) === "a sexual comment", "on an issue door a come-on is still a come-on: " + line);
+  ok(conduct(T(["It was a stupid war.", "And a dumb vote."]), SA) === "" && conduct(T(["It was a stupid war.", "And a dumb vote."]), K) === "a second insult", "a put-down word about a thing is not an insult to the voter on an issue door (the intro doors are as they were)");
+  ok(conduct(T(["You're being stupid.", "You idiot."]), SA) === "a second insult", "a second insult aimed at the voter still ends an issue door");
+  const two = T(["one", "two"]), V = (say) => ({ say, mood: "neutral", end: false });
+  ok(cleanVoter(V("I've got two kids to take care of."), SA, two).end === false && cleanVoter(V("So I'd see you at the polls?"), L, two).end === false, "her own line about taking care of her kids doesn't close an issue door");
+  ok(cleanVoter(V("I've got two kids to take care of."), K, two).end === true, "the intro doors read it as before");
+  ok(cleanVoter(V("Okay. Take care now."), SA, two).end === true && cleanVoter(V("Thanks for coming by."), L, two).end === true && cleanVoter(V("All right, goodbye."), L, two).end === true, "a real goodbye still closes an issue door");
+  ok(!FAREWELL_ISSUE.test("We'd love to see you at the polls.") && FAREWELL.test("We'd love to see you at the polls.") && !FAREWELL_ISSUE.test("Maya will take care of it.") && FAREWELL_ISSUE.test("See you later!") && FAREWELL_ISSUE.test("Bye now!") && FAREWELL_ISSUE.test("Have a good night."), "which words are a goodbye on an issue door"); }
 
 for (const id of ISSUE_IDS) {
   const s = SCENARIOS[id], v = s.voter, O = v.opening.say;

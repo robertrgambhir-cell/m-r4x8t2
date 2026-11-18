@@ -216,5 +216,16 @@ r = await worker.fetch(new Request("https://w.example/scenario/social"), env0);
   rs = await post({ scenario: "sofia_intro", turns: bye }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
   ok(done && done.j.say === "You too, bye!" && done.j.end === true, "the canvasser's goodbye gets a goodbye and ends the door, no question: " + (done && JSON.stringify(done.j.say) + " end " + done.j.end));
 }
+/* 173-2: on an issue door, "see you at the polls" from the canvasser is not a goodbye: Sarah's question is spoken and the
+   door stays open. A real goodbye still drops her question and closes the door. */
+{ const says = async (line) => { const conv = [{ who: "them", text: O }, { who: "you", text: "That sounds really hard." }];
+    conv.push({ who: "them", text: "Thanks.", sig: await signLine(env0, "oil", "Thanks.", conv.length) });
+    conv.push({ who: "you", text: line });
+    modelText = "neutral|So what would Maya do about it?";
+    const fr = await frames(await post({ scenario: "oil", turns: conv })); return fr.filter((f) => f.t === 1).map((f) => f.j).find((j) => j.t === "done"); };
+  let done = await says("We'd love to see you at the polls on Tuesday.");
+  ok(done && done.say === "So what would Maya do about it?" && done.end === false, "an issue door: see you at the polls is not a goodbye, her question is spoken: " + JSON.stringify(done && [done.say, done.end]));
+  done = await says("Okay, thanks. Have a good night!");
+  ok(done && done.say === "Bye now!" && done.end === true, "an issue door: a real goodbye still closes it: " + JSON.stringify(done && [done.say, done.end])); }
 console.log(`turn: ${pass} pass, ${fail} fail`);
 process.exit(fail ? 1 : 0);
