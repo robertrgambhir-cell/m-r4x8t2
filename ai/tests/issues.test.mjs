@@ -3,7 +3,7 @@
    that the prompts are built from them, that the coach's card is the four parts of the door answer and that a credit
    still needs the canvasser's own words. How well the real model plays Sarah and Linda needs the deployed server.
    Run: node tests/issues.test.mjs */
-import worker, { voterPrompt, coachPrompt, signLine, conduct, cleanVoter, isIssue, FAREWELL, FAREWELL_ISSUE } from "../worker.js";
+import worker, { voterPrompt, coachPrompt, signLine, conduct, cleanVoter, isIssue, FAREWELL, farewellIssue, outOfCharacterIssue } from "../worker.js";
 import { SCENARIOS, publicScenario } from "../scenarios.js";
 import { ISSUE_IDS, ISSUE_SCENARIOS, checkSheet } from "../scenarios-issues.js";
 import { ISSUE_SCENARIOS_V2 } from "../voters/scenarios.js";
@@ -44,25 +44,34 @@ ok(ISSUE_SCENARIOS.oil === ISSUE_SCENARIOS_V2.oil, "the server uses the voter sh
   let m4 = ""; try { checkSheet("oil", five); } catch (e) { m4 = e.message; }
   ok(/four/.test(m4), "the card must be the four parts: " + m4); }
 
-/* 174-2: an issue conversation is about cuts, care and help. On the issue doors an ordinary sentence about those is not a
-   threat, a come-on, an insult or a goodbye; a real one still is; and every other door keeps its checks as they were. */
+/* 174-2 and 174-4: an issue conversation is about cuts, care and help. On the issue doors an ordinary sentence about those
+   is not a threat, a come-on, an insult or a goodbye; a real one still is (an extra word, a second verb or a phone's curly
+   apostrophe doesn't hide it); the voter's own ordinary words don't shut her door; and every other door keeps its checks
+   as they were. The sentences are from two independent reviews of this version. */
 { const T = (lines) => [{ who: "them", text: "x" }].concat(lines.map((x) => ({ who: "you", text: x })));
   const L = SCENARIOS.social, SA = SCENARIOS.oil, K = SCENARIOS.kevin_intro;
-  ok(isIssue(L) && isIssue(SA) && !isIssue(K) && !isIssue(SCENARIOS.sofia_intro) && !isIssue(SCENARIOS.bri_health) && !isIssue(undefined), "the tighter wording is for the issue sheets and no other door");
-  for (const line of ["A cut like that would hurt you.", "It would really hurt them.", "That may well hurt you.", "The cuts were going to hurt them.", "Congress has to act, or we'll see checks cut by 22%.", "I want to make sure you're fine this winter."])
-    ok(conduct(T([line]), L) === "" && conduct(T([line]), SA) === "", "on an issue door this is an ordinary sentence: " + line + " -> " + conduct(T([line]), L));
-  ok(conduct(T(["A cut like that would hurt you."]), K) === "a threat" && conduct(T(["I want to make sure you're fine this winter."]), K) === "a sexual comment" && conduct(T(["A cut like that would hurt you."])) === "a threat", "the intro doors keep their checks exactly as they were");
-  for (const line of ["I'll hurt you.", "We will kill them.", "I'm going to hurt you.", "I know where you live.", "You'll regret this.", "Vote for her or else."])
-    ok(conduct(T([line]), L) === "a threat", "on an issue door a threat is still a threat: " + line);
-  for (const line of ["You're so fine.", "Hey gorgeous.", "Are you single?"])
-    ok(conduct(T([line]), SA) === "a sexual comment", "on an issue door a come-on is still a come-on: " + line);
+  ok(isIssue(L) && isIssue(SA) && !isIssue(K) && !isIssue(SCENARIOS.sofia_intro) && !isIssue(SCENARIOS.bri_health) && !isIssue(undefined), "the issue wording is for the issue sheets and no other door");
+  const ORDINARY = ["A cut like that would hurt you.", "It would really hurt them.", "That may well hurt you.", "The cuts were going to hurt them.", "I think it would hurt you.", "I don't want this to hurt you.", "Congress has to act, or we'll see checks cut by 22%.", "I want to make sure you're fine this winter.",
+    "I'm not sure, but I'll find out and I'll be back later with the answer.", "Your check will still come in for a while at full size, until late 2032.", "A 22 percent cut should hurt anyone living on that check.", "With your vote, Maya should beat Jack Dufner on Tuesday.", "Can Maya count on your vote? I don't think you'll regret it.", "Are you single or is there a second income? The limit goes by family size.", "Do you think this stupid war helped?"];
+  for (const line of ORDINARY) ok(conduct(T([line]), L) === "" && conduct(T([line]), SA) === "", "on an issue door this is an ordinary sentence: " + line + " -> " + conduct(T([line]), L));
+  ok(conduct(T(["A cut like that would hurt you."]), K) === "a threat" && conduct(T(["I want to make sure you're fine this winter."]), K) === "a sexual comment" && conduct(T(["With your vote, Maya should beat Jack Dufner on Tuesday."]), K) === "a threat" && conduct(T(["A cut like that would hurt you."])) === "a threat", "the intro doors keep their checks exactly as they were");
+  const THREATS = ["I'll hurt you.", "We will kill them.", "I'm going to hurt you.", "I know where you live.", "You'll regret this.", "Vote for her or else.", "I'm gonna fucking kill you.", "I will find you and hurt you.", "I am gonna hurt you.", "Don't make me hurt you.", "Vote for Maya or I'll burn your house down.", "I’ll kill you.", "I’m going to hurt you.", "ill hurt you", "Someone should shoot him.", "I'll be back for you.", "Watch your back."];
+  for (const line of THREATS) ok(conduct(T([line]), L) === "a threat", "on an issue door a threat is still a threat: " + line + " -> " + JSON.stringify(conduct(T([line]), L)));
+  for (const line of ["You're so fine.", "Hey gorgeous.", "Are you single?", "Can I come in for a bit?", "You’re gorgeous."]) ok(conduct(T([line]), SA) === "a sexual comment", "on an issue door a come-on is still a come-on: " + line);
   ok(conduct(T(["It was a stupid war.", "And a dumb vote."]), SA) === "" && conduct(T(["It was a stupid war.", "And a dumb vote."]), K) === "a second insult", "a put-down word about a thing is not an insult to the voter on an issue door (the intro doors are as they were)");
-  ok(conduct(T(["You're being stupid.", "You idiot."]), SA) === "a second insult", "a second insult aimed at the voter still ends an issue door");
+  for (const two of [["You're being stupid.", "You idiot."], ["Stupid old woman.", "Dumb old hag."], ["How stupid are you?", "How dumb can you be?"], ["You’re stupid.", "You’re pathetic."]]) ok(conduct(T(two), SA) === "a second insult", "a second insult aimed at the voter still ends an issue door: " + two.join(" / "));
+  /* goodbyes */
   const two = T(["one", "two"]), V = (say) => ({ say, mood: "neutral", end: false });
-  ok(cleanVoter(V("I've got two kids to take care of."), SA, two).end === false && cleanVoter(V("So I'd see you at the polls?"), L, two).end === false, "her own line about taking care of her kids doesn't close an issue door");
+  const NOT_BYE = ["So I can kiss $460 a month goodbye?", "I haven't had a good night's sleep since the bill came. What would Maya do?", "Thanks for stopping by, but I just want to know how I'm supposed to pay for heat.", "I've got two kids to take care of.", "So I'd see you at the polls?", "I never get a good night sleep.", "I have to go back in January for the paperwork.", "I guess I can kiss that money goodbye."];
+  for (const say of NOT_BYE) ok(cleanVoter(V(say), SA, two).end === false && cleanVoter(V(say), L, two).end === false, "her own ordinary words don't close an issue door: " + say);
   ok(cleanVoter(V("I've got two kids to take care of."), K, two).end === true, "the intro doors read it as before");
-  ok(cleanVoter(V("Okay. Take care now."), SA, two).end === true && cleanVoter(V("Thanks for coming by."), L, two).end === true && cleanVoter(V("All right, goodbye."), L, two).end === true, "a real goodbye still closes an issue door");
-  ok(!FAREWELL_ISSUE.test("We'd love to see you at the polls.") && FAREWELL.test("We'd love to see you at the polls.") && !FAREWELL_ISSUE.test("Maya will take care of it.") && FAREWELL_ISSUE.test("See you later!") && FAREWELL_ISSUE.test("Bye now!") && FAREWELL_ISSUE.test("Have a good night."), "which words are a goodbye on an issue door"); }
+  const BYE = ["Okay. Take care now.", "Thanks for coming by.", "All right, goodbye.", "Okay, see you.", "You too. Bye now!", "Have a good night.", "Thanks. I have to get back inside where it's warm.", "Well, I have to get back inside."];
+  for (const say of BYE) ok(cleanVoter(V(say), SA, two).end === true, "a real goodbye closes an issue door, and so does the way her sheet has her leave: " + say);
+  ok(!farewellIssue("We'd love to see you at the polls.") && FAREWELL.test("We'd love to see you at the polls.") && !farewellIssue("Maya will take care of it.") && farewellIssue("Thanks, Linda. See you Tuesday!") && farewellIssue("bye linda") && farewellIssue("Goodbye, Sarah."), "which of the canvasser's words are a goodbye on an issue door");
+  /* staying in character: what she can't afford is not the model refusing */
+  for (const say of ["I can't give you a yes tonight, but I'll think about it.", "Honestly, I can't write a check that big.", "I can't provide for my kids on what I make.", "I can't continue paying these bills."]) ok(!outOfCharacterIssue(say, "Sarah") && cleanVoter(V(say), SA, two).say === say && !cleanVoter(V(say), SA, two).broke, "on an issue door these are her own words, not the model leaving its part: " + say);
+  for (const say of ["I can't continue this conversation.", "I can't write that.", "I cannot generate that response.", "As an AI I should not say.", "I can't continue."]) ok(outOfCharacterIssue(say, "Sarah") && cleanVoter(V(say), SA, two).broke === true, "the model leaving its part is still caught on an issue door: " + say);
+  ok(cleanVoter(V("I can't give you a yes tonight."), K, two).broke === true, "the intro doors keep the character check as it was"); }
 
 for (const id of ISSUE_IDS) {
   const s = SCENARIOS[id], v = s.voter, O = v.opening.say;
@@ -115,5 +124,22 @@ for (const id of ISSUE_IDS) {
   ok(j.items.length === 5 && j.items[4].id === "accurate" && j.items[4].status === "met", id + ": stick to the facts is judged, off the card");
   ok(calls[calls.length - 1].model === "claude-sonnet-5-5" && JSON.stringify(calls[calls.length - 1].system || "").includes(s.approvedFacts[0].slice(0, 40)), id + ": the careful model coaches from the approved facts");
 }
+/* 174-4: "Check this" quotes the sentence that carries the wrong claim. Linda's choice line is said right and a claim her
+   sheet lists as wrong is added at the end; the card must not quote the sentence that was right. */
+{ const s = SCENARIOS.social, O = s.voter.opening.say;
+  const line = "Jack Dufner voted for the 2025 federal law, which makes the trust fund run out sooner, though it gave people 65 and over a tax break. Maya Kaur would end the wage cap, and that fixes Social Security for good.";
+  const convo = [{ who: "them", text: O }, { who: "you", text: "You're right to worry. Checks get smaller, they don't stop." }, { who: "them", text: "Okay." }, { who: "you", text: line }, { who: "them", text: "Okay." }];
+  stub = () => reply({ items: s.rubric.map((r) => ({ id: r.id, status: r.id === "accurate" ? "missed" : "missed", evidence: "", note: "" })), invented: [{ quote: "that fixes Social Security for good", issue: "Ending the wage cap closes about half or more of the gap, not all of it." }], transcription: [], strength: { text: "", quote: "" }, improvement: { text: "", try_saying: "" }, summary: "" });
+  const r = await post("/coach", { scenario: "social", turns: convo }), j = await r.json();
+  ok(r.status === 200 && j.invented.length === 1 && /fixes Social Security for good/.test(j.invented[0].quote) && !/tax break/.test(j.invented[0].quote), "Check this quotes the sentence with the claim, not the start of the line: " + JSON.stringify(j.invented));
+  /* a short line is quoted whole, as on every door */
+  const short = [{ who: "them", text: O }, { who: "you", text: "Ending the wage cap fixes Social Security for good." }, { who: "them", text: "Okay." }];
+  stub = () => reply({ items: s.rubric.map((r) => ({ id: r.id, status: "missed", evidence: "", note: "" })), invented: [{ quote: "fixes Social Security for good", issue: "Not all of it." }], transcription: [], strength: { text: "", quote: "" }, improvement: { text: "", try_saying: "" }, summary: "" });
+  const j2 = await (await post("/coach", { scenario: "social", turns: short })).json();
+  ok(j2.invented.length === 1 && j2.invented[0].quote === "Ending the wage cap fixes Social Security for good.", "a short line is quoted whole: " + JSON.stringify(j2.invented)); }
+/* 174-4: every voice a voter sheet names is one the voice service has (the server refuses to start otherwise) */
+{ const src = (await import("node:fs")).readFileSync(new URL("../worker.js", import.meta.url), "utf8"), m = src.match(/const VOICES = (\[[^\]]+\]);/), VOICES = m ? JSON.parse(m[1]) : [];
+  ok(VOICES.length > 30 && ISSUE_IDS.every((id) => [SCENARIOS[id].voter.voice].concat(SCENARIOS[id].voter.voices).every((v) => VOICES.includes(v))), "Sarah's and Linda's voices are ones the server can speak");
+  ok(/is not one the server can speak/.test(src), "and a sheet with any other voice is refused when the server starts"); }
 console.log(`issues: ${pass} pass, ${fail} fail`);
 process.exit(fail ? 1 : 0);

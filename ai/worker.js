@@ -34,7 +34,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "174-3"; /* shows on /health, so a deploy can be confirmed (174-3 holds main's 165-14, the signature course's narration) */
+const BUILD = "174-4"; /* shows on /health, so a deploy can be confirmed (since 174-3 it holds main's 165-14, the signature course's narration) */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -171,25 +171,48 @@ export const CARE = /\b(kill(ing)? myself|end(ing)? (my|it) (life|all)|suicid\w*
 const THREAT = /\b(or (we|i)'?ll\b(?! (text|call|send|follow))|(we'?ll|i'?ll) remember (this|your) (house|place|door|face)|i know where you live|i'?ll be back (tonight|later|for you)|should (shoot|kill|hurt|beat)\b|(shoot|kill|hurt|beat up) (him|her|you|them)\b|report you to (immigration|ice|the police|the cops)|you'?ll regret|watch your back|or else[.!?]*\s*$)/i;
 const SEXUAL = /\b(you'?re (so )?(hot|cute|sexy|gorgeous|beautiful|fine)|hey,? (gorgeous|sexy|beautiful|babe|baby|hottie)|are you single|you single|what are you wearing|come in for a (bit|while)|give me your number,? (gorgeous|babe|beautiful))/i;
 const INSULT = /\b(idiot|stupid|moron|loser|dumbass|dumb|pathetic|shut up|piece of (crap|shit)|bitch|asshole|jerk|clown)\b/gi;
-/* 174-2: the issue practice's doors (Sarah, Linda) run longer than the intro doors and are about cuts, care and help. The
-   checks above were written for short introductions, and there they read ordinary sentences as a threat, a come-on, an
-   insult or a goodbye: "A cut like that would hurt you", "Congress has to act, or we'll see smaller checks", "I want to
-   make sure you're fine this winter", "a stupid war", "kids to take care of", "see you at the polls". For the issue sheets
-   only, the same checks with tighter wording: a violent verb needs "I" or "we" in front of it, "or we'll ..." is how a
-   consequence is said, "fine" needs "so", a put-down word counts when it is aimed at "you", and "take care of" and
-   "see you at ..." are not goodbyes. Every other door uses the checks above, unchanged. */
+/* 174-2 and 174-4: the issue practice's doors (Sarah, Linda) run longer than the intro doors and are about cuts, care and
+   help. The checks above were written for short introductions. On an issue door they read ordinary sentences as a threat,
+   a come-on, an insult or a goodbye: "A cut like that would hurt you", "Maya should beat Jack Dufner on Tuesday",
+   "I'll be back later with the answer", "Your check will still come in for a while", "Are you single or is there a second
+   income?", "a stupid war", "kids to take care of", "see you at the polls". For the issue sheets only, the same checks
+   with wording that fits such a conversation:
+   - "hurt" needs I or we doing it (a cut hurts; a person threatens). Shoot, kill and beat up count from anyone, as on
+     every door, and so do "I know where you live", "watch your back", "or else" and the rest.
+   - "or I'll ..." counts when what follows is harm, not a consequence ("or we'll see smaller checks").
+   - "fine" needs "so"; "are you single" doesn't count when it goes on with "or ..." (the heating help goes by household);
+     "come in" counts when the canvasser asks to.
+   - a put-down word counts when it is aimed at a person ("you're stupid", "stupid old woman", "how dumb are you").
+   - curly apostrophes from a phone's keyboard are read as plain ones first.
+   A real threat, come-on or second insult still ends the door. Every other door uses the checks above, unchanged. */
 const ISSUE_SHEETS = new WeakSet(Object.values(ISSUE_SCENARIOS));
 export const isIssue = (s) => !!s && typeof s === "object" && ISSUE_SHEETS.has(s);
-const THREAT_ISSUE = /\b((we'?ll|i'?ll) remember (this|your) (house|place|door|face)|i know where you live|i'?ll be back (tonight|later|for you)|should (shoot|kill|hurt|beat)\b|(?:i(?:'?ll|'?m (?:going to|gonna))?|we(?:'ll|'re (?:going to|gonna))?|(?:i|we) (?:will|would|could|can|might|should|want to|wanna|am going to|are going to)) (?:shoot|kill|hurt|beat up) (?:him|her|you|them)\b|report you to (immigration|ice|the police|the cops)|you'?ll regret|watch your back|or else[.!?]*\s*$)/i;
-const SEXUAL_ISSUE = /\b(you'?re (so )?(hot|cute|sexy|gorgeous|beautiful)|you'?re so fine|hey,? (gorgeous|sexy|beautiful|babe|baby|hottie)|are you single|you single|what are you wearing|come in for a (bit|while)|give me your number,? (gorgeous|babe|beautiful))/i;
-const INSULT_ISSUE = /\b(idiot|moron|loser|dumbass|shut up|piece of (crap|shit)|bitch|asshole|jerk|clown|you(?:'?re| are)?(?: \w+)? (?:stupid|dumb|pathetic))\b/gi;
+const straight = (t) => String(t || "").replace(/[‘’ʼ]/g, "'").replace(/[“”]/g, '"');
+const I_GLUE = "(?: (?:will|would|could|can|might|should|am|are|going|gonna|to|want|wanna|really|just|totally|definitely|fucking|freaking))*";
+const THREAT_ISSUE = new RegExp("\\b(" + [
+  "(?:we'?ll|i'?ll) remember (?:this|your) (?:house|place|door|face)",
+  "i know where you live",
+  "i'?ll be back for you",
+  "(?:someone|somebody|they|we|i|people) should (?:shoot|kill|hurt) (?:him|her|you|them)",
+  "(?:shoot|kill|beat up) (?:him|her|you|them)",
+  "(?:i'?ll|i'?m|i'd|we'll|we're|we'd|i|we)" + I_GLUE + " hurt (?:him|her|you|them)",
+  "make me (?:hurt|kill|shoot) (?:him|her|you|them)",
+  "(?:find|get|track) (?:him|her|you|them)(?: down)? and (?:hurt|kill|shoot|beat)",
+  "or (?:we|i)'?ll (?:burn|break|smash|trash|wreck|hurt|kill|shoot|find you|get you|come (?:back )?for|make you|be back)",
+  "report you to (?:immigration|ice|the police|the cops)",
+  "(?<!think )(?<!hope )(?<!sure )(?<!bet )you'?ll regret (?:this|that)",
+  "watch your back",
+].join("|") + ")\\b|\\bor else[.!?]*\\s*$", "i");
+const SEXUAL_ISSUE = /\b(you'?re (so )?(hot|cute|sexy|gorgeous|beautiful)|you'?re so fine|hey,? (gorgeous|sexy|beautiful|babe|baby|hottie)|(are )?you single(?!,? or\b)|what are you wearing|(can|could|may) i come in\b|let me come in\b|give me your number,? (gorgeous|babe|beautiful))/i;
+const INSULT_ISSUE = /\b(idiot|moron|loser|dumbass|shut up|piece of (?:crap|shit)|bitch|asshole|jerk|clown|you(?:'?re| are)?(?: \w+)? (?:stupid|dumb|pathetic)|(?:stupid|dumb|pathetic) (?:(?:old|little|fat|ugly) )*(?:woman|man|lady|hag|cow|fool|girl|boy|person)|(?:how|so) (?:stupid|dumb|pathetic) (?:are|can|could|must) you)\b/gi;
 export function conduct(turns, s) {
   const issue = isIssue(s), threat = issue ? THREAT_ISSUE : THREAT, sexual = issue ? SEXUAL_ISSUE : SEXUAL, insult = issue ? INSULT_ISSUE : INSULT;
+  const said = (t) => (issue ? straight(t.text) : t.text); /* 174-4: on an issue door a phone's curly apostrophe is read as a plain one */
   const you = turns.filter((t) => t.who === "you");
-  const last = you.length ? you[you.length - 1].text : "";
+  const last = you.length ? said(you[you.length - 1]) : "";
   if (threat.test(last)) return "a threat";
   if (sexual.test(last)) return "a sexual comment";
-  const insults = you.reduce((a, t) => a + ((t.text.match(insult) || []).length), 0), lastIns = (last.match(insult) || []).length;
+  const insults = you.reduce((a, t) => a + ((said(t).match(insult) || []).length), 0), lastIns = (last.match(insult) || []).length;
   if (lastIns && insults >= 2) return "a second insult";
   return "";
 }
@@ -322,15 +345,28 @@ const VOTER_TOOL = {
 export const FAREWELL = /\b(good ?night|goodbye|bye( now)?|have a (good|great|nice|lovely) (night|evening|one|day|afternoon|weekend)|take care|see you( later| around)?|thanks for (coming|stopping) by)\b/i;
 export const outOfCharacter = (p, name) => new RegExp(`\\b(I (can'?t|cannot|won'?t|am unable to|'m unable to) (write|continue|generate|produce|give|provide)|next (line|turn|response)|(this|the) (exchange|conversation|scene|role-?play|transcript|dialogue)\\b[^.]*\\b(ended|over|already|reached)|${name}'s (next|final|last) (line|words|turn)|as an AI\\b|language model|the volunteer\\b|if you'?re practicing|role-?play)`, "i").test(p);
 export const GOODBYE = "Bye now!";
-export const FAREWELL_ISSUE = /\b(good ?night|goodbye|bye( now)?|have a (good|great|nice|lovely) (night|evening|one|day|afternoon|weekend)|take care(?! of\b)|see you (later|around|soon|then)|thanks for (coming|stopping) by)\b/i; /* 174-2: for the issue sheets (see conduct) */
-const farewell = (s) => (isIssue(s) ? FAREWELL_ISSUE : FAREWELL);
+/* 174-4: a goodbye on an issue door. The voter's own ordinary words must not shut her door ("So I can kiss $460 a month
+   goodbye?", "I haven't had a good night's sleep", "Thanks for stopping by, but ...", "kids to take care of"), and
+   "see you at the polls" from the canvasser is not a goodbye. A goodbye is a goodbye phrase that ends the line (a name may
+   follow it), in a line that is not a question, or the way her sheet has her leave ("I have to get back inside"). */
+const BYE_END = /(?:^|[\s,.;!])(?:good ?night|goodbye(?: [a-z]+)?|bye(?: now)?(?: [a-z]+)?|have a (?:good|great|nice|lovely) (?:night|evening|one|day|afternoon|weekend)|take care(?! of\b)(?: now)?|see you(?: later| around| soon| then| (?:on )?(?:tuesday|election day))?|thanks for (?:coming|stopping) by)(?:, [a-z]+)?[.!\s]*$/i;
+const BYE_INSIDE = /\b(?:have|need|got|ought) to (?:get|go|head) back (?:inside\b|in(?=\s*(?:[.!,]|$)))/i;
+export const farewellIssue = (t) => { const x = straight(t).trim(); return !/\?\s*$/.test(x) && !/\bkiss\b[^.!?]*\bgoodbye\b/i.test(x) && (BYE_END.test(x) || BYE_INSIDE.test(x)); };
+const farewell = (s) => (isIssue(s) ? { test: farewellIssue } : FAREWELL);
+/* 174-4: staying in character on an issue door. The guard above takes "I can't write / continue / give / provide ..." for
+   the model stepping out of its part. Sarah and Linda say such things about money and their vote ("I can't give you a yes
+   tonight", "I can't write a check that big", "I can't provide for my kids"). On an issue door those words count only
+   when what follows is about the conversation itself (or nothing follows). */
+const ORDINARY_CANT = /\bI (can'?t|cannot|won'?t|am unable to|'m unable to) (write|continue|generate|produce|give|provide)\b(?!(?: (?:that|this|it))?(?:\s*[.!]|\s*$| (?:line|response|reply|dialogue|conversation|role-?play|scene|text|content|request|output|message|answer|with (?:this|the|that))))/gi;
+export const outOfCharacterIssue = (p, name) => outOfCharacter(straight(p).replace(ORDINARY_CANT, "I am not able to $2"), name);
+const ooc = (s) => (isIssue(s) ? outOfCharacterIssue : outOfCharacter);
 const saidBye = (turns, s) => { const you = turns.filter((t) => t.who === "you").length; const them = turns.filter((t) => t.who === "them"); return you >= 2 && them.length >= 2 && farewell(s).test(them[them.length - 1].text); };
 export function cleanVoter(x, s, turns) {
   if (!x || typeof x.say !== "string" || !x.say.trim()) throw new HttpError(502, "bad_model_output", "the voter's reply was empty");
   let say = dashes(x.say).replace(/^["“]+|["”]+$/g, "").replace(new RegExp("^" + s.voter.name + "\\s*:\\s*", "i"), "").replace(/\*[^*]+\*/g, "").replace(/\s+/g, " ").trim();
   if (say.length > 320) say = say.slice(0, 320).replace(/[^.!?]*$/, "") || say.slice(0, 320);
   const n = turns.filter((t) => t.who === "you").length;
-  if (outOfCharacter(say, s.voter.name)) return { say: GOODBYE, mood: "warm", end: true, broke: true }; /* version 165-2 */
+  if (ooc(s)(say, s.voter.name)) return { say: GOODBYE, mood: "warm", end: true, broke: true }; /* version 165-2 */
   return { say, mood: MOODS.includes(x.mood) ? x.mood : "neutral", end: !!x.end || n >= s.voter.hardStop || (n >= 2 && farewell(s).test(say)) };
 }
 
@@ -401,7 +437,10 @@ export function cleanCoach(x, s, turns) {
   const heard = Array.isArray(x.transcription) ? x.transcription.filter((t) => t && t.heard && nearLearner(t.heard, turns)).map((t) => ({ heard: dashes(t.heard), likely: dashes(t.likely || "") })) : [];
   const claims = Array.isArray(x.invented) ? x.invented.filter((t) => t && (t.quote || t.issue)) : [];
   const invented = [], unsure = [];
-  claims.forEach((t) => { const turn = t.quote ? learnerTurnFor(t.quote, turns) : ""; if (turn) invented.push({ quote: clip(turn, 160), issue: clip(t.issue || "", 160) }); else if (t.issue) unsure.push(clip(t.issue, 160)); });
+  /* 174-4: on an issue door a line is often two or three sentences, and "Check this" is the only place the card shows a
+     wrong claim: quote the sentence that carries it, not the start of the line (which may be a sentence said right) */
+  const quoteOf = (turn, q) => { if (!isIssue(s) || turn.length <= 160) return clip(turn, 160); const parts = turn.match(/[^.!?]+[.!?]*\s*/g) || [turn], words = (x) => norm(x).split(" ").filter((w) => w.length > 2), qw = new Set(words(q)); let best = 0, at = -1; parts.forEach((p, i) => { const n = words(p).filter((w) => qw.has(w)).length; if (n > best) { best = n; at = i; } }); return at < 0 ? clip(turn, 160) : clip(parts[at].trim(), 160); };
+  claims.forEach((t) => { const turn = t.quote ? learnerTurnFor(t.quote, turns) : ""; if (turn) invented.push({ quote: quoteOf(turn, t.quote), issue: clip(t.issue || "", 160) }); else if (t.issue) unsure.push(clip(t.issue, 160)); });
   /* a known wrong claim in the learner's own words always counts, whatever the model saw */
   (s.wrongSay || []).forEach((w) => { turns.forEach((t) => { if (t.who === "you" && w.re.test(t.text) && !invented.some((v) => v.quote === clip(t.text, 160))) invented.push({ quote: clip(t.text, 160), issue: w.issue }); }); });
   const byId = {};
@@ -499,6 +538,9 @@ async function claude(env, c, args) {
 
 /* ---------------- the voice: Cloudflare Workers AI (Deepgram Aura-2), only for lines the voter really said ---------------- */
 const VOICES = ["amalthea", "andromeda", "apollo", "arcas", "aries", "asteria", "athena", "atlas", "aurora", "callista", "cora", "cordelia", "delia", "draco", "electra", "harmonia", "helena", "hera", "hermes", "hyperion", "iris", "janus", "juno", "jupiter", "luna", "mars", "minerva", "neptune", "odysseus", "ophelia", "orion", "orpheus", "pandora", "phoebe", "pluto", "saturn", "selene", "thalia", "theia", "vesta", "zeus"];
+/* 174-4: a voter sheet whose voice the voice service does not have is refused here, when the server starts (a wrong name
+   would fail at Sarah's door and, through PCM_OK, switch streamed audio off for every other door too) */
+for (const [id, sh] of Object.entries(ISSUE_SCENARIOS)) for (const v of [sh.voter.voice].concat(sh.voter.voices || [])) if (!VOICES.includes(v)) throw new Error(`voter sheet "${id}": the voice "${v}" is not one the server can speak`);
 async function speak(env, s, text, voice) {
   const ai = env.AI || env.API;
   if (!ai || typeof ai.run !== "function") throw new HttpError(503, "no_voice", "The voice isn't connected on the server.");
@@ -688,7 +730,7 @@ function turnStream(env, c, s, scen, turns, h, t0, ip) {
         const said = []; let rawText = "";
         let broke = false;
         const byeNow = you.length >= 2 && farewell(s).test(last); /* 165-11: after the canvasser's goodbye the voter asks nothing ("Oh, you're leaving already?" was spoken in a live replay) */
-        const sp2 = makeSplitter(s.voter.name, (p) => { if (broke) return; if (byeNow && /\?/.test(p)) return; if (outOfCharacter(p, s.voter.name)) { broke = true; if (!said.length) { said.push(GOODBYE); say1(GOODBYE, 0); } return; } said.push(p); say1(p, said.length - 1); }); /* version 165-2 */
+        const sp2 = makeSplitter(s.voter.name, (p) => { if (broke) return; if (byeNow && /\?/.test(p)) return; if (ooc(s)(p, s.voter.name)) { broke = true; if (!said.length) { said.push(GOODBYE); say1(GOODBYE, 0); } return; } said.push(p); say1(p, said.length - 1); }); /* version 165-2 */
         const r = await claudeStream(env, c, { model: c.voterModel, system: voterPrompt(s, turns) + TURN_FORMAT(s.voter.name), user: `The conversation so far:\n${transcriptText(turns, s.voter.name)}\n\nWrite ${s.voter.name}'s next turn. Don't repeat anything ${s.voter.name} already said.`, maxTokens: DEFAULTS.VOTER_MAX_TOKENS, timeout: c.voterTimeout }, (t) => { if (!ms.tok1) ms.tok1 = Date.now() - t0; rawText += t; sp2.feed(t); });
         sp2.end();
         usd = r.usd; usage = r.usage;
