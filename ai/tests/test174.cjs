@@ -350,6 +350,25 @@ const FAKE_SR = () => {
     await p.close();
   }
 
+  /* F6. (on main's Version 173 card) the canvasser leaves an issue practice's card while the coach is still reading. The
+     grade that comes back later is not a lesson's result: the canvassing record stays as it was, and no waiting card is
+     left behind. */
+  await mock('coach-delay?ms=5000');
+  p = await open(PAGE + '?unlock&v=174k');
+  { const snap = () => p.evaluate(() => JSON.stringify([__T.S.done5, __T.S.best5, __T.S.doneAt, __T.S.sessions, __T.S.first5, __T.S.lesson, __T.S.doorsN || 0]));
+    const before6 = await snap(), last6 = await p.evaluate(() => JSON.stringify(__T.S.last || null));
+    await p.evaluate(() => __T.WAI.startIssue('oil', { back: 'library' }));
+    ok(await waitThem(p, 1, 12000), "F6: Sarah's door opens");
+    for (let k = 0; k < T.oil.say.length; k += 1) { await speakLine(p, T.oil.say[k]); await waitFor(p, (n) => document.querySelectorAll('#thread .bub.you').length >= n, 9000, k + 1); if (k < T.oil.say.length - 1) await waitThem(p, k + 2, 12000); }
+    ok(await waitFor(p, () => __T.S.screen === 'score' && !!__T.S.last && __T.S.last.grading === true, 30000), 'F6: the card is open and the coach is still reading');
+    await p.evaluate(() => __T.go('library'));
+    await p.waitForTimeout(7500); /* the slow coach answers in here */
+    ok((await snap()) === before6, 'F6: the grade that came back after the canvasser left is not saved as a lesson result');
+    ok((await p.evaluate(() => JSON.stringify(__T.S.last || null))) === last6, 'F6: and the last result is what it was before the practice (no waiting card left behind): ' + (await p.evaluate(() => JSON.stringify(__T.S.last || null))).slice(0, 80));
+    ok(await p.evaluate(() => __T.S.screen === 'library' && !__T.S.drill), 'F6: the canvasser is still on Learn'); }
+  await mock('coach-delay?ms=0');
+  await p.close();
+
   ok(errs.length === 0, 'no page errors: ' + errs.join(' | '));
   ok(outside.length === 0, 'nothing reached the live site or the live AI server: ' + [...new Set(outside)].join(' '));
   await b.close();

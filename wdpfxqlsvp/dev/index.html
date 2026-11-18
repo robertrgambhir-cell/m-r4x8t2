@@ -5176,7 +5176,7 @@ const WAI = (() => {
     if (!ready()) { toast(state === "down" ? FAIL.network : FAIL.off); return false; }
     if (!S.drill) S.drillBack = { lesson: lessonNo(), skipWatch: S.skipWatch };
     S.round = null;
-    S.drill = { kind: "aiissue", door, step: 1, knock: !!o.knock, back: o.back || "coach" };
+    S.drill = { kind: "aiissue", door, step: 1, knock: !!o.knock, back: o.back || "coach", lastWas: S.last || null };
     S.lesson = 1; S.skipWatch = false; S.sayNow = null; S.mode = S.mode || "voice";
     go("door");
     if (!o.knock) autoKnock();
@@ -9813,16 +9813,17 @@ async function finishConvo(d) {
   S.convo.ended = true;
   setComposer(false);
   const fallback = [0, 1, 2, 3].map((i) => S.convo.st.moves.has(i));
-  let result = { hits: fallback, praise: "", tip: "" }, back = null;
-  const conv = S.convo, t1 = S.try1; /* leaving the door for the card ends 1st intro mode, so remember it */
+  let result = { hits: fallback, praise: "", tip: "" }, back = null, ph = null;
+  const conv = S.convo, t1 = S.try1, drill0 = S.drill; /* leaving the door for the card ends 1st intro mode, so remember it; version 174: and the drill */
   if (S.convo.mode === "live" && (WAI.full(d) || aiOn()) && S.convo.turns.some((x) => x.who === "you")) {
-    if (WAI.full(d)) back = gradingScreen(d); /* version 173 */
+    if (WAI.full(d)) { back = gradingScreen(d); ph = S.last; } /* version 173; version 174: ph is this conversation’s own waiting card */
     const note = back ? null : addNote("Scoring your conversation\u2026");
     try { result = await (conv.gradeP || aiGradeConvo(d)); } catch (e) { if (WAI.full(d)) { try { result = await aiGradeConvo(d); } catch (e2) { result = Object.assign(result, { coachErr: true }); } } else aiFail(e); } /* version 156: one quiet retry, then an honest label */
     if (note) note.remove();
   }
   const here = back ? S.screen === back && S.convo === conv : S.screen === "door"; /* version 173: a grade that lands after they left is still saved */
   if (!back && !here) return;
+  if (drill0 && drill0.kind === "aiissue" && S.drill !== drill0) { if (ph && S.last === ph) S.last = drill0.lastWas || null; return; } /* version 174: the canvasser left an issue practice before its grade came back: it is not a lesson’s result, so nothing is saved */
   if (t1) { /* version 165: the 1st intro's conversation comes back to its own card, graded like the 2nd */
     const said1 = S.convo.turns.filter((x) => x.who === "you").map((x) => x.text), text1 = said1.slice(0, 2).join(" "), h1 = result.hits.slice(), c1 = h1.filter(Boolean).length;
     S.tryRes = { lesson: 1, text: text1, hits: h1, phr: phrFinal(text1, h1, result.phr || null), pending: false, at: Date.now(), convo: S.convo.turns.map((x) => ({ who: x.who, text: x.text })), coach: result.coach || null };

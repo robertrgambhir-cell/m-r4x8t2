@@ -96,7 +96,7 @@ START_ISSUE = '''  /* version 174: a "not reachable" answer from when the page o
     if (!ready()) { toast(state === "down" ? FAIL.network : FAIL.off); return false; }
     if (!S.drill) S.drillBack = { lesson: lessonNo(), skipWatch: S.skipWatch };
     S.round = null;
-    S.drill = { kind: "aiissue", door, step: 1, knock: !!o.knock, back: o.back || "coach" };
+    S.drill = { kind: "aiissue", door, step: 1, knock: !!o.knock, back: o.back || "coach", lastWas: S.last || null };
     S.lesson = 1; S.skipWatch = false; S.sayNow = null; S.mode = S.mode || "voice";
     go("door");
     if (!o.knock) autoKnock();
@@ -250,6 +250,22 @@ def patch(path):
          'async function knock() {\n  const d = DOORS[doorKey()], issueDoor = !!(S.drill && S.drill.kind === "aiissue"); /* version 174 */\n')
     swap('    await wait(900);\n    await voterSays(d.first.say, d.first.expr, d);\n',
          '    await wait(900);\n    if (issueDoor && (S.screen !== "door" || !S.convo)) return; /* version 174: the canvasser left an issue door before she spoke */\n    await voterSays(d.first.say, d.first.expr, d);\n')
+
+    # 4c. on main's Version 173 lines (the card that opens while the coach reads): an issue practice whose grade comes back
+    # after the canvasser has left the card is not a lesson's result. Main saves a late grade so a lesson still counts; for
+    # an issue practice that would write its four parts into the canvassing lesson's record (the drill is over by then, so
+    # the code took it for a lesson). Nothing is saved, and the waiting card it left behind is put away.
+    swap('''  let result = { hits: fallback, praise: "", tip: "" }, back = null;
+  const conv = S.convo, t1 = S.try1; /* leaving the door for the card ends 1st intro mode, so remember it */''',
+         '''  let result = { hits: fallback, praise: "", tip: "" }, back = null, ph = null;
+  const conv = S.convo, t1 = S.try1, drill0 = S.drill; /* leaving the door for the card ends 1st intro mode, so remember it; version 174: and the drill */''')
+    swap('''    if (WAI.full(d)) back = gradingScreen(d); /* version 173 */''',
+         '''    if (WAI.full(d)) { back = gradingScreen(d); ph = S.last; } /* version 173; version 174: ph is this conversation\u2019s own waiting card */''')
+    swap('''  if (!back && !here) return;
+  if (t1) {''',
+         '''  if (!back && !here) return;
+  if (drill0 && drill0.kind === "aiissue" && S.drill !== drill0) { if (ph && S.last === ph) S.last = drill0.lastWas || null; return; } /* version 174: the canvasser left an issue practice before its grade came back: it is not a lesson\u2019s result, so nothing is saved */
+  if (t1) {''')
 
     # 5. opening the trainings and hearing from them
     resub(r'case "issues-open": (P1\.ev\("issue_open", \{\}\); )?issuesOpen\(\); break;',
