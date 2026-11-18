@@ -16,7 +16,8 @@
    - Nothing said in a conversation is stored or logged: the logs hold the route, scenario, timing, tokens and cost. */
 
 import { SCENARIOS, publicScenario } from "./scenarios.js";
-import { ISSUE_SCENARIOS } from "./scenarios-issues.js"; /* 174-2: which sheets are issue doors */
+import { ISSUE_SCENARIOS, NARRATOR } from "./scenarios-issues.js"; /* 174-2: which sheets are issue doors; NARRATOR is the narration's voice */
+import { SIG_NARRATION } from "./sig/content.js"; /* the signature course's spoken lines (Nov 18, 2026) */
 import { isAdmin, isLearnerRoute, learnerRoute, LearnerError } from "./learner.js"; /* phase 1: progress, events, admin views */
 
 const DEFAULTS = {
@@ -33,7 +34,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "174-2"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "174-3"; /* shows on /health, so a deploy can be confirmed (174-3 holds main's 165-14, the signature course's narration) */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -512,8 +513,9 @@ async function speak(env, s, text, voice) {
   throw new HttpError(502, "voice_error", "The voice came back in a form the server didn't expect.");
 }
 
-/* ---------------- Nov 6, 2026: the fast spoken turn (POST /turn) ----------------
-   (The narration route, GET /narrate, read the two Nov 6 issue trainings aloud; it left with them in 174-1.)
+/* ---------------- Nov 6, 2026: the fast spoken turn (POST /turn) and the narration (GET /narrate) ----------------
+   (The two Nov 6 issue trainings that /narrate first read aloud left the app in 174-1. The route stays: since main's
+   165-14 it reads the signature course's lines.)
    /turn is /voter and /speak in one streamed answer, so the voter starts talking while the rest of the line is still
    being written. The model streams plain text; each sentence goes to the voice the moment it's complete, and the page
    plays the first sentence while later ones are still being made. Same checks as /voter: the origin, signed voter
@@ -713,6 +715,26 @@ function turnStream(env, c, s, scen, turns, h, t0, ip) {
   })();
   return new Response(ts.readable, { status: 200, headers: { "content-type": "application/octet-stream", "cache-control": "no-store", "x-content-type-options": "nosniff", ...h } });
 }
+/* the narration of a rebuilt issue training or a signature lesson: only the lines in its own list, in the narrator's voice
+   (or one named Aura-2 speaker, for a lesson's people), as MP3, cached at the edge */
+async function narrate(env, c, url, h, ip) {
+  const scen = url.searchParams.get("s") || "", k = Number(url.searchParams.get("k")), s = SCENARIOS[scen] || (Object.prototype.hasOwnProperty.call(SIG_NARRATION, scen) ? SIG_NARRATION[scen] : null); /* 165-14: the signature course's lines are narration too */
+  if (!s || !Array.isArray(s.narration) || !Number.isInteger(k) || k < 0 || k >= s.narration.length) throw new HttpError(404, "not_found");
+  const v = url.searchParams.get("voice") || "", speaker = VOICES.includes(v) ? v : NARRATOR, text = s.narration[k];
+  const key = new Request("https://narrate.warmup/" + scen + "/" + k + "/" + speaker + "/" + encodeURIComponent(text).length + "/" + (await signLine(env, "narrate", text, k)));
+  const cache = typeof caches !== "undefined" && caches.default ? caches.default : null;
+  if (cache) { const hit = await cache.match(key); if (hit) return new Response(hit.body, { status: 200, headers: { "content-type": "audio/mpeg", "cache-control": "public, max-age=86400", "x-cache": "hit", ...h } }); }
+  await checkRate(env, ip, "narrate", c.voterPerHour);
+  const ai = env.AI || env.API;
+  if (!ai || typeof ai.run !== "function") throw new HttpError(503, "no_voice", "The voice isn't connected on the server.");
+  let out;
+  try { out = await ai.run(env.VOICE_MODEL || "@cf/deepgram/aura-2-en", { text, speaker, encoding: "mp3" }); }
+  catch (e) { const m = String((e && e.message) || e); throw new HttpError(isLimit(m) ? 429 : 502, isLimit(m) ? "voice_limit" : "voice_error", "The voice didn't answer."); }
+  const bytes = await readAll(out);
+  if (cache) await cache.put(key, new Response(bytes, { headers: { "content-type": "audio/mpeg", "cache-control": "public, max-age=2592000" } })).catch(() => {});
+  return new Response(bytes, { status: 200, headers: { "content-type": "audio/mpeg", "cache-control": "public, max-age=86400", "x-cache": "miss", ...h } });
+}
+
 /* ---------------- the server ---------------- */
 function cors(origin, c) {
   const ok = origin && c.origins.includes(origin);
@@ -767,6 +789,7 @@ export default {
         catch (e) { if (e instanceof LearnerError) { console.log(JSON.stringify({ route, ms: Date.now() - t0, error: e.code })); return json({ error: e.code, message: e.message }, e.status, h); } throw e; }
       }
       if (route === "/log" && req.method === "GET") return await readLog(env, url, h); /* version 165-2 */
+      if (route === "/narrate" && req.method === "GET") return await narrate(env, c, url, h, req.headers.get("cf-connecting-ip") || "local");
       if (req.method !== "POST" || (route !== "/voter" && route !== "/coach" && route !== "/speak" && route !== "/turn" && route !== "/tidy")) throw new HttpError(404, "not_found");
       if (!c.origins.includes(origin)) throw new HttpError(403, "origin", "This page isn't allowed to use the practice AI.");
       const ip = req.headers.get("cf-connecting-ip") || "local";

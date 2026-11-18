@@ -55,3 +55,4 @@ These two voters were wired in overnight from the trainings' own voter sheets. *
 - 2026-11-17: practice AI 165-13 from Robert's 8:34 PM PT run (his question answered first).
 - 2026-11-18: the issue practice's voters, Sarah and Linda (version 174, practice AI 174-1). Not yet tried with the real model.
 - 2026-11-18: practice AI 174-2, from an independent review of version 174 before any merge (rules 15 and 16). Not yet tried with the real model.
+- 2026-11-18: practice AI 174-3. Main moved twice while version 174 was on its branch (version 173, the card that opens while the coach reads; practice AI 165-14, the signature course's narration). Both are merged in; the label went up so a deploy can be told apart.

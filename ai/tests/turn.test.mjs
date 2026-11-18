@@ -2,6 +2,7 @@
    Run: node tests/turn.test.mjs */
 import worker, { makeSplitter, signLine, introParts, introPartsLine, introPlan, cleanReaction, sameWords } from "../worker.js";
 import { SCENARIOS } from "../scenarios.js";
+import { SIG_NARRATION, SIG_SETTINGS, SIG_VOICES, sigVoiceLines } from "../sig/content.js";
 
 let pass = 0, fail = 0;
 const ok = (c, m) => { if (c) pass += 1; else { fail += 1; console.log("FAIL", m); } };
@@ -83,13 +84,27 @@ r = await post({ scenario: "social", turns: [{ who: "them", text: SCENARIOS.soci
 f = await frames(r);
 ok(f.some((x) => x.t === 2 && x.fmt === 2) && f.find((x) => x.t === 1 && x.j.t === "done").j.voice === "ok", "MP3 when PCM is refused");
 
-/* version 174: the narration route left with the Nov 6 trainings (the new trainings are read, not narrated) */
+/* version 174: the Nov 6 trainings' narration left with them (the new trainings are read, not narrated); the route stays for the signature course (165-14) */
 const g = (q) => worker.fetch(new Request("https://w.example/narrate?" + q), env0);
-r = await g("s=oil&k=0"); ok(r.status === 404, "no narration route: " + r.status);
+r = await g("s=oil&k=0"); ok(r.status === 404, "an issue practice has no narration: " + r.status);
+r = await g("s=oh_bills&k=1"); ok(r.status === 404, "the Nov 6 trainings' lines left with them");
+r = await g("s=kevin_intro&k=0"); ok(r.status === 404, "a scenario without narration has none");
 r = await worker.fetch(new Request("https://w.example/scenario/oh_bills"), env0); ok(r.status === 404, "the Nov 6 electric bill scenario is gone from the server");
 r = await worker.fetch(new Request("https://w.example/scenario/tx_vouchers"), env0); ok(r.status === 404, "the Nov 6 school vouchers scenario is gone from the server");
 r = await worker.fetch(new Request("https://w.example/scenario/social"), env0);
 { const j = await r.json(); ok(r.status === 200 && j.voter.name === "Linda" && j.rubric.filter((x) => x.card).length === 4 && !JSON.stringify(j).includes("approvedFacts"), "the page can read Linda's card rows and nothing of the prompt: " + JSON.stringify(j).slice(0, 120)); }
+/* 165-14: the signature course's lines (ai/sig/content.js) are read the same way, each person in their own voice */
+{
+  const N = SIG_NARRATION.sig2.narration, lines = sigVoiceLines().filter((x) => !x.same);
+  r = await g("s=sig2&k=0"); ok(r.status === 200 && r.headers.get("content-type") === "audio/mpeg" && voiceCalls[voiceCalls.length - 1].text === N[0] && voiceCalls[voiceCalls.length - 1].speaker === "orpheus", "a signature lesson's coach line is read in the narrator's voice");
+  const t = lines.findIndex((x) => x.who === "tasha");
+  r = await g("s=sig2&k=" + t + "&voice=" + SIG_VOICES.tasha); ok(r.status === 200 && voiceCalls[voiceCalls.length - 1].speaker === SIG_VOICES.tasha && /registered to vote in L\.A\. County\?$/.test(voiceCalls[voiceCalls.length - 1].text), "Tasha's opener is read in her own voice, with the county said the way a voice says it");
+  r = await g("s=sig2&k=" + N.length); ok(r.status === 404, "no signature line past the end");
+  r = await g("s=constructor&k=0"); ok(r.status === 404, "only a real lesson id is read");
+  ok(N.length === lines.length && N.every((x) => typeof x === "string" && x.length > 3 && x.length < 400 && !/[{}\u2014]/.test(x)), "every signature line is filled, short and has no em dash");
+  ok(lines.every((x) => SIG_VOICES[x.who] && x.voice === SIG_VOICES[x.who]), "every line has a speaker");
+  ok(N.filter((x) => x.includes(SIG_SETTINGS.countySay)).length >= 3 && !N.some((x) => x.includes("LA County")), "the county comes from the firm settings");
+}
 /* version 165: Sofia's 1st intro streams like Kevin's 2nd, graded on the same items, and lesson 1's doors stop at four lines */
 {
   const F = SCENARIOS.sofia_intro, K = SCENARIOS.kevin_intro, SO = F.voter.opening.say;
