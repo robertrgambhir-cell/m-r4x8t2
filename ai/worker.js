@@ -180,7 +180,7 @@ export function conduct(turns) {
 }
 /* asked whether the voter is an AI, and the reply denies it: replace it with the honest line */
 const ASKS_AI = /\b(are you (an? )?(ai|a\.i\.|bot|robot|real( person)?|human|computer)|is this (an? )?(ai|bot|robot|real person)|am i talking to (an? )?(ai|bot|robot|computer))\b/i;
-const DENIES_AI = /\b(not an? (ai|bot|robot|computer)|i'?m (a )?real (person|guy|woman)|i'?m human|no,? i'?m (kevin|bri|sofia|sarah|linda)\b)/i; /* 173-1: the issue practice's voters, Sarah and Linda */
+const DENIES_AI = /\b(not an? (ai|bot|robot|computer)|i'?m (a )?real (person|guy|woman)|i'?m human|no,? i'?m (kevin|bri|sarah|linda)\b)/i; /* 173-1: the issue practice's voters, Sarah and Linda */
 export const needsCare = (turns) => { const you = turns.filter((t) => t.who === "you"); return !!you.length && CARE.test(you[you.length - 1].text); };
 
 /* ---------------- the voter ---------------- */

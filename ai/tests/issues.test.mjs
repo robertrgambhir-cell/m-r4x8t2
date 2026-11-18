@@ -66,6 +66,11 @@ for (const id of ISSUE_IDS) {
   ok(calls[calls.length - 1].model === "claude-haiku-5-5" && calls[calls.length - 1].system.includes(v.persona), id + ": the fast model plays her from the sheet");
   r = await post("/voter", { scenario: id, turns: [{ who: "them", text: "Hello there." }, { who: "you", text: "Hi" }] });
   ok(r.status === 400 && (await r.json()).error === "bad_opening", id + ": a conversation that doesn't start with her own first line is refused");
+  /* asked whether she is an AI, the voter never says she is a real person: the server puts the honest line in its place */
+  stub = () => reply({ say: "No, I'm " + v.name + ".", mood: "neutral", end: false });
+  r = await post("/voter", { scenario: id, turns: [{ who: "them", text: O }, { who: "you", text: "Wait, are you an AI?" }] });
+  j = await r.json();
+  ok(r.status === 200 && /practice voter, so not a real person/.test(j.say) && j.sig === (await signLine(env0, id, j.say, 2)), id + ": asked if she is an AI, " + v.name + " doesn't deny it: " + JSON.stringify(j.say));
   /* the coach: four rows on the card, a credit only for words the canvasser really said */
   const said = id === "oil"
     ? ["That sounds really hard. Heating oil costs about 80% more than last fall.", "The state's heating help covers renters too. I can text you the link.", "Jack Dufner voted five times against ending the war before he voted to end it. Maya Kaur would end the war.", "Can Maya count on your vote on Tuesday?"]
