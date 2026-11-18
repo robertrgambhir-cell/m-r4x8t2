@@ -24,9 +24,17 @@ ok(!SCENARIOS.oh_bills && !SCENARIOS.tx_vouchers && !SCENARIOS.power && !SCENARI
 ok(SCENARIOS.oil.voter.name === "Sarah" && SCENARIOS.social.voter.name === "Linda", "Sarah for oil, Linda for social");
 ok(ISSUE_SCENARIOS.oil === ISSUE_SCENARIOS_V2.oil, "the server uses the voter sheet as written, not a rewrite");
 
+/* this repo is public and the trainings' repo is not: only the wired trainings' sheets may be in the app's copy */
+{ const fs = await import("node:fs"), raw = fs.readFileSync(new URL("../voters/scenarios.js", import.meta.url), "utf8");
+  ok(Object.keys(ISSUE_SCENARIOS_V2).join() === ISSUE_IDS.join(), "the app's sheet file holds the wired trainings and no others: " + Object.keys(ISSUE_SCENARIOS_V2).join());
+  ok(!/\b(Barb|Carla|Earl|Andre)\b|UNVERIFIED|helpNote|hamburger|data center/i.test(raw), "nothing of the other trainings' sheets is in this repo"); }
+
 /* a sheet that is not ready for the app is refused when the server starts */
 { let msg = ""; try { checkSheet("power", ISSUE_SCENARIOS_V2.power); } catch (e) { msg = e.message; }
-  ok(/voter sheet "power"/.test(msg), "a sheet without the app's fields is refused by name: " + msg);
+  ok(/voter sheet "power"/.test(msg), "a training that is not wired has no sheet here and is refused by name: " + msg);
+  const thin = JSON.parse(JSON.stringify(ISSUE_SCENARIOS_V2.oil)); delete thin.outOfScope; thin.rubric.forEach((r) => { delete r.hit; });
+  let m0 = ""; try { checkSheet("oil", thin); } catch (e) { m0 = e.message; }
+  ok(/outOfScope is missing/.test(m0), "a sheet without the app's fields is refused: " + m0);
   let m2 = ""; try { checkSheet("nope", undefined); } catch (e) { m2 = e.message; }
   ok(/voter sheet "nope"/.test(m2), "a missing sheet is refused");
   const bad = JSON.parse(JSON.stringify(ISSUE_SCENARIOS_V2.oil)); bad.voter.opening.mood = "worried";

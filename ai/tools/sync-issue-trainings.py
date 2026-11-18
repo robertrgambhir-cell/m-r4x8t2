@@ -5,6 +5,9 @@ spoken practice in voters/scenarios.js). The app holds copies, so the live site 
   dist/<id>.html        ->  wdpfxqlsvp/trainings/<id>.html   (opened from Learn, in the app's own frame)
   voters/scenarios.js   ->  ai/voters/scenarios.js           (the AI server plays the voter and grades from it)
 and wdpfxqlsvp/trainings/source.txt records which commit they came from, with a fingerprint of each file.
+Only the trainings the app shows are copied. This repo is public and that one is not: the voter sheets of the other
+trainings never come here, so ai/voters/scenarios.js is written out from the sheets of the wired ids alone (the same
+data, as JSON), not copied whole.
 It also refreshes the four app pages' own copy of the voters' cards (WAI_PUB: names, opening lines, voices and the score
 card's rows, read from ai/scenarios.js), so a changed opening line or card row reaches the pages in the same step.
 
@@ -33,12 +36,30 @@ IDS = re.findall(r'"([a-z]+)"', m.group(1))
 assert IDS, "no ids"
 
 sha = lambda b: hashlib.sha256(b).hexdigest()
+import json
 pairs = [(SRC / "dist" / f"{i}.html", ROOT / "wdpfxqlsvp" / "trainings" / f"{i}.html") for i in IDS]
-pairs.append((SRC / "voters" / "scenarios.js", ROOT / "ai" / "voters" / "scenarios.js"))
+
+# the voter sheets of the wired trainings only, read from the other repo's file and written out as data
+SHEETS = subprocess.run(["node", "--input-type=module", "-e",
+                         "import { ISSUE_SCENARIOS_V2 as V } from " + json.dumps(str(SRC / "voters" / "scenarios.js")) + ";"
+                         "const o = {}; for (const id of " + json.dumps(IDS) + ") { if (!V[id]) throw new Error('no voter sheet for ' + id); o[id] = V[id]; }"
+                         "console.log(JSON.stringify(o, null, 2));"],
+                        capture_output=True, text=True, check=True).stdout.strip()
+assert sorted(json.loads(SHEETS).keys()) == sorted(IDS)
+SHEET_FILE = ("""/* Voter sheets for the spoken practice after each issue training the app shows (the ids in ISSUE_IDS, ai/scenarios-issues.js).
+   WRITTEN OUT by ai/tools/sync-issue-trainings.py from voters/scenarios.js in the issue-trainings repo, where each sheet is
+   written with its training. Do not edit here: change the sheet there and run the tool again. Only the wired trainings'
+   sheets are here; this repo is public and the other trainings' sheets stay in that one.
+   A sheet holds the voter (persona, setting, what she knows and doesn't, how she reacts, her first line, when she ends it),
+   the approved facts, the known wrong claims, what is outside the training and the rubric. The door answer has four parts,
+   in order: agree with the voter, offer help she may qualify for (or explain the cause in one sentence), give the choice
+   between the candidates, then ask for the vote. */
+export const ISSUE_SCENARIOS_V2 = """ + SHEETS + ";\n").encode("utf-8")
 
 lines, changed = [], 0
-for src, dst in pairs:
-    data = src.read_bytes()
+for src, dst in pairs + [(None, ROOT / "ai" / "voters" / "scenarios.js")]:
+    data = SHEET_FILE if src is None else src.read_bytes()
+    src = src or (SRC / "voters" / "scenarios.js")
     assert "—".encode("utf-8") not in data, f"an em dash in {src}"
     same = dst.exists() and dst.read_bytes() == data
     if not same:
@@ -58,7 +79,6 @@ except Exception:
 note = (f"Copied from robertrgambhir-cell/issue-trainings, branch {branch}, commit {commit}"
         + (" (with uncommitted changes)" if dirty else "") + " by ai/tools/sync-issue-trainings.py.\n" + "\n".join(lines) + "\n")
 # the pages' copy of the cards, from the server's own definitions (the same lines version 173's patch wrote)
-import json
 pub = subprocess.run(["node", "--input-type=module", "-e",
                       "import { SCENARIOS, publicScenario } from " + json.dumps(str(ROOT / "ai" / "scenarios.js")) + ";"
                       "const o = {}; for (const k of Object.keys(SCENARIOS)) if (k !== 'bri_health') o[k] = publicScenario(k); console.log(JSON.stringify(o));"],

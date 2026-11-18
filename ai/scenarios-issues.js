@@ -4,9 +4,10 @@
    file is what the AI server needs for that: who the voter is, the facts the coach checks and what the coach scores.
 
    The voter sheets are written with the trainings, so the training's words and the practice can never drift apart:
-   ai/voters/scenarios.js is that repo's voters/scenarios.js, copied as it is by ai/tools/sync-issue-trainings.py.
-   Only the ids in ISSUE_IDS reach the server; the other sheets in that file are not wired. The two trainings rebuilt on
-   Nov 6 (electric bills as oh_bills, school vouchers as tx_vouchers) and their narration left the app with this version.
+   ai/voters/scenarios.js holds the sheets of the ids in ISSUE_IDS, written out from that repo's voters/scenarios.js by
+   ai/tools/sync-issue-trainings.py (this repo is public; the other trainings' sheets stay in that one). The two trainings
+   rebuilt on Nov 6 (electric bills as oh_bills, school vouchers as tx_vouchers) and their narration left the app with
+   this version.
 
    Maya Kaur, Jack Dufner and the state of Franklin are a sample campaign; the voters are example voters. */
 import { ISSUE_SCENARIOS_V2 } from "./voters/scenarios.js";
