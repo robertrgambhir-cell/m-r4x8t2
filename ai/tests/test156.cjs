@@ -108,29 +108,29 @@ const stats = async () => JSON.parse(await mock('stats'));
   ok(ft.coach && ft.hits.length === 4 && ft.level === 'strong', 'the 1st try goes to the coach: ' + JSON.stringify(ft));
   await p.close();
 
-  /* C. the issue conversation, Bri */
-  p = await open('zzhooked156.html', '?convo=bri');
-  ok(await waitThem(p, 1), 'Bri asks her question');
-  ok((await them(p))[0] === 'Hi. Can I help you?' && (await p.$eval('#thread', (t) => t.textContent)).includes('Live AI voter'), 'Bri' + "'" + 's door is the live AI and she opens like anyone would');
-  await say(p, "Hi, I'm Sam with Maya Kaur. You're one of about 200,000 people who make too much for Medicaid but can't afford a plan.");
-  ok(await waitThem(p, 2), 'Bri answers turn 1');
-  await say(p, 'Maya will push for full Medicaid expansion. Her opponent wants a Pathways-style plan with work requirements.');
-  ok(await waitThem(p, 3), 'Bri answers turn 2');
-  await say(p, 'Thanks so much, bye!');
-  ok(await waitFor(p, () => __T.S.screen === 'score', 25000), 'Bri' + "'" + 's conversation is coached');
+  /* C. the issue conversation (version 173: Sarah, the practice after the Heating oil training; the health insurance door left the app) */
+  p = await open('zzhooked156.html', '?convo=oil');
+  ok(await waitThem(p, 1), 'Sarah says her first line');
+  ok((await them(p))[0] === "I can't afford to fill my tank this winter." && (await p.$eval('#thread', (t) => t.textContent)).includes('Live AI voter'), 'Sarah' + "'" + 's door is the live AI and she opens with the line her training gives her');
+  await say(p, "That sounds really hard. The state's heating help covers renters too. I can text you the link.");
+  ok(await waitThem(p, 2), 'Sarah answers turn 1');
+  await say(p, 'Jack Dufner voted five times against ending the war before he voted to end it. Maya Kaur would end the war.');
+  ok(await waitThem(p, 3), 'Sarah answers turn 2');
+  await say(p, 'Can Maya count on your vote on Tuesday? Thanks so much, bye!');
+  ok(await waitFor(p, () => __T.S.screen === 'score', 25000), 'Sarah' + "'" + 's conversation is coached');
   await p.waitForTimeout(600);
   const bs = await p.evaluate(() => ({ rows: document.querySelectorAll('.sc-list li').length, ring: (document.querySelector('.ring-num') || {}).textContent, btns: [...document.querySelectorAll('footer .btn, footer .link')].map((x) => x.textContent), prior: !!document.querySelector('.prior-line') }));
-  ok(bs.rows === 4 && /\/4$/.test(bs.ring || '') && !bs.prior && !(await p.evaluate(() => /Said your name/.test(document.body.innerText))), 'Bri' + "'" + 's card has her four rows (the three things and the facts), no lesson 1 rows: ' + JSON.stringify(bs));
-  ok(bs.btns.includes('Try this conversation again') && bs.btns.includes('Done for now'), 'Bri' + "'" + 's card offers a retry and a way out');
-  ok((await fits(p)) <= 2, 'Bri' + "'" + 's feedback fits: ' + await fits(p));
-  await p.screenshot({ path: path.join(OUT, `c-bri-score-${tag}.png`) });
+  ok(bs.rows === 4 && /\/4$/.test(bs.ring || '') && !bs.prior && !(await p.evaluate(() => /Said your name/.test(document.body.innerText))), 'Sarah' + "'" + 's card has her four rows (the four parts of the door answer), no lesson 1 rows: ' + JSON.stringify(bs));
+  ok(bs.btns.includes('Try this conversation again') && bs.btns.includes('Done for now'), 'Sarah' + "'" + 's card offers a retry and a way out');
+  ok((await fits(p)) <= 2, 'Sarah' + "'" + 's feedback fits: ' + await fits(p));
+  await p.screenshot({ path: path.join(OUT, `c-sarah-score-${tag}.png`) });
   await p.click('[data-act="door-again"]');
   ok(await waitThem(p, 1), 'Try this conversation again knocks again');
   await p.click('[data-act="back"]').catch(() => {});
   await p.waitForTimeout(400);
-  /* F. the Practice tab offers Bri only after lesson 6 */
-  const link = await p.evaluate(() => { const S = __T.S; S.drill = null; S.done5 = { 1: [true, true, true, true] }; S.briefsDoneIds = {}; __T.go('coach'); const a = !!document.querySelector('[data-act="wai-issue"]'); S.briefsDoneIds = { ga: Date.now() }; __T.render(); const b2 = !!document.querySelector('[data-act="wai-issue"]'); return { a, b: b2 }; });
-  ok(link.b && !link.a, 'the Practice tab offers the health insurance conversation after lesson 6, not before: ' + JSON.stringify(link));
+  /* F. the Practice tab offers an issue conversation only after its training is done (version 173) */
+  const link = await p.evaluate(() => { const S = __T.S; S.drill = null; S.done5 = { 1: [true, true, true, true] }; S.briefsDoneIds = {}; __T.go('coach'); const a = !!document.querySelector('[data-act="wai-issue"]'); S.briefsDoneIds = { oil: Date.now() }; __T.render(); const b2 = !!document.querySelector('[data-act="wai-issue"][data-arg="oil"]'), c2 = !!document.querySelector('[data-act="wai-issue"][data-arg="social"]'); return { a, b: b2, c: c2 }; });
+  ok(link.b && !link.a && !link.c, 'the Practice tab offers the heating oil conversation after its training, not before, and not Linda' + "'" + 's yet: ' + JSON.stringify(link));
   await p.close();
 
   /* G. with the server on, a door that isn't an AI scenario (lesson 2) runs as in 155: no false Claude toast */
@@ -151,9 +151,9 @@ const stats = async () => JSON.parse(await mock('stats'));
   ok(await waitThem(p, 1, 9000), 'Kevin opens after the slow check');
   ok((await p.$eval('#thread', (t) => t.textContent)).includes('Scripted voter') && (await p.evaluate(() => __T.S.convo.wai === false)), 'a server that says not ok means a labeled scripted door, never AI on a guess');
   await p.close();
-  p = await open('zzhooked156.html', '?convo=bri');
+  p = await open('zzhooked156.html', '?convo=oil');
   await p.waitForTimeout(3500);
-  ok((await p.evaluate(() => __T.S.screen)) !== 'door' || !(await p.evaluate(() => __T.S.drill && __T.S.drill.kind === 'aiissue')), 'Bri' + "'" + 's conversation refuses to start without the AI');
+  ok((await p.evaluate(() => __T.S.screen)) !== 'door' || !(await p.evaluate(() => __T.S.drill && __T.S.drill.kind === 'aiissue')), 'Sarah' + "'" + 's conversation refuses to start without the AI');
   await p.close();
   await mock('health?down=0');
   /* I. a health check that never answers: non-AI doors knock at once, Kevin's door knocks within about 4 s, labeled scripted */

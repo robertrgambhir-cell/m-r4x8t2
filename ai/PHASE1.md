@@ -19,7 +19,7 @@ Branch `phase1-foundations` only. Nothing here is deployed: Cloudflare builds th
 | Events | `phase1.js`, `/v1/events` | app_open, return_visit, video_start, video_leave, lesson_start, part_view, attempt (part, parts hit, voice or typed, AI or not), feedback_shown, lesson_complete (with time spent), issue_open, issue_complete, locked_view, tab_view, practice_door, interruption, error. No words or free text. Events are queued on the phone and leave the queue only when the server confirms it stored them. As a page closes, a beacon is a best try and the batch stays queued, so the next visit resends it; each event has an id, and the admin view counts it once. |
 | Inspecting the data | `GET /v1/admin/events?day=YYYY-MM-DD`, `GET /v1/admin/learners` | Both need the `x-admin-token` header. |
 | Honest copy | `ai/build-phase1.py` | With reminders off (the default), every reachable "we'll text you" line now says what really happens: "Lesson 2 opens tomorrow morning, right here." The issue lessons open the morning after door-ready. |
-| Issue page shares the rule | `build-phase1.py` (dev copy of `issues/index.html`) | The app tells the issue page `slot=0` when today's new lesson is used. Unfinished issue rows then show "Tomorrow" and can't start. A finished issue lesson keeps its first finish time. |
+| Issue trainings share the rule | `ai/tools/v173-two-issue-trainings.py` (since Version 173) | A row on Learn opens its training only when today's new lesson is free; otherwise it says "One new lesson a day. This one opens tomorrow morning." A finished training opens any time. (Before 173 the old issue page got `slot=0`.) |
 | Reminder boundary | `ai/reminders.js`, `ai/REMINDERS.md` | A planner decides who would get a text. The rules: consent given, not opted out, 8 AM local, a lesson open, at most one text a day, and a pause after three quiet mornings. A Quo sender refuses to send unless `REMINDERS_ENABLED=true` and a key and number are set. Nothing runs it yet. |
 | Security | `worker.js`, `learner.js` | Admin compares are now constant-time, and any admin token under 24 characters counts as unset. Learner tokens need their own new secret (`LEARNER_KEY`, 32 or more characters) and never derive from the exposed keys. Storage failures answer 503 and never crash the page. |
 | Assessment harness | `ai/assess/` | `export.mjs` runs the live keyword grader (read straight out of `app.html`) and, optionally, the AI coach on a set of cases. It writes one sheet with two blank columns for trainers. `agree.mjs` reports human-to-human agreement and each grader against the trainers (percent, Cohen's kappa, false credit). It reports nothing for an item with fewer than 50 labeled pairs. Real learner answers need `consent: true`. |
@@ -78,13 +78,13 @@ Robert's "Final verification before deployment" brief, on this branch only:
 ## To build
 
 ```
-python3 ai/build-phase1.py wdpfxqlsvp/staging/index.html ai/assets/issues-source.html wdpfxqlsvp/dev --dev
+python3 ai/build-phase1.py wdpfxqlsvp/staging/index.html wdpfxqlsvp/dev --dev
 ```
 
 `--dev` turns on the test clock (`?day=+1` is tomorrow, `?day=+2` the day after). A test-clock page keeps its own sandbox copy and sends nothing. Learners get the build without `--dev`, kept at `wdpfxqlsvp/p1/`:
 
 ```
-python3 ai/build-phase1.py wdpfxqlsvp/staging/index.html ai/assets/issues-source.html wdpfxqlsvp/p1
+python3 ai/build-phase1.py wdpfxqlsvp/staging/index.html wdpfxqlsvp/p1
 ``` `--remind` keeps the old text-message copy and is only for when reminders really send.
 
 ## Released Nov 6, 2026

@@ -16,6 +16,15 @@ phone (staging page)  --scenario id + transcript-->  Cloudflare Worker (ai/worke
 
 Models: Claude Haiku 5.5 plays the voter (fast and cheap per turn); Claude Sonnet 5.5 coaches (more careful judgment). Both are settings (VOTER_MODEL, COACH_MODEL).
 
+## The issue trainings (Version 173, Nov 18)
+
+Maya's issue trainings are Heating oil (id `oil`, voter Sarah) and Social Security (id `social`, voter Linda). They are built in another repo, robertrgambhir-cell/issue-trainings, and the app holds copies:
+
+- **The pages:** `wdpfxqlsvp/trainings/oil.html` and `social.html`, opened from Learn in the app's overlay with `?app=1`. A training sends the app three messages: `issues-done` (its last screen is showing, so the lesson is checked off), `issues-practice` (open the door practice with its voter) and `issues-close`.
+- **The voters:** `ai/voters/scenarios.js` is that repo's `voters/scenarios.js`, copied as it is. `ai/scenarios-issues.js` wires the ids in `ISSUE_IDS` and refuses a sheet that is missing anything the server needs.
+- **To update after a training changes:** `python3 ai/tools/sync-issue-trainings.py /path/to/issue-trainings`. It copies the pages and the voter sheets and refreshes the four app pages' copy of the voters' cards (`WAI_PUB`). Add `--check` to only compare. Then run the tests.
+- **Review links:** `?issues` (the first training not done yet), `?issues=social` (that one), `?convo=oil` and `?convo=social` (straight to the practice).
+
 ## Automatic deploys (since Nov 5)
 
 The warmup-ai worker is connected to this repo (Cloudflare Workers Builds, branch main, root directory /ai, deploy command npx wrangler deploy). Every push to main that touches the repo redeploys the server; wrangler.toml keeps the dashboard's key and settings (keep_vars). Check a deploy at /health.
@@ -38,7 +47,7 @@ With a terminal instead: `cd ai && npx wrangler login && npx wrangler kv namespa
 
 ## Links
 
-- Staging: https://yourwarmup.com/wdpfxqlsvp/staging/ (add `?convo=kevin` for lesson 1's 2nd try, `?convo=bri` for the health insurance conversation, `?v=` with anything to skip the cache)
+- Staging: https://yourwarmup.com/wdpfxqlsvp/staging/ (add `?convo=kevin` for lesson 1's 2nd try, `?convo=oil` or `?convo=social` for the practice after an issue training, `?v=` with anything to skip the cache)
 - Live app, unchanged: https://yourwarmup.com/kaur (version 155)
 
 ## Rollback

@@ -1,5 +1,6 @@
 /* Phase 1 browser tests: progress that survives a reload, the daily rule across days (with the dev build's ?day= test clock),
-   retakes, interruptions, door-ready and the issue lessons, presenter shortcuts, the server copy and its failures.
+   retakes, interruptions, door-ready and the issue trainings (version 173: Heating oil and Social Security, in the overlay),
+   presenter shortcuts, the server copy and its failures.
    Needs: node tests/p1-server.mjs <repo root> running, and the dev build at wdpfxqlsvp/dev (python3 ai/build-phase1.py ... --dev).
    Usage: NODE_PATH=$(npm root -g) node tests/test-p1.cjs */
 const L = require("./p1-lib.cjs");
@@ -39,7 +40,7 @@ const noText = (t) => !/text you|get a text|by text/i.test(t);
   /* 3. the next morning: lesson 2 is open; a retake of lesson 1 doesn't use the day or move the clock */
   p = await L.open(c, "?noai&day=1", errs);
   t = await L.screen(p);
-  ok(/Today.s lesson is ready/.test(t) && /Lesson 2 of 9/.test(t), "the next day, lesson 2 is ready: " + t.slice(0, 160));
+  ok(/Today.s lesson is ready/.test(t) && /Lesson 2 of 7/.test(t), "the next day, lesson 2 is ready: " + t.slice(0, 160));
   await L.act(p, "go", "library"); await p.waitForTimeout(600); await L.act(p, "lesson5", "1"); await p.waitForTimeout(1500); if ((await scr(p)) === "session") { await L.act(p, "try-start"); } await p.waitForTimeout(4000);
   await L.lesson1(p, false);
   r = await L.state(p);
@@ -60,13 +61,13 @@ const noText = (t) => !/text you|get a text|by text/i.test(t);
   ok(r.lessons[2] && /See you tomorrow/.test(t) && /Lesson 3 opens tomorrow morning/.test(t), "lesson 2 saved; lesson 3 waits for tomorrow: " + t.slice(0, 200));
   await p.close();
   p = await L.open(c, "?noai&day=2", errs);
-  ok(/Today.s lesson is ready/.test(await L.screen(p)) && /Lesson 3 of 9/.test(await L.screen(p)), "two days on, lesson 3 is ready");
+  ok(/Today.s lesson is ready/.test(await L.screen(p)) && /Lesson 3 of 7/.test(await L.screen(p)), "two days on, lesson 3 is ready");
 
   /* 5. an interrupted lesson: reload mid-lesson comes back to Today with the lesson waiting, and the log says so */
   await L.act(p, "lesson5", "3"); await p.waitForTimeout(1500); await L.act(p, "try-start"); await p.waitForTimeout(2500);
   ok((await scr(p)) === "try", "lesson 3 started");
   await p.reload({ waitUntil: "domcontentloaded" }); await p.waitForFunction(() => window.__p1S); await p.waitForTimeout(1500);
-  ok((await scr(p)) === "welcome" && /Lesson 3 of 9/.test(await L.screen(p)), "after an interruption, Today offers lesson 3 again");
+  ok((await scr(p)) === "welcome" && /Lesson 3 of 7/.test(await L.screen(p)), "after an interruption, Today offers lesson 3 again");
   const ev = await L.events(p), names = ev.map((e) => e.name);
   ok(["app_open", "video_start", "video_leave", "lesson_start", "attempt", "feedback_shown", "lesson_complete", "return_visit", "interruption", "locked_view", "tab_view"].every((n) => names.includes(n)), "the event log has every kind of event: " + [...new Set(names)].join(" "));
   ok(!JSON.stringify(ev).match(/Robert|volunteering|Election Day/), "no words in the event log");
@@ -74,43 +75,53 @@ const noText = (t) => !/text you|get a text|by text/i.test(t);
   ok(lc.length >= 2 && lc.every((e) => e.props.ms > 10000), "lesson_complete carries the time spent: " + lc.map((e) => e.props.ms).join(","));
   await c.close();
 
-  /* 6. door-ready: the issue lessons open the next morning, one a day, on Today, Learn and the issue page */
+  /* 6. door-ready: the issue trainings open the next morning, one a day, on Today and Learn (version 173: Heating oil and
+     Social Security, each a page of its own in the overlay; the training's last screen tells the app it is finished) */
   const now = Date.now();
   c = await L.ctx(b);
   await seed(c, rec({ 1: L1(now - 5 * DAY), 2: L1(now - 4 * DAY), 3: L1(now - 3 * DAY), 4: L1(now - 2 * DAY), 5: L1(now) }));
   p = await L.open(c, "?noai", errs);
   t = await L.screen(p);
   ok(/issue lessons open tomorrow\./.test(t) && /Your next issue lesson opens tomorrow morning, right here\./.test(t) && noText(t), "door-ready day: issue lessons open tomorrow: " + t.slice(0, 220));
-  await L.act(p, "issues-open"); await p.waitForTimeout(2500);
-  const src = await p.evaluate(() => (document.querySelector("#issues-ov iframe") || {}).src || "");
-  ok(/slot=0/.test(src), "the issue page is told today's lesson is used: " + src);
-  const fr = p.frames().find((f) => /issues\//.test(f.url()));
-  await fr.waitForSelector(".hr", { timeout: 20000 });
-  const rows = await fr.evaluate(() => [...document.querySelectorAll(".hr")].map((b) => (b.disabled ? "locked:" : "open:") + b.innerText.replace(/\s+/g, " ").slice(-12)));
-  ok(rows.length === 4 && rows.every((x) => /^locked:.*Tomorrow/.test(x)), "on the issue page every issue lesson waits for tomorrow: " + rows.join(" | "));
-  await p.evaluate(() => { const o = document.getElementById("issues-ov"); if (o) o.remove(); });
+  const tapRow = (pg, id) => pg.evaluate((k) => document.querySelector('[data-act="brief-open"][data-lesson="' + k + '"]').click(), id);
+  const ovSrc = (pg) => pg.evaluate(() => (document.querySelector("#issues-ov iframe") || {}).src || "");
+  const trainingFrame = (pg) => pg.frames().find((f) => /\/trainings\//.test(f.url()));
+  const finish = async (pg) => { const f = trainingFrame(pg); await f.waitForFunction(() => window.Lesson, null, { timeout: 20000 }); await f.evaluate(() => window.Lesson.show(window.Lesson.total - 1, 1)); await pg.waitForTimeout(700); return f; };
+  await L.act(p, "issues-open"); await p.waitForTimeout(800);
+  ok((await scr(p)) === "library" && !(await ovSrc(p)), "Open Maya's issues on Today goes to Learn, where the two issue rows lead");
+  const rows = await p.evaluate(() => [...document.querySelectorAll('[data-act="brief-open"]')].map((x) => x.dataset.lesson + ":" + x.innerText.replace(/\s+/g, " ")));
+  ok(rows.length === 2 && /^oil:.*Heating oil/.test(rows[0]) && /^social:.*Social Security/.test(rows[1]), "Learn lists the two issue trainings: " + rows.join(" | "));
+  await tapRow(p, "oil"); await p.waitForTimeout(700);
+  ok(!(await ovSrc(p)) && /opens tomorrow morning/.test(await p.evaluate(() => document.body.innerText)), "the evening you become door-ready, an issue training waits for tomorrow");
+  await tapRow(p, "social"); await p.waitForTimeout(700);
+  ok(!(await ovSrc(p)), "and so does the other one");
   await p.close();
   p = await L.open(c, "?noai&day=1", errs);
   t = await L.screen(p);
   ok(/issue lessons are open\./.test(t) && /One issue lesson a day/.test(t), "the next morning they're open: " + t.slice(0, 200));
-  await L.act(p, "issues-open"); await p.waitForTimeout(2500);
-  ok(!/slot=0/.test(await p.evaluate(() => (document.querySelector("#issues-ov iframe") || {}).src || "")), "the issue page opens without the slot lock");
-  await p.evaluate(() => { const o = document.getElementById("issues-ov"); if (o) o.remove(); window.postMessage({ warmup: "brief-done", lesson: "oh" }, "*"); });
-  await p.waitForTimeout(800); await L.act(p, "go", "welcome"); await p.waitForTimeout(600);
-  t = await L.screen(p);
-  ok(/See you tomorrow\./.test(t) && /next issue lesson opens tomorrow/.test(t), "after one issue lesson, Today says see you tomorrow: " + t.slice(0, 200));
-  r = await L.state(p);
-  ok(r.issues.oh > 0, "the issue lesson is saved with its time");
-  const ohAt = r.issues.oh;
-  await p.evaluate(() => window.postMessage({ warmup: "brief-done", lesson: "oh" }, "*")); await p.waitForTimeout(600);
-  ok((await L.state(p)).issues.oh === ohAt, "redoing an issue lesson keeps its first finish time");
   await L.act(p, "go", "library"); await p.waitForTimeout(600);
-  await p.evaluate(() => { const b = [...document.querySelectorAll('[data-act="brief-open"]')].find((x) => /Heating/.test(x.dataset.arg || x.innerText)); b.click(); }); /* version 164: Georgia hidden, so a lesson still on the issue page */
-  await p.waitForTimeout(700);
-  ok(!(await p.$("#issues-ov")) && /opens tomorrow morning/.test(await p.evaluate(() => document.body.innerText)), "a second new issue lesson the same day says it opens tomorrow");
+  await tapRow(p, "oil"); await p.waitForTimeout(2500);
+  ok(/\/wdpfxqlsvp\/trainings\/oil\.html\?app=1/.test(await ovSrc(p)), "the Heating oil training opens in the overlay: " + await ovSrc(p));
+  let tf = await finish(p);
+  r = await L.state(p);
+  ok(r.issues.oil > 0, "its last screen saves the issue training with its time");
+  const oilAt = r.issues.oil;
+  await tf.click("#close"); await p.waitForTimeout(600);
+  ok(!(await ovSrc(p)), "the training's close button closes it");
+  await L.act(p, "go", "welcome"); await p.waitForTimeout(600);
+  t = await L.screen(p);
+  ok(/See you tomorrow\./.test(t) && /next issue lesson opens tomorrow/.test(t), "after one issue training, Today says see you tomorrow: " + t.slice(0, 200));
+  await L.act(p, "go", "library"); await p.waitForTimeout(600);
+  await tapRow(p, "oil"); await p.waitForTimeout(2500);
+  ok(/trainings\/oil\.html/.test(await ovSrc(p)), "a finished training opens again the same day");
+  tf = await finish(p);
+  ok((await L.state(p)).issues.oil === oilAt, "redoing an issue training keeps its first finish time");
+  await tf.click("#close"); await p.waitForTimeout(600);
+  await tapRow(p, "social"); await p.waitForTimeout(700);
+  ok(!(await ovSrc(p)) && /opens tomorrow morning/.test(await p.evaluate(() => document.body.innerText)), "a second new issue training the same day says it opens tomorrow");
   await p.close();
   p = await L.open(c, "?noai&day=1", errs);
-  { const bd = (await S(p)).briefsDoneIds; ok(bd.oh === ohAt, "the issue lesson survives a reload: " + JSON.stringify(bd) + " vs " + ohAt + " stored " + JSON.stringify((await L.state(p)).issues)); }
+  { const bd = (await S(p)).briefsDoneIds; ok(bd.oil === oilAt, "the issue training survives a reload: " + JSON.stringify(bd) + " vs " + oilAt + " stored " + JSON.stringify((await L.state(p)).issues)); }
   await c.close();
 
   /* 7. presenter shortcuts never touch a learner's record */
@@ -163,7 +174,7 @@ const noText = (t) => !/text you|get a text|by text/i.test(t);
   {
     const fs = require("fs"), path = require("path"), cp = require("child_process");
     const repo = path.resolve(__dirname, "..", "..");
-    cp.execFileSync("python3", ["ai/build-phase1.py", "wdpfxqlsvp/staging/index.html", "ai/assets/issues-source.html", "wdpfxqlsvp/.p1-test-prod"], { cwd: repo });
+    cp.execFileSync("python3", ["ai/build-phase1.py", "wdpfxqlsvp/staging/index.html", "wdpfxqlsvp/.p1-test-prod"], { cwd: repo }); /* version 173: no issue page copy */
     await fetch(L.AI + "/__p1/reset");
     const PROD = "http://127.0.0.1:8765/wdpfxqlsvp/.p1-test-prod/";
     c = await L.ctx(b);
@@ -178,8 +189,10 @@ const noText = (t) => !/text you|get a text|by text/i.test(t);
     c = await L.ctx(b);
     await seed(c, { v: 1, lessons: { 1: L1(now - 5 * DAY), 2: L1(now - 4 * DAY), 3: L1(now - 3 * DAY), 4: L1(now - 2 * DAY), 5: L1(now - DAY), "<img src=x onerror=window.__pwn=1>": L1(now) }, issues: { ga: now - DAY / 2, 'x" onload="window.__pwn=1" data-x="': now } });
     p = await L.open(c, "?noai", errs);
-    await L.act(p, "issues-open"); await p.waitForTimeout(2500);
-    ok(!(await p.evaluate(() => window.__pwn)) && !/onload|onerror/.test(await p.evaluate(() => (document.querySelector("#issues-ov iframe") || {}).src || "")), "a poisoned record can't put script into the page");
+    await L.act(p, "issues-open"); await p.waitForTimeout(800);
+    await p.evaluate(() => { const r0 = document.querySelector('[data-act="brief-open"][data-lesson="oil"]'); if (r0) r0.click(); }); await p.waitForTimeout(2200); /* version 173: a training's frame, opened from its row */
+    { const src173 = await p.evaluate(() => (document.querySelector("#issues-ov iframe") || {}).src || "");
+      ok(!(await p.evaluate(() => window.__pwn)) && /\/trainings\/oil\.html\?app=1&v=173$/.test(src173) && !/onload|onerror/.test(src173), "a poisoned record can't put script into the page: " + src173); }
     const st = await L.state(p);
     ok(Object.keys(st.lessons).join() === "1,2,3,4,5" && Object.keys(st.issues).join() === "ga", "and the stored record is rebuilt from known fields only: " + JSON.stringify(Object.keys(st.issues)));
     await c.close();

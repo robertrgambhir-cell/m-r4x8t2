@@ -8,6 +8,8 @@ import path from "node:path";
 import worker from "../worker.js";
 
 const ROOT = process.argv[2];
+/* version 173: the two ports can be moved (WARMUP_SITE_PORT, WARMUP_AI_PORT) so two test runs can share a machine */
+const SITE_PORT = Number(process.env.WARMUP_SITE_PORT || 8765), AI_PORT = Number(process.env.WARMUP_AI_PORT || 8799);
 const stats = { voter: 0, coach: 0 }, failNext = { voter: 0, coach: 0 };
 let healthDown = false, healthHang = false;
 const realFetch = globalThis.fetch;
@@ -22,6 +24,18 @@ const voterLine = (you) => {
   const lines = ["Oh, hey. Yeah, I'm voting for her.", "Do you know what time the polls close Tuesday?", "Okay, no worries. Thanks.", "I've got to hop on a call. Thanks for coming by!"];
   return /bye|thanks|have a good/.test(last) && n > 1 ? { say: "You too, bye!", mood: "warm", end: true } : { say: lines[Math.min(n - 1, 3)], mood: n === 1 ? "warm" : "neutral", end: n >= 4 };
 };
+/* version 173: the issue practice's voters, Sarah and Linda, get canned lines of their own, so a test's screenshots read like
+   their doors (still a stand-in: it says nothing about how the real model plays them) */
+const ISSUE_LINES = {
+  Sarah: ["Thanks. I just don't know how I'm supposed to pay for heat.", "Wait, renters can get that help too?", "That makes sense. So what would Maya do?", "Okay. I'll think about it. I have to get back inside where it's warm."],
+  Linda: ["So my check doesn't just stop?", "He told me he'd never cut Social Security.", "Does ending the cap fix it for good?", "A big share, not all of it. All right. I have to get back inside."],
+};
+const voterLineFor = (body, you) => {
+  const m = JSON.stringify(body.system || "").match(/role-playing (Sarah|Linda)\b/), L = m && ISSUE_LINES[m[1]];
+  if (!L) return voterLine(you);
+  const n = you.length, last = (you[n - 1] || "").toLowerCase();
+  return /\b(bye|have a good|take care)\b/.test(last) && n > 1 ? { say: "You too. Bye now!", mood: "warm", end: true } : { say: L[Math.min(n - 1, 3)], mood: n >= 3 ? "warm" : "neutral", end: n >= 4 };
+};
 globalThis.fetch = async (url, init) => {
   if (!String(url).includes("api.anthropic.com")) return realFetch(url, init);
   const body0 = JSON.parse(init.body);
@@ -32,7 +46,7 @@ globalThis.fetch = async (url, init) => {
     const you0 = said(body0).split("\n").filter((l) => /^\d+\. Volunteer: /.test(l)).map((l) => l.replace(/^\d+\. Volunteer: /, ""));
     await new Promise((r) => setTimeout(r, 250));
     stats.voter += 1;
-    const v = voterLine(you0);
+    const v = voterLineFor(body0, you0);
     return new Response(sse(`${v.mood}|${v.say}${v.end ? " <end>" : ""}`), { status: 200 });
   }
   const body = body0, tool = body.tools[0].name, text = said(body);
@@ -41,13 +55,14 @@ globalThis.fetch = async (url, init) => {
   let input;
   if (tool === "voter_turn") {
     stats.voter += 1;
-    input = voterLine(you);
+    input = voterLineFor(body, you);
   } else {
     stats.coach += 1;
     const all = you.join(" "), first = you[0] || "";
     const q = (re) => { const m = all.match(re); return m ? m[0] : ""; };
     const ids = body.tools[0].input_schema.properties.items.items.properties.id.enum;
-    const ev = { name: q(/I'?m [A-Z][a-z]+/), maya: q(/Maya Kaur/i), tuesday: q(/Tuesday/i), listen: you[1] ? you[1].split(" ").slice(0, 4).join(" ") : "", close: q(/(thanks|bye)[^.!?]*/i), gap: q(/200,000/), plan: q(/Medicaid expansion/i), opp: q(/work hours/i) };
+    const ev = { name: q(/I'?m [A-Z][a-z]+/), maya: q(/Maya Kaur/i), tuesday: q(/Tuesday/i), listen: you[1] ? you[1].split(" ").slice(0, 4).join(" ") : "", close: q(/(thanks|bye)[^.!?]*/i), gap: q(/200,000/), plan: q(/Medicaid expansion/i), opp: q(/work hours/i),
+      /* version 173: the four parts of an issue door answer */ agree: q(/(That sounds really hard|You're right to worry|I'm sorry to hear that)/i), help: q(/heating help covers renters[^.]*/i), cause: q(/fewer workers pay in[^.,]*/i), choice: q(/Jack Dufner voted[^.]*\. Maya Kaur would[^.]*/i), ask: q(/Can Maya count on your vote[^.?]*/i) };
     input = {
       items: ids.map((id) => ({ id, status: id === "nominute" || id === "accurate" ? "met" : ev[id] ? "met" : "missed", evidence: ev[id] || "", note: ev[id] ? "" : "Not in what you said." })),
       invented: [], transcription: [],
@@ -60,7 +75,7 @@ globalThis.fetch = async (url, init) => {
 };
 /* the voice: 0.3 s of quiet PCM per sentence (or a tiny MP3 for /speak), so the page's audio path runs end to end */
 const AI = { run: async (model, o) => { stats.voice = (stats.voice || 0) + 1; await new Promise((r) => setTimeout(r, 80)); if (o.encoding === "linear16") return new ReadableStream({ start(c) { for (let k = 0; k < 3; k++) c.enqueue(new Uint8Array(4800)); c.close(); } }); return new Uint8Array(600).buffer; } };
-const env = { ANTHROPIC_API_KEY: "mock", AI, ALLOWED_ORIGINS: "http://127.0.0.1:8765", VOTER_PER_IP_HOUR: "1000", COACH_PER_IP_HOUR: "1000" };
+const env = { ANTHROPIC_API_KEY: "mock", AI, ALLOWED_ORIGINS: "http://127.0.0.1:" + SITE_PORT, VOTER_PER_IP_HOUR: "1000", COACH_PER_IP_HOUR: "1000" };
 http.createServer(async (req, res) => {
   const u = new URL(req.url, "http://127.0.0.1:8799");
   if (u.pathname === "/__mock/stats") { res.end(JSON.stringify(stats)); return; }
@@ -73,7 +88,7 @@ http.createServer(async (req, res) => {
   const chunks = []; for await (const c of req) chunks.push(c);
   const r = await worker.fetch(new Request(u.toString(), { method: req.method, headers: req.headers, body: req.method === "POST" ? Buffer.concat(chunks) : undefined }), env);
   res.writeHead(r.status, Object.fromEntries(r.headers)); res.end(Buffer.from(await r.arrayBuffer()));
-}).listen(8799, "127.0.0.1");
+}).listen(AI_PORT, "127.0.0.1");
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".png": "image/png", ".jpg": "image/jpeg" };
 http.createServer((req, res) => {
   let p = decodeURIComponent(new URL(req.url, "http://x").pathname);
@@ -81,5 +96,5 @@ http.createServer((req, res) => {
   const f = path.join(ROOT, p);
   if (!f.startsWith(ROOT) || !fs.existsSync(f)) { res.writeHead(404); res.end("nf"); return; }
   res.writeHead(200, { "content-type": TYPES[path.extname(f)] || "application/octet-stream" }); fs.createReadStream(f).pipe(res);
-}).listen(8765, "127.0.0.1");
+}).listen(SITE_PORT, "127.0.0.1");
 console.log("mock ready");

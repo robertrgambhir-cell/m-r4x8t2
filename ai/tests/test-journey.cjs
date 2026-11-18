@@ -108,34 +108,31 @@ async function lesson(p, n, o = {}) {
 }
 /* a first visit: the welcome video (skipped), then lesson 1 */
 async function first(p) { await L.act(p, "video-skip"); await p.waitForTimeout(4300); return lesson(p, 1, { fromHere: true }); }
-/* an issue lesson inside the app's frame, the way a learner walks it: next, tiles, the practice door answered out loud */
-async function issueLesson(p, which) {
-  await L.act(p, "issues-open"); await p.waitForTimeout(3000);
-  const fr = p.frames().find((f) => /issues\//.test(f.url()));
-  if (!fr) return "no frame";
-  await fr.waitForSelector(".hr", { timeout: 30000 });
-  const rows = await fr.$$(".hr");
-  /* a new issue lesson: a row that isn't finished (.hr-st.ok) and isn't locked */
-  const states = await fr.evaluate(() => [...document.querySelectorAll(".hr")].map((b) => (b.disabled || b.querySelector(".hr-st.lock") ? "locked" : b.querySelector(".hr-st.ok") ? "done" : "open")));
-  const k = which == null ? states.indexOf("open") : which;
-  if (k < 0 || states[k] !== "open") return "locked";
+/* an issue training inside the app's frame, the way a learner walks it (version 173): Learn, the first row not done yet, every
+   screen tapped through (the taps of tests/walk.js in the issue-trainings repo), the last screen, then its close button.
+   "locked" when today's new lesson is used. */
+async function issueLesson(p) {
+  await tab(p, "library");
+  const id = await p.evaluate(() => { const r = [...document.querySelectorAll('[data-act="brief-open"]')].find((x) => !x.closest(".lp-i").classList.contains("done")); return r ? r.dataset.lesson : ""; });
+  if (!id) return "none left";
   const before = Object.keys((await rec(p) || { issues: {} }).issues || {}).length;
-  await rows[k].click(); await p.waitForTimeout(1800);
-  /* version 164: electric bills and vouchers open the rebuilt training (tested end to end in test-train.cjs); here it is finished at once */
-  let tf = null; for (let w = 0; w < 40 && !tf; w += 1) { tf = p.frames().find((f) => /\/train\//.test(f.url())) || null; if (!tf) { const still = p.frames().find((f) => /issues\//.test(f.url())); if (still && w > 12 && await still.$(".st-h, .g12 .seg, #said").catch(() => null)) break; await p.waitForTimeout(250); } }
-  if (tf) { await tf.waitForFunction(() => window.__train, null, { timeout: 30000 }); await tf.evaluate(() => window.__train.go(window.__train.FLOW.length - 1)); for (let w = 0; w < 40; w += 1) { await p.waitForTimeout(250); if (Object.keys((await rec(p) || { issues: {} }).issues || {}).length > before) return "done"; } return "not finished"; }
-  let tiles = 0, saids = 0;
-  for (let s = 0; s < 60; s += 1) {
-    const now = Object.keys((await rec(p) || { issues: {} }).issues || {}).length;
-    if (now > before) { await p.evaluate(() => { const o = document.getElementById("issues-ov"); const x = o && o.querySelector("[data-act='issues-close'], .ov-close, button.close"); if (x) x.click(); }).catch(() => {}); await p.waitForTimeout(800); return "done"; }
-    const said = await fr.$("#said:visible").catch(() => null);
-    if (said) { saids += 1; await fr.fill("#said", tiles === 0 ? "I'm not sure, sorry." : "Maya's plan helps families like yours, and her opponent has a different approach. What matters most to you?"); /* better the second time, as a learner would be */ await fr.evaluate(() => { const b = [...document.querySelectorAll("button")].filter((e) => e.offsetParent).find((x) => /Send/.test(x.innerText)); if (b) b.click(); }); await p.waitForTimeout(7000); continue; }
-    const tl = await fr.$$("button.tile:visible");
-    if (tl.length && tiles < 2) { await tl[tiles ? tl.length - 1 : 0].click(); tiles += 1; await p.waitForTimeout(1800); continue; }
-    const nx = await fr.$("button.next:visible, .st-next:visible");
-    if (nx) { await nx.click(); await p.waitForTimeout(1600); continue; }
-    const clicked = await fr.evaluate(() => { const bs = [...document.querySelectorAll("button")].filter((e) => e.offsetParent && !e.disabled); const b = bs.find((x) => /^(Next|Knock|Start|Continue|Practice|Try|Hear|Play|Skip|Done|Got it|Finish|See)/i.test(x.innerText.trim())); if (b) { b.click(); return b.innerText.trim(); } return null; });
-    if (!clicked) { await p.waitForTimeout(2500); if (s > 50) break; } else await p.waitForTimeout(4000);
+  await p.evaluate((k) => document.querySelector('[data-act="brief-open"][data-lesson="' + k + '"]').click(), id); await p.waitForTimeout(2500);
+  const fr = p.frames().find((f) => /\/trainings\//.test(f.url()));
+  if (!fr) return /opens tomorrow morning/.test(await p.evaluate(() => document.body.innerText)) ? "locked" : "no frame";
+  await fr.waitForFunction(() => window.Lesson && window.TRAINING, null, { timeout: 30000 });
+  const A = ".screen.is-active ", S = await fr.evaluate(() => window.TRAINING.screens);
+  for (let i = 0; i < S.length - 1; i += 1) {
+    const s = S[i];
+    if (s.type === "count") { await fr.click(A + ".houses button:nth-child(4)"); await fr.click(A + ".check"); }
+    if (s.type === "price") { await fr.waitForSelector(A + ".range"); await fr.$eval(A + ".range", (r) => { r.value = r.max; r.dispatchEvent(new Event("input", { bubbles: true })); }); await fr.click(A + ".lock"); await p.waitForTimeout(1500); }
+    if (s.type === "pick") { await fr.click(A + `.opt[data-v="${s.right}"]`); await p.waitForTimeout(2200); }
+    if (s.type === "steps") await p.waitForTimeout(1500);
+    if (s.type === "quiz") { for (let k = 0; k < 3; k += 1) { await fr.click(A + ".round.cur .opt[data-v=ok]"); if (k < 2) await fr.click(A + ".rnext"); } }
+    await p.waitForTimeout(450); await fr.click(A + "[data-next]:not(.hide)");
+  }
+  for (let w = 0; w < 40; w += 1) {
+    await p.waitForTimeout(250);
+    if (Object.keys((await rec(p) || { issues: {} }).issues || {}).length > before) { await fr.click("#close"); await p.waitForTimeout(700); return "done"; }
   }
   return "not finished";
 }
@@ -155,7 +152,7 @@ const saveLine = (p) => p.evaluate(() => (document.querySelector(".pg-save") || 
 async function saveLineSettled(p, want, ms) { const t0 = Date.now(); let s = ""; while (Date.now() - t0 < (ms || 6000)) { await tab(p, "me"); s = await saveLine(p); if (want.test(s)) return s; await p.waitForTimeout(700); } return s; }
 
 (async () => {
-  cp.execFileSync("python3", ["ai/build-phase1.py", "wdpfxqlsvp/staging/index.html", "ai/assets/issues-source.html", OUTDIR], { cwd: REPO });
+  cp.execFileSync("python3", ["ai/build-phase1.py", "wdpfxqlsvp/staging/index.html", OUTDIR], { cwd: REPO }); /* version 173: no issue page copy */
   await fetch(L.AI + "/__p1/reset"); await fetch(L.AI + "/__p1/nokey?on=0"); await fetch(L.AI + "/__p1/down?on=0"); await fetch(L.AI + "/__p1/kvfail?on=0");
   /* belt and braces: the browser can't even find Warmup's real server, so nothing a page does can reach production */
   const b = await require("playwright").chromium.launch({ args: ["--autoplay-policy=no-user-gesture-required", "--host-resolver-rules=MAP warmup-ai.robertrgambhir.workers.dev ~NOTFOUND"] }), errs = [];
@@ -200,7 +197,7 @@ async function saveLineSettled(p, want, ms) { const t0 = Date.now(); let s = "";
   /* ---- day 1: lesson 2 opens; a retake first doesn't use it ---- */
   await setDay(c, 1); p = await reopen(p, c, errs);
   t = await text(p);
-  ok(/Today.s lesson is ready/.test(t) && /Lesson 2 of 9/.test(t), "day 1: lesson 2 is ready: " + t.slice(0, 120));
+  ok(/Today.s lesson is ready/.test(t) && /Lesson 2 of 7/.test(t), "day 1: lesson 2 is ready: " + t.slice(0, 120));
   T = await tabs(p);
   ok(/Start lesson 2/.test(T.cta) && T.ring === 1, "day 1: Progress offers lesson 2 as Today does: " + T.cta);
   ok(/Jamal|Maria|Omar|door/i.test(T.practice), "day 1: Practice opens with the doors lesson 1 taught");
@@ -221,7 +218,7 @@ async function saveLineSettled(p, want, ms) { const t0 = Date.now(); let s = "";
 
   /* ---- day 2: lesson 3 with no network at all ---- */
   await setDay(c, 2); p = await reopen(p, c, errs);
-  ok(/Lesson 3 of 9/.test(await text(p)), "day 2: lesson 3 is ready");
+  ok(/Lesson 3 of 7/.test(await text(p)), "day 2: lesson 3 is ready");
   await c.setOffline(true); c.__off = true;
   res = await lesson(p, 3);
   r = await rec(p);
@@ -252,7 +249,7 @@ async function saveLineSettled(p, want, ms) { const t0 = Date.now(); let s = "";
   res = await lesson(p, 5, { stopAt: (a) => a.includes("try-next") });
   p = await reopen(p, c, errs);
   t = await text(p);
-  ok(/Lesson 5 of 9/.test(t) && !(await rec(p)).lessons[5], "an interrupted lesson 5 comes back as today's lesson after a reload");
+  ok(/Lesson 5 of 7/.test(t) && !(await rec(p)).lessons[5], "an interrupted lesson 5 comes back as today's lesson after a reload");
   const evq = await p.evaluate(() => JSON.parse(localStorage.getItem("recognize-demo:events") || "[]"));
   K = await kv();
   const evAll = Object.entries(K).filter(([k]) => k.startsWith("ev:") && k.includes(id)).flatMap(([, v]) => JSON.parse(v)).concat(evq);
@@ -266,37 +263,37 @@ async function saveLineSettled(p, want, ms) { const t0 = Date.now(); let s = "";
   t = await text(p);
   ok(/door-ready/i.test(t) && /issue lessons open tomorrow/.test(t), "day 4: door-ready, and the issue lessons open tomorrow: " + t.slice(0, 160));
   res = await issueLesson(p);
-  ok(res === "locked", "day 4: the issue page holds every issue lesson until tomorrow (" + res + ")");
+  ok(res === "locked", "day 4: an issue training tapped on Learn waits for tomorrow (" + res + ")");
   await closeIssues(p);
   T = await tabs(p);
-  ok(T.learnDone === 5 && T.ring === 0 && /door-ready|5 of 9|issue lesson/i.test(T.progress + T.learn), "day 4: Learn shows five done, and Progress (door-ready) starts counting issue lessons at 0: " + JSON.stringify({ learn: T.learnDone, ring: T.ring }));
+  ok(T.learnDone === 5 && T.ring === 0 && /door-ready|5 of 7|issue lesson/i.test(T.progress + T.learn), "day 4: Learn shows five done, and Progress (door-ready) starts counting issue lessons at 0: " + JSON.stringify({ learn: T.learnDone, ring: T.ring }));
 
-  /* ---- days 5 to 8: the four issue lessons, one a day, for real (Georgia hidden, version 164) ---- */
-  for (let d = 5; d <= 8; d += 1) {
+  /* ---- days 5 and 6: the two issue trainings, one a day, for real (version 173: Heating oil, then Social Security) ---- */
+  for (let d = 5; d <= 6; d += 1) {
     await setDay(c, d); p = await reopen(p, c, errs);
     t = await text(p);
-    ok(/issue lessons are open|Lesson \d+ of 9/.test(t), "day " + d + ": an issue lesson is open: " + t.slice(0, 100));
+    ok(/issue lessons are open|Lesson \d+ of 7/.test(t), "day " + d + ": an issue lesson is open: " + t.slice(0, 100));
     const n0 = Object.keys((await rec(p)).issues).length;
     res = await issueLesson(p);
     const n1 = Object.keys((await rec(p)).issues).length;
     ok(res === "done" && n1 === n0 + 1, "day " + d + ": issue lesson " + (n0 + 1) + " finished inside the app (" + res + ")");
     await closeIssues(p); await tab(p, "welcome");
-    if (n1 < 4) {
+    if (n1 < 2) {
       res = await issueLesson(p);
       ok(res === "locked", "day " + d + ": a second new issue lesson waits for tomorrow (" + res + ")");
       await closeIssues(p);
     }
   }
   K = await kv();
-  ok(Object.keys(JSON.parse(K["lp:" + id]).issues).length === 4, "the server copy has all four issue lessons");
+  ok(Object.keys(JSON.parse(K["lp:" + id]).issues).sort().join() === "oil,social", "the server copy has both issue trainings: " + Object.keys(JSON.parse(K["lp:" + id]).issues).join());
 
   /* ---- day 10: coming back after the tenth lesson ---- */
   await setDay(c, 10); p = await reopen(p, c, errs);
   T = await tabs(p);
-  ok(T.ring === 4 && T.learnDone >= 5, "day 10: Progress shows all four issue lessons done after the five canvassing ones: " + JSON.stringify({ ring: T.ring, learn: T.learnDone }));
-  ok(/All 9 lessons done|issue lessons are open|briefed/i.test(T.today + T.learn), "day 10: Today and Learn show the path finished: " + T.today.slice(0, 120));
+  ok(T.ring === 2 && T.learnDone >= 5, "day 10: Progress shows both issue trainings done after the five canvassing ones: " + JSON.stringify({ ring: T.ring, learn: T.learnDone }));
+  ok(/All 7 lessons done|issue lessons are open|briefed/i.test(T.today + T.learn), "day 10: Today and Learn show the path finished: " + T.today.slice(0, 120));
   r = await rec(p);
-  ok(Object.keys(r.lessons).length === 5 && Object.keys(r.issues).length === 4 && r.lessons[1].at === at1, "day 10: the record has all nine, with lesson 1's first finish time unchanged");
+  ok(Object.keys(r.lessons).length === 5 && Object.keys(r.issues).length === 2 && r.lessons[1].at === at1, "day 10: the record has all seven, with lesson 1's first finish time unchanged");
   const ats = [1, 2, 3, 4, 5].map((n) => new Date(r.lessons[n].at).toISOString().slice(0, 10));
   ok(new Set(ats).size === 5, "each canvassing lesson was finished on its own day: " + ats.join(" "));
   /* the parameters that drive the dev build's test clock and server do nothing here */
@@ -318,10 +315,10 @@ async function saveLineSettled(p, want, ms) { const t0 = Date.now(); let s = "";
   t = await text(p2);
   ok(/Your lessons are back on this phone/.test(t) || Object.keys((await rec(p2)) || { lessons: {} }).length, "the link on a new phone says the lessons are back");
   r = await rec(p2);
-  ok(r && Object.keys(r.lessons).length === 5 && Object.keys(r.issues).length === 4 && r.lessons[1].at === at1, "the new phone has all nine lessons with the same times");
+  ok(r && Object.keys(r.lessons).length === 5 && Object.keys(r.issues).length === 2 && r.lessons[1].at === at1, "the new phone has all seven lessons with the same times");
   ok(!(await p2.evaluate(() => location.href)).includes("l="), "the token leaves the address bar at once");
   await tab(p2, "me");
-  { const ring2 = await p2.evaluate(() => Number((document.querySelector(".pg-num") || {}).textContent || -1)); ok(ring2 === 4, "the new phone's Progress shows the finished path (four issue lessons after door-ready): " + ring2); }
+  { const ring2 = await p2.evaluate(() => Number((document.querySelector(".pg-num") || {}).textContent || -1)); ok(ring2 === 2, "the new phone's Progress shows the finished path (two issue trainings after door-ready): " + ring2); }
   /* a planted link on a phone that has its own lessons */
   const c3 = await phone(b, 10);
   let p3 = await open(c3, "", errs);

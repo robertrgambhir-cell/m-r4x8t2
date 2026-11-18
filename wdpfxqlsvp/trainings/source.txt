@@ -1,4 +1,4 @@
-Copied from robertrgambhir-cell/issue-trainings, branch claude/bold-turing-vtdfeo, commit 6c4e639c138bcab263cdad33c7a5cb16707e9f23 by ai/tools/sync-issue-trainings.py.
+Copied from robertrgambhir-cell/issue-trainings, branch claude/bold-turing-vtdfeo, commit 505eb72b002fa58e9ebb64e9712e1bdcd63965b3 by ai/tools/sync-issue-trainings.py.
 wdpfxqlsvp/trainings/oil.html  sha256 dcbfff39ed5d7fab82a7ce2aeddc35d0546ddc0c1b93cb43af282204a30cf3ff
 wdpfxqlsvp/trainings/social.html  sha256 1ae39666937b19bc1525f6126bfca386c0efdb0bdc5d28df5affd91f73e868c4
 ai/voters/scenarios.js  sha256 7a9ca8c3f8af6ae6bd246b045e087c6c1d9f19d313343d9f0642c553231d030f

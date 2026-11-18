@@ -5,6 +5,8 @@ spoken practice in voters/scenarios.js). The app holds copies, so the live site 
   dist/<id>.html        ->  wdpfxqlsvp/trainings/<id>.html   (opened from Learn, in the app's own frame)
   voters/scenarios.js   ->  ai/voters/scenarios.js           (the AI server plays the voter and grades from it)
 and wdpfxqlsvp/trainings/source.txt records which commit they came from, with a fingerprint of each file.
+It also refreshes the four app pages' own copy of the voters' cards (WAI_PUB: names, opening lines, voices and the score
+card's rows, read from ai/scenarios.js), so a changed opening line or card row reaches the pages in the same step.
 
 Which trainings: the ids in ai/scenarios-issues.js (ISSUE_IDS). To add one, add its id there and to briefIds on the app
 pages (see ai/tools/v173-two-issue-trainings.py), then run this.
@@ -55,6 +57,24 @@ except Exception:
     commit, dirty, branch = "unknown", "", "unknown"
 note = (f"Copied from robertrgambhir-cell/issue-trainings, branch {branch}, commit {commit}"
         + (" (with uncommitted changes)" if dirty else "") + " by ai/tools/sync-issue-trainings.py.\n" + "\n".join(lines) + "\n")
+# the pages' copy of the cards, from the server's own definitions (the same lines version 173's patch wrote)
+import json
+pub = subprocess.run(["node", "--input-type=module", "-e",
+                      "import { SCENARIOS, publicScenario } from " + json.dumps(str(ROOT / "ai" / "scenarios.js")) + ";"
+                      "const o = {}; for (const k of Object.keys(SCENARIOS)) if (k !== 'bri_health') o[k] = publicScenario(k); console.log(JSON.stringify(o));"],
+                     capture_output=True, text=True, check=True).stdout.strip()
+assert pub.startswith("{") and all(i in json.loads(pub) for i in IDS) and "\u2014" not in pub and "</script" not in pub.lower()
+for page in ["wdpfxqlsvp/app.html", "wdpfxqlsvp/p1/index.html", "wdpfxqlsvp/dev/index.html", "wdpfxqlsvp/staging/index.html"]:
+    f = ROOT / page
+    t = f.read_text(encoding="utf-8")
+    hits = re.findall(r"const WAI_PUB = \{.*?\};\n", t)
+    assert len(hits) == 1, (page, len(hits))
+    same = hits[0] == "const WAI_PUB = " + pub + ";\n"
+    if not same:
+        changed += 1
+        if not CHECK:
+            f.write_text(t.replace(hits[0], "const WAI_PUB = " + pub + ";\n"), encoding="utf-8")
+    print(("same     " if same else "DIFFERENT" if CHECK else "refreshed"), page, "(the voters' cards)")
 if CHECK:
     sys.exit(1 if changed else 0)
 (ROOT / "wdpfxqlsvp" / "trainings" / "source.txt").write_text(note, encoding="utf-8")

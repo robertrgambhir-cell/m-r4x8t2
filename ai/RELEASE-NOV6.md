@@ -14,7 +14,7 @@ cp wdpfxqlsvp/p1/index.html wdpfxqlsvp/app.html
 cp wdpfxqlsvp/p1/issues/index.html wdpfxqlsvp/issues/index.html
 ```
 
-`ai/assets/issues-source.html` is the issue lessons page as it was before Phase 1, so the builder never runs on its own output. The v155 input is `git show rollback-v155:wdpfxqlsvp/app.html`.
+`ai/assets/issues-source.html` is the issue lessons page as it was before Phase 1, so the builder never runs on its own output. (Since Version 173, Nov 18, the issue trainings are pages of their own in `wdpfxqlsvp/trainings/`: that file is gone and `build-phase1.py` takes only the staging page and the output folder.) The v155 input is `git show rollback-v155:wdpfxqlsvp/app.html`.
 
 ## What each address serves
 
