@@ -33,7 +33,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "165-11"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "165-12"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -201,7 +201,12 @@ const ASKS = [["name", ["Sorry, and you are?", "Sorry, I didn't catch your name.
 export function introPlan(turns) {
   if (!turns.some((t) => t.who === "you")) return { ask: "" };
   const p = introParts(turns), them = turns.filter((t) => t.who === "them").map((t) => t.text);
-  for (const [k, qs] of ASKS) {
+  /* 165-12 (Robert's Nov 17 run: "Hi, I'm Robert, um, I'm" got "Who are you volunteering with?", though he never said he was
+     volunteering). A voter only knows what she's been told: with nothing yet on who sent them or why, she asks the open door
+     question; "volunteering" is in her question only once they've said it. */
+  const vol = /\bvolunteer/i.test(turns.filter((t) => t.who === "you").map((t) => t.text).join(" "));
+  const asks = [ASKS[0], ...(!p.maya && !p.why ? [["open", ["What can I do for you?", "Sorry, what's this about?"]]] : []), ["maya", vol ? ASKS[1][1] : ["And who are you with?", "Sorry, who are you with?"]], ASKS[2]];
+  for (const [k, qs] of asks) {
     if (p[k]) continue;
     const times = them.filter((l) => qs.some((q) => l.includes(q))).length;
     if (times >= 2) continue;
@@ -230,7 +235,8 @@ export function introPartsLine(turns) {
   if (!turns.some((t) => t.who === "you")) return "";
   if (introPlan(turns).ask) return ""; /* version 165-7: the server asks this one itself */
   const p = introParts(turns), done = [p.name && "their name", p.maya && "that they're with Maya Kaur's campaign", p.why && "why they came (the election)"].filter(Boolean);
-  const ask = !p.name ? "Sorry, and you are?" : !p.maya ? "Who are you volunteering with?" : !p.why ? "What's this about?" : "";
+  const vol = /\bvolunteer/i.test(turns.filter((t) => t.who === "you").map((t) => t.text).join(" "));
+  const ask = !p.name ? "Sorry, and you are?" : !p.maya ? (vol ? "Who are you volunteering with?" : "And who are you with?") : !p.why ? "What's this about?" : "";
   return `WHAT THEY'VE SAID SO FAR: ${done.length ? done.join(", ") : "nothing yet about who they are"}. ` + (ask ? `Your whole turn is a short, natural greeting (a few words, like "Oh, hi Robert!" if they gave a name) followed by this question, word for word: "${ask}" Say nothing else: no comment on Tuesday or the election, no "oh, nice", no second question.` : "They've said who they are, who they're with and why they came, so don't ask them anything; just respond warmly in a sentence."); /* version 165-6 (Robert, Nov 15, 9:49 PM PT: "Oh, nice" in the middle made no sense) */
 }
 const TIDY_PROMPT = "You add punctuation and capital letters to a transcript of something a person said out loud. Keep every word exactly as it is, in the same order: never add, drop, fix or reorder a word, and keep fillers like um. Only add periods, commas, question marks, apostrophes and capitals. Reply with the punctuated text and nothing else.";

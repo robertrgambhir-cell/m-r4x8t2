@@ -48,6 +48,7 @@ function checkLine(scen, turns, reply) {
     const p = introParts(turns), asks = [[p.name, /and you are\?|catch your name/i, "their name"], [p.maya, /who are you (volunteering|with)/i, "who they're with"], [p.why, /what'?s this about\?|what brings you/i, "why they came"]];
     for (const [said, re, what] of asks) if (said && re.test(say)) bad.push(`asks for ${what}, already said (rule 4)`);
     if (/[a-z][,.!]? oh, nice\b/i.test(say)) bad.push("\"oh, nice\" in the middle of a line (rule 4)");
+    if (/volunteering/i.test(say) && !turns.some((t) => t.who === "you" && /volunteer/i.test(t.text))) bad.push("says \"volunteering\" before the canvasser has (rule 4)");
     if ((say.match(/\?/g) || []).length > 1) bad.push("more than one question (rule 4)");
   }
   const lastThem = [...turns].reverse().find((t) => t.who === "them");
@@ -75,6 +76,9 @@ const REPLAYS = [
   { name: "Nov 16: a goodbye before all four parts", scenario: "sofia_intro",
     lines: ["Hi, I'm Robert, I'm volunteering for Maya Kaur.", "Okay, thanks so much, bye now!"],
     expect: (rs) => { const l = rs[rs.length - 1]; return [!l.end && "the door didn't close on his goodbye", /\?/.test(l.say) && "asked a question after his goodbye: " + l.say].filter(Boolean); } },
+  { name: "Nov 17, 7:54 PM: a name and a pause", scenario: "sofia_intro",
+    lines: ["Hi, I'm Robert, um, I'm", "Hi I'm Robert how are you"],
+    expect: (rs) => [!/what can i do for you/i.test(rs[0].say) && "first answer wasn't the open question: " + rs[0].say, !/good|well|fine|great/i.test(rs[1].say) && "didn't answer \"how are you\": " + rs[1].say].filter(Boolean) },
   { name: "Kevin: the same rules at the 2nd intro", scenario: "kevin_intro",
     lines: ["Hey, I'm volunteering for Maya Kaur.", "Oh sorry, I'm Sam, I live nearby. Election Day is Tuesday."],
     expect: (rs) => (/and you are\?|catch your name/i.test(rs[0].say) ? [] : ["didn't ask Sam's name: " + rs[0].say]) },

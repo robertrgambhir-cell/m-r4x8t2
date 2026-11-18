@@ -160,6 +160,9 @@ r = await g("s=kevin_intro&k=0"); ok(r.status === 404, "a scenario without narra
   ok(r.name && !r.maya && r.why, "Robert's line: name and why said, the campaign missing");
   ok(introPlan(Y("Hi I'm Robert, I'm volunteering, getting the word out about the election.")).ask === "Who are you volunteering with?", "so the voter asks who he's volunteering with");
   ok(introPlan(Y("I'm volunteering with Maya Kaur. Election Day is Tuesday.")).ask === "Sorry, and you are?", "\"I'm volunteering\" isn't a name");
+  /* 165-12 (Robert, Nov 17): she only knows what she's been told */
+  ok(introPlan(Y("Hi, I'm Robert, um, I'm")).ask === "What can I do for you?", "a name and nothing else gets the open door question, not \"Who are you volunteering with?\"");
+  ok(introPlan(Y("Hi, I'm Robert. The election is Tuesday.")).ask === "And who are you with?", "no \"volunteering\" until they've said it");
   ok(/don't ask them anything/.test(introPartsLine(Y("Hi, I'm Sam, volunteering for Maya Kaur. Election Day is Tuesday."))), "all three said: no question");
   modelText = "warm|Oh, hi Robert. Oh, nice. Who are you volunteering with?";
   await frames(await post({ scenario: "sofia_intro", turns: Y("Hi I'm Robert, getting the word out about the election.") }));
@@ -190,7 +193,7 @@ r = await g("s=kevin_intro&k=0"); ok(r.status === 404, "a scenario without narra
   conv.push({ who: "them", text: done.j.say, sig: done.j.sig }, { who: "you", text: "Yeah so the election is Tuesday" });
   modelText = "warm|Oh, right.";
   rs = await post({ scenario: "sofia_intro", turns: conv }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
-  ok(done && done.j.say === "Oh, right. Who are you volunteering with?", "after two asks it moves on to the next missing part: " + (done && done.j.say));
+  ok(done && done.j.say === "Oh, right. And who are you with?", "after two asks it moves on to the next missing part, and says \"volunteering\" only once they have (165-12): " + (done && done.j.say));
   ok(cleanReaction("warm|Ha, it sure is. So who are you?", "Sofia").say === "Ha, it sure is.", "a reaction keeps only its first sentence, no question");
   modelText = "neutral|Oh, hi Robert!";
   rs = await post({ scenario: "sofia_intro", turns: [{ who: "them", text: SO }, { who: "you", text: "Hi, I'm Robert, I'm volunteering for Maya Kaur. Boy, it sure is sunny today." }] }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
