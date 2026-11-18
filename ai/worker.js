@@ -17,6 +17,7 @@
 
 import { SCENARIOS, publicScenario } from "./scenarios.js";
 import { NARRATOR } from "./scenarios-issues.js";
+import { SIG_NARRATION } from "./sig/content.js"; /* the signature course's spoken lines (Nov 18, 2026) */
 import { isAdmin, isLearnerRoute, learnerRoute, LearnerError } from "./learner.js"; /* phase 1: progress, events, admin views */
 
 const DEFAULTS = {
@@ -33,7 +34,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "165-13"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "165-14"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -697,9 +698,10 @@ function turnStream(env, c, s, scen, turns, h, t0, ip) {
   })();
   return new Response(ts.readable, { status: 200, headers: { "content-type": "application/octet-stream", "cache-control": "no-store", "x-content-type-options": "nosniff", ...h } });
 }
-/* the narration of a rebuilt issue training: only the lines in its scenario, in the narrator's voice, as MP3, cached at the edge */
+/* the narration of a rebuilt issue training or a signature lesson: only the lines in its own list, in the narrator's voice
+   (or one named Aura-2 speaker, for a lesson's people), as MP3, cached at the edge */
 async function narrate(env, c, url, h, ip) {
-  const scen = url.searchParams.get("s") || "", k = Number(url.searchParams.get("k")), s = SCENARIOS[scen];
+  const scen = url.searchParams.get("s") || "", k = Number(url.searchParams.get("k")), s = SCENARIOS[scen] || (Object.prototype.hasOwnProperty.call(SIG_NARRATION, scen) ? SIG_NARRATION[scen] : null); /* 165-14: the signature course's lines are narration too */
   if (!s || !Array.isArray(s.narration) || !Number.isInteger(k) || k < 0 || k >= s.narration.length) throw new HttpError(404, "not_found");
   const v = url.searchParams.get("voice") || "", speaker = VOICES.includes(v) ? v : NARRATOR, text = s.narration[k];
   const key = new Request("https://narrate.warmup/" + scen + "/" + k + "/" + speaker + "/" + encodeURIComponent(text).length + "/" + (await signLine(env, "narrate", text, k)));

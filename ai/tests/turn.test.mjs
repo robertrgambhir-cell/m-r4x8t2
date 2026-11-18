@@ -2,6 +2,7 @@
    Run: node tests/turn.test.mjs */
 import worker, { makeSplitter, signLine, introParts, introPartsLine, introPlan, cleanReaction, sameWords } from "../worker.js";
 import { SCENARIOS } from "../scenarios.js";
+import { SIG_NARRATION, SIG_SETTINGS, SIG_VOICES, sigVoiceLines } from "../sig/content.js";
 
 let pass = 0, fail = 0;
 const ok = (c, m) => { if (c) pass += 1; else { fail += 1; console.log("FAIL", m); } };
@@ -88,6 +89,18 @@ const g = (q) => worker.fetch(new Request("https://w.example/narrate?" + q), env
 r = await g("s=oh_bills&k=1"); ok(r.status === 200 && r.headers.get("content-type") === "audio/mpeg" && voiceCalls[voiceCalls.length - 1].text === SCENARIOS.oh_bills.narration[1] && voiceCalls[voiceCalls.length - 1].speaker === "orpheus", "narration speaks only its own line, in the narrator's voice");
 r = await g("s=oh_bills&k=99"); ok(r.status === 404, "no line past the end");
 r = await g("s=kevin_intro&k=0"); ok(r.status === 404, "a scenario without narration has none");
+/* 165-14: the signature course's lines (ai/sig/content.js) are read the same way, each person in their own voice */
+{
+  const N = SIG_NARRATION.sig2.narration, lines = sigVoiceLines().filter((x) => !x.same);
+  r = await g("s=sig2&k=0"); ok(r.status === 200 && r.headers.get("content-type") === "audio/mpeg" && voiceCalls[voiceCalls.length - 1].text === N[0] && voiceCalls[voiceCalls.length - 1].speaker === "orpheus", "a signature lesson's coach line is read in the narrator's voice");
+  const t = lines.findIndex((x) => x.who === "tasha");
+  r = await g("s=sig2&k=" + t + "&voice=" + SIG_VOICES.tasha); ok(r.status === 200 && voiceCalls[voiceCalls.length - 1].speaker === SIG_VOICES.tasha && /registered to vote in L\.A\. County\?$/.test(voiceCalls[voiceCalls.length - 1].text), "Tasha's opener is read in her own voice, with the county said the way a voice says it");
+  r = await g("s=sig2&k=" + N.length); ok(r.status === 404, "no signature line past the end");
+  r = await g("s=constructor&k=0"); ok(r.status === 404, "only a real lesson id is read");
+  ok(N.length === lines.length && N.every((x) => typeof x === "string" && x.length > 3 && x.length < 400 && !/[{}\u2014]/.test(x)), "every signature line is filled, short and has no em dash");
+  ok(lines.every((x) => SIG_VOICES[x.who] && x.voice === SIG_VOICES[x.who]), "every line has a speaker");
+  ok(N.filter((x) => x.includes(SIG_SETTINGS.countySay)).length >= 3 && !N.some((x) => x.includes("LA County")), "the county comes from the firm settings");
+}
 /* version 165: Sofia's 1st intro streams like Kevin's 2nd, graded on the same items, and lesson 1's doors stop at four lines */
 {
   const F = SCENARIOS.sofia_intro, K = SCENARIOS.kevin_intro, SO = F.voter.opening.say;
