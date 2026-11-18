@@ -26,12 +26,16 @@ p = P({ 1: la(1, 9), 2: la(2, 9), 3: la(3, 9), 4: la(4, 9), 5: la(5, 21) });
 let n = SCHED.next(p, la(5, 22), TZ);
 ok(n.kind === "issues" && !n.open, "door-ready at 9 PM: the issue lessons open tomorrow, not tonight");
 n = SCHED.next(p, la(6, 6), TZ);
-ok(n.kind === "issues" && n.open && n.left.length === 4, "next morning: any of the four issue lessons (Georgia hidden, version 164)");
-p.issues.oh = la(6, 7);
-ok(!SCHED.issueOpen(p, "ga", la(6, 12), TZ) && SCHED.issueOpen(p, "oh", la(6, 12), TZ), "after one issue lesson today, the others wait; the done one can be redone");
-ok(SCHED.issueOpen(p, "ga", la(7, 5, 30), TZ), "the next issue lesson opens the next morning");
+ok(n.kind === "issues" && n.open && n.left.length === 2 && n.left.join() === "oil,social", "next morning: either of the two issue trainings, Heating oil and Social Security (version 173)");
+p.issues.oil = la(6, 7);
+ok(!SCHED.issueOpen(p, "social", la(6, 12), TZ) && SCHED.issueOpen(p, "oil", la(6, 12), TZ), "after one issue lesson today, the other waits; the done one can be redone");
+ok(SCHED.issueOpen(p, "social", la(7, 5, 30), TZ), "the next issue lesson opens the next morning");
+p.issues = { oil: 1, social: 1 };
+ok(SCHED.next(p, la(12, 9), TZ).kind === "done", "all seven: done");
+/* version 173: a record that finished the trainings since removed (ga, tx, oh, me, mi) still has the two new ones to do */
 p.issues = { ga: 1, tx: 1, oh: 1, me: 1, mi: 1 };
-ok(SCHED.next(p, la(12, 9), TZ).kind === "done", "all ten: done");
+n = SCHED.next(p, la(12, 9), TZ);
+ok(n.kind === "issues" && n.left.join() === "oil,social" && SCHED.ISSUES.join() === "oil,social", "the removed trainings don't count toward the two in the app");
 /* a retake today doesn't use the day: retakes don't change the first-finish time, and only first finishes count */
 p = P({ 1: la(6, 9) });
 ok(!SCHED.usedToday(p, la(7, 9), TZ), "yesterday's finish doesn't use today");

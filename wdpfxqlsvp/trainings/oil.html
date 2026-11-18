@@ -1,0 +1,913 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#FFFFFF">
+<title>Maya Kaur · Heating oil</title>
+<meta name="description" content="A four-minute briefing for Franklin canvassers, in Maya Kaur's voice.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+/* Maya Kaur issue trainings: one shared look for all five (Warmup app style). */
+:root {
+  --ink: #262320; --muted: #6F685F; --soft: #F3F0EA; --line: #E6E0D6; --bg: #FFFFFF; --paper: #FCF8F2;
+  --green: #35B57C; --green-d: #22895A; --green-soft: #E6F5EC;
+  --maya: #1F4C91; --maya-d: #163A70; --maya-soft: #E7EEF9;
+  --warm: #E08A1A; --warm-soft: #FDF1DC; --red: #C2412D; --red-soft: #FBE8E4;
+  --u: 1px;
+  color-scheme: light;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: "Figtree", system-ui, -apple-system, sans-serif; }
+body { overflow: hidden; overscroll-behavior: none; }
+button { font: inherit; color: inherit; }
+a { color: var(--maya); }
+
+/* the column: full screen on a phone, a centered column inside the app's overlay or on a laptop */
+.stage { position: fixed; inset: 0; height: 100dvh; background: var(--bg); }
+.phone { position: relative; height: 100%; max-width: 520px; margin: 0 auto; overflow: hidden; container-type: size; container-name: phone; }
+.island { display: none; }
+
+/* top row: close, story bar */
+.topbar { position: absolute; left: 0; right: 0; top: 0; z-index: 20; height: calc(env(safe-area-inset-top, 0px) + 44px); padding: calc(env(safe-area-inset-top, 0px) + 10px) 18px 0; display: flex; align-items: center; gap: 12px; }
+.topbar.hidden .prog { visibility: hidden; }
+.x { flex: none; width: 34px; height: 34px; border: 0; background: none; padding: 0; display: grid; place-items: center; color: #9B9389; cursor: pointer; position: relative; }
+.x::after { content: ""; position: absolute; inset: -5px; }
+.x svg { width: 22px; height: 22px; }
+.prog { flex: 1; display: flex; gap: 4px; height: 34px; align-items: center; }
+.prog button { flex: 1; height: 44px; margin: -5px 0; padding: 0; border: 0; background: transparent; cursor: pointer; position: relative; }
+.prog button::before { content: ""; position: absolute; left: 0; right: 0; top: 19.5px; height: 5px; border-radius: 3px; background: var(--line); }
+.prog button.on::before, .prog button.cur::before { background: var(--green); }
+.prog button:disabled { cursor: default; }
+.stepnum { display: none; }
+
+/* screens */
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; padding: calc(env(safe-area-inset-top, 0px) + 44px) 18px calc(env(safe-area-inset-bottom, 0px) + 14px); background: var(--bg); opacity: 0; pointer-events: none; transform: translateX(18px); transition: opacity .32s ease, transform .32s cubic-bezier(.2,.8,.2,1); }
+.screen.is-active { opacity: 1; transform: none; pointer-events: auto; z-index: 2; }
+.screen.is-leaving { opacity: 0; transform: translateX(-18px); }
+.screen.is-leaving-back { opacity: 0; transform: translateX(18px); }
+.screen.from-back:not(.is-active) { transform: translateX(-18px); }
+.tag-screen { position: fixed; right: 22px; bottom: calc(env(safe-area-inset-bottom, 0px) + 2px); font: 600 9px/1 "Figtree"; color: #C9C2B6; letter-spacing: .04em; pointer-events: none; z-index: 30; }
+
+/* type */
+.hero, h2.hero { font: 800 calc(25 * var(--u))/1.16 "Figtree"; letter-spacing: -0.015em; margin: 14px 0 0; text-wrap: balance; color: var(--ink); }
+h1.hero { font-size: calc(29 * var(--u)); }
+.hero:focus { outline: none; }
+.hero .hot { color: var(--red); }
+.copy { font: 500 calc(16 * var(--u))/1.4 "Figtree"; color: var(--muted); margin: 8px 0 0; text-wrap: pretty; }
+.copy b, .copy strong { color: var(--ink); font-weight: 700; }
+.copy .hot { color: var(--red); font-weight: 700; }
+.note, .small { font: 500 calc(13 * var(--u))/1.4 "Figtree"; color: var(--muted); margin: 8px 0 0; }
+.quote { font: 500 calc(21 * var(--u))/1.3 "Newsreader", Georgia, serif; color: var(--ink); margin: 10px 0 0; }
+
+/* footnote markers (option A) */
+.fn { display: inline; padding: 1px 5px; margin: 0 1px 0 3px; border: 0; border-radius: 6px; background: var(--soft); color: var(--muted); font: 700 11px/1 "Figtree"; vertical-align: .55em; letter-spacing: 0; cursor: pointer; position: relative; white-space: nowrap; }
+.fn::after { content: ""; position: absolute; inset: -12px -6px; }
+.fn { display: none !important; } /* option B: sources live behind the Sources button only */
+
+/* the picture panel */
+.fig { flex: 0 1 auto; min-height: 0; margin-top: 14px; background: var(--soft); border-radius: 20px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+.fig.grow { flex: 1 1 auto; }
+.fig svg { width: 100%; height: 100%; max-height: 100%; display: block; }
+.fig.tight { flex: 0 0 auto; }
+.sp { flex: 0 0 0; min-height: 0; }
+
+/* bottom row */
+.ft { flex: none; display: flex; flex-direction: column; gap: 0; margin-top: 14px; align-items: stretch; }
+.ft > .btn { flex: none; }
+/* one main button, full width; sources sit under it as a quiet link */
+.ft > .linkbtn.srcbtn { align-self: center; min-height: 34px; padding: 8px 14px 2px; position: relative; }
+.ft > .linkbtn.srcbtn::after { content: ""; position: absolute; inset: -4px -6px; }
+.btn { flex: 1; min-height: 54px; border: 0; border-radius: 16px; background: var(--green); color: #fff; font: 800 calc(17 * var(--u))/1.2 "Figtree"; letter-spacing: .01em; box-shadow: 0 4px 0 var(--green-d); cursor: pointer; padding: 12px 10px; margin-bottom: 4px; text-wrap: balance; transition: transform .08s ease, box-shadow .08s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--green-d); }
+.btn svg { width: 16px; height: 16px; flex: none; }
+.btn.ghost { background: #fff; color: var(--ink); box-shadow: 0 4px 0 var(--line), inset 0 0 0 2px var(--line); }
+.btn.ghost:active { box-shadow: 0 1px 0 var(--line), inset 0 0 0 2px var(--line); }
+.btn.srcbtn { flex: 0 0 auto; padding: 12px 16px; font-weight: 700; font-size: calc(15 * var(--u)); }
+.btn.blue { background: var(--maya); box-shadow: 0 4px 0 var(--maya-d); }
+.hide { display: none !important; }
+.btn-row { display: flex; gap: 10px; }
+.linkbtn { border: 0; background: none; color: var(--muted); font: 600 14px/1.2 "Figtree"; text-decoration: underline; text-underline-offset: 3px; padding: 12px 4px; min-height: 44px; cursor: pointer; }
+
+/* answers */
+.opts { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+.opts.row { flex-direction: row; }
+.opt { width: 100%; text-align: left; border: 0; border-radius: 16px; background: #fff; box-shadow: inset 0 0 0 2px var(--line), 0 4px 0 var(--line); padding: calc(18 * var(--u)) 20px; margin-bottom: 4px; font: 700 calc(18 * var(--u))/1.3 "Figtree"; color: var(--ink); cursor: pointer; transition: background .15s, box-shadow .15s, opacity .2s, transform .08s; display: flex; align-items: center; }
+.opts.row .opt { justify-content: center; text-align: center; padding: calc(18 * var(--u)) 8px; }
+.opt:active { transform: translateY(2px); }
+.opt .k { display: none; }
+.opt.right { background: var(--green-soft); box-shadow: inset 0 0 0 2px var(--green), 0 4px 0 var(--green-d); }
+.opt.wrong { background: var(--red-soft); box-shadow: inset 0 0 0 2px var(--red), 0 4px 0 #9A3222; }
+.opts.locked .opt { pointer-events: none; }
+.opts.locked .opt:not(.right):not(.wrong) { opacity: .45; }
+.opt.missed { pointer-events: none; opacity: .45; }
+
+/* the one-line reason after a pick */
+.fb { display: none; margin-top: 14px; gap: 10px; align-items: flex-start; font: 600 calc(16 * var(--u))/1.4 "Figtree"; color: var(--ink); }
+.fb.show { display: flex; animation: in .3s ease both; }
+.fb::before { content: ""; flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--green) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5 6.6 11.4 12.5 5' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/15px no-repeat; }
+.fb.bad::before { background-color: var(--red); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 4.5l7 7M11.5 4.5l-7 7' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E"); }
+.fb b { font-weight: 800; }
+@keyframes in { from { opacity: 0; transform: translateY(8px); } }
+.reveal { display: none; }
+.reveal.show { display: block; animation: in .3s ease both; }
+
+/* chips */
+.tag { display: inline-flex; align-items: center; font: 700 12px/1 "Figtree"; color: var(--green-d); background: var(--green-soft); border-radius: 99px; padding: 6px 10px; }
+
+/* slider (price guess) */
+.range { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; background: transparent; margin: 6px 0 0; cursor: pointer; }
+.range::-webkit-slider-runnable-track { height: 8px; border-radius: 4px; background: var(--line); }
+.range::-moz-range-track { height: 8px; border-radius: 4px; background: var(--line); }
+.range::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; margin-top: -11px; border-radius: 50%; background: #fff; border: 0; box-shadow: inset 0 0 0 3px var(--maya), 0 3px 0 var(--maya-d); }
+.range::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 3px solid var(--maya); }
+.range-labels { display: flex; justify-content: space-between; font: 600 12px/1 "Figtree"; color: var(--muted); }
+
+/* sheets (sources, door card) and the footnote popover */
+.sheet { position: absolute; inset: 0; z-index: 40; display: none; flex-direction: column; justify-content: flex-end; background: rgba(20,18,16,.38); }
+.sheet.show { display: flex; animation: fade .2s ease both; }
+.panel .copy { color: var(--ink); margin: 0 0 4px; }
+.sheet .panel { background: #fff; border-radius: 22px 22px 0 0; max-height: 88%; overflow-y: auto; padding: 18px 20px calc(env(safe-area-inset-bottom, 0px) + 20px); animation: up .28s cubic-bezier(.2,.8,.2,1) both; }
+.panel h3 { font: 800 20px/1.2 "Figtree"; margin: 0 0 8px; }
+.panel ol, .panel ul { margin: 0; padding-left: 20px; font: 500 15px/1.45 "Figtree"; }
+.panel li { margin: 6px 0; }
+.panel .close { margin-top: 14px; width: 100%; }
+.grab { width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto 12px; }
+.say li { font-size: 16px; color: var(--ink); }
+@keyframes fade { from { opacity: 0; } } @keyframes up { from { transform: translateY(40px); opacity: 0; } }
+.fnpop { position: absolute; left: 18px; right: 18px; bottom: calc(env(safe-area-inset-bottom, 0px) + 86px); z-index: 45; background: #fff; border-radius: 16px; box-shadow: inset 0 0 0 2px var(--line), 0 4px 0 var(--line); padding: 14px 48px 14px 16px; display: none; font: 500 14.5px/1.4 "Figtree"; }
+.fnpop.show { display: block; animation: in .22s ease both; }
+.fnpop .n { display: block; font: 800 11px/1 "Figtree"; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.fnpop b { display: block; font-weight: 700; }
+.fnpop a { display: inline-block; margin-top: 6px; font-weight: 700; min-height: 28px; }
+.fnpop .real { display: block; margin-top: 2px; font-size: 12px; color: var(--muted); }
+.fnpop .x { position: absolute; top: 4px; right: 4px; width: 44px; height: 44px; }
+
+/* the price chart: bars sized by value, filling whatever height the panel has */
+.chart { display: flex; align-items: stretch; gap: calc(14 * var(--u)); padding: calc(18 * var(--u)) 18px calc(14 * var(--u)); }
+.chart .col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; text-align: center; min-width: 0; }
+.chart .val { font: 600 calc(24 * var(--u))/1 "Newsreader", Georgia, serif; color: var(--ink); margin-bottom: 8px; transition: opacity .3s; }
+.chart .you .val { color: var(--maya); }
+.chart .now .val { color: var(--red); font-size: calc(30 * var(--u)); opacity: 0; }
+.chart .now.shown .val { opacity: 1; }
+.chart .bar { display: block; position: relative; height: calc(var(--v) / var(--max, 8) * 82%); border-radius: 10px; transition: height .15s ease; }
+.chart .past { background: #CFC8BC; }
+.chart .guess { background: var(--maya-soft); box-shadow: inset 0 0 0 2px var(--maya); }
+.chart .empty { background: #fff; box-shadow: inset 0 0 0 2px var(--line); }
+.chart .empty em { position: absolute; inset: 0; display: grid; place-items: center; font: 800 calc(34 * var(--u))/1 "Figtree"; font-style: normal; color: #C9C2B6; }
+.chart .now.shown .bar { background: var(--red); box-shadow: none; transition: height 1.3s cubic-bezier(.2,.8,.2,1), background .2s; }
+.chart .now.shown em { display: none; }
+.chart .col span { margin-top: 10px; padding-top: 8px; border-top: 2px solid #D8D0C3; font: 700 calc(13 * var(--u))/1.2 "Figtree"; color: var(--muted); }
+.chart .you span { color: var(--maya); }
+
+/* ---------- screen pieces (v5) ---------- */
+.camp { display: inline-flex; flex-direction: column; color: var(--maya); text-transform: uppercase; line-height: 1; margin-top: 12px; }
+.camp b { font: 800 19px/1 "Figtree"; letter-spacing: -0.01em; }
+.camp small { font: 700 7.5px/1 "Figtree"; letter-spacing: .05em; margin-top: 3px; }
+.fig.scene { flex: 1 1 auto; margin-top: 14px; background: #33435F; }
+.fig.scene svg { position: absolute; inset: 0; }
+.fig.fit svg { width: 100%; height: 100%; }
+.lamp { opacity: 0; transition: opacity .7s ease; } .lamp.on { opacity: 1; }
+.houses { flex: 1 1 auto; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: 1fr 1fr; gap: 10px 12px; padding: 18px; touch-action: none; }
+.houses button { border: 0; background: none; padding: 0; cursor: pointer; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+.houses svg { width: 100%; height: 100%; max-height: 92px; overflow: visible; }
+.houses .h { fill: #D8D0C3; transition: fill .2s; } .houses .w { fill: #fff; transition: fill .2s; }
+.houses .lbl { font: 800 8px/1 "Figtree"; letter-spacing: .06em; fill: var(--maya); }
+.houses button.sel .h { fill: var(--maya); }
+.houses.revealed button .h { fill: #D8D0C3; }
+.houses.revealed button.oil .h { fill: #6F685F; } .houses.revealed button.oil .w { fill: #F2B134; }
+.houses.revealed button.you .h { stroke: var(--maya); stroke-width: 2.5; }
+.count { margin-top: 10px; font: 700 calc(15 * var(--u))/1.3 "Figtree"; color: var(--maya); text-align: center; }
+.count.done { color: var(--ink); }
+.replaylink { align-self: center; margin-top: 4px; }
+/* chain (which step can a senator vote on) */
+.chain { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.chain .opt { padding: calc(14 * var(--u)) 16px; gap: 12px; }
+.chain .opt i { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font: 800 13px/1 "Figtree"; font-style: normal; background: var(--soft); color: var(--muted); }
+.chain.locked .opt { pointer-events: none; }
+.chain.locked .opt:not(.right) { opacity: .45; }
+/* the clipping (Susan Collins) */
+.clip { background: #fff; padding: calc(16 * var(--u)) 20px; margin: 0 20px; transform: rotate(-1.2deg); box-shadow: 0 0 0 1px var(--line); max-width: 360px; }
+.clip .kick { font: 800 12px/1 "Figtree"; letter-spacing: .08em; text-transform: uppercase; color: var(--red); }
+.clip .lead { font: 600 calc(15 * var(--u))/1.35 "Figtree"; color: var(--muted); margin-top: 12px; }
+.clip q { display: block; quotes: none; font: italic 500 calc(27 * var(--u))/1.15 "Newsreader", Georgia, serif; color: var(--ink); margin-top: 6px; }
+.clip .barrel { font: 600 calc(14 * var(--u))/1.3 "Figtree"; color: var(--muted); margin-top: 14px; display: flex; align-items: center; gap: 8px; }
+.clip .barrel svg { width: 22px; height: 26px; flex: none; }
+/* side by side (Maya Kaur) */
+.vs { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; gap: calc(14 * var(--u)); padding: 18px 16px; }
+.vs .who, .vs .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; text-align: center; }
+.vs .who div { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.vs .av { width: calc(54 * var(--u)); height: calc(54 * var(--u)); border-radius: 50%; display: grid; place-items: center; font: 800 calc(18 * var(--u))/1 "Figtree"; background: #D8D0C3; color: var(--ink); }
+.vs .mk .av { background: var(--maya); color: #fff; }
+.vs .who b { font: 800 calc(16 * var(--u))/1.2 "Figtree"; }
+.vs .who small { font: 600 12px/1 "Figtree"; color: var(--muted); }
+.vs .topic { display: flex; justify-content: center; }
+.vs .topic span { display: inline-flex; align-items: center; gap: 6px; font: 700 12px/1 "Figtree"; color: var(--green-d); background: var(--green-soft); border-radius: 99px; padding: 6px 10px; }
+.vs .topic svg { width: 14px; height: 14px; }
+.vs .pair p { margin: 0; font: 600 calc(15 * var(--u))/1.35 "Figtree"; color: var(--muted); }
+.vs .pair p.mk { color: var(--maya); font-weight: 700; }
+/* the door */
+.door { flex: 3 1 0; max-height: 36%; min-height: 96px; margin-top: 14px; border-radius: 20px; background: linear-gradient(#EAE3D6, #DCD3C3); position: relative; overflow: hidden; transition: height .4s ease; }
+.door.small { flex: 0 0 auto; height: 20%; min-height: 92px; }
+.door.mini { flex: 3 1 0; max-height: 25%; min-height: 84px; }
+.door svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.door .whop { position: absolute; left: 12px; bottom: 10px; background: rgba(255,255,255,.88); border-radius: 99px; padding: 6px 11px; font: 700 13px/1 "Figtree"; display: flex; gap: 6px; align-items: center; }
+.door .whop i { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+/* what Sarah says always shows in full; only the picture above it gives up room */
+.thread { flex: 0 0 auto; display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.thread.grow { flex: 1 1 0; min-height: 0; overflow: hidden; justify-content: flex-start; }
+.thread.grow ~ .sp { display: none; }
+.thread:not(.grow) .bub.them { max-width: 100%; font: 600 calc(18 * var(--u))/1.35 "Figtree"; color: var(--ink); border-radius: 6px 18px 18px 18px; padding: 13px 16px; }
+.bub { max-width: 86%; padding: 11px 14px; border-radius: 18px; font: 500 calc(16 * var(--u))/1.4 "Figtree"; animation: in .25s ease both; }
+.bub.them { align-self: flex-start; background: var(--soft); border-bottom-left-radius: 6px; }
+.bub.you { align-self: flex-end; background: var(--maya); color: #fff; border-bottom-right-radius: 6px; }
+.bub.you .fn { background: rgba(255,255,255,.2); color: #fff; }
+.thread .aside { align-self: flex-end; font: 600 13px/1.3 "Figtree"; color: var(--muted); margin-top: -4px; }
+.opts.locked .opt.dim { display: none; }
+/* quiz street and score */
+.fig.street { flex: 0 0 auto; height: calc(84 * var(--u)); }
+.score { margin-top: 8px; text-align: center; font: 700 13px/1 "Figtree"; color: var(--muted); }
+.rounds { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.round { display: none; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.round.cur { display: flex; }
+.round .opts { margin-top: 14px; }
+.round .hero { margin-top: 14px; }
+/* the steps from the war to Sarah's bill */
+.steps { flex: 1 1 auto; justify-content: space-evenly; list-style: none; margin: 14px 0 0; padding: calc(14 * var(--u)) 14px; background: var(--soft); border-radius: 20px; display: flex; flex-direction: column; gap: calc(12 * var(--u)); counter-reset: st; }
+.steps li { position: relative; background: #fff; border-radius: 14px; box-shadow: inset 0 0 0 2px var(--line); padding: calc(12 * var(--u)) 14px calc(12 * var(--u)) 50px; font: 700 calc(16 * var(--u))/1.3 "Figtree"; color: var(--ink); counter-increment: st; animation: in .4s ease both; animation-delay: calc(var(--i) * .45s + .2s); }
+.steps li::before { content: counter(st); position: absolute; left: 12px; top: 50%; margin-top: -13px; width: 26px; height: 26px; border-radius: 50%; background: var(--soft); color: var(--muted); display: grid; place-items: center; font: 800 13px/1 "Figtree"; }
+.steps li + li::after { content: ""; position: absolute; left: 24px; top: calc(-12 * var(--u)); width: 2px; height: calc(12 * var(--u)); background: #C9C2B6; }
+.steps li:last-child { background: var(--red-soft); box-shadow: inset 0 0 0 2px var(--red); }
+.steps li:last-child::before { background: var(--red); color: #fff; }
+.steps .hot { color: var(--red); }
+/* the opponent's votes */
+.fig.col { flex-direction: column; justify-content: center; gap: calc(16 * var(--u)); padding: calc(16 * var(--u)) 0; }
+.tally { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 0 14px; text-align: center; }
+.tally .marks { display: flex; gap: 7px; margin-bottom: 5px; }
+.tally .marks i { width: calc(38 * var(--u)); height: calc(38 * var(--u)); border-radius: 10px; background: var(--red) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 4.5l7 7M11.5 4.5l-7 7' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") center/62% no-repeat; }
+.tally .marks i.yes { margin-left: 9px; background-color: #fff; box-shadow: inset 0 0 0 2px #C9C2B6; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5 6.6 11.4 12.5 5' fill='none' stroke='%236F685F' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+.tally .cap { font: 800 calc(12 * var(--u))/1.25 "Figtree"; letter-spacing: .07em; text-transform: uppercase; }
+.tally .cap.no { color: var(--red); } .tally .cap.yes { color: var(--muted); }
+/* issue by issue (Maya Kaur) */
+.cmp { flex: 1 1 auto; align-self: stretch; display: flex; flex-direction: column; justify-content: center; gap: calc(12 * var(--u)); padding: calc(14 * var(--u)) 14px; }
+.cmp .card { background: #fff; border-radius: 16px; box-shadow: inset 0 0 0 2px var(--line); padding: calc(16 * var(--u)) 16px; display: flex; flex-direction: column; gap: calc(14 * var(--u)); }
+.cmp .t { font: 800 calc(12 * var(--u))/1 "Figtree"; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.cmp .ln { display: flex; gap: 10px; align-items: flex-start; }
+.cmp .av { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font: 800 11px/1 "Figtree"; background: #D8D0C3; color: var(--ink); }
+.cmp .mk .av { background: var(--maya); color: #fff; }
+.cmp p { margin: 0; font: 500 calc(17 * var(--u))/1.3 "Figtree"; color: var(--muted); }
+.cmp p b { display: block; font: 800 calc(14 * var(--u))/1.3 "Figtree"; color: var(--ink); margin-bottom: 2px; }
+.cmp .mk p { color: var(--maya); font-weight: 700; } .cmp .mk p b { color: var(--maya); }
+/* the picture shown while a question is open; the answer's picture sits under it */
+.askpic { position: absolute; inset: 0; background: var(--soft); display: flex; align-items: center; justify-content: center; transition: opacity .5s ease; }
+.askpic.gone { opacity: 0; pointer-events: none; }
+.oart { width: 100%; padding: 0 14px; display: flex; justify-content: center; flex: 1 1 0; min-height: 64px; }
+.oart svg { width: 100%; height: 100%; }
+.fig.col:has(.oart) .clip { flex: none; }
+/* the people icon: the picked people turn blue, the answer shows in ink with a lit badge */
+.houses[data-icon=hospital].revealed button.oil .h { fill: #C2412D; } .houses[data-icon=hospital].revealed button.oil .w { fill: #FFFFFF; }
+.houses[data-icon=person].revealed button.oil .h { fill: transparent; stroke: #C2412D; stroke-width: 2.5; stroke-dasharray: 4 3; } .houses[data-icon=person].revealed button.oil .w { fill: transparent; }
+.houses[data-icon=person] .w { fill: transparent; }
+/* the people icon counts people who have something (a Social Security check): the counted people turn solid ink */
+.houses[data-icon=people].revealed button.oil .h { fill: #262320; }
+.clip q.long { font-size: calc(21 * var(--u)); line-height: 1.2; }
+/* a picture part that appears after a moment (data-delay) */
+.rise { opacity: 0; transition: opacity .5s ease; } .rise.on { opacity: 1; }
+.cmp.two .card { padding: calc(12 * var(--u)) 14px; gap: calc(9 * var(--u)); } .cmp.two p { font-size: calc(15 * var(--u)); } .cmp.two .av { width: 30px; height: 30px; }
+/* once a question is answered, the voter picture steps aside so the answer and its reason always fit */
+.round.tight .door.mini { display: none; }
+.round { overflow: hidden; }
+/* finish */
+.fin-quote { font: 500 calc(20 * var(--u))/1.3 "Newsreader", Georgia, serif; color: var(--ink); margin: 12px 0 0; }
+.fin-note { font: 600 12px/1.3 "Figtree"; color: var(--muted); margin: 4px 0 0; }
+.ft.col { flex-direction: column; gap: 4px; }
+.ft .btn-row .btn.srcbtn { flex: 0 0 auto; }
+.ft .links { display: flex; flex-wrap: wrap; justify-content: center; column-gap: 16px; row-gap: 0; }
+.ft .links .linkbtn { min-height: 36px; padding: 8px 2px 4px; }
+
+@container phone (max-height: 760px) {
+  .phone > * { --u: .9px; }
+  .door { min-height: 84px; } .door.small { height: 18%; min-height: 84px; } .door.mini { min-height: 72px; }
+  .cmp { gap: 8px; padding: 8px 10px; } .cmp .card { padding: 9px 12px; gap: 6px; } .cmp .av { width: 26px; height: 26px; }
+  .opts { gap: 8px; } .opt { padding-top: calc(12 * var(--u)); padding-bottom: calc(12 * var(--u)); }
+  .chain { gap: 7px; } .chain .opt { padding-top: calc(10 * var(--u)); padding-bottom: calc(10 * var(--u)); }
+  .fig.street { height: 60px; } .fb { margin-top: 10px; font-size: calc(15 * var(--u)); } .hero, h2.hero { margin-top: 10px; }
+  .btn { min-height: 50px; padding-top: 10px; padding-bottom: 10px; } .ft { margin-top: 10px; }
+}
+@container phone (max-height: 700px) {
+  .steps { gap: 8px; padding: 10px 12px; margin-top: 10px; } .steps li { padding-top: 8px; padding-bottom: 8px; font-size: calc(15 * var(--u)); }
+  .clip { padding-top: 12px; padding-bottom: 12px; } .clip .lead { margin-top: 8px; font-size: calc(14 * var(--u)); } .clip q.long { font-size: calc(19 * var(--u)); } .clip .barrel { margin-top: 10px; }
+}
+@container phone (max-height: 700px) { .cmp.two { gap: 6px; padding: 8px 10px; } .cmp.two .card { padding: 8px 12px; gap: 6px; } .cmp.two p { font-size: calc(14 * var(--u)); } .cmp.two p b { margin-bottom: 0; } }
+@container phone (max-height: 560px) { .phone > * { --u: .82px; } }
+
+/* On a laptop or in a wide preview, show the training inside a phone, as the Warmup app does.
+   A real phone and the app's own overlay are narrower than 521px, so they stay full screen. */
+:root { --stage-bg: #F4EEE5; --frame: #262320; }
+@media (prefers-color-scheme: dark) { :root { --stage-bg: #1C1A18; --frame: #0C0B0A; } }
+@media (min-width: 521px) and (min-height: 600px) {
+  html, body, .stage { background: var(--stage-bg); }
+  .stage { display: grid; place-items: center; }
+  .phone { width: 390px; height: min(844px, calc(100dvh - 68px)); margin: 0; border-radius: 40px; background: var(--bg); box-shadow: 0 0 0 10px var(--frame), 0 24px 60px rgba(0, 0, 0, .28); }
+  .tag-screen { color: rgba(185, 174, 158, .6); }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
+</style>
+</head>
+<body>
+<div class="stage"><div class="phone" id="phone">
+
+<div class="topbar">
+  <button class="x" id="close" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  <div class="prog" id="prog" role="navigation" aria-label="Lesson steps"></div>
+</div>
+<div class="tag-screen" id="tag-screen"></div>
+
+<!-- the screens are built here from the training's content -->
+
+<div class="sheet" id="practice-sheet" role="dialog">
+  <div class="panel"><div class="grab"></div><h3 id="practice-title"></h3>
+    <p class="copy" id="practice-body"></p>
+    <button class="btn ghost close" type="button" data-close id="practice-close"></button>
+  </div>
+</div>
+<div class="sheet" id="src-sheet" role="dialog">
+  <div class="panel"><div class="grab"></div><h3 id="src-title"></h3>
+    <ol id="src-list"></ol>
+    <p class="small" id="src-disclosure" style="margin-top:10px"></p>
+    <button class="btn ghost close" type="button" data-close id="src-close"></button>
+  </div>
+</div>
+
+</div></div>
+<!-- Heating oil pictures. Every picture is drawn here; the words live in content.js. -->
+
+<template id="art-cover"><svg viewBox="0 0 390 300" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+      <rect width="390" height="300" fill="#33435F"/>
+      <g fill="#FFFFFF" opacity=".75"><circle cx="40" cy="30" r="1.3"/><circle cx="110" cy="58" r="1"/><circle cx="170" cy="22" r="1.4"/><circle cx="236" cy="48" r="1"/><circle cx="300" cy="18" r="1.2"/><circle cx="64" cy="96" r="1"/><circle cx="352" cy="88" r="1.1"/><circle cx="210" cy="104" r="1"/></g>
+      <circle cx="324" cy="58" r="16" fill="#F3F0EA"/><circle cx="332" cy="52" r="14" fill="#33435F"/>
+      <path d="M0 236 Q90 216 190 232 T390 226 V300 H0 Z" fill="#2B3A57"/>
+      <g transform="translate(16 170)"><path d="M0 40 L36 14 L72 40 V96 H0 Z" fill="#1F2A3D"/><path d="M-4 42 L36 10 L76 42" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="26" y="54" width="20" height="18" rx="2" fill="#26334D"/><rect class="lamp" data-delay="2200" x="26" y="54" width="20" height="18" rx="2" fill="#F2B134"/></g>
+      <g transform="translate(300 176)"><path d="M0 38 L34 12 L68 38 V90 H0 Z" fill="#1F2A3D"/><path d="M-4 40 L34 8 L72 40" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="24" y="50" width="20" height="17" rx="2" fill="#26334D"/><rect class="lamp" data-delay="2900" x="24" y="50" width="20" height="17" rx="2" fill="#F2B134"/></g>
+      <g transform="translate(118 112)">
+        <path d="M10 66 L78 12 L146 66 V160 H10 Z" fill="#1F2A3D"/>
+        <path d="M2 68 L78 6 L154 68" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="112" y="20" width="14" height="34" fill="#1F2A3D"/><rect x="110" y="18" width="18" height="6" fill="#FFFFFF"/>
+        <g fill="#F3F0EA" opacity=".45"><circle cx="119" cy="10" r="4"/><circle cx="124" cy="-2" r="5"/><circle cx="131" cy="-16" r="6"/></g>
+        <rect x="28" y="88" width="44" height="38" rx="3" fill="#26334D"/><rect class="lamp" data-delay="700" x="28" y="88" width="44" height="38" rx="3" fill="#F2B134"/>
+        <path d="M50 88 V126 M28 107 H72" stroke="#1F2A3D" stroke-width="3"/>
+        <rect x="96" y="88" width="26" height="24" rx="2" fill="#26334D"/><rect class="lamp" data-delay="1600" x="96" y="88" width="26" height="24" rx="2" fill="#F2B134"/>
+        <path d="M109 88 V112 M96 100 H122" stroke="#1F2A3D" stroke-width="2.5"/>
+        <rect x="100" y="120" width="30" height="40" rx="2" fill="#7A3B33"/><circle cx="124" cy="141" r="2" fill="#F2B134"/>
+      </g>
+      <path d="M0 270 Q100 258 200 268 T390 264 V300 H0 Z" fill="#FFFFFF"/>
+    </svg></template>
+
+<template id="art-bill"><svg viewBox="0 0 390 230" preserveAspectRatio="xMidYMid meet" aria-label="Sarah's monthly heating bill goes from about $100 to about $180; $80 leaves her grocery bag">
+      <g font-family="Figtree, sans-serif" text-anchor="middle">
+        <text x="195" y="46" data-count-from="100" data-count-to="180" data-prefix="$" data-delay="500" data-ms="1500" font-family="Newsreader, Georgia, serif" font-size="40" font-weight="600" fill="#C2412D">$100</text>
+        <text x="195" y="66" font-size="11" font-weight="700" letter-spacing="1.2" fill="#6F685F" data-k="pic.bill.month"></text>
+      </g>
+      <g transform="translate(36 80)">
+        <path d="M6 30 H84 L78 112 H12 Z" fill="#FFFFFF" stroke="#6F685F" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M28 30 V18 a17 17 0 0 1 34 0 V30" fill="none" stroke="#6F685F" stroke-width="2.5"/>
+        <g data-go="scale(.7)" data-go-opacity=".45" data-origin="45px 80px" data-delay="2400"><rect x="20" y="40" width="14" height="34" rx="3" fill="#E7EEF9" stroke="#1F4C91" stroke-width="1.5"/><path d="M40 70 l6 -40 l5 2 l-3 40 z" fill="#E0B070" transform="rotate(12 46 50)"/><path d="M56 60 q6 -14 16 -8 q6 8 -2 16 q-10 4 -14 -8 z" fill="#35B57C"/></g>
+        <text x="45" y="134" text-anchor="middle" font-family="Figtree, sans-serif" font-size="11" font-weight="700" letter-spacing="1.2" fill="#6F685F" data-k="pic.bill.groceries"></text>
+      </g>
+      <g transform="translate(212 92)">
+        <rect x="0" y="16" width="146" height="76" rx="38" fill="#FFFFFF" stroke="#6F685F" stroke-width="2.5"/>
+        <clipPath id="oil-tankclip"><rect x="2" y="18" width="142" height="72" rx="36"/></clipPath>
+        <rect x="2" y="50" width="142" height="40" fill="#E08A1A" clip-path="url(#oil-tankclip)"/>
+        <rect x="58" y="4" width="30" height="13" rx="3" fill="#6F685F"/>
+        <rect x="16" y="92" width="6" height="18" fill="#6F685F"/><rect x="124" y="92" width="6" height="18" fill="#6F685F"/>
+        <text x="73" y="128" text-anchor="middle" font-family="Figtree, sans-serif" font-size="11" font-weight="700" letter-spacing="1.2" fill="#6F685F" data-k="pic.bill.tank"></text>
+      </g>
+      <g transform="translate(81 140)"><g data-go="translate(212px,-104px)" data-delay="2400"><rect x="-30" y="-15" width="60" height="30" rx="15" fill="#C2412D"/><text x="0" y="6" text-anchor="middle" font-family="Figtree, sans-serif" font-size="15" font-weight="800" fill="#FFFFFF" data-k="pic.bill.extra"></text></g></g>
+    </svg></template>
+
+<template id="art-map"><svg viewBox="0 0 390 270" preserveAspectRatio="xMidYMid meet" aria-label="A north-up map of the Persian Gulf. Iran is to the north. Cargo ships sail from the top of the Persian Gulf, along Iran's coast, through the Strait of Hormuz into the Gulf of Oman.">
+      <rect width="390" height="270" fill="#E7EEF9"/>
+      <path d="M0 0 H390 V170 L324 160 L294 120 L279 115 L237 133 L165 108 L114 63 L45 30 L30 33 L0 33 Z" fill="#FFFFFF" stroke="#D8D0C3" stroke-width="1.5"/>
+      <path d="M0 33 L30 33 L28 44 L30 51 L81 120 L93 138 L112 186 L116 166 L121 152 L127 145 L133 149 L137 162 L138 186 L150 207 L222 195 L249 172 L270 156 L280 138 L284 159 L282 183 L291 200 L348 222 L384 255 L390 258 V270 H0 Z" fill="#FFFFFF" stroke="#D8D0C3" stroke-width="1.5"/>
+      <path d="M246 132 L262 126 L277 122 L272 128 L256 136 Z" fill="#FFFFFF" stroke="#D8D0C3" stroke-width="1.5"/>
+      <g font-family="Figtree, sans-serif" font-weight="800" fill="#6F685F">
+        <text x="150" y="50" font-size="20" letter-spacing="5" fill="#262320" data-k="pic.map.iran"></text>
+        <text x="22" y="240" font-size="11" letter-spacing="2" data-k="pic.map.saudi"></text>
+        <text x="196" y="234" font-size="11" letter-spacing="2" data-k="pic.map.uae"></text>
+        <text x="104" y="210" font-size="10" letter-spacing="1.5" data-k="pic.map.qatar"></text>
+        <text x="318" y="252" font-size="11" letter-spacing="2" data-k="pic.map.oman"></text>
+      </g>
+      <g font-family="Newsreader, Georgia, serif" font-style="italic" font-weight="500" fill="#1F4C91" font-size="13">
+        <text x="146" y="182" data-k="pic.map.gulf"></text>
+        <text x="300" y="196" transform="rotate(30 300 196)" font-size="12" data-k="pic.map.goman"></text>
+      </g>
+      <path d="M277 124 L262 96" stroke="#1F4C91" stroke-width="1.2"/>
+      <text x="262" y="90" text-anchor="end" font-family="Figtree, sans-serif" font-size="12" font-weight="800" letter-spacing="1" fill="#1F4C91" data-k="pic.map.strait"></text>
+      <g transform="translate(362 26)" font-family="Figtree, sans-serif" font-weight="800" font-size="11" fill="#6F685F" text-anchor="middle"><path d="M0 -8 L5 6 L0 3 L-5 6 Z" fill="#6F685F"/><text y="20" data-k="pic.map.north"></text></g>
+      <path class="route" d="M46 44 L80 78 L120 112 L170 140 L215 152 L258 145 L282 128 L292 142 L304 158 L318 174" fill="none" stroke="none"/>
+      <g class="ships">
+        <g class="ship"><path d="M-12 -4 H7 L12 0 L7 4 H-12 Z" fill="#262320"/><rect x="2" y="-3" width="4" height="6" fill="#FFFFFF"/></g>
+        <g class="ship"><path d="M-12 -4 H7 L12 0 L7 4 H-12 Z" fill="#262320"/><rect x="2" y="-3" width="4" height="6" fill="#FFFFFF"/></g>
+        <g class="ship"><path d="M-12 -4 H7 L12 0 L7 4 H-12 Z" fill="#262320"/><rect x="2" y="-3" width="4" height="6" fill="#FFFFFF"/></g>
+        <g class="ship"><path d="M-12 -4 H7 L12 0 L7 4 H-12 Z" fill="#262320"/><rect x="2" y="-3" width="4" height="6" fill="#FFFFFF"/></g>
+        <g class="ship"><path d="M-12 -4 H7 L12 0 L7 4 H-12 Z" fill="#262320"/><rect x="2" y="-3" width="4" height="6" fill="#FFFFFF"/></g>
+      </g>
+      <g class="barrier" opacity="0"><line x1="281" y1="115" x2="280" y2="138" stroke="#C2412D" stroke-width="4" stroke-linecap="round"/><text x="300" y="112" font-family="Figtree, sans-serif" font-size="13" font-weight="800" letter-spacing="2" fill="#C2412D" data-k="pic.map.barred"></text></g>
+    </svg></template>
+
+<template id="art-prices"><svg viewBox="0 0 390 230" preserveAspectRatio="xMidYMid meet" aria-label="Sarah's heating oil price went from $3.33 a gallon in fall 2025 to $6.01 a gallon in fall 2026.">
+        <g font-family="Figtree, sans-serif" text-anchor="middle" font-weight="800">
+          <text x="96" y="78" font-size="12" letter-spacing="1.3" fill="#6F685F" data-k="pic.prices.past"></text>
+          <text x="96" y="128" font-family="Newsreader, Georgia, serif" font-size="44" font-weight="600" fill="#262320" data-k="pic.prices.low"></text>
+          <text x="292" y="78" font-size="12" letter-spacing="1.3" fill="#6F685F" data-k="pic.prices.now"></text>
+          <text x="292" y="130" font-family="Newsreader, Georgia, serif" font-size="54" font-weight="600" fill="#C2412D" data-k="pic.prices.high"></text>
+          <text x="195" y="176" font-size="11.5" letter-spacing="1.2" fill="#6F685F" data-k="pic.prices.unit"></text>
+        </g>
+        <path d="M166 113 H200 M190 102 L202 113 L190 124" fill="none" stroke="#C2412D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg></template>
+
+<template id="art-voter"><svg viewBox="0 34 340 140" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <rect width="340" height="210" fill="#E3DBCC"/>
+      <rect x="0" y="186" width="340" height="24" fill="#C9BFAE"/>
+      <rect x="96" y="14" width="148" height="176" rx="3" fill="#FFFFFF"/>
+      <rect x="106" y="24" width="128" height="166" fill="#2E2A26"/>
+      <rect x="106" y="24" width="128" height="166" fill="#C9A26A" opacity=".55"/>
+      <rect x="234" y="24" width="10" height="166" fill="#7A3B33"/>
+      <circle cx="268" cy="52" r="7" fill="#FFE29A"/>
+      <g transform="translate(170 0)">
+        <path d="M-32 92 C-40 128 -36 150 -27 158 H27 C36 150 40 128 32 92 Z" fill="#5C4329"/>
+        <path d="M-52 210 C-52 156 -36 140 0 140 C36 140 52 156 52 210 Z" fill="#33435F"/>
+        <path d="M-14 142 L0 160 L14 142" fill="none" stroke="#F3F0EA" stroke-width="5" stroke-linejoin="round"/>
+        <rect x="-9" y="116" width="18" height="26" rx="6" fill="#E3B48F"/>
+        <ellipse cx="0" cy="96" rx="30" ry="34" fill="#E3B48F"/>
+        <path d="M-31 100 C-34 62 -14 52 0 52 C16 52 34 62 31 100 C27 84 22 74 16 70 C6 78 -12 80 -24 76 C-27 82 -29 90 -31 100 Z" fill="#5C4329"/>
+        <circle cx="-11" cy="94" r="3.2" fill="#2B2420"/><circle cx="11" cy="94" r="3.2" fill="#2B2420"/>
+        <path d="M-12 82 q5 -4 9 -1 M12 82 q-5 -4 -9 -1" stroke="#4A3B30" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M-7 113 q7 -4 14 0" stroke="#7A3B33" stroke-width="3" fill="none" stroke-linecap="round"/>
+      </g>
+    </svg></template>
+
+<template id="art-done"><svg viewBox="0 0 390 420" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+      <rect width="390" height="420" fill="#33435F"/>
+      <g fill="#FFFFFF" opacity=".75"><circle cx="70" cy="40" r="1.2"/><circle cx="210" cy="90" r="1"/><circle cx="320" cy="130" r="1.3"/><circle cx="30" cy="160" r="1"/></g>
+      <circle cx="320" cy="70" r="16" fill="#F3F0EA"/><circle cx="328" cy="64" r="14" fill="#33435F"/>
+      <g transform="translate(0 180)">
+      <g fill="#FFFFFF" opacity=".75"><circle cx="50" cy="30" r="1.2"/><circle cx="150" cy="54" r="1"/><circle cx="250" cy="24" r="1.3"/><circle cx="340" cy="60" r="1.1"/><circle cx="96" cy="88" r="1"/></g>
+      <path d="M0 214 Q100 204 200 212 T390 208 V240 H0 Z" fill="#FFFFFF"/>
+      <g>
+        <g class="sarah" transform="translate(30 92)"><path d="M0 46 L55 6 L110 46 V122 H0 Z" fill="#1F2A3D"/><path d="M-5 48 L55 0 L115 48" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><rect x="18" y="64" width="34" height="30" rx="2" fill="#26334D"/><rect class="lamp" data-delay="600" x="18" y="64" width="34" height="30" rx="2" fill="#F2B134"/><rect x="66" y="80" width="26" height="42" rx="2" fill="#7A3B33"/></g>
+        <g class="nb" transform="translate(166 116)"><path d="M0 34 L40 4 L80 34 V98 H0 Z" fill="#1F2A3D"/><path d="M-4 36 L40 0 L84 36" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="28" y="50" width="24" height="22" rx="2" fill="#26334D"/><rect class="lamp" data-delay="950" x="28" y="50" width="24" height="22" rx="2" fill="#F2B134"/></g>
+        <g class="nb" transform="translate(280 116)"><path d="M0 34 L40 4 L80 34 V98 H0 Z" fill="#1F2A3D"/><path d="M-4 36 L40 0 L84 36" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="28" y="50" width="24" height="22" rx="2" fill="#26334D"/><rect class="lamp" data-delay="1300" x="28" y="50" width="24" height="22" rx="2" fill="#F2B134"/></g>
+      </g>
+      </g>
+    </svg></template>
+<script>
+/* Heating oil (Oil): every word of the training. The pictures are in art.html; the engine is src/shared/engine.js.
+   Built from Maine's 2026 US Senate race. Franklin, Maya Kaur and Jack Dufner stand in for the real state and candidates. */
+window.TRAINING = {
+  id: 'oil', tag: 'Oil', title: 'Maya Kaur · Heating oil',
+  lockup: 'Maya Kaur', lockupSub: 'For U.S. Senate · Franklin',
+  jd: 'Jack Dufner', jdInit: 'JD', mk: 'Maya Kaur', mkInit: 'MK',
+  screens: [
+    { type: 'cover',
+      h: 'Franklin voters keep asking about heating oil at the door.',
+      body: "I'm Maya Kaur, and I'm running for US Senate against Jack Dufner. Before you knock, I want you to know what heating oil costs voters like Sarah, why the price of heating oil rose and how I would help. This briefing takes about six minutes.",
+      next: 'Get briefed on heating oil' },
+    { type: 'count', icon: 'house', label: 'SARAH', total: 10, answer: 5,
+      ask: "How many of every 10 Franklin homes heat with oil, like Sarah's?",
+      reveal: "About half of Franklin homes heat with oil, like Sarah's.[1]",
+      aria: 'Pick a number of homes from 1 to 10',
+      hint: 'Tap or slide across the houses', yourGuess: 'Your guess: {n} of 10',
+      fbRight: 'You guessed 5 of 10. You are right: about half of Franklin homes heat with oil.', fbClose: 'You guessed {n} of 10. About half of Franklin homes heat with oil.', fbFar: 'You guessed {n} of 10. About half of Franklin homes heat with oil, {dir}',
+      fewer: 'fewer than you guessed.', more: 'more than you guessed.',
+      note: "Sarah is an example voter, not a real person. The prices Sarah pays are Franklin's real statewide averages.",
+      check: 'Check my guess', next: "See Sarah's heating oil price in fall 2026" },
+    { type: 'price', dec: 2, min: 3, max: 8, step: 0.01, close: 0.5,
+      ask: 'In fall 2025, heating oil cost Sarah $3.33 a gallon.[2] What does heating oil cost Sarah in fall 2026?',
+      reveal: 'In fall 2026, heating oil costs Sarah *$6.01 a gallon*,[3] up from $3.33 in fall 2025: about 80% more.[2]',
+      past: { label: 'Fall 2025', v: 3.33 }, guessLabel: 'Your guess', now: { label: 'Fall 2026', v: 6.01 },
+      aria: 'Price of heating oil per gallon: fall 2025, your guess and fall 2026', rangeAria: 'Your guess for the fall 2026 price of heating oil per gallon',
+      fbClose: 'Your guess of {g} was close.', fbOff: 'You guessed {g}, about {a} too {dir}.', low: 'low', high: 'high',
+      lock: 'Check my guess', next: "See Sarah's monthly heating bill" },
+    { type: 'tell', art: 'bill',
+      h: "Sarah's heating bill went from about $100 a month in fall 2025 to *about $180 a month* in fall 2026.",
+      body: 'Sarah heats the same house the same way. Sarah has $80 less a month for groceries.',
+      note: "Sarah is an example voter. Her bills are examples, and the prices per gallon are Franklin's real statewide averages.",
+      next: 'See why heating oil prices jumped' },
+    { type: 'pick', key: 'war', art: 'map', askArt: 'prices', right: 'war',
+      ask: "What caused Sarah's heating oil price to rise about 80% since fall 2025?",
+      reveal: "In late February 2026, the US and Israel went to war with Iran, and Iran barred cargo ships from the Strait of Hormuz.[4] The war with Iran started the jump in Sarah's heating oil price.",
+      note: "The Strait of Hormuz is a narrow channel of sea off Iran's coast.",
+      opts: [{ v: 'tax', t: 'A new state tax' }, { v: 'cold', t: 'A colder winter' }, { v: 'war', t: 'The war with Iran' }],
+      fbRight: '<b>Yes.</b> The war with Iran closed the Strait of Hormuz to cargo ships.',
+      fbWrong: '<b>The war with Iran</b> closed the Strait of Hormuz to cargo ships.',
+      next: 'See why Sarah pays $80 more a month' },
+    { type: 'steps',
+      h: 'The war with Iran is why Sarah pays about $80 more a month to heat her home.',
+      steps: [
+        'The war with Iran closed the Strait of Hormuz to cargo ships.[4]',
+        'With the Strait of Hormuz closed, less oil and fuel reached the world.[6]',
+        'Fuel prices rose around the world, including the price of heating oil.[8]',
+        'Sarah pays *about $80 more a month* to heat her home.',
+      ],
+      foot: "Franklin's two US senators vote on whether the war with Iran continues.[10]",
+      next: 'See how Jack Dufner voted on the war' },
+    { type: 'opponent',
+      h: "Jack Dufner, one of Sarah's two US senators, voted five times against ending the war with Iran before he voted to end the war.[10]",
+      tally: { no: 5, yes: 0, capNo: '5 votes against ending the war with Iran', capYes: 'Since late April 2026, Jack Dufner has voted to end the war' },
+      clip: { kicker: 'On heating oil costs', lead: "Jack Dufner pushed for the release of up to 315,000 barrels from the federal government's emergency supply of heating oil.[9] In October 2026, an analyst called the release",
+        quote: '"a very, very small volume."[9]', extra: 'A barrel is 42 gallons.[15]', extraIcon: 'barrel' },
+      next: 'See how Maya Kaur would help Sarah' },
+    { type: 'compare',
+      h: "Maya Kaur would end the war with Iran and send more money to LIHEAP, the federal program that helps people like Sarah pay for heat.[11]",
+      rows: [
+        { topic: 'The war with Iran', jd: 'Voted five times against ending the war before he voted to end the war', mk: 'Would end the war' },
+        { topic: "Heating bills like Sarah's", jd: 'Pushed for a heating oil release that an analyst called very small', mk: 'Would send more money to LIHEAP' },
+      ],
+      record: 'In 2023, as state Senate President, Maya Kaur helped pass $40 million more for heating aid and $450 relief checks to more than 880,000 residents.[12]',
+      next: 'Answer 3 questions about heating oil' },
+    { type: 'quiz', pill: 'Sarah asks',
+      rounds: [
+        { h: 'Sarah asks, "Why does my heating oil cost so much more?" Which answer is right?', opts: ['The war with Iran closed the Strait of Hormuz, so less oil and fuel reached the world', 'Iran stopped selling heating oil to the US, so Franklin ran short of heating oil', "A colder winter used up Franklin's heating oil, so dealers raised their prices"], ok: 0,
+          right: "Right. The war with Iran closed the Strait of Hormuz, so less oil and fuel reached the world. Fuel prices rose around the world, including the price of Sarah's heating oil.[4][8]",
+          wrong: "<b>The war with Iran closed the Strait of Hormuz.</b> Less oil and fuel reached the world, so fuel prices rose, including the price of Sarah's heating oil.[4][8]",
+          retry: '<b>Try once more.</b> Think about the cargo ships that could not pass through the Strait of Hormuz. Two answers are left.' },
+        { h: 'Sarah asks, "How much more does heating oil cost in fall 2026 than in fall 2025?" Which answer is right?', opts: ['Heating oil costs about 20% more than in fall 2025', 'Heating oil costs about 200% more than in fall 2025', 'Heating oil costs about 80% more than in fall 2025'], ok: 2,
+          right: 'Right. Heating oil costs about 80% more: $3.33 a gallon in fall 2025 became $6.01 a gallon in fall 2026.[2][3]',
+          wrong: "Sarah's heating oil price went from $3.33 a gallon in fall 2025 to $6.01 a gallon in fall 2026: <b>about 80% more.</b>[2][3]",
+          retry: '<b>Try once more.</b> $3.33 a gallon became $6.01 a gallon. Two answers are left.' },
+        { h: 'Sarah asks, "How are Maya Kaur and Jack Dufner different on the war with Iran?" Which answer is right?', opts: ['Both voted to end the war with Iran from the very first vote, so there is no difference', 'Jack Dufner voted five times against ending the war before he voted to end the war; Maya Kaur would end the war', 'Jack Dufner never voted to end the war with Iran; Maya Kaur would end the war'], ok: 1,
+          right: 'Right. Jack Dufner voted five times against ending the war with Iran before he voted to end the war. Maya Kaur would end the war and send more money to LIHEAP.[10][11]',
+          wrong: '<b>Jack Dufner voted five times against ending the war with Iran before he voted to end the war.</b> Maya Kaur would end the war.[10][11]',
+          retry: "<b>Try once more.</b> Think about Jack Dufner's first five votes on the war with Iran. Two answers are left." },
+      ],
+      retake: 'You got the answer on the second try.',
+      next: ['Go to question 2 of 3', 'Go to question 3 of 3'], fin: 'Finish the heating oil briefing' },
+    { type: 'done', of: 3,
+      hAll: "You're ready to practice the heating oil conversation with Sarah.",
+      hLess: 'You answered {n} of 3 questions correctly.',
+      subAll: 'You answered 3 of 3 questions correctly.', subLess: 'Retake the 3 questions, or go on to practice the heating oil conversation with Sarah.',
+      quote: '"This winter is going to break some people."[13]', attrib: 'Maya Kaur, in her campaign ad, Oct 14, 2026',
+      practice: 'Practice the conversation with Sarah', retake: 'Retake the 3 questions', sources: 'See all sources', restart: 'Start the briefing over' },
+  ],
+  /* words drawn inside the pictures */
+  pic: {
+    bill: { groceries: "SARAH'S GROCERIES", tank: "SARAH'S HEATING OIL TANK", month: 'A MONTH TO HEAT HER HOME', extra: '+$80' },
+    map: { iran: 'IRAN', saudi: 'SAUDI ARABIA', uae: 'UAE', qatar: 'QATAR', oman: 'OMAN', gulf: 'Persian Gulf', goman: 'Gulf of Oman', strait: 'STRAIT OF HORMUZ', barred: 'BARRED', north: 'N' },
+    prices: { past: 'FALL 2025', now: 'FALL 2026', low: '$3.33', high: '$6.01', unit: "A GALLON OF SARAH'S HEATING OIL" },
+  },
+  ui: {
+    sources: 'See sources', sourcesTitle: 'Sources', sourcesClose: 'Close sources', close: 'Close the training', close2: 'Close', goStep: 'Go to step {n}',
+    practiceTitle: 'Practice with Sarah',
+    practiceBody: 'Inside the Warmup app, the "Practice the conversation with Sarah" button opens the spoken practice with Sarah. The spoken practice is not part of this preview yet.',
+    disclosure: "Sarah is an example voter, not a real person. This training is built from Maine's 2026 US Senate race. Franklin stands in for Maine and Maya Kaur stands in for the real Democratic candidate. Jack Dufner stands in for the real Republican candidate. Everything said about Jack Dufner is the real Republican candidate's own record. Inside the training, publications named for Maine or its towns are shown with Franklin in their place; this list and every link use the real names.",
+  },
+  /* Sources: [name shown inside the training, what it supports, link, real name shown on the last screen] */
+  sources: {
+      1: ['The Boston Globe, Oct 8, 2026', 'About half of homes in the state heat with oil.', 'https://www.bostonglobe.com/2026/10/08/metro/susan-collinsn-maine-senate-race-heating-oil/', 'The Boston Globe (from The New York Times), Oct 8, 2026'],
+      2: ['Franklin Governor\'s Energy Office, Sep 22, 2025', 'Statewide average heating oil price: $3.33 a gallon.', 'https://www.maine.gov/energy/sites/maine.gov.energy/files/inline-files/2024-2025-Heating-Season-Weekly-Prices-09-22-25.pdf', 'Maine Governor\'s Energy Office, weekly heating season prices, Sep 22, 2025'],
+      3: ['Franklin Governor\'s Energy Office, Nov 2, 2026', 'Statewide average heating oil price: $6.01 a gallon.', 'https://www.maine.gov/energy/heating-fuel-prices', 'Maine Governor\'s Energy Office, heating fuel prices, Nov 2, 2026'],
+      4: ['WSHU Public Radio, Mar 27, 2026', 'The US and Israel went to war with Iran in late February 2026; Iran then barred cargo ships from the Strait of Hormuz.', 'https://www.wshu.org/news/2026-03-27/ct-long-island-gas-prices-surge-iran-war', 'WSHU Public Radio, Mar 27, 2026'],
+      5: ['ABC News, Mar 2, 2026', 'About a fifth of the world\'s oil passes through the Strait of Hormuz.', 'https://www.goodmorningamerica.com/amp/news/story/iran-attack-drive-gas-prices-days-analysts-130671838', 'ABC News, Mar 2, 2026'],
+      6: ['Reuters, Mar 11, 2026', '10 to 20 percent of the diesel shipped by sea moves through the strait.', 'https://profit.pakistantoday.com.pk/2026/03/11/diesel-markets-upended-by-middle-east-conflict-threaten-global-economic-slowdown', 'Reuters (republished by Profit, Pakistan Today), Mar 11, 2026'],
+      7: ['Barchart, 2026', 'Heating oil, diesel and jet fuel are the same family of fuels.', 'https://www.barchart.com/story/news/2442489/why-have-heating-oil-and-distillate-prices-been-volatile', 'Barchart, 2026'],
+      8: ['Reuters, Mar 18, 2026', 'When Middle East diesel stopped coming, US fuel prices rose with the world\'s.', 'https://d2233.cms.socastsrm.com/?p=2486402', 'Reuters (syndicated copy), Mar 18, 2026'],
+      9: ['Franklin Public Radio, Oct 21, 2026', 'Jack Dufner pushed for the release of up to 315,000 barrels from a federal emergency heating oil reserve. An analyst called the release "a very, very small volume," and the state Chamber of Commerce said the heating oil won\'t reach home tanks quickly.', 'https://www.vermontpublic.org/2026-10-21/feds-to-release-315-000-barrels-from-heating-oil-reserve', 'Maine Public (republished by Vermont Public), Oct 21, 2026'],
+      10: ['Franklin Daily News fact check, Oct 8, 2026', 'Jack Dufner voted five times against ending the war and has voted to end it since late April.', 'https://www.bangordailynews.com/2026/10/08/news/maine-election-senate-2026-troy-jackson-susan-collins-debate-fact-check/', 'Bangor Daily News debate fact check, Oct 8, 2026'],
+      11: ['Maya Kaur campaign, quoting a TV interview, Oct 18, 2026', 'The candidate\'s plan: end the war and send more money to LIHEAP, the federal program that helps families pay heating bills.', 'https://www.jacksonformaine.com/news/jackson-hits-the-airwaves-directing-mainers-to-heating-assistance-as-energy-costs-skyrocket', 'The Democratic candidate\'s campaign site, quoting a WGME interview, Oct 18, 2026'],
+      12: ['Franklin Public Radio, Jan 4, 2023', 'In 2023, as state Senate President, the candidate helped pass emergency relief: $40 million more for heating aid and $450 checks to more than 880,000 residents.', 'https://www.mainepublic.org/politics/2023-01-04/legislature-approves-emergency-bill-containing-450-relief-checks', 'Maine Public, Jan 4, 2023'],
+      13: ['Maya Kaur campaign ad "Act," Oct 14, 2026', '"This winter is going to break some people."', 'https://www.jacksonformaine.com/news/new-ad-jackson-demands-action-on-heating-oil-points-to-record-delivering-energy-relief-for-mainers', 'The Democratic candidate\'s campaign ad "Act," Oct 14, 2026'],
+      15: ['Reuters, Mar 1, 2026', 'A barrel is 42 gallons.', 'https://bizenglish.adaderana.lk/oil-jumps-10-on-iran-conflict-and-could-spike-to-100-a-barrel-analysts-say', 'Reuters, Mar 1, 2026'],
+      14: ['FranklinHousing, home energy assistance', 'The state\'s heating help covers renters, up to $73,213 a year in income for a family of four.', 'https://www.mainehousing.org/programs-services/energy/energydetails/home-energy-assistance-program', 'MaineHousing, Home Energy Assistance Program'],
+  },
+};
+
+/* Heating oil: the cargo ships on the map sail until the answer, then stack up at the closed Strait of Hormuz. */
+window.TRAINING_HOOKS = {
+  war: (() => {
+    const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let sc, route, L, tb, ships, pos, gone, barred = false, raf = 0;
+    function setup(s) {
+      if (sc) return; sc = s; route = sc.querySelector('.route'); L = route.getTotalLength(); tb = L * .45;
+      for (let d = 0; d <= L; d += 1) { if (route.getPointAtLength(d).x >= 281) { tb = d; break; } }
+      ships = [...sc.querySelectorAll('.ships .ship')]; start();
+    }
+    function start() { pos = ships.map((_, i) => i * L / ships.length + 10); gone = ships.map(() => false); barred = false; ships.forEach((sh, i) => { sh.style.opacity = '1'; place(sh, pos[i]); }); }
+    function place(sh, d) { const p = route.getPointAtLength(d), q = route.getPointAtLength(Math.min(L, d + 2)); const a = Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI; sh.setAttribute('transform', `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${a.toFixed(1)})`); }
+    function targets() { const behind = ships.map((_, i) => i).filter(i => pos[i] < tb).sort((a, b) => pos[b] - pos[a]); const t = {}; behind.forEach((i, k) => { t[i] = Math.max(4, tb - 12 - k * 26); }); return t; }
+    function tick() {
+      if (!sc.classList.contains('is-active')) { raf = 0; return; }
+      const tg = barred ? targets() : null;
+      ships.forEach((sh, i) => {
+        if (gone[i]) return;
+        if (!barred) { pos[i] += .45; if (pos[i] > L) pos[i] -= L; }
+        else if (i in tg) { const d = tg[i] - pos[i]; pos[i] += Math.max(-1.2, Math.min(1.2, d * .08)); }
+        else { pos[i] += .9; if (pos[i] > L) { gone[i] = true; sh.style.opacity = '0'; return; } }
+        place(sh, pos[i]);
+      });
+      raf = requestAnimationFrame(tick);
+    }
+    return {
+      show(s) { setup(s); setTimeout(() => { if (!raf && !REDUCED) raf = requestAnimationFrame(tick); }, 50); },
+      answer(s) { setup(s); barred = true; const b = sc.querySelector('.barrier'); b.style.transition = 'opacity .4s'; b.setAttribute('opacity', '1');
+        if (REDUCED) { const tg = targets(); ships.forEach((sh, i) => { if (i in tg) { pos[i] = tg[i]; place(sh, pos[i]); } else sh.style.opacity = '0'; }); } },
+      reset(s) { setup(s); sc.querySelector('.barrier').setAttribute('opacity', '0'); start(); },
+    };
+  })(),
+};
+
+</script>
+<script>
+/* ================= THE SHARED ENGINE =================
+   One engine for every Maya Kaur issue training. It holds no words and no pictures:
+   the words are in the training's content.js (window.TRAINING) and the pictures in its art.html (<template id="art-...">).
+   Mini-markup inside any string: [n] cites source n (hidden on screen; it feeds that screen's "See sources" list),
+   *text* sets text in the highlight color, <b>bold</b> is plain HTML, {g} {n} {a} {dir} are filled in by the page.
+   Screen types: cover, count, price, tell, pick, steps, opponent, compare, quiz, done. */
+(() => {
+  const T = window.TRAINING, SRC = T.sources, U = T.ui, HOOKS = window.TRAINING_HOOKS || {};
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const wait = (ms) => new Promise(r => setTimeout(r, REDUCED ? 0 : ms));
+  const fill = (s, v = {}) => String(s).replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+  const md = (s, v) => s == null ? '' : fill(s, v).replace(/\[(\d+)\]/g, '<button class="fn" type="button" tabindex="-1" data-src="$1">$1</button>').replace(/\*([^*]+)\*/g, '<span class="hot">$1</span>');
+  const plain = (s) => String(s == null ? '' : s).replace(/\[(\d+)\]/g, '').replace(/\*([^*]+)\*/g, '$1').replace(/<[^>]+>/g, '');
+  const get = (o, k) => k.split('.').reduce((a, p) => (a == null ? a : a[p]), o);
+  const art = (k) => { const t = document.getElementById('art-' + k); return t ? t.innerHTML : ''; };
+  const money = (v, dec = 0) => '$' + Number(v).toFixed(dec).replace(/^(\d+)/, d => d.replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+  const foot = (s, before = '') => `<div class="ft">${before}<button class="btn" type="button" data-next>${md(s.next)}</button></div>`;
+  const ICONS = {
+    house: '<path class="h" d="M4 20 L20 5 L36 20 V42 H4 Z"/><rect class="w" x="14" y="23" width="12" height="11" rx="1.5"/>',
+    hospital: '<path class="h" d="M5 16 H35 V42 H5 Z"/><path class="h" d="M12 16 V8 H28 V16 Z"/><path class="w" d="M17.5 21 h5 v5 h5 v5 h-5 v5 h-5 v-5 h-5 v-5 h5 Z"/>',
+    person: '<circle class="h" cx="20" cy="13" r="8"/><path class="h" d="M5 44 C5 30 11 24 20 24 C29 24 35 30 35 44 Z"/><path class="w" d="M16 31 h8 v4 h-8 Z"/>',
+    people: '<circle class="h" cx="20" cy="13" r="8"/><path class="h" d="M5 44 C5 30 11 24 20 24 C29 24 35 30 35 44 Z"/>',
+  };
+  const BARREL = '<svg viewBox="0 0 22 26" aria-hidden="true"><ellipse cx="11" cy="4" rx="9" ry="3" fill="#E08A1A"/><path d="M2 4 V22 a9 3 0 0 0 18 0 V4" fill="#E08A1A"/><path d="M2 10 a9 3 0 0 0 18 0 M2 16 a9 3 0 0 0 18 0" stroke="#B86D0E" stroke-width="1.5" fill="none"/></svg>';
+
+  /* ---------- markup for each screen type ---------- */
+  const BUILD = {
+    cover: (s) => `<div class="camp"><b>${md(T.lockup)}</b><small>${md(T.lockupSub)}</small></div>
+      <h1 class="hero">${md(s.h)}</h1><p class="copy">${md(s.body)}</p>
+      <div class="fig scene">${art(s.art || 'cover')}</div>${foot(s)}`,
+    count: (s) => `<h2 class="hero">${md(s.ask)}</h2>
+      <div class="fig grow"><div class="houses" data-icon="${s.icon || 'house'}" role="group" aria-label="${plain(s.aria)}"></div></div>
+      <div class="count">${md(s.hint)}</div>${s.note ? `<p class="note">${md(s.note)}</p>` : ''}
+      <div class="ft"><button class="btn hide check" type="button">${md(s.check)}</button><button class="btn hide" type="button" data-next>${md(s.next)}</button></div>`,
+    price: (s) => { const f = (v) => money(v, s.dec || 0); return `<h2 class="hero">${md(s.ask)}</h2>
+      <div class="fig grow chart" style="--max:${s.max}" role="img" aria-label="${plain(s.aria)}">
+        <div class="col"><b class="val">${f(s.past.v)}</b><i class="bar past" style="--v:${s.past.v}"></i><span>${md(s.past.label)}</span></div>
+        <div class="col you"><b class="val gval">${f(s.past.v)}</b><i class="bar guess" style="--v:${s.past.v}"></i><span>${md(s.guessLabel)}</span></div>
+        <div class="col now"><b class="val">${f(s.now.v)}</b><i class="bar empty" style="--v:${s.max}"><em>?</em></i><span>${md(s.now.label)}</span></div>
+      </div>
+      <div class="ask"><input class="range" type="range" min="${s.min}" max="${s.max}" step="${s.step}" value="${s.past.v}" aria-label="${plain(s.rangeAria)}">
+        <div class="range-labels"><span>${f(s.min)}</span><span>${f(s.max)}</span></div></div>
+      <p class="copy reveal fbx"></p>${s.note ? `<p class="note">${md(s.note)}</p>` : ''}
+      <div class="ft"><button class="btn hide lock" type="button">${md(s.lock)}</button><button class="btn hide" type="button" data-next>${md(s.next)}</button></div>`; },
+    tell: (s) => `<h2 class="hero">${md(s.h)}</h2><div class="fig grow fit">${art(s.art)}</div>
+      ${s.body ? `<p class="copy">${md(s.body)}</p>` : ''}${s.note ? `<p class="note">${md(s.note)}</p>` : ''}${foot(s)}`,
+    pick: (s) => `<h2 class="hero">${md(s.ask)}</h2>
+      <div class="fig grow fit">${art(s.art)}${s.askArt ? `<div class="askpic">${art(s.askArt)}</div>` : ''}</div>
+      ${s.askNote ? `<p class="note anote">${md(s.askNote)}</p>` : ''}${s.note ? `<p class="note hide pnote">${md(s.note)}</p>` : ''}
+      <div class="ask"><div class="opts${s.row ? ' row' : ''}">${s.opts.map(o => `<button class="opt" type="button" data-v="${o.v}">${md(o.t)}</button>`).join('')}</div></div>
+      <div class="fb"></div>
+      <div class="ft"><button class="btn hide" type="button" data-next>${md(s.next)}</button></div>`,
+    steps: (s) => `<h2 class="hero">${md(s.h)}</h2><ol class="steps"></ol>${s.foot ? `<p class="copy">${md(s.foot)}</p>` : ''}${foot(s)}`,
+    opponent: (s) => `<h2 class="hero">${md(s.h)}</h2>
+      <div class="fig grow col">
+        ${s.tally ? `<div class="tally"><div class="marks" aria-hidden="true">${'<i class="no"></i>'.repeat(s.tally.no)}${'<i class="yes"></i>'.repeat(s.tally.yes || 0)}</div>
+          <div class="cap no">${md(s.tally.capNo)}</div>${s.tally.capYes ? `<div class="cap yes">${md(s.tally.capYes)}</div>` : ''}</div>` : ''}
+        ${s.art ? `<div class="oart">${art(s.art)}</div>` : ''}
+        ${s.clip ? `<div class="clip"><div class="kick">${md(s.clip.kicker)}</div><div class="lead">${md(s.clip.lead)}</div>${s.clip.quote ? `<q${plain(s.clip.quote).length > 60 ? ' class="long"' : ''}>${md(s.clip.quote)}</q>` : ''}
+          ${s.clip.extra ? `<div class="barrel">${s.clip.extraIcon === 'barrel' ? BARREL : ''}<span>${md(s.clip.extra)}</span></div>` : ''}</div>` : ''}
+      </div>${s.body ? `<p class="copy">${md(s.body)}</p>` : ''}${foot(s)}`,
+    compare: (s) => `<h2 class="hero">${md(s.h)}</h2>
+      <div class="fig grow"><div class="cmp${s.rows.length > 1 ? ' two' : ''}">${s.rows.map(r => `<div class="card"><div class="t">${md(r.topic)}</div>
+        <div class="ln jd"><span class="av">${md(T.jdInit)}</span><p><b>${md(T.jd)}</b><span>${md(r.jd)}</span></p></div>
+        <div class="ln mk"><span class="av">${md(T.mkInit)}</span><p><b>${md(T.mk)}</b><span>${md(r.mk)}</span></p></div></div>`).join('')}</div></div>
+      ${s.record ? `<p class="copy">${md(s.record)}</p>` : ''}${foot(s)}`,
+    quiz: (s) => { const pic = `<div class="door mini">${art('voter')}<div class="whop"><i></i><span>${md(s.pill)}</span></div></div>`;
+      return `<div class="rounds">${s.rounds.map((r, i) => `<div class="round${i ? '' : ' cur'}"><h2 class="hero">${md(r.h)}</h2>${pic}
+        <div class="opts">${r.opts.map((t, j) => `<button class="opt" type="button" data-v="${j === r.ok ? 'ok' : 'x'}">${md(t)}</button>`).join('')}</div><div class="fb"></div></div>`).join('')}</div>
+      <div class="ft"><button class="btn hide rnext" type="button"></button><button class="btn hide" type="button" data-next>${md(s.fin)}</button></div>`; },
+    done: (s) => `<div class="fig scene">${art(s.art || 'done')}</div>
+      <h2 class="hero dh"></h2><p class="copy dsub"></p>
+      ${s.quote ? `<p class="fin-quote">${md(s.quote)}</p><p class="fin-note">${md(s.attrib)}</p>` : ''}
+      <div class="ft col"><button class="btn practice" type="button">${md(s.practice)}</button>
+        <div class="links"><button class="linkbtn hide retake" type="button">${md(s.retake)}</button><button class="linkbtn allsrc" type="button">${md(s.sources)}</button><button class="linkbtn" type="button" data-restart>${md(s.restart)}</button></div></div>`,
+  };
+
+  /* ---------- build the page ---------- */
+  document.title = T.title;
+  const phone = $('#phone'), firstSheet = $('#practice-sheet');
+  T.screens.forEach((s, i) => firstSheet.insertAdjacentHTML('beforebegin', `<section class="screen" data-type="${s.type}" data-i="${i}">${BUILD[s.type](s)}</section>`));
+  $$('[data-k]').forEach(el => { const v = get(T, el.dataset.k); if (v == null) return; if (el instanceof SVGElement) el.textContent = plain(v); else el.innerHTML = md(v); });
+  $('#close').setAttribute('aria-label', U.close);
+  $('#practice-sheet').setAttribute('aria-label', U.practiceTitle); $('#practice-title').textContent = U.practiceTitle; $('#practice-body').innerHTML = md(U.practiceBody); $('#practice-close').textContent = U.close2;
+  $('#src-sheet').setAttribute('aria-label', U.sourcesTitle); $('#src-title').textContent = U.sourcesTitle; $('#src-close').textContent = U.sourcesClose; $('#src-disclosure').innerHTML = md(U.disclosure);
+
+  const screens = $$('.screen'), total = screens.length, STEPS = total - 2;
+  let idx = -1, maxSeen = 0;
+  const state = { score: 0 };
+  const hooks = {}, resets = {};
+
+  /* ---------- sources: a screen's link shows only while the screen, as it stands, cites a fact ---------- */
+  screens.forEach((sc, i) => { if (i === 0 || i === total - 1) return; const ft = $('.ft', sc); if (ft) ft.insertAdjacentHTML('beforeend', `<button class="linkbtn srcbtn hide" type="button">${md(U.sources)}</button>`); });
+  const visible = (el, sc) => { for (let e = el.parentElement; e && e !== sc; e = e.parentElement) if (getComputedStyle(e).display === 'none') return false; return true; };
+  const shownSrcs = (sc) => [...new Set($$('.fn', sc).filter(f => visible(f, sc)).map(f => f.dataset.src))].sort((a, b) => a - b);
+  const allSrcs = () => [...new Set(JSON.stringify(T.screens).match(/\[(\d+)\]/g).map(m => m.slice(1, -1)))].sort((a, b) => a - b);
+  let srcTick = 0;
+  const refreshSrc = () => { if (srcTick) return; srcTick = requestAnimationFrame(() => { srcTick = 0; const sc = screens[idx]; const b = sc && $('.ft > .srcbtn', sc); if (b) b.classList.toggle('hide', !shownSrcs(sc).length); }); };
+  new MutationObserver(refreshSrc).observe(phone, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
+  function openScreenSources() { $('#src-list').innerHTML = shownSrcs(screens[idx]).map(n => `<li><b>${SRC[n][0]}</b>: ${SRC[n][1]}</li>`).join(''); $('#src-disclosure').classList.add('hide'); $('#src-sheet').classList.add('show'); }
+  function openAllSources() { $('#src-list').innerHTML = allSrcs().map(n => `<li><a target="_blank" rel="noopener" href="${SRC[n][2]}">${SRC[n][3]}</a>: ${SRC[n][1]}</li>`).join(''); $('#src-disclosure').classList.remove('hide'); $('#src-sheet').classList.add('show'); }
+
+  /* ---------- engine: close, story bar, screen tags ---------- */
+  const prog = $('#prog');
+  for (let k = 1; k <= STEPS; k++) { const b = document.createElement('button'); b.type = 'button'; b.dataset.go = k; b.setAttribute('aria-label', fill(U.goStep, { n: k })); prog.appendChild(b); }
+  const tagFor = (i) => T.tag + ' ' + (i === 0 ? 'Cover' : i === total - 1 ? 'Done' : i);
+  function setProgress(i) {
+    $('#tag-screen').textContent = tagFor(i);
+    $$('button', prog).forEach(b => { const k = +b.dataset.go; b.classList.toggle('on', k < i); b.classList.toggle('cur', k === i); b.disabled = k > maxSeen || k === i; });
+  }
+  function show(i, dir = 1) {
+    const prev = screens[idx], next = screens[i];
+    if (prev && prev !== next) {
+      prev.classList.remove('is-active'); prev.classList.add(dir > 0 ? 'is-leaving' : 'is-leaving-back');
+      setTimeout(() => prev.classList.remove('is-leaving', 'is-leaving-back'), REDUCED ? 0 : 340);
+    }
+    idx = i; maxSeen = Math.max(maxSeen, i);
+    next.classList.toggle('from-back', dir < 0);
+    requestAnimationFrame(() => next.classList.add('is-active'));
+    setProgress(i);
+    $('.topbar').classList.toggle('hidden', i === 0 || i === total - 1);
+    /* coming back to a screen always starts it fresh, so answers are never pre-filled */
+    if (prev !== next && resets[i]) resets[i]();
+    if (hooks[i]) hooks[i]();
+    refreshSrc();
+    const hd = $('h1, h2', next); if (hd) { hd.setAttribute('tabindex', '-1'); hd.focus({ preventScroll: true }); }
+  }
+  const next = () => { if (idx < total - 1) show(idx + 1, 1); };
+  const back = () => { if (idx > 0) show(idx - 1, -1); };
+  const closeSheets = () => $$('.sheet').forEach(s => s.classList.remove('show'));
+  function resetAll() { state.score = 0; maxSeen = 0; Object.values(resets).forEach(r => r()); }
+  const EMB = (() => { try { return window.parent !== window; } catch (e) { return true; } })() || new URLSearchParams(location.search).has('emb');
+  /* The Warmup app opens a training with ?app=1 and listens for three messages: issues-done (the last screen is showing, so the
+     app can check the training off), issues-practice (open the spoken practice) and issues-close (close the training). */
+  const IN_APP = new URLSearchParams(location.search).has('app');
+  const tellApp = (msg) => { try { window.parent.postMessage(msg, '*'); } catch (e) {} };
+  /* opened from the page that lists every training: the close button goes back to it */
+  const FROM_INDEX = !IN_APP && (() => { try { return sessionStorage.getItem('maya-issues-index') === '1'; } catch (e) { return false; } })();
+  $('#close').addEventListener('click', () => { if (FROM_INDEX) { if (history.length > 1) history.back(); else location.href = 'index.html'; return; } if (EMB || IN_APP) tellApp({ warmup: 'issues-close' }); else { closeSheets(); show(0, -1); } });
+  document.addEventListener('click', e => {
+    if (e.target.closest('.ft > .srcbtn')) return openScreenSources();
+    if (e.target.closest('.allsrc')) return openAllSources();
+    const go = e.target.closest('#prog button'); if (go && !go.disabled) { const k = +go.dataset.go; return show(k, k < idx ? -1 : 1); }
+    if (e.target.closest('[data-next]:not([disabled])')) return next();
+    if (e.target.closest('[data-restart]')) { closeSheets(); resetAll(); return show(0, -1); }
+    if (e.target.closest('[data-close]')) return closeSheets();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.target.matches('input')) return;
+    if (e.key === 'ArrowRight') { const b = $('.screen.is-active [data-next]:not(.hide)'); if (b) next(); }
+    if (e.key === 'ArrowLeft') back();
+    if (e.key === 'Escape') closeSheets();
+  });
+  $$('.sheet').forEach(s => s.addEventListener('click', e => { if (e.target === s) s.classList.remove('show'); }));
+
+  function fb(el, html, kind) { el.innerHTML = '<span>' + md(html) + '</span>'; el.classList.remove('good', 'bad'); if (kind) el.classList.add(kind); el.classList.add('show'); }
+  function countTo(el, from, to, ms, prefix, dec, run, sc) {
+    if (REDUCED) { el.textContent = prefix + money(to, dec).slice(1); return; }
+    const t0 = performance.now();
+    (function step(t) { if (sc._run !== run) return; const p = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - p, 3); el.textContent = prefix + money(from + (to - from) * e, dec).slice(1); if (p < 1) requestAnimationFrame(step); })(t0);
+  }
+  /* pictures can count a number up (data-count-from/to), move a part (data-go) and light windows (.lamp[data-delay]) */
+  function playArt(sc) {
+    const run = sc._run = (sc._run || 0) + 1;
+    $$('[data-count-to]', sc).forEach(el => { const from = +el.dataset.countFrom, to = +el.dataset.countTo, dec = +(el.dataset.dec || 0), pre = el.dataset.prefix || ''; el.textContent = pre + money(from, dec).slice(1);
+      setTimeout(() => { if (sc._run === run) countTo(el, from, to, +(el.dataset.ms || 1400), pre, dec, run, sc); }, REDUCED ? 0 : +(el.dataset.delay || 400)); });
+    $$('[data-go]', sc).forEach(el => { el.style.transition = 'none'; el.style.transform = 'none'; el.style.opacity = '1'; if (el.dataset.origin) el.style.transformOrigin = el.dataset.origin;
+      setTimeout(() => { if (sc._run !== run) return; el.style.transition = REDUCED ? 'none' : 'transform 1.1s cubic-bezier(.4,0,.2,1), opacity 1.1s ease'; el.style.transform = el.dataset.go; if (el.dataset.goOpacity) el.style.opacity = el.dataset.goOpacity; }, REDUCED ? 0 : +(el.dataset.delay || 1300)); });
+    $$('.lamp[data-delay]', sc).forEach(l => { l.classList.remove('on'); setTimeout(() => { if (sc._run === run) l.classList.add('on'); }, REDUCED ? 0 : +l.dataset.delay); });
+    $$('.rise', sc).forEach(r => { r.classList.remove('on'); setTimeout(() => { if (sc._run === run) r.classList.add('on'); }, REDUCED ? 0 : +(r.dataset.delay || 600)); });
+  }
+
+  /* ---------- behavior for each screen type ---------- */
+  const WIRE = {
+    cover: (sc, s, i) => { hooks[i] = () => playArt(sc); },
+    tell: (sc, s, i) => { hooks[i] = () => playArt(sc); },
+    count: (sc, s, i) => {
+      const row = $('.houses', sc), count = $('.count', sc), check = $('.check', sc), nxt = $('[data-next]', sc), H = $('.hero', sc), N = s.total || 10, A = s.answer;
+      for (let n = 1; n <= N; n++) {
+        const b = document.createElement('button'); b.type = 'button'; b.dataset.n = n; b.setAttribute('aria-label', String(n));
+        b.innerHTML = '<svg viewBox="0 0 40 46">' + (n === (s.labelAt === 'last' ? N : 1) && s.label ? `<text class="lbl" x="20" y="-3" text-anchor="middle">${plain(s.label)}</text>` : '') + ICONS[s.icon || 'house'] + '</svg>';
+        row.appendChild(b);
+      }
+      let guess = null;
+      function pick(n) { if (row.classList.contains('revealed')) return; guess = n; $$('button', row).forEach(x => x.classList.toggle('sel', +x.dataset.n <= n)); count.textContent = fill(s.yourGuess, { n }); check.classList.remove('hide'); }
+      row.addEventListener('click', e => { const b = e.target.closest('button'); if (b) pick(+b.dataset.n); });
+      let dragging = false;
+      const at = (e) => { const b = document.elementFromPoint(e.clientX, e.clientY); const h = b && b.closest('.houses button'); return h && row.contains(h) ? +h.dataset.n : null; };
+      row.addEventListener('pointerdown', e => { dragging = true; const n = at(e); if (n) pick(n); });
+      row.addEventListener('pointermove', e => { if (dragging) { const n = at(e); if (n) pick(n); } });
+      addEventListener('pointerup', () => { dragging = false; });
+      check.addEventListener('click', () => {
+        const g = guess; row.classList.add('revealed');
+        $$('button', row).forEach(x => { const n = +x.dataset.n; x.classList.toggle('oil', n <= A); x.classList.toggle('you', n <= g && n > A); });
+        H.innerHTML = md(s.reveal);
+        count.innerHTML = md(g === A ? s.fbRight : Math.abs(g - A) === 1 ? fill(s.fbClose, { n: g }) : fill(s.fbFar, { n: g, dir: g > A ? s.fewer : s.more }));
+        count.classList.add('done'); check.classList.add('hide'); nxt.classList.remove('hide');
+      });
+      resets[i] = () => { guess = null; row.classList.remove('revealed'); $$('button', row).forEach(x => x.classList.remove('sel', 'oil', 'you')); count.innerHTML = md(s.hint); count.classList.remove('done'); check.classList.add('hide'); nxt.classList.add('hide'); H.innerHTML = md(s.ask); };
+    },
+    price: (sc, s, i) => {
+      const f = (v) => money(v, s.dec || 0), range = $('.range', sc), lock = $('.lock', sc), nxt = $('[data-next]', sc), H = $('.hero', sc), now = $('.col.now', sc), rbar = $('.now .bar', sc), gbar = $('.bar.guess', sc), gval = $('.gval', sc), fbx = $('.fbx', sc), ask = $('.ask', sc);
+      const setGuess = (v) => { gbar.style.setProperty('--v', v); gval.textContent = f(v); };
+      range.addEventListener('input', () => { setGuess(+range.value); lock.classList.remove('hide'); });
+      lock.addEventListener('click', async () => {
+        const g = +range.value;
+        ask.classList.add('hide'); lock.classList.add('hide');
+        rbar.style.setProperty('--v', 0.001); void rbar.offsetHeight;
+        now.classList.add('shown'); rbar.classList.remove('empty'); requestAnimationFrame(() => rbar.style.setProperty('--v', s.now.v));
+        await wait(1300);
+        H.innerHTML = md(s.reveal);
+        const d = s.now.v - g, a = Math.abs(d);
+        fbx.innerHTML = md(a <= s.close ? fill(s.fbClose, { g: f(g) }) : fill(s.fbOff, { g: f(g), a: f(a), dir: d > 0 ? s.low : s.high })); fbx.classList.add('show');
+        nxt.classList.remove('hide');
+      });
+      resets[i] = () => { range.value = s.past.v; setGuess(s.past.v); ask.classList.remove('hide'); lock.classList.add('hide'); nxt.classList.add('hide'); fbx.classList.remove('show'); now.classList.remove('shown'); rbar.classList.add('empty'); rbar.style.setProperty('--v', s.max); H.innerHTML = md(s.ask); };
+    },
+    pick: (sc, s, i) => {
+      const opts = $('.opts', sc), fbx = $('.fb', sc), nxt = $('[data-next]', sc), H = $('.hero', sc), ask = $('.ask', sc), askpic = $('.askpic', sc), note = $('.pnote', sc), anote = $('.anote', sc), hk = HOOKS[s.key] || {};
+      opts.addEventListener('click', async e => {
+        const o = e.target.closest('.opt'); if (!o || opts.classList.contains('locked')) return;
+        opts.classList.add('locked');
+        const right = o.dataset.v === s.right;
+        o.classList.add(right ? 'right' : 'wrong'); if (!right) $(`.opt[data-v="${s.right}"]`, opts).classList.add('right');
+        fb(fbx, right ? s.fbRight : s.fbWrong, right ? 'good' : 'bad');
+        await wait(700);
+        ask.classList.add('hide'); H.innerHTML = md(s.reveal);
+        if (askpic) askpic.classList.add('gone'); /* the answer's picture appears only after the answer, so it never gives the answer away */
+        if (note) note.classList.remove('hide'); if (anote) anote.classList.add('hide');
+        playArt(sc); if (hk.answer) hk.answer(sc);
+        await wait(s.wait || 1200); nxt.classList.remove('hide');
+      });
+      hooks[i] = () => { if (hk.show) hk.show(sc); };
+      resets[i] = () => { if (askpic) askpic.classList.remove('gone'); if (note) note.classList.add('hide'); if (anote) anote.classList.remove('hide'); opts.classList.remove('locked'); $$('.opt', opts).forEach(o => o.classList.remove('right', 'wrong')); fbx.classList.remove('show'); ask.classList.remove('hide'); nxt.classList.add('hide'); H.innerHTML = md(s.ask); if (hk.reset) hk.reset(sc); };
+    },
+    steps: (sc, s, i) => { hooks[i] = () => { $('.steps', sc).innerHTML = s.steps.map((t, k) => `<li style="--i:${k}">${md(t)}</li>`).join(''); }; },
+    opponent: () => {},
+    compare: () => {},
+    quiz: (sc, s, i) => {
+      const rnext = $('.rnext', sc), fin = $('[data-next]', sc), rounds = $$('.round', sc);
+      let round = 0;
+      s.rounds.forEach((r, k) => {
+        const opts = $('.opts', rounds[k]), fbx = $('.fb', rounds[k]); let misses = 0;
+        opts.addEventListener('click', e => {
+          const o = e.target.closest('.opt'); if (!o || opts.classList.contains('locked')) return;
+          const ok = o.dataset.v === 'ok';
+          if (!ok && misses === 0) { misses = 1; o.classList.add('wrong', 'missed'); fb(fbx, r.retry, 'bad'); if (rounds[k].scrollHeight > rounds[k].clientHeight + 1) rounds[k].classList.add('tight'); return; }
+          opts.classList.add('locked'); o.classList.add(ok ? 'right' : 'wrong');
+          if (!ok) $('.opt[data-v=ok]', opts).classList.add('right'); else state.score++;
+          $$('.opt', opts).forEach(x => { if (!x.classList.contains('right') && !x.classList.contains('wrong')) x.classList.add('dim'); });
+          fb(fbx, ok ? (misses ? '<b>' + s.retake + '</b> ' + r.right : r.right) : r.wrong, ok ? 'good' : 'bad');
+          /* the voter picture steps aside only when the answer and its reason would not fit */
+          rounds[k].classList.remove('tight'); if (rounds[k].scrollHeight > rounds[k].clientHeight + 1) rounds[k].classList.add('tight');
+          if (k === s.rounds.length - 1) fin.classList.remove('hide'); else { rnext.textContent = s.next[k]; rnext.classList.remove('hide'); }
+        });
+        rounds[k]._reset = () => { misses = 0; rounds[k].classList.remove('tight'); opts.classList.remove('locked'); $$('.opt', opts).forEach(x => x.classList.remove('right', 'wrong', 'missed', 'dim')); fbx.classList.remove('show'); };
+      });
+      rnext.addEventListener('click', () => { round++; rounds.forEach((el, k) => el.classList.toggle('cur', k === round)); rnext.classList.add('hide'); const hd = $('.hero', rounds[round]); if (hd) { hd.setAttribute('tabindex', '-1'); hd.focus({ preventScroll: true }); } });
+      resets[i] = () => { round = 0; state.score = 0; rounds.forEach((el, k) => { el.classList.toggle('cur', k === 0); el._reset(); }); rnext.classList.add('hide'); fin.classList.add('hide'); };
+    },
+    done: (sc, s, i) => {
+      hooks[i] = () => {
+        const n = state.score, all = n === s.of;
+        $('.dh', sc).innerHTML = md(all ? s.hAll : fill(s.hLess, { n }));
+        $('.dsub', sc).innerHTML = md(all ? s.subAll : s.subLess);
+        $('.retake', sc).classList.toggle('hide', all);
+        $$('.lamp', sc).forEach(l => l.classList.add('on')); /* every window lit at once: the ending never reads as a score or a closing */
+        if (EMB || IN_APP) tellApp({ warmup: 'issues-done', lesson: T.id }); /* the training is finished whether or not the canvasser goes on to practice */
+      };
+      $('.retake', sc).addEventListener('click', () => { maxSeen = Math.max(maxSeen, total - 2); show(total - 2, -1); });
+      /* the spoken practice lives in the Warmup app: tell the app to open it. Inside the app the app answers (it opens the door
+         or says why it can't); anywhere else a short note says the practice is in the app */
+      $('.practice', sc).addEventListener('click', () => { tellApp({ warmup: 'issues-practice', lesson: T.id }); if (!IN_APP) $('#practice-sheet').classList.add('show'); });
+    },
+  };
+  screens.forEach((sc, i) => WIRE[T.screens[i].type](sc, T.screens[i], i));
+  Object.values(HOOKS).forEach(h => { if (h.init) h.init(); });
+
+  /* ---------- start ---------- */
+  const m = location.hash.match(/s=(\d+)/);
+  const start = m ? Math.max(0, Math.min(total - 1, +m[1] - 1)) : 0;
+  maxSeen = start; show(start, 1);
+  window.Lesson = { show, next, back, state, total };
+})();
+
+</script>
+</body>
+</html>

@@ -8,23 +8,25 @@ What it does:
 - lessonLocked and lessonGated follow the daily rule instead of the permanent lock (LOCK_ON) and the 3-hour gate;
 - a retake never moves a lesson's first finish time and is counted; issue lessons keep their first finish time;
 - every visible promise of a text says what really happens unless reminders are switched on (REMIND, off by default);
-- the door-ready Today and the lesson 5 card say the issue lessons open tomorrow when they do; Learn's issue tiles and the
-  issue lessons' own page both hold to one new lesson a day (the page gets slot=0 when today's new lesson is used);
-- the issue frame loads issues/ beside the dev page; the issue page copy gets the slot rule.
-Usage: python3 ai/build-phase1.py STAGING.html ISSUES.html OUT_DIR [--dev] [--remind]
-  writes OUT_DIR/index.html and OUT_DIR/issues/index.html. --dev turns on the test clock (?day=+1).
+- the door-ready Today and the lesson 5 card say the issue lessons open tomorrow when they do; Learn's issue rows hold to
+  one new lesson a day.
+Version 173 (Nov 18, 2026): the issue trainings are pages of their own (wdpfxqlsvp/trainings/, one copy for every build),
+so this builder no longer makes a copy of the old issue page and takes no ISSUES.html. It expects a staging page with
+ai/tools/v173-two-issue-trainings.py applied.
+Usage: python3 ai/build-phase1.py STAGING.html OUT_DIR [--dev] [--remind]
+  writes OUT_DIR/index.html. --dev turns on the test clock (?day=+1).
 No backslashes or non-ASCII in this file: @RQ@ is a right single quote, @NB@ a no-break space."""
 import os
 import sys
 
 args = [a for a in sys.argv[1:] if not a.startswith("--")]
-APP, ISSUES, OUT = args
+APP, OUT = args
 DEV = "--dev" in sys.argv
 REMIND = "--remind" in sys.argv
 HERE = os.path.dirname(os.path.abspath(__file__))
 RQ, NB = chr(8217), chr(160)
 s = open(APP, encoding="utf-8").read()
-iss = open(ISSUES, encoding="utf-8").read()
+iss = ""  # version 173: no issue page copy any more (kept so swap() below reads the same)
 n_edits = []
 
 
@@ -164,34 +166,20 @@ const P1x = {
 """
 swap("function vTodayG() {", tok(P1X) + "function vTodayG() {")
 swap('case "brief-open": { const d5 = S.done5 || {}; if (LESSONS5.every((x) => d5[x.n])) issuesOpen(el.dataset.lesson || "");',
-     'case "brief-open": { const d5 = S.done5 || {}; if (LESSONS5.every((x) => d5[x.n]) && !P1.issueOpen(el.dataset.lesson || "")) { toast("One new lesson a day. This one opens tomorrow morning."); break; } if (LESSONS5.every((x) => d5[x.n])) issuesOpen(el.dataset.lesson || "");')
-swap('case "issues-open": issuesOpen(); break;', 'case "issues-open": P1.ev("issue_open", {}); issuesOpen(); break;')
+     'case "brief-open": { const d5 = S.done5 || {}; if (LESSONS5.every((x) => d5[x.n]) && !window.__wuUnlock && !P1.issueOpen(el.dataset.lesson || "")) { toast("One new lesson a day. This one opens tomorrow morning."); break; } if (LESSONS5.every((x) => d5[x.n])) issuesOpen(el.dataset.lesson || "");')  # the unlock check is version 164's
+swap('case "issues-open": { /* version 173:', 'case "issues-open": { P1.ev("issue_open", {}); /* version 173:')
 
-# ---------- the issue frame: beside the dev page, told whether today's new lesson is free ----------
-swap("""ov.innerHTML = '<iframe src="../issues/?all' + (lesson ? "&lesson=" + lesson : "") + (dn ? "&done=" + dn : "") + '\"""",
-     """var slot = window.__p1 && !window.__p1.issuesNext().open ? "&slot=0" : ""; /* phase 1: one new lesson a day on the issue page too; the done list stays plain ids and commas, which is all the issue page reads */
-  ov.innerHTML = '<iframe src="issues/?all' + slot + (lesson ? "&lesson=" + encodeURIComponent(lesson) : "") + (dn ? "&done=" + String(dn).split(",").filter(function (x) { return /^[a-z]{2}$/.test(x); }).join(",") : "") + '\"""")
-
-# ---------- the issue lessons page (a copy for the dev build) ----------
-swap("var ALL = /[?&#]all\\b/.test(location.search + location.hash), FAST = /[?&#]fast\\b/.test(location.search + location.hash);",
-     "var ALL = /[?&#]all\\b/.test(location.search + location.hash), FAST = /[?&#]fast\\b/.test(location.search + location.hash);\n  var SLOT0 = /[?&#]slot=0\\b/.test(location.search + location.hash); /* phase 1: today's new lesson is used, so only finished lessons open */", src="iss")
-swap("var open = ALL || k === 0 || S.done[k - 1], done = S.done[k];",
-     "var open = ALL || k === 0 || S.done[k - 1], done = S.done[k]; open = open && (done || !SLOT0);", src="iss")
-swap("'<span class=\"hr-st lock\">' + LOCK12 + 'Day ' + (k + 1) + '</span>'",
-     "'<span class=\"hr-st lock\">' + LOCK12 + (SLOT0 && !done ? 'Tomorrow' : 'Day ' + (k + 1)) + '</span>'", src="iss")
-swap('if (EMB) { try { window.parent.postMessage({ warmup: "brief-done", lesson: x.id }, "*"); } catch (er) {} }',
-     'SLOT0 = true; if (EMB) { try { window.parent.postMessage({ warmup: "brief-done", lesson: x.id }, "*"); } catch (er) {} }', count=2, src="iss")
+# (version 173: the issue frame and the old issue page copy are gone; the trainings open from wdpfxqlsvp/trainings/ in every build)
 
 # ---------- Progress: where the record is saved, the personal link and erase ----------
 swap('<p class="pg-links"><button class="link" data-act="go" data-arg="statushow">How status works</button><span aria-hidden="true">\u00b7</span><button class="link" data-act="go" data-arg="record">Your record</button></p></div>',
      '<p class="pg-links"><button class="link" data-act="go" data-arg="statushow">How status works</button><span aria-hidden="true">\u00b7</span><button class="link" data-act="go" data-arg="record">Your record</button></p>${P1x.saveFoot()}</div>')
-swap('case "issues-open": P1.ev("issue_open", {}); issuesOpen(); break;',
-     'case "issues-open": P1.ev("issue_open", {}); issuesOpen(); break;\n    case "p1-link": P1x.copyLink(); break;\n    case "p1-erase": P1x.erasing = arg === "ask"; render(); break;\n    case "p1-erase-yes": P1x.eraseNow(); break;')
+swap('b.click(); b.remove(); break; }\n',  # the end of the issues-open case (version 173)
+     'b.click(); b.remove(); break; }\n    case "p1-link": P1x.copyLink(); break;\n    case "p1-erase": P1x.erasing = arg === "ask"; render(); break;\n    case "p1-erase-yes": P1x.eraseNow(); break;\n')
 
 # ---------- the laptop guide (Version 160): its stops load sample progress, so nothing is saved from the first jump ----------
 swap("function guideJump(n) {", "function guideJump(n) {\n  window.__wuPreview = true; /* phase 1: sample progress from here on; the learner's record is left alone (a reload brings it back) */")
 
-os.makedirs(os.path.join(OUT, "issues"), exist_ok=True)
+os.makedirs(OUT, exist_ok=True)
 open(os.path.join(OUT, "index.html"), "w", encoding="utf-8").write(s)
-open(os.path.join(OUT, "issues", "index.html"), "w", encoding="utf-8").write(iss)
 print("phase 1 build:", len(n_edits), "edits", "dev clock on" if DEV else "", "reminders on" if REMIND else "reminders off")

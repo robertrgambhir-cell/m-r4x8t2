@@ -2494,9 +2494,11 @@ const LOOKS = {
   gloria:  { skin: "#CF9F78", shade: "#B0825C", style: "bob",   hair: "#4A403C", shirt: "#3F7F86", shirtShade: "#30666C", glasses: true },
   omar:    { skin: "#C08A62", shade: "#A2704B", style: "short", hair: "#231A15", shirt: "#4B5E7A", shirtShade: "#3C4C63", beard: true },
   brianna: { skin: "#F2D3BC", shade: "#D9B49A", style: "long",  hair: "#A8622E", shirt: "#5A7F55", shirtShade: "#476643" },
+  oil_sarah: { skin: "#E3B48F", shade: "#C89671", style: "long", hair: "#5C4329", shirt: "#33435F", shirtShade: "#27344B" }, /* version 173: Sarah, as the Heating oil training draws her */
+  social_linda: { skin: "#B9825C", shade: "#9C6945", style: "curls", hair: "#D9D4CC", shirt: "#4F7A5A", shirtShade: "#3E6248", earrings: true }, /* version 173: Linda, as the Social Security training draws her (short silver curls, small gold earrings) */
   finnegan: { skin: "#EBC09F", shade: "#CC9A78", style: "short", hair: "#6A4128", shirt: "#3F5F8C", shirtShade: "#304B73" },
 };
-const GENDER = { walter: "f", kevin: "m", jamal: "m", priya: "f", doug: "m", gloria: "f", omar: "m", brianna: "f", maya: "f", nadia: "f", jess: "f", denise: "f", ana: "f", student: "f", mei: "f", marcus: "m", maria: "f", dad: "m", wrongid: "m", theo: "m", finnegan: "f", linda: "f", gary: "m", pushback: "m", quiet: "f" };
+const GENDER = { walter: "f", kevin: "m", jamal: "m", priya: "f", doug: "m", gloria: "f", omar: "m", brianna: "f", maya: "f", nadia: "f", jess: "f", denise: "f", ana: "f", student: "f", mei: "f", marcus: "m", maria: "f", dad: "m", wrongid: "m", theo: "m", finnegan: "f", linda: "f", gary: "m", pushback: "m", quiet: "f", oil_sarah: "f", social_linda: "f" };
 /* each voter's home, so every lesson's door looks different (default: the arched door) */
 const HOME = {
   walter: { kind: "house", wall: "#D7E0E4", texture: "boards", line: "#C3CED3", door: "#9A3F31", frame: "#F8FAFA", glass: true, window: true, num: "117", extra: "plant" },
@@ -2508,6 +2510,8 @@ const HOME = {
   maria: { kind: "house", wall: "#F1E1C6", door: "#2E6A50", frame: "#FFFDF6", glass: true, window: true, num: "2207", extra: "plant" },
   omar: { kind: "house", wall: "#E9CFAF", door: "#6B4A2E", frame: "#F7EEDF", window: true, num: "655", extra: "plant" },
   brianna: { kind: "apt", wall: "#DCE6E0", floor: "#BFCFC6", door: "#3E6E5E", frame: "#5E6E66", num: "2F", extra: "bike" },
+  oil_sarah: { kind: "house", wall: "#E3DBCC", texture: "boards", line: "#D3C9B8", door: "#7A3B33", frame: "#FFFFFF", window: true, num: "14" }, /* version 173 */
+  social_linda: { kind: "house", wall: "#E6DDCF", door: "#6B4F7A", frame: "#FFFDF6", glass: true, window: true, num: "208", extra: "plant" },
 };
 /* the welcome series: 5 lessons, 5 minutes each (get out the vote at the door) */
 const LESSONS5 = [
@@ -4507,14 +4511,24 @@ const DOORS = {
       return { say: "Cool. Anything else?", expr: "neutral" };
     },
   },
-  /* version 156: Maya's health insurance question as a live AI conversation (ai/scenarios.js bri_health); no scripted lines, so it opens only when the practice AI is on */
-  bri: {
-    persona: "brianna", scene: "door", name: "Bri", sub: "Supporter, home health aide", street: "2F", ai: "bri_health", rate: 1,
-    intro: "Bri, apartment 2F. She's been wondering about health insurance.",
-    first: { say: "Hi. Can I help you?", expr: "neutral" },
+  /* version 173 (Robert, Nov 18): the spoken practice after each issue training, as a live AI conversation. The voters are the
+     trainings' own (ai/scenarios-issues.js, from the voter sheets written with the trainings); a door's key is its training's
+     id. No scripted lines, so a door opens only when the practice AI is on. The first line is read from the server's card. */
+  oil: {
+    persona: "oil_sarah", scene: "door", name: "Sarah", sub: "example voter who heats with oil", street: "14", ai: "oil", topic: "heating oil", rate: 1,
+    intro: "Sarah\u2019s front door, on a cold November evening.",
+    get first() { const o = WAI_PUB.oil.voter.opening; return { say: o.say, expr: o.mood }; },
     start(st) { st.stage = "door"; },
     suggest() { return ""; },
-    reply() { return { say: "Sorry, I have to run. Thanks for stopping by.", expr: "neutral", end: true }; },
+    reply() { return { say: "Sorry, I have to get back inside. Thanks for stopping by.", expr: "neutral", end: true }; },
+  },
+  social: {
+    persona: "social_linda", scene: "door", name: "Linda", sub: "example voter who lives on Social Security", street: "208", ai: "social", topic: "Social Security", rate: 1,
+    intro: "Linda\u2019s front step, on a cool afternoon.",
+    get first() { const o = WAI_PUB.social.voter.opening; return { say: o.say, expr: o.mood }; },
+    start(st) { st.stage = "door"; },
+    suggest() { return ""; },
+    reply() { return { say: "Sorry, I have to get back inside. Thanks for stopping by.", expr: "neutral", end: true }; },
   },
   kevin: {
     persona: "kevin", scene: "door", name: "Kevin", sub: "Supporter on your list, 29", brief: "a supporter on your list who works from home in apartment 3B", rate: 1.04,
@@ -4964,7 +4978,7 @@ function stopSpeech() {
    coach's checked report. When the server isn't reachable the page says so; it never passes the scripted voter or the word
    check off as AI. Scenario cards (names, rows) come from ai/scenarios.js, copied in at build time as WAI_PUB. */
 const WAI_URL_DEFAULT = "https://warmup-ai.robertrgambhir.workers.dev";
-const WAI_PUB = {"kevin_intro":{"id":"kevin_intro","title":"Introduce yourself at the door","coachOnly":false,"voter":{"name":"Kevin","opening":{"say":"Hey. Can I help you?","mood":"neutral"},"voice":"arcas","voices":["arcas","apollo","orion"]},"rubric":[{"id":"name","label":"Say your name","hit":"Said your name","miss":"Didn't say your name","card":true,"move":0,"avoid":false},{"id":"maya","label":"Say you're volunteering for Maya Kaur","hit":"Said you're volunteering for Maya Kaur","miss":"Didn't say you're volunteering for Maya Kaur","card":true,"move":1,"avoid":false},{"id":"tuesday","label":"Remind them Election Day is Tuesday","hit":"Reminded him Election Day is Tuesday","miss":"Didn't remind him Election Day is Tuesday","card":true,"move":2,"avoid":false},{"id":"nominute","label":"Don't ask “Do you have a minute?”","hit":"Didn't ask “Do you have a minute?”","miss":"Asked for his time","card":true,"move":3,"avoid":true},{"id":"listen","label":"Listen and respond","hit":"Responded to what he said","miss":"Didn't respond to what he said","card":false,"avoid":false},{"id":"accurate","label":"Stick to what you know","hit":"Stuck to what you know","miss":"Stated something you don't know","card":false,"avoid":false},{"id":"close","label":"End it well","hit":"Ended it warmly","miss":"Didn't end it well","card":false,"avoid":false}]},"sofia_intro":{"id":"sofia_intro","title":"Introduce yourself at the door","coachOnly":false,"voter":{"name":"Sofia","opening":{"say":"Hi, can I help you?","mood":"neutral"},"voice":"hera","voices":["hera","vesta","cordelia"]},"rubric":[{"id":"name","label":"Say your name","hit":"Said your name","miss":"Didn't say your name","card":true,"move":0,"avoid":false},{"id":"maya","label":"Say you're volunteering for Maya Kaur","hit":"Said you're volunteering for Maya Kaur","miss":"Didn't say you're volunteering for Maya Kaur","card":true,"move":1,"avoid":false},{"id":"tuesday","label":"Remind them Election Day is Tuesday","hit":"Reminded her Election Day is Tuesday","miss":"Didn't remind her Election Day is Tuesday","card":true,"move":2,"avoid":false},{"id":"nominute","label":"Don't ask “Do you have a minute?”","hit":"Didn't ask “Do you have a minute?”","miss":"Asked for her time","card":true,"move":3,"avoid":true},{"id":"listen","label":"Listen and respond","hit":"Responded to what she said","miss":"Didn't respond to what she said","card":false,"avoid":false},{"id":"accurate","label":"Stick to what you know","hit":"Stuck to what you know","miss":"Stated something you don't know","card":false,"avoid":false},{"id":"close","label":"End it well","hit":"Ended it warmly","miss":"Didn't end it well","card":false,"avoid":false}]},"opener_first_try":{"id":"opener_first_try","title":"Your 1st try","coachOnly":true,"voter":{"name":"Sofia"},"rubric":[{"id":"name","label":"Say your name","hit":"Said your name","miss":"Didn't say your name","card":true,"move":0,"avoid":false},{"id":"maya","label":"Say you're volunteering for Maya Kaur","hit":"Said you're volunteering for Maya Kaur","miss":"Didn't say you're volunteering for Maya Kaur","card":true,"move":1,"avoid":false},{"id":"tuesday","label":"Remind them Election Day is Tuesday","hit":"Reminded him Election Day is Tuesday","miss":"Didn't remind him Election Day is Tuesday","card":true,"move":2,"avoid":false},{"id":"nominute","label":"Don't ask “Do you have a minute?”","hit":"Didn't ask “Do you have a minute?”","miss":"Asked for his time","card":true,"move":3,"avoid":true}]},"bri_health":{"id":"bri_health","title":"Health insurance at the door","coachOnly":false,"voter":{"name":"Bri","opening":{"say":"Hi. Can I help you?","mood":"neutral"},"voice":"thalia","voices":["thalia","luna","andromeda"]},"rubric":[{"id":"gap","label":"Who's left out today","hit":"Said who's left out today","miss":"Didn't say who's left out today","card":true,"avoid":false},{"id":"plan","label":"Maya's plan","hit":"Explained Maya's plan","miss":"Didn't explain Maya's plan","card":true,"avoid":false},{"id":"opp","label":"How her opponent's plan differs","hit":"Said how her opponent's plan differs","miss":"Didn't say how her opponent's plan differs","card":true,"avoid":false},{"id":"accurate","label":"Stick to the facts","hit":"Stuck to the facts","miss":"Said something that isn't right","card":true,"avoid":false},{"id":"listen","label":"Connect it to her","hit":"Connected it to her situation","miss":"Didn't connect it to her","card":false,"avoid":false},{"id":"close","label":"End it well","hit":"Ended it warmly","miss":"Didn't end it well","card":false,"avoid":false}]},"oh_bills":{"id":"oh_bills","title":"Your electric bill","coachOnly":false,"voter":{"name":"Barb","opening":{"say":"Oh, hi. Are you with Maya Kaur? Because I've got a bone to pick about my electric bill.","mood":"neutral"},"voice":"cordelia","voices":["cordelia","hera","vesta"]},"rubric":[{"id":"bill","label":"Start with her bill","hit":"Started with her bill","miss":"Didn't start with her bill","card":true,"avoid":false},{"id":"why","label":"Say why bills went up","hit":"Said why bills went up","miss":"Didn't say why bills went up","card":true,"avoid":false},{"id":"plan","label":"Maya's plan","hit":"Explained Maya's plan","miss":"Didn't explain Maya's plan","card":true,"avoid":false},{"id":"opp","label":"How her opponent's bill differs","hit":"Said how his bill differs","miss":"Didn't say how his bill differs","card":true,"avoid":false},{"id":"accurate","label":"Stick to the facts","hit":"Stuck to the facts","miss":"Said something that isn't right","card":true,"avoid":false},{"id":"listen","label":"Answer her questions","hit":"Answered her questions","miss":"Talked past her questions","card":false,"avoid":false},{"id":"close","label":"End it well","hit":"Ended it warmly","miss":"Didn't end it well","card":false,"avoid":false}]},"tx_vouchers":{"id":"tx_vouchers","title":"School vouchers","coachOnly":false,"voter":{"name":"Ray","opening":{"say":"Afternoon. You with one of the campaigns? I've been wondering where folks stand on these school vouchers.","mood":"neutral"},"voice":"janus","voices":["janus","orion","mars"]},"rubric":[{"id":"money","label":"Where the money goes","hit":"Said where the money goes","miss":"Didn't say where the money goes","card":true,"avoid":false},{"id":"plan","label":"Maya's view","hit":"Explained Maya's view","miss":"Didn't explain Maya's view","card":true,"avoid":false},{"id":"respect","label":"Respect his sister's choice","hit":"Respected his sister's choice","miss":"Brushed off his sister's choice","card":true,"avoid":false},{"id":"opp","label":"How her opponent differs","hit":"Said how her opponent differs","miss":"Didn't say how her opponent differs","card":true,"avoid":false},{"id":"accurate","label":"Stick to the facts","hit":"Stuck to the facts","miss":"Said something that isn't right","card":true,"avoid":false},{"id":"close","label":"End it well","hit":"Ended it warmly","miss":"Didn't end it well","card":false,"avoid":false}]}};
+const WAI_PUB = {"kevin_intro":{"id":"kevin_intro","title":"Introduce yourself at the door","coachOnly":false,"voter":{"name":"Kevin","opening":{"say":"Hey. Can I help you?","mood":"neutral"},"voice":"arcas","voices":["arcas","apollo","orion"]},"rubric":[{"id":"name","label":"Say your name","hit":"Said your name","miss":"Didn't say your name","card":true,"move":0,"avoid":false},{"id":"maya","label":"Say you're volunteering for Maya Kaur","hit":"Said you're volunteering for Maya Kaur","miss":"Didn't say you're volunteering for Maya Kaur","card":true,"move":1,"avoid":false},{"id":"tuesday","label":"Remind them Election Day is Tuesday","hit":"Reminded him Election Day is Tuesday","miss":"Didn't remind him Election Day is Tuesday","card":true,"move":2,"avoid":false},{"id":"nominute","label":"Don't ask “Do you have a minute?”","hit":"Didn't ask “Do you have a minute?”","miss":"Asked for his time","card":true,"move":3,"avoid":true},{"id":"listen","label":"Listen and respond","hit":"Responded to what he said","miss":"Didn't respond to what he said","card":false,"avoid":false},{"id":"accurate","label":"Stick to what you know","hit":"Stuck to what you know","miss":"Stated something you don't know","card":false,"avoid":false},{"id":"close","label":"End it well","hit":"Ended it warmly","miss":"Didn't end it well","card":false,"avoid":false}]},"sofia_intro":{"id":"sofia_intro","title":"Introduce yourself at the door","coachOnly":false,"voter":{"name":"Sofia","opening":{"say":"Hi, can I help you?","mood":"neutral"},"voice":"hera","voices":["hera","vesta","cordelia"]},"rubric":[{"id":"name","label":"Say your name","hit":"Said your name","miss":"Didn't say your name","card":true,"move":0,"avoid":false},{"id":"maya","label":"Say you're volunteering for Maya Kaur","hit":"Said you're volunteering for Maya Kaur","miss":"Didn't say you're volunteering for Maya Kaur","card":true,"move":1,"avoid":false},{"id":"tuesday","label":"Remind them Election Day is Tuesday","hit":"Reminded her Election Day is Tuesday","miss":"Didn't remind her Election Day is Tuesday","card":true,"move":2,"avoid":false},{"id":"nominute","label":"Don't ask “Do you have a minute?”","hit":"Didn't ask “Do you have a minute?”","miss":"Asked for her time","card":true,"move":3,"avoid":true},{"id":"listen","label":"Listen and respond","hit":"Responded to what she said","miss":"Didn't respond to what she said","card":false,"avoid":false},{"id":"accurate","label":"Stick to what you know","hit":"Stuck to what you know","miss":"Stated something you don't know","card":false,"avoid":false},{"id":"close","label":"End it well","hit":"Ended it warmly","miss":"Didn't end it well","card":false,"avoid":false}]},"opener_first_try":{"id":"opener_first_try","title":"Your 1st try","coachOnly":true,"voter":{"name":"Sofia"},"rubric":[{"id":"name","label":"Say your name","hit":"Said your name","miss":"Didn't say your name","card":true,"move":0,"avoid":false},{"id":"maya","label":"Say you're volunteering for Maya Kaur","hit":"Said you're volunteering for Maya Kaur","miss":"Didn't say you're volunteering for Maya Kaur","card":true,"move":1,"avoid":false},{"id":"tuesday","label":"Remind them Election Day is Tuesday","hit":"Reminded him Election Day is Tuesday","miss":"Didn't remind him Election Day is Tuesday","card":true,"move":2,"avoid":false},{"id":"nominute","label":"Don't ask “Do you have a minute?”","hit":"Didn't ask “Do you have a minute?”","miss":"Asked for his time","card":true,"move":3,"avoid":true}]},"oil":{"id":"oil","title":"Heating oil","coachOnly":false,"voter":{"name":"Sarah","opening":{"say":"I can't afford to fill my tank this winter.","mood":"neutral"},"voice":"thalia","voices":["thalia","luna","andromeda"]},"rubric":[{"id":"agree","label":"Agree with Sarah","hit":"Agreed with Sarah","miss":"Didn't agree with Sarah first","card":true,"avoid":false},{"id":"help","label":"Offer the heating help","hit":"Offered the heating help","miss":"Didn't offer the heating help","card":true,"avoid":false},{"id":"choice","label":"Give the choice","hit":"Gave the choice between the candidates","miss":"Didn't give the choice between the candidates","card":true,"avoid":false},{"id":"ask","label":"Ask for her vote","hit":"Asked for her vote","miss":"Didn't ask for her vote","card":true,"avoid":false},{"id":"accurate","label":"Stick to the facts","hit":"Stuck to the facts","miss":"Said something that isn't right","card":false,"avoid":false}]},"social":{"id":"social","title":"Social Security","coachOnly":false,"voter":{"name":"Linda","opening":{"say":"Is my Social Security going to run out?","mood":"neutral"},"voice":"vesta","voices":["vesta","cordelia","hera"]},"rubric":[{"id":"agree","label":"Agree with Linda","hit":"Agreed with Linda","miss":"Didn't agree with Linda first","card":true,"avoid":false},{"id":"cause","label":"Explain the cause","hit":"Explained the cause","miss":"Didn't explain the cause","card":true,"avoid":false},{"id":"choice","label":"Give the choice","hit":"Gave the choice between the candidates","miss":"Didn't give the choice between the candidates","card":true,"avoid":false},{"id":"ask","label":"Ask for her vote","hit":"Asked for her vote","miss":"Didn't ask for her vote","card":true,"avoid":false},{"id":"accurate","label":"Stick to the facts","hit":"Stuck to the facts","miss":"Said something that isn't right","card":false,"avoid":false}]}};
 const WAI = (() => {
   const qs = new URLSearchParams(location.search);
   const base = String(WAI_URL_DEFAULT || "").replace(/\/+$/, ""); /* phase 1: a learner build always talks to Warmup's own server; ?ai= is ignored */
@@ -4976,7 +4990,7 @@ const WAI = (() => {
     : Promise.resolve();
   const ready = () => state === "on"; /* only after the server said so: a door never starts as AI on a guess */
   const settle = () => ping;
-  /* which scenario this door plays: lesson 1's 2nd try (Kevin) and the issue practice (Bri) */
+  /* which scenario this door plays: lesson 1's two doors (Sofia, then Kevin) and the issue practice (version 173: Sarah and Linda) */
   const scenFor = () => {
     if (S.drill) return S.drill.kind === "aiissue" ? (DOORS[S.drill.door] || {}).ai || null : null;
     return S.track === "gotv" && (S.lesson || 1) === 1 ? (doorKey() === "kevin" ? "kevin_intro" : doorKey() === "sofia" ? "sofia_intro" : null) : null; /* version 165: Sofia's 1st intro too */
@@ -5132,20 +5146,32 @@ const WAI = (() => {
   }
   /* a stated fact that isn't in the materials keeps a perfect card from reading Excellent */
   const flagged = (L) => !!(L && L.coach && L.coach.items.some((x) => x.id === "accurate" && x.status === "missed"));
-  function issueLink() {
-    if (!ready() || !(S.briefsDoneIds || {}).ga) return ""; /* after lesson 6 (health insurance); ?convo=bri opens it directly for review */
-    return `<button class="link center" data-act="wai-issue">Practice a health insurance question</button>`;
+  function issueLink() { /* version 173: once an issue training is done, its conversation stays open on the Practice tab */
+    if (!ready()) return "";
+    const ids = (CAMPAIGN.gotv || {}).briefIds || [], bd = S.briefsDoneIds || {};
+    return ids.filter((id) => bd[id] && DOORS[id] && DOORS[id].ai).map((id) => `<button class="link center" data-act="wai-issue" data-arg="${id}">Practice the ${DOORS[id].topic} conversation with ${DOORS[id].name}</button>`).join("");
   }
   function autoKnock() { setTimeout(() => { if (S.screen === "door" && S.convo && !S.convo.knocked) knock(); }, 380); }
-  async function startIssue() {
+  /* version 173: a "not reachable" answer from when the page opened is asked again once, when a conversation is about to start */
+  async function recheck() {
+    if (!base) return;
+    const ac = new AbortController(), t = setTimeout(() => ac.abort(), 4000);
+    try { const j = await fetch(base + "/health", { cache: "no-store", signal: ac.signal }).then((r) => r.json()); if (j && j.ok) state = "on"; } catch (e) { /* still not reachable */ } finally { clearTimeout(t); }
+  }
+  /* version 173: any issue door (door is its training's id). o.knock leaves the door shut until the canvasser taps Knock;
+     o.back is the screen Done for now goes to. Says so and returns false when the practice AI can't be reached. */
+  async function startIssue(door, o = {}) {
+    if (!DOORS[door] || !DOORS[door].ai) return false;
     await ping;
-    if (!ready()) { toast(state === "down" ? FAIL.network : FAIL.off); return; }
+    if (state === "down") await recheck();
+    if (!ready()) { toast(state === "down" ? FAIL.network : FAIL.off); return false; }
     if (!S.drill) S.drillBack = { lesson: lessonNo(), skipWatch: S.skipWatch };
     S.round = null;
-    S.drill = { kind: "aiissue", door: "bri", step: 1 };
-    S.lesson = 1; S.skipWatch = false; S.sayNow = null;
+    S.drill = { kind: "aiissue", door, step: 1, knock: !!o.knock, back: o.back || "coach" };
+    S.lesson = 1; S.skipWatch = false; S.sayNow = null; S.mode = S.mode || "voice";
     go("door");
-    autoKnock();
+    if (!o.knock) autoKnock();
+    return true;
   }
   /* version 165 (Robert, Nov 15): the voter streams. One request (/turn) writes the voter's line and voices each sentence as
      soon as it's written; the page plays the sound as it arrives, through the voter's analyser so the mouth follows it. A
@@ -5462,6 +5488,7 @@ function figure(p, tall) { /* version 170: tall runs the shirt on below the old 
     bob: `<path d="M128 152 C124 114 142 104 160 104 C178 104 196 114 192 152 C193 166 195 177 197 185 C187 188 182 178 182 166 L138 166 C138 178 133 188 123 185 C125 177 127 166 128 152 Z" fill="${p.hair}"/>`,
     long: `<path d="M126 150 C122 110 142 100 160 100 C178 100 198 110 194 150 L199 216 C189 217 184 198 182 172 L138 172 C136 198 131 217 121 216 Z" fill="${p.hair}"/>`,
     puff: `<circle cx="147" cy="106" r="12" fill="${p.hair}"/><circle cx="173" cy="106" r="12" fill="${p.hair}"/><circle cx="160" cy="97" r="15" fill="${p.hair}"/>`,
+    curls: `<g fill="${p.hair}">${[[137.5, 117, 8.8], [146, 108.2, 9.6], [158.3, 104.7, 9.6], [170.4, 105.6, 9.6], [180.8, 111.8, 8.8], [186, 124, 7.9], [133.2, 129.4, 7.9], [187, 134.7, 7], [132.4, 141.8, 6.2]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join("")}</g>`, /* version 173: short curls all round the head */
     short: "",
     bald: "",
   }[p.style] || "";
@@ -5470,6 +5497,7 @@ function figure(p, tall) { /* version 170: tall runs the shirt on below the old 
     bob: capBob,
     long: capBob,
     puff: `<path d="M134 138 C133 116 146 108 160 108 C174 108 187 116 186 138 C181 126 171 121 160 121 C149 121 139 126 134 138 Z" fill="${p.hair}"/>`,
+    curls: `<path d="M134.9 131.2 C135.7 115.3 149.6 110 160 110 C172.1 110 184.3 115.3 185.1 131.2 C180.8 122.4 172.1 118 160 119.7 C149.6 118 139.2 122.4 134.9 131.2 Z" fill="${p.hair}"/>`,
     bald: `<path d="M135 142 C134 131 137 124 142 120" fill="none" stroke="${p.hair}" stroke-width="5" stroke-linecap="round"/><path d="M185 142 C186 131 183 124 178 120" fill="none" stroke="${p.hair}" stroke-width="5" stroke-linecap="round"/>`,
     short: `<path d="M134 134 C134 114 147 108 160 108 C173 108 186 114 186 134 C181 123 171 118.5 160 118.5 C149 118.5 139 123 134 134 Z" fill="${p.hair}"/>`,
   }[p.style] || "";
@@ -5488,6 +5516,7 @@ function figure(p, tall) { /* version 170: tall runs the shirt on below the old 
     <g stroke="${p.hair === "#8E8C88" ? "#6E6B66" : "#241A16"}" stroke-width="2.6" stroke-linecap="round"><path class="brow brow-l" d="M143 131 L155 129.5"/><path class="brow brow-r" d="M165 129.5 L177 131"/></g>
     <g class="look"><g class="eyes"><ellipse cx="150" cy="142" rx="2.7" ry="3.3" fill="#1C1A24"/><ellipse cx="170" cy="142" rx="2.7" ry="3.3" fill="#1C1A24"/></g></g>
     ${p.glasses ? `<g fill="none" stroke="#3A302A" stroke-width="1.8"><circle cx="150" cy="142" r="7"/><circle cx="170" cy="142" r="7"/><path d="M157 141.5 Q160 139.5 163 141.5 M143 141 L135 139 M177 141 L185 139"/></g>` : ""}
+    ${p.earrings ? `<circle cx="133.6" cy="151.5" r="2.4" fill="#F2B134"/><circle cx="186.4" cy="151.5" r="2.4" fill="#F2B134"/>` : ""}
     <path d="M160 146 Q157 154 161.5 156.5" fill="none" stroke="${p.shade}" stroke-width="2" stroke-linecap="round"/>
     <path class="mouth" d="${MOUTH.neutral}" fill="none" stroke="#45261F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
   </g>`;
@@ -5632,7 +5661,7 @@ const ICON = {
 /* ---------- shell ---------- */
 /* version 105: the campaign skin is one config (name, the line under it, its one color and the lockup style). Get out the vote only. */
 /* version 153 (Robert, Nov 2): Maya runs for U.S. Senate in Franklin, a made-up state; four of her five briefs are Senate races */
-const CAMPAIGN = { gotv: { name: "Maya Kaur", line: "For U.S. Senate \u00b7 Franklin", lines: ["For U.S. Senate", "Franklin"], aria: "Maya Kaur for U.S. Senate in Franklin", track: "0.062em", color: "#1F4C91", soft: "rgba(31, 76, 145, 0.38)", lockup: "stack", briefs: ["School vouchers", "Your electric bill", "Heating oil", "Tariffs and auto jobs"], briefIds: ["tx", "oh", "me", "mi"], briefShort: [["School", "vouchers"], ["Electric", "bill"], ["Heating", "oil"], ["Tariffs and", "auto jobs"]] } }; /* version 164 (Robert, Nov 6): only lessons from Democrats who won 2026 Senate races; Georgia (a governor's race) is hidden, not deleted */
+const CAMPAIGN = { gotv: { name: "Maya Kaur", line: "For U.S. Senate \u00b7 Franklin", lines: ["For U.S. Senate", "Franklin"], aria: "Maya Kaur for U.S. Senate in Franklin", track: "0.062em", color: "#1F4C91", soft: "rgba(31, 76, 145, 0.38)", lockup: "stack", briefs: ["Heating oil", "Social Security"], briefIds: ["oil", "social"], briefShort: [["Heating", "oil"], ["Social", "Security"]] } }; /* version 173 (Robert, Nov 18): the two issue trainings built in the issue-trainings repo, Heating oil and Social Security; the four lessons before them left the app */ /* version 164 (Robert, Nov 6): only lessons from Democrats who won 2026 Senate races; Georgia (a governor's race) is hidden, not deleted */
 if (/[?&]unlock\b/.test(location.search)) { window.__wuPreview = true; window.__wuUnlock = true; } /* version 164: the investor link, every lesson open, nothing saved */
 const NB = () => ((CAMPAIGN.gotv || {}).briefIds || []).length, NL = () => 5 + NB(), NWORD = (n) => ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"][n] || String(n); /* version 149: the tile labels, two short lines each */ /* version 146: "Health insurance", never "coverage" (the playbook rule), and each brief\u2019s lesson id in issues/ for the door-ready deep link */ /* version 143: the five briefs in issues/, by short name, in the field director\u2019s order */ /* version 142: soft tints the path dots for the campaign briefs */
 const campNow = () => (S && CAMPAIGN[S.track]) || null;
@@ -6517,11 +6546,9 @@ function houseTall(h) {
   </svg>`;
 }
 /* the briefing's own issue icons (issues/index.html, ICONS), one tile each */
-const ISSUE_ICONS = [
-  ['<path d="M2.5 9.5 12 4.5l9.5 5-9.5 5z" fill="#fff"/><path d="M6.5 11.8v4.4c0 1.4 2.5 2.8 5.5 2.8s5.5-1.4 5.5-2.8v-4.4" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M20.5 10v5" stroke="#fff" stroke-width="2" stroke-linecap="round"/>', "#3b80b6"],
-  ['<path d="M13.5 2 5 13.5h6L9.5 22 19 9.8h-6.2z" fill="#fff" stroke="#fff" stroke-width="1" stroke-linejoin="round"/>', "#e8a21a"],
+const ISSUE_ICONS = [ /* version 173: a flame for Heating oil, a mailbox for Social Security (its training's cover) */
   ['<path d="M12 22c4.4 0 7-2.9 7-6.8 0-3.6-2.4-5.6-3.6-8.6-.4 1.9-1.4 3-2.6 3.6.3-3.3-1.2-6.4-4-8.2.2 3.3-1.6 5.3-3.3 7.4C4.2 11.1 5 12.6 5 15.2 5 19.1 7.6 22 12 22z" fill="#fff"/><path d="M12 22c-1.9 0-3.1-1.3-3.1-3 0-2 1.6-3 2.4-4.6.9 1.2 3.8 2.2 3.8 4.6 0 1.7-1.2 3-3.1 3z" fill="COL"/>', "#f07c3c"],
-  ['<path d="M3 15.5v-3l2-4.5c.3-.7 1-1 1.7-1h10.6c.7 0 1.4.3 1.7 1l2 4.5v3c0 .8-.6 1.5-1.4 1.5H4.4c-.8 0-1.4-.7-1.4-1.5z" fill="#fff"/><path d="M6.2 11.5 7.4 8.6h9.2l1.2 2.9z" fill="COL"/><circle cx="7" cy="17.5" r="2.2" fill="#fff" stroke="COL" stroke-width="1.4"/><circle cx="17" cy="17.5" r="2.2" fill="#fff" stroke="COL" stroke-width="1.4"/>', "#2a9d8f"],
+  ['<path d="M12 16v5.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><path d="M2.5 12.5a4.5 4.5 0 0 1 4.5-4.5h10a4.5 4.5 0 0 1 4.5 4.5V17h-19z" fill="#fff"/><path d="M11.5 17v-4.5A4.5 4.5 0 0 0 7 8" fill="none" stroke="COL" stroke-width="1.4"/><path d="M5 13.5h3.5" stroke="COL" stroke-width="1.5" stroke-linecap="round"/><path d="M16 12V3.5h4v3h-4" fill="#fff" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/>', "#3b80b6"],
 ];
 function issueTile(i, dim) {
   const [p, c] = ISSUE_ICONS[i % ISSUE_ICONS.length], C = dim ? tileMix(c, 0.62) : c;
@@ -6569,8 +6596,8 @@ function vLearnG() {
     <p class="lp-links">${why}${retake}</p></section>`;
   const row2 = (bf, i) => { const ok = ready && !!bd[ids[i]]; return `<li class="lp-i${ok ? " done" : ready ? " open" : " later"}"><button class="lp-row lp-b" data-act="brief-open" data-arg="${esc(bf)}" data-lesson="${ids[i] || ""}" aria-label="Lesson ${i + 6}: ${esc(bf)}${ok ? ", done" : ready ? "" : ", opens when you’re door-ready"}"><span class="lp-art">${issueTile(i, !ready)}${ok ? TILE_CHECK : ""}</span><span class="lp-tx"><small>Lesson ${i + 6}</small><b>${esc(bf)}</b></span><span class="lp-st">${ok ? "Done" : ready ? "Open" : LOCK_SVG}</span></button></li>`; };
   const c2 = `<section class="lp-c lp-c2${ready ? "" : " shut"}" aria-label="Course 2, ${first}’s issues">
-    <header class="lp-h"><${ready ? `button class="lp-hb" data-act="issues-open" aria-label="Open ${first}’s issue lessons"` : `div class="lp-hb"`}><img src="${CAND_PHOTO}" alt=""><span><span class="lp-k">Course 2 · ${ready ? "Any order, one a day" : "After door-ready"}</span><span class="lp-t">${first}’s issues</span></span></${ready ? "button" : "div"}>${bar(ready ? nb : 0, briefs.length, "blue")}<p class="lp-s">${briefed ? "Done. You’re briefed." : ready ? `${nb} of ${briefs.length} done · five minutes each on what voters raise at the door` : "Where " + first + " stands on " + NWORD(briefs.length) + " issues voters raise at the door."}</p></header>
-    <ol class="lp-l">${briefs.map(row2).join("")}${goal("brief", briefed, briefed ? "Earned" : "After all " + NWORD(briefs.length), "Briefed", "")}</ol>
+    <header class="lp-h"><${ready ? `button class="lp-hb" data-act="issues-open" aria-label="Open ${first}’s issue lessons"` : `div class="lp-hb"`}><img src="${CAND_PHOTO}" alt=""><span><span class="lp-k">Course 2 · ${ready ? "Any order, one a day" : "After door-ready"}</span><span class="lp-t">${first}’s issues</span></span></${ready ? "button" : "div"}>${bar(ready ? nb : 0, briefs.length, "blue")}<p class="lp-s">${briefed ? "Done. You’re briefed." : ready ? `${nb} of ${briefs.length} done · about six minutes each on what voters raise at the door` : "Where " + first + " stands on " + NWORD(briefs.length) + " issues voters raise at the door."}</p></header>
+    <ol class="lp-l">${briefs.map(row2).join("")}${goal("brief", briefed, briefed ? "Earned" : briefs.length === 2 ? "After both" : "After all " + NWORD(briefs.length), "Briefed", "")}</ol>
     ${ready && !briefed ? `<div class="lp-cta">${button([`Open ${first}’s issues`, "issues-open"])}</div>` : ""}</section>`;
   const mast = `<div class="lp-mast"><p class="kicker">GOTV canvassing · ${nd + (ready ? nb : 0)} of ${total} done</p><h1 class="h1 lp-h1">${NWORD(total).replace(/^./, (c) => c.toUpperCase())} lessons, one a day</h1></div>`;
   const after = `<p class="lrn-after">${LOCK_SVG}<span>After ${total}: more courses from Warmup and your campaign.</span></p>`;
@@ -6684,7 +6711,7 @@ function vProgressG() {
   const word = brief ? "issue lesson" : "lesson", WORD = brief ? "ISSUE" : "LESSON"; /* version 155: after door-ready the ring counts issues, ISSUES DONE (ISSUE LESSONS DONE ran into the ring at 375 and on a laptop), and the take and the label say issue lessons (Robert, Nov 3: an issue lesson is a lesson, not a brief) */
   const take = brief ? (left ? `${left} issue lesson${left === 1 ? "" : "s"} to Briefed` : "You’re Briefed") : `${left} lesson${left === 1 ? "" : "s"} to door-ready`;
   const unlock = brief
-    ? `<b>Silver earned.</b> Briefed means you know where ${first} stands on all ${NWORD(NB())} issues.`
+    ? `<b>Silver earned.</b> Briefed means you know where ${first} stands on ${NB() === 2 ? "both" : "all " + NWORD(NB())} issues.`
     : `<b>Door-ready brings Silver:</b> <span class="nw">a&nbsp;thank-you</span> from ${first} and a card to share.`;
   /* the one button: what to do now (version 148, Robert 11:43 AM PT) */
   const mid = !brief && S.lesson && !c.d5[S.lesson] && (S.lessonAt || 0) > 0 && S.lesson <= 5;
@@ -7674,7 +7701,7 @@ function vDoor() {
   const d = DOORS[doorKey()], sk = SK();
   if (S.drill && (S.drill.kind === "knock" || S.drill.kind === "aiissue")) return app(`
     <div class="frame stage-frame door-stage convo-stage">${scene(d.scene, d.persona, { main: true, shut: true, tall: true, label: `${d.name}, ${d.sub}` }).replace(/<svg ([^>]*?)viewBox="[^"]*" /, '<svg $1').replace("<svg ", d.scene === "store" ? '<svg viewBox="0 18 320 222" preserveAspectRatio="xMidYMid slice" ' : '<svg viewBox="0 60 320 256" preserveAspectRatio="xMidYMin slice" ')}<video class="selfie" id="selfie" playsinline muted autoplay hidden></video><div class="thread" id="thread">${WAI.pill()}${S.drill.kind === "aiissue" ? `<p class="note">${esc(d.intro)}</p><p hidden>` : `<p class="note">`}Door ${(S.round ? S.round.i : 0) + 1} of 3 \u00b7 ${d.street}</p></div></div>
-  `, { back: "coach", stage: true, ft: true, footer: composer("send", "Type what you\u2019d say") }); /* version 150: a Practice knock opens straight on the door; version 169: full screen */
+  `, { back: S.drill.back || "coach", stage: true, ft: true, footer: S.drill.knock && !(S.convo && S.convo.knocked) ? `<button class="btn" data-act="knock">Knock</button>` : composer("send", "Type what you\u2019d say") }); /* version 150: a Practice knock opens straight on the door; version 169: full screen; version 173: an issue door opened from its training waits for a knock */
   if (S.track === "gotv" && !S.drill && !S.try1 && !(S.convo && S.convo.knocked)) return doorIntro(d, sk); /* version 54; version 165: the 1st intro knocks straight away, nothing taught first */
   /* version 87 (Robert): too much empty space after the knock. The lesson's door keeps the stage the intro drew (the frame fills the spare
      height, as the 1st try's does), the voter's line and yours sit under it as bubbles, and the mic stays pinned below. Drills keep the
@@ -7930,7 +7957,7 @@ function closeStory(n, cnt, nx, R, after, anim, key) {
     const path = LESSONS5.map((L, j) => { const done = !!d5[L.n], isNext = !!nx && L.n === nx.n; return `<div class="dn-pw${isNext ? " on" : ""}"><span class="dn-pt${done ? " done" : isNext ? " next" : ""}">${done ? CHECK : L.n}</span>${CLOSE_NAMES[j]}</div>`; }).join("");
     const locked = !!nx && lessonLocked(nx.n);
     const h = !nx ? `Next: ${(CAMPAIGN[S.track] || CAMPAIGN.gotv).name.split(" ")[0]}\u2019s issue lessons.` : locked ? `Lesson ${nx.n} unlocks tomorrow.` : `Lesson ${nx.n} opens tomorrow.`;
-    const lede = !nx ? "Five short lessons on the issues voters raise. The first opens tomorrow." : locked ? "There\u2019ll be a new 5 minute lesson every morning, right here." : "One new lesson a day, five minutes each.";
+    const lede = !nx ? `${NWORD(NB()).replace(/^./, (c) => c.toUpperCase())} short lessons on the issues voters raise. The first opens tomorrow.` /* version 173: the count follows the list (two) */ : locked ? "There\u2019ll be a new 5 minute lesson every morning, right here." : "One new lesson a day, five minutes each.";
     const nextCard = nx ? `<div class="dn-next"><p><b>Lesson ${nx.n}: ${nx.title}.</b></p></div>` : "";
     const arc = nx ? "Finish all five lessons and you\u2019ll have a strong foundation for great conversations at the door." : "You have all five moves for your canvass.";
     body = `<div class="dn3"><p class="kicker">What\u2019s next</p><h1 class="h1">${h}</h1><p class="lede">${lede}</p><div class="dn-path">${path}</div>${nextCard}<p class="dn-arc">${arc}</p>${oneOffer(n, d5, R)}</div>`;
@@ -10134,7 +10161,7 @@ document.addEventListener("click", (e) => {
     case "text-at": S.textAt = S.textAt === arg ? null : arg; render(); break; /* version 142 (Robert): the hour the text comes tomorrow, a plan she makes herself */
     case "invite-copy": try { navigator.clipboard.writeText("https://yourwarmup.com/kaur"); } catch (e) { /* ignore */ } toast("Invite link copied."); break; /* version 126 */
     case "course-open": S.courseN = Number(arg); go("course"); break; /* version 125 */
-    case "issues-open": P1.ev("issue_open", {}); issuesOpen(); break;
+    case "issues-open": { P1.ev("issue_open", {}); /* version 173: from Today, Learn (the two issue rows lead it); on Learn, the first training not done yet, through its row\u2019s own checks */ if (S.screen !== "library") { go("library"); break; } const ids = (CAMPAIGN[S.track] || CAMPAIGN.gotv).briefIds || [], bd = S.briefsDoneIds || {}, b = document.createElement("button"); b.dataset.act = "brief-open"; b.dataset.lesson = ids.find((x) => !bd[x]) || ids[0] || ""; b.hidden = true; document.body.appendChild(b); b.click(); b.remove(); break; }
     case "p1-link": P1x.copyLink(); break;
     case "p1-erase": P1x.erasing = arg === "ask"; render(); break;
     case "p1-erase-yes": P1x.eraseNow(); break;
@@ -10204,11 +10231,11 @@ document.addEventListener("click", (e) => {
       break;
     }
     case "end-convo": if (S.convo && !S.convo.ended) { stopSpeech(); finishConvo(DOORS[doorKey()]); } break;
-    case "door-again": go("door"); if (S.drill && S.drill.kind === "aiissue") WAI.autoKnock(); break;
+    case "door-again": if (S.drill && S.drill.kind === "aiissue") S.drill.knock = false; go("door"); if (S.drill && S.drill.kind === "aiissue") WAI.autoKnock(); break; /* version 173: this tap is the knock */
     case "wai-retry": WAI.retry(); break; /* version 156 */
     case "coach-full": go("coachfull"); break;
     case "coach-retry": WAI.recoach(); break;
-    case "wai-issue": S.hist = []; WAI.startIssue(); break;
+    case "wai-issue": S.hist = []; WAI.startIssue(arg); break; /* version 173: arg is the training\u2019s id */
     case "mic-retry": micRetry(); break; /* version 94 */
     case "mic-type": break; /* version 163: audio only, typing is never offered */
     case "place-knock": placeKnock(); break;
@@ -10289,7 +10316,7 @@ case "wai-type": break; case "wai-type-off": { S.typeMode = true; stopMic(); con
     case "knock-next": { const R = S.round; if (!R || !S.drill || S.drill.kind !== "knock") { go("coach"); break; } if (R.i >= R.doors.length - 1) { go("round"); break; } R.i += 1; S.drill.door = R.doors[R.i]; S.drill.step = R.i + 1; go("door", { noPush: true }); knockSoon(); break; }
     case "knock-done": S.round = null; S.hist = []; go("coach"); break;
     case "coach-surprise": { const d5 = S.done5 || {}; let pool = Object.keys(DOOR_LESSON).filter((k) => d5[DOOR_LESSON[k]]); if (!pool.length) pool = Object.keys(DOOR_LESSON); if (S.drill && pool.length > 1) pool = pool.filter((k) => k !== S.drill.door); startDrill("practice", pool[Math.floor(Math.random() * pool.length)]); break; }
-    case "coach-back": endDrillState(); go("coach"); break;
+    case "coach-back": { const to = (S.drill && S.drill.back) || "coach"; endDrillState(); go(VIEWS[to] ? to : "coach"); break; } /* version 173: an issue practice opened from its training goes back to Learn */
     case "cool-say": coolSay(); break;
     case "cool-signup": S.signedUp = true; render(); toast("You\u2019re signed up for next Saturday at 9 AM."); break;
     case "strip": settings.watchStrip = arg; store.set("watchStrip", arg); openMenu(); break;
@@ -10341,12 +10368,29 @@ document.addEventListener("focusout", (e) => {
 /* tapping the arrow keeps the box focused, so nothing moves under the finger before the tap lands */
 document.addEventListener("mousedown", (e) => { if (e.target && e.target.closest && e.target.closest("#talk-tray button")) e.preventDefault(); });
 
-/* version 152 (Robert, Nov 2): the briefing says when a brief reaches Lesson done; the chapter checks off on Learn and counts on Today and Progress */
+/* version 173 (Robert, Nov 18): an issue training (wdpfxqlsvp/trainings/<id>.html, in the overlay's frame) tells the app two
+   things here: issues-done, when its last screen shows, and issues-practice, when Practice the conversation is tapped
+   there. Both check the lesson off (the first finish counts); practice also opens the door. Only the training this page
+   opened is listened to. (Before 173 the older issue pages sent brief-done.) */
+let issuePracticeBusy = false;
+async function issuePractice(id) {
+  if (issuePracticeBusy || !DOORS[id] || !DOORS[id].ai) return;
+  issuePracticeBusy = true;
+  let opened = false;
+  try { opened = await WAI.startIssue(id, { knock: true, back: "library" }); } catch (e) { /* the page already said why */ } finally { issuePracticeBusy = false; }
+  if (opened) { const ov = document.getElementById("issues-ov"); if (ov) ov.remove(); } /* when the door can't open, the training stays, so the canvasser can try again */
+}
+/* a tap that will lead to a voice later wakes the sound while the browser still counts it as a tap: the tap that opens a
+   training, and taps inside its frame (Practice the conversation is one) */
+window.__warmupWake = (light) => { try { if (light) { if (vidCtx && vidCtx.state !== "running") vidCtx.resume().catch(() => {}); } else videoAudio().catch(() => {}); } catch (e) { /* the sound stays as it was */ } };
+window.__warmupIssues = () => { const c = CAMPAIGN[S.track] || CAMPAIGN.gotv, ids = (c.briefIds || []).slice(), bd = S.briefsDoneIds || {}; return { ids, done: ids.filter((id) => bd[id]), names: Object.fromEntries(ids.map((id, i) => [id, (c.briefs || [])[i] || id])) }; };
 window.addEventListener("message", (e) => {
   const d = e && e.data;
-  if (!d || d.warmup !== "brief-done" || !/^[a-z]{2}$/.test(d.lesson || "")) return;
+  if (!d || (d.warmup !== "issues-done" && d.warmup !== "issues-practice") || !/^[a-z]{2,12}$/.test(d.lesson || "")) return;
+  { const fr = document.querySelector("#issues-ov iframe"); if (!fr || e.source !== fr.contentWindow) return; }
   const camp = CAMPAIGN[S.track] || CAMPAIGN.gotv;
   if (!(camp.briefIds || []).includes(d.lesson)) return;
+  if (d.warmup === "issues-practice") issuePractice(d.lesson);
   S.briefsDoneIds = Object.assign({}, S.briefsDoneIds, { [d.lesson]: (S.briefsDoneIds || {})[d.lesson] || P1.now() }); /* phase 1: the first finish counts; a redo never moves it */
   S.briefsDone = Object.keys(S.briefsDoneIds).filter((id) => NB() && CAMPAIGN.gotv.briefIds.includes(id)).length;
   render();
@@ -10564,17 +10608,17 @@ function tourRender() {
     <p class="t-fine">Maya Kaur for U.S. Senate is a sample campaign. Stops 5 to 9 load sample progress, as if five days had passed. Nothing here is saved, and no texts are sent.</p>`;
 }
 
-{ const cv = new URLSearchParams(location.search).get("convo"); if (cv && S.track === "gotv") { S.lesson = 1; S.intakeDone = true; S.mode = S.mode || "voice"; S.hist = []; S.screen = "welcome"; setTimeout(() => { if (cv === "bri") WAI.startIssue(); else go("door"); }, 0); } } /* version 156 */
+{ const cv = new URLSearchParams(location.search).get("convo"); if (cv && S.track === "gotv") { S.lesson = 1; S.intakeDone = true; S.mode = S.mode || "voice"; S.hist = []; S.screen = "welcome"; setTimeout(() => { if (DOORS[cv] && DOORS[cv].ai) WAI.startIssue(cv); else go("door"); }, 0); } } /* version 156; version 173: ?convo=oil and ?convo=social open the issue practice for review */
 /* phase 1: the daily rule and the learner's record (ai/schedule.js, ai/client/phase1.js) */
 /* Phase 1: the one rule for when a new lesson opens, shared by the page (inlined by ai/build-phase1.py) and the reminder
    planner (ai/reminders.js), so the app and any text can never disagree.
    The rule (Nov 1 decision, made real): a learner's day starts at 5 AM local time. Each day opens one new lesson, in order:
-   lessons 1 to 5 of How to canvass, then the five issue lessons in any order. A lesson opens the morning after the previous
+   lessons 1 to 5 of How to canvass, then the issue lessons in any order. A lesson opens the morning after the previous
    new lesson was finished. Retakes, practice doors and Hear it done never use the day's lesson. A missed day isn't made up.
-   progress: { lessons: { "1": { at } ... "5": { at } }, issues: { ga: at, ... } } with at = first finish time in ms.
+   progress: { lessons: { "1": { at } ... "5": { at } }, issues: { oil: at, ... } } with at = first finish time in ms.
    No exports keyword on purpose: the page inlines this file as is, and node reads it through ai/schedule.mjs. */
 var SCHED = (function () {
-  var DAY_START_HOUR = 5, ISSUES = ["tx", "oh", "me", "mi"]; /* version 164: Georgia hidden */
+  var DAY_START_HOUR = 5, ISSUES = ["oil", "social"]; /* version 173: the two issue trainings in the app, Heating oil and Social Security */
   /* the learner's calendar day for a moment, with the day starting at 5 AM; tz is an IANA zone (planner) or omitted (the phone's own) */
   function dayKey(t, tz) {
     /* the local calendar date and hour of t; before 5 AM it is still the day before. Done on the local clock, not by
@@ -10673,7 +10717,7 @@ const P1 = (() => {
   const sched = (p) => ({ lessons: p.lessons, issues: p.issues });
   /* every record read from the phone or the server is rebuilt from known fields only: lessons 1 to 5, the five issue ids,
      booleans, numbers, short words; nothing else can reach the page (a crafted key must never reach HTML) */
-  const ISS = ["ga", "tx", "oh", "me", "mi"];
+  const ISS = ["ga", "tx", "oh", "me", "mi", "oil", "social"]; /* version 173: oil and social are the app\u2019s issue trainings; the five older ids still read */
   const b4 = (x) => (Array.isArray(x) && x.length === 4 && x.every((v) => typeof v === "boolean") ? x.slice() : null);
   const tm = (x) => (Number.isFinite(x) && x > 1.6e12 && x < 4.1e12 ? x : null);
   const dk = (x) => (typeof x === "string" && /^\d{4}-\d{2}-\d{2}$/.test(x) ? x : null);
@@ -10896,23 +10940,31 @@ render();
   @media (prefers-reduced-motion: reduce) { .issues-ov { animation: none; } }
 </style>
 <script>
-/* version 130: open and close the issue lessons over the app */
+/* version 173 (Robert, Nov 18): the issue trainings are pages of their own, built in the issue-trainings repo and copied to
+   wdpfxqlsvp/trainings/ (ai/tools/sync-issue-trainings.py). A training opens over the app in a frame, so the app keeps its
+   place. Its engine sends three messages: issues-done and issues-practice (handled above, where the lesson list lives) and
+   issues-close (here). With no id, the first training not done yet opens. */
 function issuesOpen(lesson) {
   if (document.getElementById("issues-ov")) return;
+  var I = typeof window.__warmupIssues === "function" ? window.__warmupIssues() : { ids: [], done: [], names: {} };
+  if (I.ids.indexOf(lesson) < 0) lesson = I.ids.filter(function (id) { return I.done.indexOf(id) < 0; })[0] || I.ids[0];
+  if (!lesson) return;
   try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) { /* ignore */ }
-  var host = document.getElementById("device") || document.body, ov = document.createElement("div");
+  if (window.__warmupWake) window.__warmupWake(); /* this tap wakes the sound for the practice that follows the training */
+  var host = document.getElementById("device") || document.body, ov = document.createElement("div"), fr = document.createElement("iframe");
   ov.className = "issues-ov"; ov.id = "issues-ov";
-  var dn = typeof window.__warmupBriefsDone === "function" ? window.__warmupBriefsDone() : ""; /* version 152: the briefing shows the same checks */
-  var slot = !window.__wuUnlock && window.__p1 && !window.__p1.issuesNext().open ? "&slot=0" : ""; /* phase 1: one new lesson a day on the issue page too; the done list stays plain ids and commas, which is all the issue page reads */
-  if (lesson === "oh" || lesson === "tx") { var dn1 = ("," + dn + ",").indexOf("," + lesson + ",") >= 0; ov.innerHTML = '<iframe src="/wdpfxqlsvp/train/?l=' + lesson + '&emb=1' + (dn1 ? '&done=1' : '') + '" title="Maya Kaur’s issue lesson" allow="microphone; autoplay"></iframe>'; host.appendChild(ov); return; } /* version 164: the rebuilt trainings */
-  ov.innerHTML = '<iframe src="issues/?all' + slot + (lesson ? "&lesson=" + encodeURIComponent(lesson) : "") + (dn ? "&done=" + String(dn).split(",").filter(function (x) { return /^[a-z]{2}$/.test(x); }).join(",") : "") + '" title="Maya Kaur’s issue lessons" allow="microphone; autoplay"></iframe>'; /* version 146: once door-ready a chapter row opens its own brief */
-  host.appendChild(ov);
+  /* the trainings folder sits beside the live page; the test builds (p1, dev, staging) are one folder down */
+  var at = location.pathname.indexOf("/wdpfxqlsvp/"), base = at >= 0 ? location.pathname.slice(0, at) + "/wdpfxqlsvp/trainings/" : "trainings/";
+  fr.title = "Maya Kaur\u2019s issue training: " + (I.names[lesson] || lesson);
+  fr.src = base + lesson + ".html?app=1&v=173";
+  fr.addEventListener("load", function () { try { fr.contentDocument.addEventListener("pointerdown", function () { if (window.__warmupWake) window.__warmupWake(true); }, true); } catch (e) { /* not this page's own frame: nothing to do */ } });
+  ov.appendChild(fr); host.appendChild(ov);
 }
-window.addEventListener("message", function (e) { if (e && e.data && e.data.warmup === "issues-close") { var ov = document.getElementById("issues-ov"); if (ov) ov.remove(); } });
-/* version 134 (Robert, Nov 1): yourwarmup.com/wdpfxqlsvp/?issues opens straight to the issue lessons, over the Learn tab */
+window.addEventListener("message", function (e) { var ov = document.getElementById("issues-ov"), fr = ov && ov.querySelector("iframe"); if (e && e.data && e.data.warmup === "issues-close" && fr && e.source === fr.contentWindow) ov.remove(); });
+/* version 134 (Robert, Nov 1): yourwarmup.com/wdpfxqlsvp/?issues opens straight to the issue lessons, over the Learn tab; version 173: ?issues=social opens that one */
 if (/[?&]issues\b/.test(location.search)) setTimeout(function () {
   var b = document.createElement("button"); b.dataset.act = "go"; b.dataset.arg = "library"; b.hidden = true; document.body.appendChild(b); b.click(); b.remove();
-  issuesOpen();
+  issuesOpen((location.search.match(/[?&]issues=([a-z]+)/) || [])[1] || "");
 }, 250);
 </script>
 </body>

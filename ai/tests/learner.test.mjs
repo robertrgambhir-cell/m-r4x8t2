@@ -103,5 +103,10 @@ ok(r.status === 200 && j.erased && !KV.m.has("lp:" + tok.split(".")[0]), "the le
 /* 6. merge as a pure function */
 const m = mergeProgress(cleanProgress({ issues: { ga: 5e12 } }), cleanProgress({ issues: { ga: day0 } }));
 ok(m.issues.ga === day0, "out-of-range times are dropped before a merge");
+/* version 173: the app's two issue trainings (oil, social) are kept; an older id still reads; anything else is dropped */
+{ const c = cleanProgress({ issues: { oil: day0, social: day0 + 86400000, oh: day0, power: day0, "<b>": day0 } });
+  ok(c.issues.oil === day0 && c.issues.social === day0 + 86400000 && c.issues.oh === day0 && Object.keys(c.issues).length === 3, "the record keeps oil and social (and an older id), nothing unknown: " + Object.keys(c.issues).join());
+  const m2 = mergeProgress(cleanProgress({ issues: { oil: day0 + 5000 } }), cleanProgress({ issues: { oil: day0, social: day0 + 9000 } }));
+  ok(m2.issues.oil === day0 && m2.issues.social === day0 + 9000, "two copies merge to the earliest finish of each issue training"); }
 console.log(`learner: ${pass} pass, ${fail} fail`);
 process.exit(fail ? 1 : 0);

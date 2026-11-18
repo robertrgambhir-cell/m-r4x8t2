@@ -1,12 +1,12 @@
 /* Phase 1: the one rule for when a new lesson opens, shared by the page (inlined by ai/build-phase1.py) and the reminder
    planner (ai/reminders.js), so the app and any text can never disagree.
    The rule (Nov 1 decision, made real): a learner's day starts at 5 AM local time. Each day opens one new lesson, in order:
-   lessons 1 to 5 of How to canvass, then the five issue lessons in any order. A lesson opens the morning after the previous
+   lessons 1 to 5 of How to canvass, then the issue lessons in any order. A lesson opens the morning after the previous
    new lesson was finished. Retakes, practice doors and Hear it done never use the day's lesson. A missed day isn't made up.
-   progress: { lessons: { "1": { at } ... "5": { at } }, issues: { ga: at, ... } } with at = first finish time in ms.
+   progress: { lessons: { "1": { at } ... "5": { at } }, issues: { oil: at, ... } } with at = first finish time in ms.
    No exports keyword on purpose: the page inlines this file as is, and node reads it through ai/schedule.mjs. */
 var SCHED = (function () {
-  var DAY_START_HOUR = 5, ISSUES = ["tx", "oh", "me", "mi"]; /* version 164: Georgia hidden */
+  var DAY_START_HOUR = 5, ISSUES = ["oil", "social"]; /* version 173: the two issue trainings in the app, Heating oil and Social Security */
   /* the learner's calendar day for a moment, with the day starting at 5 AM; tz is an IANA zone (planner) or omitted (the phone's own) */
   function dayKey(t, tz) {
     /* the local calendar date and hour of t; before 5 AM it is still the day before. Done on the local clock, not by

@@ -16,7 +16,6 @@
    - Nothing said in a conversation is stored or logged: the logs hold the route, scenario, timing, tokens and cost. */
 
 import { SCENARIOS, publicScenario } from "./scenarios.js";
-import { NARRATOR } from "./scenarios-issues.js";
 import { isAdmin, isLearnerRoute, learnerRoute, LearnerError } from "./learner.js"; /* phase 1: progress, events, admin views */
 
 const DEFAULTS = {
@@ -33,7 +32,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "173-0"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "173-1"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -181,7 +180,7 @@ export function conduct(turns) {
 }
 /* asked whether the voter is an AI, and the reply denies it: replace it with the honest line */
 const ASKS_AI = /\b(are you (an? )?(ai|a\.i\.|bot|robot|real( person)?|human|computer)|is this (an? )?(ai|bot|robot|real person)|am i talking to (an? )?(ai|bot|robot|computer))\b/i;
-const DENIES_AI = /\b(not an? (ai|bot|robot|computer)|i'?m (a )?real (person|guy|woman)|i'?m human|no,? i'?m (kevin|bri)\b)/i;
+const DENIES_AI = /\b(not an? (ai|bot|robot|computer)|i'?m (a )?real (person|guy|woman)|i'?m human|no,? i'?m (kevin|bri|sofia|sarah|linda)\b)/i; /* 173-1: the issue practice's voters, Sarah and Linda */
 export const needsCare = (turns) => { const you = turns.filter((t) => t.who === "you"); return !!you.length && CARE.test(you[you.length - 1].text); };
 
 /* ---------------- the voter ---------------- */
@@ -497,7 +496,8 @@ async function speak(env, s, text, voice) {
   throw new HttpError(502, "voice_error", "The voice came back in a form the server didn't expect.");
 }
 
-/* ---------------- Nov 6, 2026: the fast spoken turn (POST /turn) and the narration (GET /narrate) ----------------
+/* ---------------- Nov 6, 2026: the fast spoken turn (POST /turn) ----------------
+   (The narration route, GET /narrate, read the two Nov 6 issue trainings aloud; it left with them in 173-1.)
    /turn is /voter and /speak in one streamed answer, so the voter starts talking while the rest of the line is still
    being written. The model streams plain text; each sentence goes to the voice the moment it's complete, and the page
    plays the first sentence while later ones are still being made. Same checks as /voter: the origin, signed voter
@@ -697,25 +697,6 @@ function turnStream(env, c, s, scen, turns, h, t0, ip) {
   })();
   return new Response(ts.readable, { status: 200, headers: { "content-type": "application/octet-stream", "cache-control": "no-store", "x-content-type-options": "nosniff", ...h } });
 }
-/* the narration of a rebuilt issue training: only the lines in its scenario, in the narrator's voice, as MP3, cached at the edge */
-async function narrate(env, c, url, h, ip) {
-  const scen = url.searchParams.get("s") || "", k = Number(url.searchParams.get("k")), s = SCENARIOS[scen];
-  if (!s || !Array.isArray(s.narration) || !Number.isInteger(k) || k < 0 || k >= s.narration.length) throw new HttpError(404, "not_found");
-  const v = url.searchParams.get("voice") || "", speaker = VOICES.includes(v) ? v : NARRATOR, text = s.narration[k];
-  const key = new Request("https://narrate.warmup/" + scen + "/" + k + "/" + speaker + "/" + encodeURIComponent(text).length + "/" + (await signLine(env, "narrate", text, k)));
-  const cache = typeof caches !== "undefined" && caches.default ? caches.default : null;
-  if (cache) { const hit = await cache.match(key); if (hit) return new Response(hit.body, { status: 200, headers: { "content-type": "audio/mpeg", "cache-control": "public, max-age=86400", "x-cache": "hit", ...h } }); }
-  await checkRate(env, ip, "narrate", c.voterPerHour);
-  const ai = env.AI || env.API;
-  if (!ai || typeof ai.run !== "function") throw new HttpError(503, "no_voice", "The voice isn't connected on the server.");
-  let out;
-  try { out = await ai.run(env.VOICE_MODEL || "@cf/deepgram/aura-2-en", { text, speaker, encoding: "mp3" }); }
-  catch (e) { const m = String((e && e.message) || e); throw new HttpError(isLimit(m) ? 429 : 502, isLimit(m) ? "voice_limit" : "voice_error", "The voice didn't answer."); }
-  const bytes = await readAll(out);
-  if (cache) await cache.put(key, new Response(bytes, { headers: { "content-type": "audio/mpeg", "cache-control": "public, max-age=2592000" } })).catch(() => {});
-  return new Response(bytes, { status: 200, headers: { "content-type": "audio/mpeg", "cache-control": "public, max-age=86400", "x-cache": "miss", ...h } });
-}
-
 /* ---------------- the server ---------------- */
 function cors(origin, c) {
   const ok = origin && c.origins.includes(origin);
@@ -770,7 +751,6 @@ export default {
         catch (e) { if (e instanceof LearnerError) { console.log(JSON.stringify({ route, ms: Date.now() - t0, error: e.code })); return json({ error: e.code, message: e.message }, e.status, h); } throw e; }
       }
       if (route === "/log" && req.method === "GET") return await readLog(env, url, h); /* version 165-2 */
-      if (route === "/narrate" && req.method === "GET") return await narrate(env, c, url, h, req.headers.get("cf-connecting-ip") || "local");
       if (req.method !== "POST" || (route !== "/voter" && route !== "/coach" && route !== "/speak" && route !== "/turn" && route !== "/tidy")) throw new HttpError(404, "not_found");
       if (!c.origins.includes(origin)) throw new HttpError(403, "origin", "This page isn't allowed to use the practice AI.");
       const ip = req.headers.get("cf-connecting-ip") || "local";

@@ -46,7 +46,7 @@ const P1 = (() => {
   const sched = (p) => ({ lessons: p.lessons, issues: p.issues });
   /* every record read from the phone or the server is rebuilt from known fields only: lessons 1 to 5, the five issue ids,
      booleans, numbers, short words; nothing else can reach the page (a crafted key must never reach HTML) */
-  const ISS = ["ga", "tx", "oh", "me", "mi"];
+  const ISS = ["ga", "tx", "oh", "me", "mi", "oil", "social"]; /* version 173: oil and social are the app\u2019s issue trainings; the five older ids still read */
   const b4 = (x) => (Array.isArray(x) && x.length === 4 && x.every((v) => typeof v === "boolean") ? x.slice() : null);
   const tm = (x) => (Number.isFinite(x) && x > 1.6e12 && x < 4.1e12 ? x : null);
   const dk = (x) => (typeof x === "string" && /^\d{4}-\d{2}-\d{2}$/.test(x) ? x : null);
@@ -65,7 +65,7 @@ const P1 = (() => {
       if (L.first) S.first5[n] = L.first.slice();
       S.best5[n] = { text: L.words || "", phr: null, hits: L.best.slice() };
     });
-    S.briefsDoneIds = Object.assign({}, p.issues || {}); S.briefsDone = Object.keys(S.briefsDoneIds).length;
+    S.briefsDoneIds = Object.assign({}, p.issues || {}); S.briefsDone = Object.keys(S.briefsDoneIds).filter((id) => CAMPAIGN.gotv.briefIds.includes(id)).length;
     S.doorsN = p.doors || 0; S.practDays = (p.practDays || []).slice(); S.p1Days = (p.activeDays || []).slice();
   }
   const hitsN = (h) => (h || []).filter(Boolean).length;

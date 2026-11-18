@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#FFFFFF">
+<title>Maya Kaur · Social Security</title>
+<meta name="description" content="A four-minute briefing for Franklin canvassers, in Maya Kaur's voice.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+/* Maya Kaur issue trainings: one shared look for all five (Warmup app style). */
+:root {
+  --ink: #262320; --muted: #6F685F; --soft: #F3F0EA; --line: #E6E0D6; --bg: #FFFFFF; --paper: #FCF8F2;
+  --green: #35B57C; --green-d: #22895A; --green-soft: #E6F5EC;
+  --maya: #1F4C91; --maya-d: #163A70; --maya-soft: #E7EEF9;
+  --warm: #E08A1A; --warm-soft: #FDF1DC; --red: #C2412D; --red-soft: #FBE8E4;
+  --u: 1px;
+  color-scheme: light;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: "Figtree", system-ui, -apple-system, sans-serif; }
+body { overflow: hidden; overscroll-behavior: none; }
+button { font: inherit; color: inherit; }
+a { color: var(--maya); }
+
+/* the column: full screen on a phone, a centered column inside the app's overlay or on a laptop */
+.stage { position: fixed; inset: 0; height: 100dvh; background: var(--bg); }
+.phone { position: relative; height: 100%; max-width: 520px; margin: 0 auto; overflow: hidden; container-type: size; container-name: phone; }
+.island { display: none; }
+
+/* top row: close, story bar */
+.topbar { position: absolute; left: 0; right: 0; top: 0; z-index: 20; height: calc(env(safe-area-inset-top, 0px) + 44px); padding: calc(env(safe-area-inset-top, 0px) + 10px) 18px 0; display: flex; align-items: center; gap: 12px; }
+.topbar.hidden .prog { visibility: hidden; }
+.x { flex: none; width: 34px; height: 34px; border: 0; background: none; padding: 0; display: grid; place-items: center; color: #9B9389; cursor: pointer; position: relative; }
+.x::after { content: ""; position: absolute; inset: -5px; }
+.x svg { width: 22px; height: 22px; }
+.prog { flex: 1; display: flex; gap: 4px; height: 34px; align-items: center; }
+.prog button { flex: 1; height: 44px; margin: -5px 0; padding: 0; border: 0; background: transparent; cursor: pointer; position: relative; }
+.prog button::before { content: ""; position: absolute; left: 0; right: 0; top: 19.5px; height: 5px; border-radius: 3px; background: var(--line); }
+.prog button.on::before, .prog button.cur::before { background: var(--green); }
+.prog button:disabled { cursor: default; }
+.stepnum { display: none; }
+
+/* screens */
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; padding: calc(env(safe-area-inset-top, 0px) + 44px) 18px calc(env(safe-area-inset-bottom, 0px) + 14px); background: var(--bg); opacity: 0; pointer-events: none; transform: translateX(18px); transition: opacity .32s ease, transform .32s cubic-bezier(.2,.8,.2,1); }
+.screen.is-active { opacity: 1; transform: none; pointer-events: auto; z-index: 2; }
+.screen.is-leaving { opacity: 0; transform: translateX(-18px); }
+.screen.is-leaving-back { opacity: 0; transform: translateX(18px); }
+.screen.from-back:not(.is-active) { transform: translateX(-18px); }
+.tag-screen { position: fixed; right: 22px; bottom: calc(env(safe-area-inset-bottom, 0px) + 2px); font: 600 9px/1 "Figtree"; color: #C9C2B6; letter-spacing: .04em; pointer-events: none; z-index: 30; }
+
+/* type */
+.hero, h2.hero { font: 800 calc(25 * var(--u))/1.16 "Figtree"; letter-spacing: -0.015em; margin: 14px 0 0; text-wrap: balance; color: var(--ink); }
+h1.hero { font-size: calc(29 * var(--u)); }
+.hero:focus { outline: none; }
+.hero .hot { color: var(--red); }
+.copy { font: 500 calc(16 * var(--u))/1.4 "Figtree"; color: var(--muted); margin: 8px 0 0; text-wrap: pretty; }
+.copy b, .copy strong { color: var(--ink); font-weight: 700; }
+.copy .hot { color: var(--red); font-weight: 700; }
+.note, .small { font: 500 calc(13 * var(--u))/1.4 "Figtree"; color: var(--muted); margin: 8px 0 0; }
+.quote { font: 500 calc(21 * var(--u))/1.3 "Newsreader", Georgia, serif; color: var(--ink); margin: 10px 0 0; }
+
+/* footnote markers (option A) */
+.fn { display: inline; padding: 1px 5px; margin: 0 1px 0 3px; border: 0; border-radius: 6px; background: var(--soft); color: var(--muted); font: 700 11px/1 "Figtree"; vertical-align: .55em; letter-spacing: 0; cursor: pointer; position: relative; white-space: nowrap; }
+.fn::after { content: ""; position: absolute; inset: -12px -6px; }
+.fn { display: none !important; } /* option B: sources live behind the Sources button only */
+
+/* the picture panel */
+.fig { flex: 0 1 auto; min-height: 0; margin-top: 14px; background: var(--soft); border-radius: 20px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+.fig.grow { flex: 1 1 auto; }
+.fig svg { width: 100%; height: 100%; max-height: 100%; display: block; }
+.fig.tight { flex: 0 0 auto; }
+.sp { flex: 0 0 0; min-height: 0; }
+
+/* bottom row */
+.ft { flex: none; display: flex; flex-direction: column; gap: 0; margin-top: 14px; align-items: stretch; }
+.ft > .btn { flex: none; }
+/* one main button, full width; sources sit under it as a quiet link */
+.ft > .linkbtn.srcbtn { align-self: center; min-height: 34px; padding: 8px 14px 2px; position: relative; }
+.ft > .linkbtn.srcbtn::after { content: ""; position: absolute; inset: -4px -6px; }
+.btn { flex: 1; min-height: 54px; border: 0; border-radius: 16px; background: var(--green); color: #fff; font: 800 calc(17 * var(--u))/1.2 "Figtree"; letter-spacing: .01em; box-shadow: 0 4px 0 var(--green-d); cursor: pointer; padding: 12px 10px; margin-bottom: 4px; text-wrap: balance; transition: transform .08s ease, box-shadow .08s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--green-d); }
+.btn svg { width: 16px; height: 16px; flex: none; }
+.btn.ghost { background: #fff; color: var(--ink); box-shadow: 0 4px 0 var(--line), inset 0 0 0 2px var(--line); }
+.btn.ghost:active { box-shadow: 0 1px 0 var(--line), inset 0 0 0 2px var(--line); }
+.btn.srcbtn { flex: 0 0 auto; padding: 12px 16px; font-weight: 700; font-size: calc(15 * var(--u)); }
+.btn.blue { background: var(--maya); box-shadow: 0 4px 0 var(--maya-d); }
+.hide { display: none !important; }
+.btn-row { display: flex; gap: 10px; }
+.linkbtn { border: 0; background: none; color: var(--muted); font: 600 14px/1.2 "Figtree"; text-decoration: underline; text-underline-offset: 3px; padding: 12px 4px; min-height: 44px; cursor: pointer; }
+
+/* answers */
+.opts { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+.opts.row { flex-direction: row; }
+.opt { width: 100%; text-align: left; border: 0; border-radius: 16px; background: #fff; box-shadow: inset 0 0 0 2px var(--line), 0 4px 0 var(--line); padding: calc(18 * var(--u)) 20px; margin-bottom: 4px; font: 700 calc(18 * var(--u))/1.3 "Figtree"; color: var(--ink); cursor: pointer; transition: background .15s, box-shadow .15s, opacity .2s, transform .08s; display: flex; align-items: center; }
+.opts.row .opt { justify-content: center; text-align: center; padding: calc(18 * var(--u)) 8px; }
+.opt:active { transform: translateY(2px); }
+.opt .k { display: none; }
+.opt.right { background: var(--green-soft); box-shadow: inset 0 0 0 2px var(--green), 0 4px 0 var(--green-d); }
+.opt.wrong { background: var(--red-soft); box-shadow: inset 0 0 0 2px var(--red), 0 4px 0 #9A3222; }
+.opts.locked .opt { pointer-events: none; }
+.opts.locked .opt:not(.right):not(.wrong) { opacity: .45; }
+.opt.missed { pointer-events: none; opacity: .45; }
+
+/* the one-line reason after a pick */
+.fb { display: none; margin-top: 14px; gap: 10px; align-items: flex-start; font: 600 calc(16 * var(--u))/1.4 "Figtree"; color: var(--ink); }
+.fb.show { display: flex; animation: in .3s ease both; }
+.fb::before { content: ""; flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--green) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5 6.6 11.4 12.5 5' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/15px no-repeat; }
+.fb.bad::before { background-color: var(--red); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 4.5l7 7M11.5 4.5l-7 7' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E"); }
+.fb b { font-weight: 800; }
+@keyframes in { from { opacity: 0; transform: translateY(8px); } }
+.reveal { display: none; }
+.reveal.show { display: block; animation: in .3s ease both; }
+
+/* chips */
+.tag { display: inline-flex; align-items: center; font: 700 12px/1 "Figtree"; color: var(--green-d); background: var(--green-soft); border-radius: 99px; padding: 6px 10px; }
+
+/* slider (price guess) */
+.range { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; background: transparent; margin: 6px 0 0; cursor: pointer; }
+.range::-webkit-slider-runnable-track { height: 8px; border-radius: 4px; background: var(--line); }
+.range::-moz-range-track { height: 8px; border-radius: 4px; background: var(--line); }
+.range::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; margin-top: -11px; border-radius: 50%; background: #fff; border: 0; box-shadow: inset 0 0 0 3px var(--maya), 0 3px 0 var(--maya-d); }
+.range::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 3px solid var(--maya); }
+.range-labels { display: flex; justify-content: space-between; font: 600 12px/1 "Figtree"; color: var(--muted); }
+
+/* sheets (sources, door card) and the footnote popover */
+.sheet { position: absolute; inset: 0; z-index: 40; display: none; flex-direction: column; justify-content: flex-end; background: rgba(20,18,16,.38); }
+.sheet.show { display: flex; animation: fade .2s ease both; }
+.panel .copy { color: var(--ink); margin: 0 0 4px; }
+.sheet .panel { background: #fff; border-radius: 22px 22px 0 0; max-height: 88%; overflow-y: auto; padding: 18px 20px calc(env(safe-area-inset-bottom, 0px) + 20px); animation: up .28s cubic-bezier(.2,.8,.2,1) both; }
+.panel h3 { font: 800 20px/1.2 "Figtree"; margin: 0 0 8px; }
+.panel ol, .panel ul { margin: 0; padding-left: 20px; font: 500 15px/1.45 "Figtree"; }
+.panel li { margin: 6px 0; }
+.panel .close { margin-top: 14px; width: 100%; }
+.grab { width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto 12px; }
+.say li { font-size: 16px; color: var(--ink); }
+@keyframes fade { from { opacity: 0; } } @keyframes up { from { transform: translateY(40px); opacity: 0; } }
+.fnpop { position: absolute; left: 18px; right: 18px; bottom: calc(env(safe-area-inset-bottom, 0px) + 86px); z-index: 45; background: #fff; border-radius: 16px; box-shadow: inset 0 0 0 2px var(--line), 0 4px 0 var(--line); padding: 14px 48px 14px 16px; display: none; font: 500 14.5px/1.4 "Figtree"; }
+.fnpop.show { display: block; animation: in .22s ease both; }
+.fnpop .n { display: block; font: 800 11px/1 "Figtree"; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.fnpop b { display: block; font-weight: 700; }
+.fnpop a { display: inline-block; margin-top: 6px; font-weight: 700; min-height: 28px; }
+.fnpop .real { display: block; margin-top: 2px; font-size: 12px; color: var(--muted); }
+.fnpop .x { position: absolute; top: 4px; right: 4px; width: 44px; height: 44px; }
+
+/* the price chart: bars sized by value, filling whatever height the panel has */
+.chart { display: flex; align-items: stretch; gap: calc(14 * var(--u)); padding: calc(18 * var(--u)) 18px calc(14 * var(--u)); }
+.chart .col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; text-align: center; min-width: 0; }
+.chart .val { font: 600 calc(24 * var(--u))/1 "Newsreader", Georgia, serif; color: var(--ink); margin-bottom: 8px; transition: opacity .3s; }
+.chart .you .val { color: var(--maya); }
+.chart .now .val { color: var(--red); font-size: calc(30 * var(--u)); opacity: 0; }
+.chart .now.shown .val { opacity: 1; }
+.chart .bar { display: block; position: relative; height: calc(var(--v) / var(--max, 8) * 82%); border-radius: 10px; transition: height .15s ease; }
+.chart .past { background: #CFC8BC; }
+.chart .guess { background: var(--maya-soft); box-shadow: inset 0 0 0 2px var(--maya); }
+.chart .empty { background: #fff; box-shadow: inset 0 0 0 2px var(--line); }
+.chart .empty em { position: absolute; inset: 0; display: grid; place-items: center; font: 800 calc(34 * var(--u))/1 "Figtree"; font-style: normal; color: #C9C2B6; }
+.chart .now.shown .bar { background: var(--red); box-shadow: none; transition: height 1.3s cubic-bezier(.2,.8,.2,1), background .2s; }
+.chart .now.shown em { display: none; }
+.chart .col span { margin-top: 10px; padding-top: 8px; border-top: 2px solid #D8D0C3; font: 700 calc(13 * var(--u))/1.2 "Figtree"; color: var(--muted); }
+.chart .you span { color: var(--maya); }
+
+/* ---------- screen pieces (v5) ---------- */
+.camp { display: inline-flex; flex-direction: column; color: var(--maya); text-transform: uppercase; line-height: 1; margin-top: 12px; }
+.camp b { font: 800 19px/1 "Figtree"; letter-spacing: -0.01em; }
+.camp small { font: 700 7.5px/1 "Figtree"; letter-spacing: .05em; margin-top: 3px; }
+.fig.scene { flex: 1 1 auto; margin-top: 14px; background: #33435F; }
+.fig.scene svg { position: absolute; inset: 0; }
+.fig.fit svg { width: 100%; height: 100%; }
+.lamp { opacity: 0; transition: opacity .7s ease; } .lamp.on { opacity: 1; }
+.houses { flex: 1 1 auto; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: 1fr 1fr; gap: 10px 12px; padding: 18px; touch-action: none; }
+.houses button { border: 0; background: none; padding: 0; cursor: pointer; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+.houses svg { width: 100%; height: 100%; max-height: 92px; overflow: visible; }
+.houses .h { fill: #D8D0C3; transition: fill .2s; } .houses .w { fill: #fff; transition: fill .2s; }
+.houses .lbl { font: 800 8px/1 "Figtree"; letter-spacing: .06em; fill: var(--maya); }
+.houses button.sel .h { fill: var(--maya); }
+.houses.revealed button .h { fill: #D8D0C3; }
+.houses.revealed button.oil .h { fill: #6F685F; } .houses.revealed button.oil .w { fill: #F2B134; }
+.houses.revealed button.you .h { stroke: var(--maya); stroke-width: 2.5; }
+.count { margin-top: 10px; font: 700 calc(15 * var(--u))/1.3 "Figtree"; color: var(--maya); text-align: center; }
+.count.done { color: var(--ink); }
+.replaylink { align-self: center; margin-top: 4px; }
+/* chain (which step can a senator vote on) */
+.chain { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.chain .opt { padding: calc(14 * var(--u)) 16px; gap: 12px; }
+.chain .opt i { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font: 800 13px/1 "Figtree"; font-style: normal; background: var(--soft); color: var(--muted); }
+.chain.locked .opt { pointer-events: none; }
+.chain.locked .opt:not(.right) { opacity: .45; }
+/* the clipping (Susan Collins) */
+.clip { background: #fff; padding: calc(16 * var(--u)) 20px; margin: 0 20px; transform: rotate(-1.2deg); box-shadow: 0 0 0 1px var(--line); max-width: 360px; }
+.clip .kick { font: 800 12px/1 "Figtree"; letter-spacing: .08em; text-transform: uppercase; color: var(--red); }
+.clip .lead { font: 600 calc(15 * var(--u))/1.35 "Figtree"; color: var(--muted); margin-top: 12px; }
+.clip q { display: block; quotes: none; font: italic 500 calc(27 * var(--u))/1.15 "Newsreader", Georgia, serif; color: var(--ink); margin-top: 6px; }
+.clip .barrel { font: 600 calc(14 * var(--u))/1.3 "Figtree"; color: var(--muted); margin-top: 14px; display: flex; align-items: center; gap: 8px; }
+.clip .barrel svg { width: 22px; height: 26px; flex: none; }
+/* side by side (Maya Kaur) */
+.vs { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; gap: calc(14 * var(--u)); padding: 18px 16px; }
+.vs .who, .vs .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; text-align: center; }
+.vs .who div { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.vs .av { width: calc(54 * var(--u)); height: calc(54 * var(--u)); border-radius: 50%; display: grid; place-items: center; font: 800 calc(18 * var(--u))/1 "Figtree"; background: #D8D0C3; color: var(--ink); }
+.vs .mk .av { background: var(--maya); color: #fff; }
+.vs .who b { font: 800 calc(16 * var(--u))/1.2 "Figtree"; }
+.vs .who small { font: 600 12px/1 "Figtree"; color: var(--muted); }
+.vs .topic { display: flex; justify-content: center; }
+.vs .topic span { display: inline-flex; align-items: center; gap: 6px; font: 700 12px/1 "Figtree"; color: var(--green-d); background: var(--green-soft); border-radius: 99px; padding: 6px 10px; }
+.vs .topic svg { width: 14px; height: 14px; }
+.vs .pair p { margin: 0; font: 600 calc(15 * var(--u))/1.35 "Figtree"; color: var(--muted); }
+.vs .pair p.mk { color: var(--maya); font-weight: 700; }
+/* the door */
+.door { flex: 3 1 0; max-height: 36%; min-height: 96px; margin-top: 14px; border-radius: 20px; background: linear-gradient(#EAE3D6, #DCD3C3); position: relative; overflow: hidden; transition: height .4s ease; }
+.door.small { flex: 0 0 auto; height: 20%; min-height: 92px; }
+.door.mini { flex: 3 1 0; max-height: 25%; min-height: 84px; }
+.door svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.door .whop { position: absolute; left: 12px; bottom: 10px; background: rgba(255,255,255,.88); border-radius: 99px; padding: 6px 11px; font: 700 13px/1 "Figtree"; display: flex; gap: 6px; align-items: center; }
+.door .whop i { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+/* what Sarah says always shows in full; only the picture above it gives up room */
+.thread { flex: 0 0 auto; display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.thread.grow { flex: 1 1 0; min-height: 0; overflow: hidden; justify-content: flex-start; }
+.thread.grow ~ .sp { display: none; }
+.thread:not(.grow) .bub.them { max-width: 100%; font: 600 calc(18 * var(--u))/1.35 "Figtree"; color: var(--ink); border-radius: 6px 18px 18px 18px; padding: 13px 16px; }
+.bub { max-width: 86%; padding: 11px 14px; border-radius: 18px; font: 500 calc(16 * var(--u))/1.4 "Figtree"; animation: in .25s ease both; }
+.bub.them { align-self: flex-start; background: var(--soft); border-bottom-left-radius: 6px; }
+.bub.you { align-self: flex-end; background: var(--maya); color: #fff; border-bottom-right-radius: 6px; }
+.bub.you .fn { background: rgba(255,255,255,.2); color: #fff; }
+.thread .aside { align-self: flex-end; font: 600 13px/1.3 "Figtree"; color: var(--muted); margin-top: -4px; }
+.opts.locked .opt.dim { display: none; }
+/* quiz street and score */
+.fig.street { flex: 0 0 auto; height: calc(84 * var(--u)); }
+.score { margin-top: 8px; text-align: center; font: 700 13px/1 "Figtree"; color: var(--muted); }
+.rounds { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.round { display: none; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.round.cur { display: flex; }
+.round .opts { margin-top: 14px; }
+.round .hero { margin-top: 14px; }
+/* the steps from the war to Sarah's bill */
+.steps { flex: 1 1 auto; justify-content: space-evenly; list-style: none; margin: 14px 0 0; padding: calc(14 * var(--u)) 14px; background: var(--soft); border-radius: 20px; display: flex; flex-direction: column; gap: calc(12 * var(--u)); counter-reset: st; }
+.steps li { position: relative; background: #fff; border-radius: 14px; box-shadow: inset 0 0 0 2px var(--line); padding: calc(12 * var(--u)) 14px calc(12 * var(--u)) 50px; font: 700 calc(16 * var(--u))/1.3 "Figtree"; color: var(--ink); counter-increment: st; animation: in .4s ease both; animation-delay: calc(var(--i) * .45s + .2s); }
+.steps li::before { content: counter(st); position: absolute; left: 12px; top: 50%; margin-top: -13px; width: 26px; height: 26px; border-radius: 50%; background: var(--soft); color: var(--muted); display: grid; place-items: center; font: 800 13px/1 "Figtree"; }
+.steps li + li::after { content: ""; position: absolute; left: 24px; top: calc(-12 * var(--u)); width: 2px; height: calc(12 * var(--u)); background: #C9C2B6; }
+.steps li:last-child { background: var(--red-soft); box-shadow: inset 0 0 0 2px var(--red); }
+.steps li:last-child::before { background: var(--red); color: #fff; }
+.steps .hot { color: var(--red); }
+/* the opponent's votes */
+.fig.col { flex-direction: column; justify-content: center; gap: calc(16 * var(--u)); padding: calc(16 * var(--u)) 0; }
+.tally { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 0 14px; text-align: center; }
+.tally .marks { display: flex; gap: 7px; margin-bottom: 5px; }
+.tally .marks i { width: calc(38 * var(--u)); height: calc(38 * var(--u)); border-radius: 10px; background: var(--red) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 4.5l7 7M11.5 4.5l-7 7' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") center/62% no-repeat; }
+.tally .marks i.yes { margin-left: 9px; background-color: #fff; box-shadow: inset 0 0 0 2px #C9C2B6; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5 6.6 11.4 12.5 5' fill='none' stroke='%236F685F' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+.tally .cap { font: 800 calc(12 * var(--u))/1.25 "Figtree"; letter-spacing: .07em; text-transform: uppercase; }
+.tally .cap.no { color: var(--red); } .tally .cap.yes { color: var(--muted); }
+/* issue by issue (Maya Kaur) */
+.cmp { flex: 1 1 auto; align-self: stretch; display: flex; flex-direction: column; justify-content: center; gap: calc(12 * var(--u)); padding: calc(14 * var(--u)) 14px; }
+.cmp .card { background: #fff; border-radius: 16px; box-shadow: inset 0 0 0 2px var(--line); padding: calc(16 * var(--u)) 16px; display: flex; flex-direction: column; gap: calc(14 * var(--u)); }
+.cmp .t { font: 800 calc(12 * var(--u))/1 "Figtree"; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.cmp .ln { display: flex; gap: 10px; align-items: flex-start; }
+.cmp .av { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font: 800 11px/1 "Figtree"; background: #D8D0C3; color: var(--ink); }
+.cmp .mk .av { background: var(--maya); color: #fff; }
+.cmp p { margin: 0; font: 500 calc(17 * var(--u))/1.3 "Figtree"; color: var(--muted); }
+.cmp p b { display: block; font: 800 calc(14 * var(--u))/1.3 "Figtree"; color: var(--ink); margin-bottom: 2px; }
+.cmp .mk p { color: var(--maya); font-weight: 700; } .cmp .mk p b { color: var(--maya); }
+/* the picture shown while a question is open; the answer's picture sits under it */
+.askpic { position: absolute; inset: 0; background: var(--soft); display: flex; align-items: center; justify-content: center; transition: opacity .5s ease; }
+.askpic.gone { opacity: 0; pointer-events: none; }
+.oart { width: 100%; padding: 0 14px; display: flex; justify-content: center; flex: 1 1 0; min-height: 64px; }
+.oart svg { width: 100%; height: 100%; }
+.fig.col:has(.oart) .clip { flex: none; }
+/* the people icon: the picked people turn blue, the answer shows in ink with a lit badge */
+.houses[data-icon=hospital].revealed button.oil .h { fill: #C2412D; } .houses[data-icon=hospital].revealed button.oil .w { fill: #FFFFFF; }
+.houses[data-icon=person].revealed button.oil .h { fill: transparent; stroke: #C2412D; stroke-width: 2.5; stroke-dasharray: 4 3; } .houses[data-icon=person].revealed button.oil .w { fill: transparent; }
+.houses[data-icon=person] .w { fill: transparent; }
+/* the people icon counts people who have something (a Social Security check): the counted people turn solid ink */
+.houses[data-icon=people].revealed button.oil .h { fill: #262320; }
+.clip q.long { font-size: calc(21 * var(--u)); line-height: 1.2; }
+/* a picture part that appears after a moment (data-delay) */
+.rise { opacity: 0; transition: opacity .5s ease; } .rise.on { opacity: 1; }
+.cmp.two .card { padding: calc(12 * var(--u)) 14px; gap: calc(9 * var(--u)); } .cmp.two p { font-size: calc(15 * var(--u)); } .cmp.two .av { width: 30px; height: 30px; }
+/* once a question is answered, the voter picture steps aside so the answer and its reason always fit */
+.round.tight .door.mini { display: none; }
+.round { overflow: hidden; }
+/* finish */
+.fin-quote { font: 500 calc(20 * var(--u))/1.3 "Newsreader", Georgia, serif; color: var(--ink); margin: 12px 0 0; }
+.fin-note { font: 600 12px/1.3 "Figtree"; color: var(--muted); margin: 4px 0 0; }
+.ft.col { flex-direction: column; gap: 4px; }
+.ft .btn-row .btn.srcbtn { flex: 0 0 auto; }
+.ft .links { display: flex; flex-wrap: wrap; justify-content: center; column-gap: 16px; row-gap: 0; }
+.ft .links .linkbtn { min-height: 36px; padding: 8px 2px 4px; }
+
+@container phone (max-height: 760px) {
+  .phone > * { --u: .9px; }
+  .door { min-height: 84px; } .door.small { height: 18%; min-height: 84px; } .door.mini { min-height: 72px; }
+  .cmp { gap: 8px; padding: 8px 10px; } .cmp .card { padding: 9px 12px; gap: 6px; } .cmp .av { width: 26px; height: 26px; }
+  .opts { gap: 8px; } .opt { padding-top: calc(12 * var(--u)); padding-bottom: calc(12 * var(--u)); }
+  .chain { gap: 7px; } .chain .opt { padding-top: calc(10 * var(--u)); padding-bottom: calc(10 * var(--u)); }
+  .fig.street { height: 60px; } .fb { margin-top: 10px; font-size: calc(15 * var(--u)); } .hero, h2.hero { margin-top: 10px; }
+  .btn { min-height: 50px; padding-top: 10px; padding-bottom: 10px; } .ft { margin-top: 10px; }
+}
+@container phone (max-height: 700px) {
+  .steps { gap: 8px; padding: 10px 12px; margin-top: 10px; } .steps li { padding-top: 8px; padding-bottom: 8px; font-size: calc(15 * var(--u)); }
+  .clip { padding-top: 12px; padding-bottom: 12px; } .clip .lead { margin-top: 8px; font-size: calc(14 * var(--u)); } .clip q.long { font-size: calc(19 * var(--u)); } .clip .barrel { margin-top: 10px; }
+}
+@container phone (max-height: 700px) { .cmp.two { gap: 6px; padding: 8px 10px; } .cmp.two .card { padding: 8px 12px; gap: 6px; } .cmp.two p { font-size: calc(14 * var(--u)); } .cmp.two p b { margin-bottom: 0; } }
+@container phone (max-height: 560px) { .phone > * { --u: .82px; } }
+
+/* On a laptop or in a wide preview, show the training inside a phone, as the Warmup app does.
+   A real phone and the app's own overlay are narrower than 521px, so they stay full screen. */
+:root { --stage-bg: #F4EEE5; --frame: #262320; }
+@media (prefers-color-scheme: dark) { :root { --stage-bg: #1C1A18; --frame: #0C0B0A; } }
+@media (min-width: 521px) and (min-height: 600px) {
+  html, body, .stage { background: var(--stage-bg); }
+  .stage { display: grid; place-items: center; }
+  .phone { width: 390px; height: min(844px, calc(100dvh - 68px)); margin: 0; border-radius: 40px; background: var(--bg); box-shadow: 0 0 0 10px var(--frame), 0 24px 60px rgba(0, 0, 0, .28); }
+  .tag-screen { color: rgba(185, 174, 158, .6); }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
+</style>
+</head>
+<body>
+<div class="stage"><div class="phone" id="phone">
+
+<div class="topbar">
+  <button class="x" id="close" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  <div class="prog" id="prog" role="navigation" aria-label="Lesson steps"></div>
+</div>
+<div class="tag-screen" id="tag-screen"></div>
+
+<!-- the screens are built here from the training's content -->
+
+<div class="sheet" id="practice-sheet" role="dialog">
+  <div class="panel"><div class="grab"></div><h3 id="practice-title"></h3>
+    <p class="copy" id="practice-body"></p>
+    <button class="btn ghost close" type="button" data-close id="practice-close"></button>
+  </div>
+</div>
+<div class="sheet" id="src-sheet" role="dialog">
+  <div class="panel"><div class="grab"></div><h3 id="src-title"></h3>
+    <ol id="src-list"></ol>
+    <p class="small" id="src-disclosure" style="margin-top:10px"></p>
+    <button class="btn ghost close" type="button" data-close id="src-close"></button>
+  </div>
+</div>
+
+</div></div>
+<!-- Social Security pictures, drawn by art.py. Edit art.py, then run build.py. -->
+<template id="art-cover"><svg viewBox="0 0 390 300" preserveAspectRatio="xMidYMax meet" role="img" aria-label="At night, a white envelope waits in the mailbox in front of a small lit home."><rect width="390" height="300" fill="#33435F"/><g fill="#FFFFFF" opacity="0.75"><circle cx="40" cy="30" r="1.3"/><circle cx="110" cy="58" r="1"/><circle cx="170" cy="22" r="1.4"/><circle cx="236" cy="48" r="1"/><circle cx="300" cy="18" r="1.2"/><circle cx="64" cy="96" r="1"/><circle cx="352" cy="88" r="1.1"/><circle cx="210" cy="104" r="1"/></g><circle cx="56" cy="52" r="16" fill="#F3F0EA"/><circle cx="64" cy="46" r="14" fill="#33435F"/><path d="M0 236 Q90 216 190 232 T390 226 V300 H0 Z" fill="#2B3A57"/><g transform="translate(150 168)"><path d="M0 40 L48.0 14 L96 40 V98 H0 Z" fill="#1F2A3D"/><path d="M-4 42 L48.0 10 L100 42" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="38.0" y="58.4" width="20" height="18" rx="2" fill="#26334D"/><rect class="lamp" data-delay="800" x="38.0" y="58.4" width="20" height="18" rx="2" fill="#F2B134"/><rect x="74" y="70" width="13" height="28" rx="1.5" fill="#7A3B33"/></g><circle class="lamp" data-delay="1300" cx="232" cy="208" r="4" fill="#FFE29A"/><g transform="translate(300 190)"><path d="M0 40 L35.0 14 L70 40 V78 H0 Z" fill="#1F2A3D"/><path d="M-4 42 L35.0 10 L74 42" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="25.0" y="49.400000000000006" width="20" height="18" rx="2" fill="#26334D"/><rect class="lamp" data-delay="1500" x="25.0" y="49.400000000000006" width="20" height="18" rx="2" fill="#F2B134"/></g><path d="M0 270 Q100 258 200 268 T390 264 V300 H0 Z" fill="#FFFFFF"/><g transform="translate(70 214)"><rect x="-2" y="18" width="5" height="40" fill="#121A28"/><path d="M-18 0 H14 A8 8 0 0 1 22 8 V20 H-18 Z" fill="#5A6A86"/><path d="M14 0 A8 8 0 0 1 22 8 V20 H14 Z" fill="#48577A"/><rect x="18" y="-14" width="4" height="16" fill="#C2412D"/><rect x="18" y="-14" width="10" height="7" fill="#C2412D"/><rect class="lamp" data-delay="1800" x="-14" y="5" width="22" height="13" rx="1.5" fill="#FFFFFF"/></g></svg></template>
+
+<template id="art-done"><svg viewBox="0 0 390 300" preserveAspectRatio="xMidYMax meet" role="img" aria-label="At night, a white envelope waits in the mailbox in front of a small lit home."><rect width="390" height="300" fill="#33435F"/><g fill="#FFFFFF" opacity="0.75"><circle cx="40" cy="30" r="1.3"/><circle cx="110" cy="58" r="1"/><circle cx="170" cy="22" r="1.4"/><circle cx="236" cy="48" r="1"/><circle cx="300" cy="18" r="1.2"/><circle cx="64" cy="96" r="1"/><circle cx="352" cy="88" r="1.1"/><circle cx="210" cy="104" r="1"/></g><circle cx="56" cy="52" r="16" fill="#F3F0EA"/><circle cx="64" cy="46" r="14" fill="#33435F"/><path d="M0 236 Q90 216 190 232 T390 226 V300 H0 Z" fill="#2B3A57"/><g transform="translate(150 168)"><path d="M0 40 L48.0 14 L96 40 V98 H0 Z" fill="#1F2A3D"/><path d="M-4 42 L48.0 10 L100 42" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="38.0" y="58.4" width="20" height="18" rx="2" fill="#26334D"/><rect class="lamp" data-delay="800" x="38.0" y="58.4" width="20" height="18" rx="2" fill="#F2B134"/><rect x="74" y="70" width="13" height="28" rx="1.5" fill="#7A3B33"/></g><circle class="lamp" data-delay="1300" cx="232" cy="208" r="4" fill="#FFE29A"/><g transform="translate(300 190)"><path d="M0 40 L35.0 14 L70 40 V78 H0 Z" fill="#1F2A3D"/><path d="M-4 42 L35.0 10 L74 42" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="25.0" y="49.400000000000006" width="20" height="18" rx="2" fill="#26334D"/><rect class="lamp" data-delay="1500" x="25.0" y="49.400000000000006" width="20" height="18" rx="2" fill="#F2B134"/></g><path d="M0 270 Q100 258 200 268 T390 264 V300 H0 Z" fill="#FFFFFF"/><g transform="translate(70 214)"><rect x="-2" y="18" width="5" height="40" fill="#121A28"/><path d="M-18 0 H14 A8 8 0 0 1 22 8 V20 H-18 Z" fill="#5A6A86"/><path d="M14 0 A8 8 0 0 1 22 8 V20 H14 Z" fill="#48577A"/><rect x="18" y="-14" width="4" height="16" fill="#C2412D"/><rect x="18" y="-14" width="10" height="7" fill="#C2412D"/><rect class="lamp" data-delay="1800" x="-14" y="5" width="22" height="13" rx="1.5" fill="#FFFFFF"/></g></svg></template>
+
+<template id="art-voter"><svg viewBox="0 34 340 140" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <rect width="340" height="210" fill="#E6DDCF"/>
+      <rect x="0" y="186" width="340" height="24" fill="#C9BFAE"/>
+      <rect x="96" y="14" width="148" height="176" rx="3" fill="#FFFFFF"/>
+      <rect x="106" y="24" width="128" height="166" fill="#2E2A26"/>
+      <rect x="106" y="24" width="128" height="166" fill="#C9A26A" opacity=".55"/>
+      <rect x="234" y="24" width="10" height="166" fill="#6B4F7A"/>
+      <circle cx="268" cy="52" r="7" fill="#FFE29A"/>
+      <g transform="translate(170 0)">
+        <g fill="#D9D4CC"><circle cx="-26" cy="70" r="10"/><circle cx="-16" cy="60" r="11"/><circle cx="-2" cy="56" r="11"/><circle cx="12" cy="57" r="11"/><circle cx="24" cy="64" r="10"/><circle cx="30" cy="78" r="9"/><circle cx="-31" cy="84" r="9"/><circle cx="31" cy="90" r="8"/><circle cx="-32" cy="98" r="7"/></g>
+        <path d="M-52 210 C-52 156 -36 140 0 140 C36 140 52 156 52 210 Z" fill="#EDE3D1"/>
+        <path d="M-15 141 Q0 152 15 141" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="4" stroke-linecap="round"/>
+        <rect x="-9" y="116" width="18" height="26" rx="6" fill="#B9825C"/>
+        <ellipse cx="0" cy="96" rx="30" ry="34" fill="#B9825C"/>
+        <path d="M-29 86 C-28 68 -12 62 0 62 C14 62 28 68 29 86 C24 76 14 71 0 73 C-12 71 -24 76 -29 86 Z" fill="#D9D4CC"/>
+        <circle cx="-11" cy="94" r="3.2" fill="#2B2420"/><circle cx="11" cy="94" r="3.2" fill="#2B2420"/>
+        <path d="M-12 82 q5 -4 9 -1 M12 82 q-5 -4 -9 -1" stroke="#4A3B30" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M-7 113 q7 -4 14 0" stroke="#7A3B33" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <circle cx="-30" cy="106" r="2.6" fill="#F2B134"/><circle cx="30" cy="106" r="2.6" fill="#F2B134"/><path d="M-52 210 C-52 156 -36 140 -14 140 L-4 210 Z M52 210 C52 156 36 140 14 140 L4 210 Z" fill="#4F7A5A"/><circle cx="-8" cy="176" r="2" fill="#E8E0CF"/><circle cx="-8" cy="194" r="2" fill="#E8E0CF"/>
+      </g>
+    </svg></template>
+
+<template id="art-paysin"><svg viewBox="0 0 390 250" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Workers pay 6.2% of their pay and employers pay another 6.2% into Social Security, which pays Linda's check of about $2,080 a month. The extra from past years was saved in the trust fund.">
+      <g transform="translate(16 54) scale(0.9)" fill="#6F685F"><circle cx="20" cy="13" r="8"/><path d="M5 44 C5 30 11 24 20 24 C29 24 35 30 35 44 Z"/></g><g transform="translate(48 54) scale(0.9)" fill="#6F685F"><circle cx="20" cy="13" r="8"/><path d="M5 44 C5 30 11 24 20 24 C29 24 35 30 35 44 Z"/></g><g transform="translate(80 54) scale(0.9)" fill="#6F685F"><circle cx="20" cy="13" r="8"/><path d="M5 44 C5 30 11 24 20 24 C29 24 35 30 35 44 Z"/></g>
+      <text x="64" y="116" text-anchor="middle" font-family="Figtree, sans-serif" font-size="10.5" font-weight="800" letter-spacing="0.8" fill="#262320" data-k="pic.paysin.workers"></text>
+      <text x="64" y="134" text-anchor="middle" font-family="Figtree, sans-serif" font-size="10.5" font-weight="800" letter-spacing="0.4" fill="#C2412D" data-k="pic.paysin.tax"></text>
+      <text x="64" y="149" text-anchor="middle" font-family="Figtree, sans-serif" font-size="10" font-weight="800" letter-spacing="0.4" fill="#C2412D" data-k="pic.paysin.tax2"></text>
+      <text x="64" y="163" text-anchor="middle" font-family="Figtree, sans-serif" font-size="10" font-weight="800" letter-spacing="0.4" fill="#C2412D" data-k="pic.paysin.tax3"></text>
+      <path d="M112 80 H132 M124 72 L133 80 L124 88" fill="none" stroke="#262320" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="138" y="54" width="116" height="52" rx="10" fill="#1F4C91"/>
+      <text x="196" y="85" text-anchor="middle" font-family="Figtree, sans-serif" font-size="10.5" font-weight="800" letter-spacing="0.8" fill="#FFFFFF" data-k="pic.paysin.ss"></text>
+      <path d="M258 80 H274 M266 72 L275 80 L266 88" fill="none" stroke="#262320" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <g transform="translate(280 54)"><rect width="100" height="52" rx="6" fill="#FFFFFF" stroke="#E6E0D6" stroke-width="2"/>
+        <path d="M10 14 H50" stroke="#E6E0D6" stroke-width="4" stroke-linecap="round"/>
+        <text x="90" y="38" text-anchor="end" font-family="Newsreader, Georgia, serif" font-size="22" font-weight="600" fill="#262320" data-k="pic.paysin.amt"></text></g>
+      <text x="330" y="124" text-anchor="middle" font-family="Figtree, sans-serif" font-size="10.5" font-weight="800" letter-spacing="0.8" fill="#262320" data-k="pic.paysin.check"></text>
+      <text x="330" y="140" text-anchor="middle" font-family="Figtree, sans-serif" font-size="10" font-weight="700" letter-spacing="0.8" fill="#6F685F" data-k="pic.paysin.month"></text>
+      <path d="M196 108 V176" stroke="#6F685F" stroke-width="2.5" stroke-dasharray="5 4"/>
+      <rect x="140" y="180" width="112" height="34" rx="8" fill="#35B57C"/>
+      <rect x="152" y="190" width="88" height="14" rx="3" fill="#FFFFFF" opacity=".35"/>
+      <text x="196" y="236" text-anchor="middle" font-family="Figtree, sans-serif" font-size="10.5" font-weight="800" letter-spacing="0.8" fill="#262320" data-k="pic.paysin.fund"></text>
+    </svg></template>
+
+<template id="art-fund"><svg viewBox="0 0 390 230" preserveAspectRatio="xMidYMid meet" role="img" aria-label="The trust fund that pays Linda's check shrinks every year from 2026 and runs out in late 2032, by the trustees' estimate.">
+      <text x="195" y="30" text-anchor="middle" font-family="Figtree, sans-serif" font-size="11.5" font-weight="800" letter-spacing="1.2" fill="#262320" data-k="pic.fund.title"></text>
+      <rect x="44" y="66" width="30" height="118" rx="4" fill="#35B57C"/><rect x="88" y="80" width="30" height="104" rx="4" fill="#35B57C"/><rect x="132" y="96" width="30" height="88" rx="4" fill="#35B57C"/><rect x="176" y="114" width="30" height="70" rx="4" fill="#35B57C"/><rect x="220" y="134" width="30" height="50" rx="4" fill="#35B57C"/><rect x="264" y="156" width="30" height="28" rx="4" fill="#35B57C"/>
+      <path d="M311 184 V90" stroke="#C2412D" stroke-width="2" stroke-dasharray="4 3"/>
+      <text x="330" y="82" text-anchor="middle" font-family="Figtree, sans-serif" font-size="11" font-weight="800" letter-spacing="1.2" fill="#C2412D" data-k="pic.fund.empty"></text>
+      <path d="M30 184 H360" stroke="#C9C2B6" stroke-width="2"/>
+      <text x="59" y="202" text-anchor="middle" font-family="Figtree, sans-serif" font-size="11" font-weight="700" letter-spacing="1.2" fill="#6F685F" data-k="pic.fund.y1"></text>
+      <text x="311" y="202" text-anchor="middle" font-family="Figtree, sans-serif" font-size="11" font-weight="800" letter-spacing="1.2" fill="#C2412D" data-k="pic.fund.y2"></text>
+      <text x="360" y="220" text-anchor="end" font-family="Figtree, sans-serif" font-size="9.5" font-weight="700" letter-spacing="0.6" fill="#6F685F" data-k="pic.fund.unit"></text>
+    </svg></template>
+
+<template id="art-workers"><svg viewBox="0 0 390 230" preserveAspectRatio="xMidYMid meet" role="img" aria-label="In 1960, about 5 workers paid in for each person getting a Social Security check. In 2025, about 2.6 did.">
+      <text x="92" y="30" text-anchor="middle" font-family="Figtree, sans-serif" font-size="12" font-weight="700" letter-spacing="1.2" fill="#6F685F" data-k="pic.workers.y1"></text>
+      <text x="278" y="30" text-anchor="middle" font-family="Figtree, sans-serif" font-size="12" font-weight="700" letter-spacing="1.2" fill="#6F685F" data-k="pic.workers.y2"></text>
+      <text x="92" y="78" text-anchor="middle" font-family="Newsreader, Georgia, serif" font-size="46" font-weight="600" fill="#262320" data-k="pic.workers.n1"></text>
+      <text x="278" y="78" text-anchor="middle" font-family="Newsreader, Georgia, serif" font-size="46" font-weight="600" fill="#C2412D" data-k="pic.workers.n2"></text>
+      <g transform="translate(8 92) scale(0.8)" fill="#6F685F"><circle cx="20" cy="13" r="8"/><path d="M5 44 C5 30 11 24 20 24 C29 24 35 30 35 44 Z"/></g><g transform="translate(42 92) scale(0.8)" fill="#6F685F"><circle cx="20" cy="13" r="8"/><path d="M5 44 C5 30 11 24 20 24 C29 24 35 30 35 44 Z"/></g><g transform="translate(76 92) scale(0.8)" fill="#6F685F"><circle cx="20" cy="13" r="8"/><path d="M5 44 C5 30 11 24 20 24 C29 24 35 30 35 44 Z"/></g><g transform="translate(110 92) scale(0.8)" fill="#6F685F"><circle cx="20" cy="13" r="8"/><path d="M5 44 C5 30 11 24 20 24 C29 24 35 30 35 44 Z"/></g><g transform="translate(144 92) scale(0.8)" fill="#6F685F"><circle cx="20" cy="13" r="8"/><path d="M5 44 C5 30 11 24 20 24 C29 24 35 30 35 44 Z"/></g><g transform="translate(222 92) scale(0.8)" fill="#C2412D"><circle cx="20" cy="13" r="8"/><path d="M5 44 C5 30 11 24 20 24 C29 24 35 30 35 44 Z"/></g><g transform="translate(262 92) scale(0.8)" fill="#C2412D"><circle cx="20" cy="13" r="8"/><path d="M5 44 C5 30 11 24 20 24 C29 24 35 30 35 44 Z"/></g><g transform="translate(302 92) scale(0.8)"><defs><clipPath id="part60"><rect x="0" y="0" width="23.0" height="46"/></clipPath></defs><g fill="none" stroke="#C2412D" stroke-width="1.6" stroke-dasharray="3 2.5"><circle cx="20" cy="13" r="8"/><path d="M5 44 C5 30 11 24 20 24 C29 24 35 30 35 44 Z"/></g><g fill="#C2412D" clip-path="url(#part60)"><circle cx="20" cy="13" r="8"/><path d="M5 44 C5 30 11 24 20 24 C29 24 35 30 35 44 Z"/></g></g>
+      <path d="M197 26 V150" stroke="#E6E0D6" stroke-width="2"/>
+      <text x="195" y="182" text-anchor="middle" font-family="Figtree, sans-serif" font-size="11" font-weight="800" letter-spacing="1.2" fill="#262320" data-k="pic.workers.unit1"></text>
+      <text x="195" y="200" text-anchor="middle" font-family="Figtree, sans-serif" font-size="11" font-weight="700" letter-spacing="1.2" fill="#6F685F" data-k="pic.workers.unit2"></text>
+    </svg></template>
+<script>
+/* Social Security (Social Security): every word of the training. The pictures are in art.py; the engine is src/shared/engine.js.
+   Built from Iowa's 2026 US Senate race. Franklin, Maya Kaur and Jack Dufner stand in for the real state and candidates.
+   The second Systems training. The real Republican's votes were cast in the US House, so the training says "voted for" and names no chamber.
+   Facts and their check status: research/social.md. Screen types and their fields: playbook/arcs.md. */
+window.TRAINING = {
+  id: 'social', tag: 'Social Security', title: 'Maya Kaur · Social Security',
+  lockup: 'Maya Kaur', lockupSub: 'For U.S. Senate · Franklin',
+  jd: 'Jack Dufner', jdInit: 'JD', mk: 'Maya Kaur', mkInit: 'MK',
+  screens: [
+    { type: 'cover', art: 'cover',
+      h: 'Franklin voters keep asking about Social Security at the door.',
+      body: "I'm Maya Kaur, and I'm running for US Senate against Jack Dufner. Before you knock, I want you to know why Social Security checks like Linda's could get smaller in late 2032 and how I would help stop the cut. This briefing takes about six minutes.",
+      next: 'Get briefed on Social Security' },
+    { type: 'count', icon: 'people', label: 'LINDA', total: 10, answer: 2,
+      ask: 'How many of every 10 Franklin people get a Social Security check?',
+      reveal: 'About 2 of every 10 Franklin people get a Social Security check.[1]',
+      aria: 'Pick a number of people from 1 to 10',
+      hint: 'Tap or slide across the people', yourGuess: 'Your guess: {n} of 10',
+      fbRight: 'You guessed 2 of 10. You are right: 717,616 Franklin people got a check in December 2025.', fbClose: 'You guessed {n} of 10. The answer is about 2 of 10: 717,616 Franklin people got a check in December 2025.', fbFar: 'You guessed {n} of 10. About 2 of 10 get a check, {dir}',
+      fewer: 'fewer than you guessed.', more: 'more than you guessed.',
+      note: 'Linda is an example voter: a retired grocery store manager. Her check is about $2,080 a month, the Franklin average for retired workers in December 2025.[1]',
+      check: 'Check my guess', next: "See who pays for Linda's check" },
+    { type: 'tell', art: 'paysin',
+      h: "Social Security pays Linda's check with a tax on most workers' pay, and it saved the extra from past years in a trust fund.[2][3]",
+      body: 'Workers pay 6.2% of their pay and their employers pay another 6.2%. The trust fund is Social Security\'s savings, lent to the federal government, which pays them back with interest.[2][3]',
+      next: 'See why the trust fund is shrinking' },
+    { type: 'pick', art: 'workers', askArt: 'fund', right: 'workers',
+      ask: "Why is Social Security's trust fund, the savings behind Linda's check, getting smaller?",
+      reveal: 'Fewer workers now pay in for each person getting a check: about 5 in 1960 and about 2.6 in 2025.[5]',
+      askNote: "Social Security's trustees, the officials who report on its money each year, expect the trust fund that pays Linda's check to run out in late 2032.[6]",
+      opts: [{ v: 'took', t: "Congress took the trust fund's money and never paid it back" }, { v: 'workers', t: 'Fewer workers pay in for each person getting a check' }, { v: 'immig', t: 'Immigrants without legal status collect checks' }],
+      fbRight: '<b>Yes, you picked the right answer.</b>',
+      fbWrong: '<b>Fewer workers pay in for each person getting a check.</b> The federal government has always paid back what the trust fund lent it, with interest, and people without legal status cannot collect checks.[3][13]',
+      next: "See what happens to Linda's check" },
+    { type: 'steps',
+      h: "If Congress does nothing, checks like Linda's get about 22% smaller at first when the trust fund runs out in late 2032, by the trustees' estimate.[6]",
+      steps: [
+        'Social Security pays out more than it takes in, so the trust fund pays the difference until the trust fund runs out.[4][6]',
+        'From late 2032, the money coming in pays only about 78% of each check at first.[6]',
+        "78% of Linda's $2,080 check is about $1,620, so her check gets *about $460 a month smaller*, in today's dollars.",
+      ],
+      foot: "Checks do not stop when the trust fund runs out. Franklin's two US senators vote on laws that would stop the 22% cut.[6]",
+      next: "See Jack Dufner's Social Security record" },
+    { type: 'opponent',
+      h: "Jack Dufner voted for the 2025 federal law, which Social Security's experts say makes the trust fund run out sooner, though it gave people 65 and over a tax break.[4][7][8][9]",
+      clip: { kicker: "Jack Dufner's words", lead: 'At a debate on Oct 7, 2026:',
+        quote: '"I have not voted for cuts to Social Security benefits, and I will not support cuts to Social Security benefits."[11]', },
+      body: "Jack Dufner's statement is true: no vote of his cut a check. His plan for the trust fund that pays checks like Linda's is a panel from both parties that would decide what to do.[11][14]",
+      next: 'See how Maya Kaur would help Linda' },
+    { type: 'compare',
+      h: "Maya Kaur would end the wage cap, the $184,500 limit on pay that Social Security taxes, to bring more money in for checks like Linda's.[11][14]",
+      rows: [
+        { topic: 'The wage cap', jd: 'Says raising it would not close the whole money gap; wants a panel from both parties to decide[11]', mk: 'Would end it, so pay above $184,500 a year pays Social Security tax too[11][14]' },
+      ],
+      record: "Social Security's own money experts estimated in 2021 that ending the wage cap would push the trust fund's run-out about 20 years later. It would close about half or more of the money gap over 75 years, though not all of it.[12]",
+      next: 'Answer 3 Social Security questions' },
+    { type: 'quiz', pill: 'Linda asks',
+      rounds: [
+        { h: 'Linda asks, "Why is Social Security running short?" Which answer is right?', opts: ['Congress raided the trust fund for other spending, so the money is gone', 'Immigrants without legal status are collecting checks and draining the trust fund', 'More people are retiring, so fewer workers pay in for each person getting a check'], ok: 2,
+          right: 'Right. Fewer workers pay in for each person getting a check: about 5 workers in 1960 and about 2.6 in 2025.[5]',
+          wrong: '<b>Fewer workers pay in for each person getting a check:</b> about 5 workers in 1960 and about 2.6 in 2025. The federal government has always paid back what the trust fund lent it, with interest, and people without legal status cannot collect checks.[3][5][13]',
+          retry: '<b>Try once more.</b> Think about what changed since 1960. Two answers are left.' },
+        { h: 'Linda asks, "What happens to my check when the trust fund runs out in late 2032?" Which answer is right?', opts: ['Your check stops, because Social Security will be out of money', 'Your check falls to about $460 a month, about 78% smaller', "Your check gets about 22% smaller at first: about $460 a month less, in today's dollars"], ok: 2,
+          right: "Right. Unless Congress acts, from late 2032 the money coming in pays only about 78% of each check at first, by the trustees' estimate.[6]",
+          wrong: "<b>Unless Congress acts, your check gets about 22% smaller at first,</b> about $460 a month less in today's dollars. Checks do not stop; the money coming in pays about 78% of each check, by the trustees' estimate.[6]",
+          retry: '<b>Try once more.</b> The money coming in pays about 78% of each check. Two answers are left.' },
+        { h: 'Linda asks, "What did Jack Dufner do on Social Security?" Which answer is right?', opts: ['He voted for the 2025 federal law, which gave people 65 and over a tax break but cut their monthly checks', 'He voted for the 2025 federal law, which gave people 65 and over a tax break but makes the trust fund run out sooner', 'He voted for the 2025 federal law, which ended the tax on Social Security checks and added to the trust fund'], ok: 1,
+          right: 'Right. No vote of his cut a check, and he wants a panel from both parties to decide. Maya Kaur would end the wage cap.[8][11]',
+          wrong: '<b>He voted for the 2025 federal law,</b> which gave people 65 and over a tax break but makes the trust fund run out sooner. No vote of his cut a check, and the tax on checks did not end.[7][8][9][10]',
+          retry: '<b>Try once more.</b> Think about what the 2025 federal law did and did not do. Two answers are left.' },
+      ],
+      retake: 'You got the answer on the second try.',
+      next: ['Go to question 2 of 3', 'Go to question 3 of 3'], fin: 'Finish the Social Security briefing' },
+    { type: 'done', of: 3, art: 'done',
+      hAll: "You're ready to practice the Social Security conversation with Linda.",
+      hLess: 'You answered {n} of 3 questions correctly.',
+      subAll: 'You answered 3 of 3 questions correctly.', subLess: 'Retake the 3 questions, or go on to practice the Social Security conversation with Linda.',
+      quote: '"Let\'s make sure that billionaires and large corporations are paying their fair share."[11]', attrib: 'Maya Kaur, at a debate on Oct 7, 2026, on Social Security',
+      practice: 'Practice the conversation with Linda', retake: 'Retake the 3 questions', sources: 'See all sources', restart: 'Start the briefing over' },
+  ],
+  /* words drawn inside the pictures */
+  pic: {
+    paysin: { workers: 'PAYCHECKS', tax: '6.2% OF PAY', tax2: '+ 6.2% FROM', tax3: 'THE EMPLOYER', month: 'A MONTH', ss: 'SOCIAL SECURITY', check: "LINDA'S CHECK", amt: '$2,080', fund: 'TRUST FUND: SAVED EXTRA' },
+    fund: { title: 'THE TRUST FUND THAT PAYS LINDA\'S CHECK', y1: '2026', y2: 'LATE 2032', empty: 'RUNS OUT', unit: 'BY THE TRUSTEES\' ESTIMATE' },
+    workers: { y1: '1960', y2: '2025', n1: '5', n2: '2.6', unit1: 'WORKERS PAYING IN', unit2: 'FOR EACH PERSON GETTING A CHECK' },
+  },
+  ui: {
+    sources: 'See sources', sourcesTitle: 'Sources', sourcesClose: 'Close sources', close: 'Close the training', close2: 'Close', goStep: 'Go to step {n}',
+    practiceTitle: 'Practice with Linda',
+    practiceBody: 'Inside the Warmup app, the "Practice the conversation with Linda" button opens the spoken practice with Linda. The spoken practice is not part of this preview yet.',
+    disclosure: "Linda is an example voter, not a real person. This training is built from Iowa's 2026 US Senate race. Franklin stands in for Iowa and Maya Kaur stands in for the real Democratic candidate. Jack Dufner stands in for the real Republican candidate. Everything said about Jack Dufner is the real Republican candidate's own record. Inside the training, sources named for Iowa are shown with Franklin in their place; this list and every link use the real names.",
+  },
+  /* Sources: [name shown inside the training, what it supports, link, real name shown on the last screen] */
+  sources: {
+    1: ['Social Security Administration state data, Dec 2025', "717,616 of the state's 3,238,387 people got a Social Security check in December 2025 (22.2%). 565,146 retired workers got $1,174,365,000 a month, about $2,078 each.", 'https://www.ssa.gov/policy/docs/statcomps/oasdi_sc/2025/table01.html', 'Social Security Administration, "OASDI Beneficiaries by State and County, 2025," Tables 1 to 3'],
+    2: ['Social Security Administration, Oct 2025', 'In 2026, workers pay 6.2% and employers pay 6.2% of pay up to $184,500 a year, the most pay that Social Security tax is taken from.', 'https://www.ssa.gov/cola/factsheets/2026.html', 'Social Security Administration, "2026 Social Security Changes" fact sheet'],
+    3: ['Social Security Administration, trust fund questions', 'The trust funds are lent to the federal government through special US Treasury bonds that pay interest. "The government has always repaid Social Security, with interest."', 'https://www.ssa.gov/OACT/ProgData/fundFAQ.html', 'Social Security Administration, Office of the Chief Actuary, "Frequently Asked Questions about the Social Security Trust Funds"'],
+    4: ['Congressional Research Service, Jun 25, 2026', 'Social Security pays out more than it takes in. For its two trust funds together, in 2026 Social Security takes in $1,493.2 billion and pays out $1,696.8 billion. Reserves peaked at $2.91 trillion in 2020 and fall to $2,357.7 billion at the end of 2026. "The enactment of P.L. 119-21 [the 2025 federal law] will lead to lower program income from the taxation of benefits."', 'https://www.everycrsreport.com/reports/IF13256.html', 'Congressional Research Service, IF13256, "Social Security: Selected Findings of the 2026 Annual Report," Jun 25, 2026'],
+    5: ['American Academy of Actuaries, Jul 2026, and Social Security Administration', 'In 2025 there were about 2.6 workers paying Social Security tax for each person getting a check. In 1960 there were 5.1.', 'https://actuary.org/wp-content/uploads/2026/07/Trustees_Report_One-Pager_Placemat_2026.pdf', 'American Academy of Actuaries, "2026 Trustees Report One-Pager," Jul 2026; Social Security Administration, "Ratio of Covered Workers to Beneficiaries"'],
+    6: ['CNN, Jun 9, 2026', 'Social Security\'s trustees, who report on its money each year, expect the retirement trust fund to run out in late 2032, after which the money coming in covers only 78% of the checks owed. Checks do not stop.', 'https://abc7ny.com/post/social-securitys-retirement-trust-fund-faces-funding-shortfall-year-earlier-expected/19264519/', 'CNN (via WABC), "Social Security retirement trust fund will run dry in 2032 unless Congress acts," Jun 9, 2026; also the Social Security Trustees\' 2026 summary'],
+    7: ["Congress's vote record, 2025", 'Jack Dufner voted for the 2025 federal law.', 'https://clerk.house.gov/evs/2025/roll190.xml', 'Clerk of the US House, Roll Call 190 (Jul 3, 2025), H.R. 1; also Roll Call 145 (May 22, 2025)'],
+    8: ['FOX 9, Aug 7, 2025', "Social Security's chief actuary, its top money expert, wrote that the 2025 federal law makes its trust funds run out sooner, mainly because less income tax on Social Security checks flows into them, including through the tax break for people 65 and over.", 'https://www.fox9.com/news/tax-bill-social-security-insolvent-sooner', 'FOX 9, "Tax changes will make Social Security go insolvent sooner than previous estimate," Aug 7, 2025'],
+    9: ['IRS, 2025', 'From 2025 through 2028, people 65 and over may claim an extra $6,000 tax deduction, smaller above $75,000 of income.', 'https://www.irs.gov/newsroom/one-big-beautiful-bill-act-tax-deductions-for-working-americans-and-seniors', 'IRS, "One, Big, Beautiful Bill Act: Tax deductions for working Americans and seniors"'],
+    10: ['NPR, Jul 10, 2025', 'The 2025 law does not end taxes on Social Security checks. "Cutting these taxes accelerates the timeline in which those trust funds will become insolvent."', 'https://www.hawaiipublicradio.org/national-international/2025-07-10/what-trumps-one-big-beautiful-bill-act-means-for-taxes-on-social-security', 'NPR, Jul 10, 2025'],
+    11: ['Franklin Public TV debate, Oct 7, 2026', 'Jack Dufner: "I have not voted for cuts to Social Security benefits, and I will not support cuts to Social Security benefits"; "raising the cap is not going to take care of the entire gap"; "Let\'s set up a bipartisan commission." Maya Kaur: "the very best way to keep Social Security solvent is by taking off the cap"; "I\'m not in favor of raising the retirement age"; "Let\'s make sure that billionaires and large corporations are paying their fair share."', 'https://www.iowapbs.org/shows/iowapress/special/14524/iowa-press-debates-us-senate', 'Iowa PBS, "Iowa Press Debates: U.S. Senate," Oct 7, 2026 (transcript)'],
+    12: ['Congressional Research Service, Nov 4, 2021', 'Social Security\'s actuaries projected that ending the wage cap in 2022 would delay the trust funds\' run-out by 20 years (from 2034 to 2054, on 2021 projections) and eliminate 55% of the long-term funding shortfall. Their 2025 scoring puts it at about half or more.', 'https://www.everycrsreport.com/reports/IN11789.html', 'Congressional Research Service, IN11789, "Social Security: Removing the Taxable Maximum and Long-Term Program Solvency," Nov 4, 2021; Social Security Office of the Chief Actuary, payroll tax options, 2025'],
+    13: ['Congressional Research Service, Feb 6, 2018', 'Federal law bars paying Social Security checks to people who are not lawfully present, though many of them pay Social Security tax from their pay.', 'https://www.everycrsreport.com/reports/IF10820.html', 'Congressional Research Service, IF10820, "Social Security Benefits and Unauthorized Alien Workers," Feb 6, 2018'],
+    14: ['Franklin TV News, Sep 10, 2026', 'Maya Kaur would lift the cap on pay taxed for Social Security, so wealthier people pay more. Jack Dufner\'s campaign says he has never cut a penny from Social Security.', 'https://www.wowt.com/2026/09/10/us-senate-candidate-turek-wants-these-people-pay-more-social-security-taxes/', 'WOWT (Gray Media), Sep 10, 2026'],
+  },
+};
+
+
+</script>
+<script>
+/* ================= THE SHARED ENGINE =================
+   One engine for every Maya Kaur issue training. It holds no words and no pictures:
+   the words are in the training's content.js (window.TRAINING) and the pictures in its art.html (<template id="art-...">).
+   Mini-markup inside any string: [n] cites source n (hidden on screen; it feeds that screen's "See sources" list),
+   *text* sets text in the highlight color, <b>bold</b> is plain HTML, {g} {n} {a} {dir} are filled in by the page.
+   Screen types: cover, count, price, tell, pick, steps, opponent, compare, quiz, done. */
+(() => {
+  const T = window.TRAINING, SRC = T.sources, U = T.ui, HOOKS = window.TRAINING_HOOKS || {};
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const wait = (ms) => new Promise(r => setTimeout(r, REDUCED ? 0 : ms));
+  const fill = (s, v = {}) => String(s).replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+  const md = (s, v) => s == null ? '' : fill(s, v).replace(/\[(\d+)\]/g, '<button class="fn" type="button" tabindex="-1" data-src="$1">$1</button>').replace(/\*([^*]+)\*/g, '<span class="hot">$1</span>');
+  const plain = (s) => String(s == null ? '' : s).replace(/\[(\d+)\]/g, '').replace(/\*([^*]+)\*/g, '$1').replace(/<[^>]+>/g, '');
+  const get = (o, k) => k.split('.').reduce((a, p) => (a == null ? a : a[p]), o);
+  const art = (k) => { const t = document.getElementById('art-' + k); return t ? t.innerHTML : ''; };
+  const money = (v, dec = 0) => '$' + Number(v).toFixed(dec).replace(/^(\d+)/, d => d.replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+  const foot = (s, before = '') => `<div class="ft">${before}<button class="btn" type="button" data-next>${md(s.next)}</button></div>`;
+  const ICONS = {
+    house: '<path class="h" d="M4 20 L20 5 L36 20 V42 H4 Z"/><rect class="w" x="14" y="23" width="12" height="11" rx="1.5"/>',
+    hospital: '<path class="h" d="M5 16 H35 V42 H5 Z"/><path class="h" d="M12 16 V8 H28 V16 Z"/><path class="w" d="M17.5 21 h5 v5 h5 v5 h-5 v5 h-5 v-5 h-5 v-5 h5 Z"/>',
+    person: '<circle class="h" cx="20" cy="13" r="8"/><path class="h" d="M5 44 C5 30 11 24 20 24 C29 24 35 30 35 44 Z"/><path class="w" d="M16 31 h8 v4 h-8 Z"/>',
+    people: '<circle class="h" cx="20" cy="13" r="8"/><path class="h" d="M5 44 C5 30 11 24 20 24 C29 24 35 30 35 44 Z"/>',
+  };
+  const BARREL = '<svg viewBox="0 0 22 26" aria-hidden="true"><ellipse cx="11" cy="4" rx="9" ry="3" fill="#E08A1A"/><path d="M2 4 V22 a9 3 0 0 0 18 0 V4" fill="#E08A1A"/><path d="M2 10 a9 3 0 0 0 18 0 M2 16 a9 3 0 0 0 18 0" stroke="#B86D0E" stroke-width="1.5" fill="none"/></svg>';
+
+  /* ---------- markup for each screen type ---------- */
+  const BUILD = {
+    cover: (s) => `<div class="camp"><b>${md(T.lockup)}</b><small>${md(T.lockupSub)}</small></div>
+      <h1 class="hero">${md(s.h)}</h1><p class="copy">${md(s.body)}</p>
+      <div class="fig scene">${art(s.art || 'cover')}</div>${foot(s)}`,
+    count: (s) => `<h2 class="hero">${md(s.ask)}</h2>
+      <div class="fig grow"><div class="houses" data-icon="${s.icon || 'house'}" role="group" aria-label="${plain(s.aria)}"></div></div>
+      <div class="count">${md(s.hint)}</div>${s.note ? `<p class="note">${md(s.note)}</p>` : ''}
+      <div class="ft"><button class="btn hide check" type="button">${md(s.check)}</button><button class="btn hide" type="button" data-next>${md(s.next)}</button></div>`,
+    price: (s) => { const f = (v) => money(v, s.dec || 0); return `<h2 class="hero">${md(s.ask)}</h2>
+      <div class="fig grow chart" style="--max:${s.max}" role="img" aria-label="${plain(s.aria)}">
+        <div class="col"><b class="val">${f(s.past.v)}</b><i class="bar past" style="--v:${s.past.v}"></i><span>${md(s.past.label)}</span></div>
+        <div class="col you"><b class="val gval">${f(s.past.v)}</b><i class="bar guess" style="--v:${s.past.v}"></i><span>${md(s.guessLabel)}</span></div>
+        <div class="col now"><b class="val">${f(s.now.v)}</b><i class="bar empty" style="--v:${s.max}"><em>?</em></i><span>${md(s.now.label)}</span></div>
+      </div>
+      <div class="ask"><input class="range" type="range" min="${s.min}" max="${s.max}" step="${s.step}" value="${s.past.v}" aria-label="${plain(s.rangeAria)}">
+        <div class="range-labels"><span>${f(s.min)}</span><span>${f(s.max)}</span></div></div>
+      <p class="copy reveal fbx"></p>${s.note ? `<p class="note">${md(s.note)}</p>` : ''}
+      <div class="ft"><button class="btn hide lock" type="button">${md(s.lock)}</button><button class="btn hide" type="button" data-next>${md(s.next)}</button></div>`; },
+    tell: (s) => `<h2 class="hero">${md(s.h)}</h2><div class="fig grow fit">${art(s.art)}</div>
+      ${s.body ? `<p class="copy">${md(s.body)}</p>` : ''}${s.note ? `<p class="note">${md(s.note)}</p>` : ''}${foot(s)}`,
+    pick: (s) => `<h2 class="hero">${md(s.ask)}</h2>
+      <div class="fig grow fit">${art(s.art)}${s.askArt ? `<div class="askpic">${art(s.askArt)}</div>` : ''}</div>
+      ${s.askNote ? `<p class="note anote">${md(s.askNote)}</p>` : ''}${s.note ? `<p class="note hide pnote">${md(s.note)}</p>` : ''}
+      <div class="ask"><div class="opts${s.row ? ' row' : ''}">${s.opts.map(o => `<button class="opt" type="button" data-v="${o.v}">${md(o.t)}</button>`).join('')}</div></div>
+      <div class="fb"></div>
+      <div class="ft"><button class="btn hide" type="button" data-next>${md(s.next)}</button></div>`,
+    steps: (s) => `<h2 class="hero">${md(s.h)}</h2><ol class="steps"></ol>${s.foot ? `<p class="copy">${md(s.foot)}</p>` : ''}${foot(s)}`,
+    opponent: (s) => `<h2 class="hero">${md(s.h)}</h2>
+      <div class="fig grow col">
+        ${s.tally ? `<div class="tally"><div class="marks" aria-hidden="true">${'<i class="no"></i>'.repeat(s.tally.no)}${'<i class="yes"></i>'.repeat(s.tally.yes || 0)}</div>
+          <div class="cap no">${md(s.tally.capNo)}</div>${s.tally.capYes ? `<div class="cap yes">${md(s.tally.capYes)}</div>` : ''}</div>` : ''}
+        ${s.art ? `<div class="oart">${art(s.art)}</div>` : ''}
+        ${s.clip ? `<div class="clip"><div class="kick">${md(s.clip.kicker)}</div><div class="lead">${md(s.clip.lead)}</div>${s.clip.quote ? `<q${plain(s.clip.quote).length > 60 ? ' class="long"' : ''}>${md(s.clip.quote)}</q>` : ''}
+          ${s.clip.extra ? `<div class="barrel">${s.clip.extraIcon === 'barrel' ? BARREL : ''}<span>${md(s.clip.extra)}</span></div>` : ''}</div>` : ''}
+      </div>${s.body ? `<p class="copy">${md(s.body)}</p>` : ''}${foot(s)}`,
+    compare: (s) => `<h2 class="hero">${md(s.h)}</h2>
+      <div class="fig grow"><div class="cmp${s.rows.length > 1 ? ' two' : ''}">${s.rows.map(r => `<div class="card"><div class="t">${md(r.topic)}</div>
+        <div class="ln jd"><span class="av">${md(T.jdInit)}</span><p><b>${md(T.jd)}</b><span>${md(r.jd)}</span></p></div>
+        <div class="ln mk"><span class="av">${md(T.mkInit)}</span><p><b>${md(T.mk)}</b><span>${md(r.mk)}</span></p></div></div>`).join('')}</div></div>
+      ${s.record ? `<p class="copy">${md(s.record)}</p>` : ''}${foot(s)}`,
+    quiz: (s) => { const pic = `<div class="door mini">${art('voter')}<div class="whop"><i></i><span>${md(s.pill)}</span></div></div>`;
+      return `<div class="rounds">${s.rounds.map((r, i) => `<div class="round${i ? '' : ' cur'}"><h2 class="hero">${md(r.h)}</h2>${pic}
+        <div class="opts">${r.opts.map((t, j) => `<button class="opt" type="button" data-v="${j === r.ok ? 'ok' : 'x'}">${md(t)}</button>`).join('')}</div><div class="fb"></div></div>`).join('')}</div>
+      <div class="ft"><button class="btn hide rnext" type="button"></button><button class="btn hide" type="button" data-next>${md(s.fin)}</button></div>`; },
+    done: (s) => `<div class="fig scene">${art(s.art || 'done')}</div>
+      <h2 class="hero dh"></h2><p class="copy dsub"></p>
+      ${s.quote ? `<p class="fin-quote">${md(s.quote)}</p><p class="fin-note">${md(s.attrib)}</p>` : ''}
+      <div class="ft col"><button class="btn practice" type="button">${md(s.practice)}</button>
+        <div class="links"><button class="linkbtn hide retake" type="button">${md(s.retake)}</button><button class="linkbtn allsrc" type="button">${md(s.sources)}</button><button class="linkbtn" type="button" data-restart>${md(s.restart)}</button></div></div>`,
+  };
+
+  /* ---------- build the page ---------- */
+  document.title = T.title;
+  const phone = $('#phone'), firstSheet = $('#practice-sheet');
+  T.screens.forEach((s, i) => firstSheet.insertAdjacentHTML('beforebegin', `<section class="screen" data-type="${s.type}" data-i="${i}">${BUILD[s.type](s)}</section>`));
+  $$('[data-k]').forEach(el => { const v = get(T, el.dataset.k); if (v == null) return; if (el instanceof SVGElement) el.textContent = plain(v); else el.innerHTML = md(v); });
+  $('#close').setAttribute('aria-label', U.close);
+  $('#practice-sheet').setAttribute('aria-label', U.practiceTitle); $('#practice-title').textContent = U.practiceTitle; $('#practice-body').innerHTML = md(U.practiceBody); $('#practice-close').textContent = U.close2;
+  $('#src-sheet').setAttribute('aria-label', U.sourcesTitle); $('#src-title').textContent = U.sourcesTitle; $('#src-close').textContent = U.sourcesClose; $('#src-disclosure').innerHTML = md(U.disclosure);
+
+  const screens = $$('.screen'), total = screens.length, STEPS = total - 2;
+  let idx = -1, maxSeen = 0;
+  const state = { score: 0 };
+  const hooks = {}, resets = {};
+
+  /* ---------- sources: a screen's link shows only while the screen, as it stands, cites a fact ---------- */
+  screens.forEach((sc, i) => { if (i === 0 || i === total - 1) return; const ft = $('.ft', sc); if (ft) ft.insertAdjacentHTML('beforeend', `<button class="linkbtn srcbtn hide" type="button">${md(U.sources)}</button>`); });
+  const visible = (el, sc) => { for (let e = el.parentElement; e && e !== sc; e = e.parentElement) if (getComputedStyle(e).display === 'none') return false; return true; };
+  const shownSrcs = (sc) => [...new Set($$('.fn', sc).filter(f => visible(f, sc)).map(f => f.dataset.src))].sort((a, b) => a - b);
+  const allSrcs = () => [...new Set(JSON.stringify(T.screens).match(/\[(\d+)\]/g).map(m => m.slice(1, -1)))].sort((a, b) => a - b);
+  let srcTick = 0;
+  const refreshSrc = () => { if (srcTick) return; srcTick = requestAnimationFrame(() => { srcTick = 0; const sc = screens[idx]; const b = sc && $('.ft > .srcbtn', sc); if (b) b.classList.toggle('hide', !shownSrcs(sc).length); }); };
+  new MutationObserver(refreshSrc).observe(phone, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
+  function openScreenSources() { $('#src-list').innerHTML = shownSrcs(screens[idx]).map(n => `<li><b>${SRC[n][0]}</b>: ${SRC[n][1]}</li>`).join(''); $('#src-disclosure').classList.add('hide'); $('#src-sheet').classList.add('show'); }
+  function openAllSources() { $('#src-list').innerHTML = allSrcs().map(n => `<li><a target="_blank" rel="noopener" href="${SRC[n][2]}">${SRC[n][3]}</a>: ${SRC[n][1]}</li>`).join(''); $('#src-disclosure').classList.remove('hide'); $('#src-sheet').classList.add('show'); }
+
+  /* ---------- engine: close, story bar, screen tags ---------- */
+  const prog = $('#prog');
+  for (let k = 1; k <= STEPS; k++) { const b = document.createElement('button'); b.type = 'button'; b.dataset.go = k; b.setAttribute('aria-label', fill(U.goStep, { n: k })); prog.appendChild(b); }
+  const tagFor = (i) => T.tag + ' ' + (i === 0 ? 'Cover' : i === total - 1 ? 'Done' : i);
+  function setProgress(i) {
+    $('#tag-screen').textContent = tagFor(i);
+    $$('button', prog).forEach(b => { const k = +b.dataset.go; b.classList.toggle('on', k < i); b.classList.toggle('cur', k === i); b.disabled = k > maxSeen || k === i; });
+  }
+  function show(i, dir = 1) {
+    const prev = screens[idx], next = screens[i];
+    if (prev && prev !== next) {
+      prev.classList.remove('is-active'); prev.classList.add(dir > 0 ? 'is-leaving' : 'is-leaving-back');
+      setTimeout(() => prev.classList.remove('is-leaving', 'is-leaving-back'), REDUCED ? 0 : 340);
+    }
+    idx = i; maxSeen = Math.max(maxSeen, i);
+    next.classList.toggle('from-back', dir < 0);
+    requestAnimationFrame(() => next.classList.add('is-active'));
+    setProgress(i);
+    $('.topbar').classList.toggle('hidden', i === 0 || i === total - 1);
+    /* coming back to a screen always starts it fresh, so answers are never pre-filled */
+    if (prev !== next && resets[i]) resets[i]();
+    if (hooks[i]) hooks[i]();
+    refreshSrc();
+    const hd = $('h1, h2', next); if (hd) { hd.setAttribute('tabindex', '-1'); hd.focus({ preventScroll: true }); }
+  }
+  const next = () => { if (idx < total - 1) show(idx + 1, 1); };
+  const back = () => { if (idx > 0) show(idx - 1, -1); };
+  const closeSheets = () => $$('.sheet').forEach(s => s.classList.remove('show'));
+  function resetAll() { state.score = 0; maxSeen = 0; Object.values(resets).forEach(r => r()); }
+  const EMB = (() => { try { return window.parent !== window; } catch (e) { return true; } })() || new URLSearchParams(location.search).has('emb');
+  /* The Warmup app opens a training with ?app=1 and listens for three messages: issues-done (the last screen is showing, so the
+     app can check the training off), issues-practice (open the spoken practice) and issues-close (close the training). */
+  const IN_APP = new URLSearchParams(location.search).has('app');
+  const tellApp = (msg) => { try { window.parent.postMessage(msg, '*'); } catch (e) {} };
+  /* opened from the page that lists every training: the close button goes back to it */
+  const FROM_INDEX = !IN_APP && (() => { try { return sessionStorage.getItem('maya-issues-index') === '1'; } catch (e) { return false; } })();
+  $('#close').addEventListener('click', () => { if (FROM_INDEX) { if (history.length > 1) history.back(); else location.href = 'index.html'; return; } if (EMB || IN_APP) tellApp({ warmup: 'issues-close' }); else { closeSheets(); show(0, -1); } });
+  document.addEventListener('click', e => {
+    if (e.target.closest('.ft > .srcbtn')) return openScreenSources();
+    if (e.target.closest('.allsrc')) return openAllSources();
+    const go = e.target.closest('#prog button'); if (go && !go.disabled) { const k = +go.dataset.go; return show(k, k < idx ? -1 : 1); }
+    if (e.target.closest('[data-next]:not([disabled])')) return next();
+    if (e.target.closest('[data-restart]')) { closeSheets(); resetAll(); return show(0, -1); }
+    if (e.target.closest('[data-close]')) return closeSheets();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.target.matches('input')) return;
+    if (e.key === 'ArrowRight') { const b = $('.screen.is-active [data-next]:not(.hide)'); if (b) next(); }
+    if (e.key === 'ArrowLeft') back();
+    if (e.key === 'Escape') closeSheets();
+  });
+  $$('.sheet').forEach(s => s.addEventListener('click', e => { if (e.target === s) s.classList.remove('show'); }));
+
+  function fb(el, html, kind) { el.innerHTML = '<span>' + md(html) + '</span>'; el.classList.remove('good', 'bad'); if (kind) el.classList.add(kind); el.classList.add('show'); }
+  function countTo(el, from, to, ms, prefix, dec, run, sc) {
+    if (REDUCED) { el.textContent = prefix + money(to, dec).slice(1); return; }
+    const t0 = performance.now();
+    (function step(t) { if (sc._run !== run) return; const p = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - p, 3); el.textContent = prefix + money(from + (to - from) * e, dec).slice(1); if (p < 1) requestAnimationFrame(step); })(t0);
+  }
+  /* pictures can count a number up (data-count-from/to), move a part (data-go) and light windows (.lamp[data-delay]) */
+  function playArt(sc) {
+    const run = sc._run = (sc._run || 0) + 1;
+    $$('[data-count-to]', sc).forEach(el => { const from = +el.dataset.countFrom, to = +el.dataset.countTo, dec = +(el.dataset.dec || 0), pre = el.dataset.prefix || ''; el.textContent = pre + money(from, dec).slice(1);
+      setTimeout(() => { if (sc._run === run) countTo(el, from, to, +(el.dataset.ms || 1400), pre, dec, run, sc); }, REDUCED ? 0 : +(el.dataset.delay || 400)); });
+    $$('[data-go]', sc).forEach(el => { el.style.transition = 'none'; el.style.transform = 'none'; el.style.opacity = '1'; if (el.dataset.origin) el.style.transformOrigin = el.dataset.origin;
+      setTimeout(() => { if (sc._run !== run) return; el.style.transition = REDUCED ? 'none' : 'transform 1.1s cubic-bezier(.4,0,.2,1), opacity 1.1s ease'; el.style.transform = el.dataset.go; if (el.dataset.goOpacity) el.style.opacity = el.dataset.goOpacity; }, REDUCED ? 0 : +(el.dataset.delay || 1300)); });
+    $$('.lamp[data-delay]', sc).forEach(l => { l.classList.remove('on'); setTimeout(() => { if (sc._run === run) l.classList.add('on'); }, REDUCED ? 0 : +l.dataset.delay); });
+    $$('.rise', sc).forEach(r => { r.classList.remove('on'); setTimeout(() => { if (sc._run === run) r.classList.add('on'); }, REDUCED ? 0 : +(r.dataset.delay || 600)); });
+  }
+
+  /* ---------- behavior for each screen type ---------- */
+  const WIRE = {
+    cover: (sc, s, i) => { hooks[i] = () => playArt(sc); },
+    tell: (sc, s, i) => { hooks[i] = () => playArt(sc); },
+    count: (sc, s, i) => {
+      const row = $('.houses', sc), count = $('.count', sc), check = $('.check', sc), nxt = $('[data-next]', sc), H = $('.hero', sc), N = s.total || 10, A = s.answer;
+      for (let n = 1; n <= N; n++) {
+        const b = document.createElement('button'); b.type = 'button'; b.dataset.n = n; b.setAttribute('aria-label', String(n));
+        b.innerHTML = '<svg viewBox="0 0 40 46">' + (n === (s.labelAt === 'last' ? N : 1) && s.label ? `<text class="lbl" x="20" y="-3" text-anchor="middle">${plain(s.label)}</text>` : '') + ICONS[s.icon || 'house'] + '</svg>';
+        row.appendChild(b);
+      }
+      let guess = null;
+      function pick(n) { if (row.classList.contains('revealed')) return; guess = n; $$('button', row).forEach(x => x.classList.toggle('sel', +x.dataset.n <= n)); count.textContent = fill(s.yourGuess, { n }); check.classList.remove('hide'); }
+      row.addEventListener('click', e => { const b = e.target.closest('button'); if (b) pick(+b.dataset.n); });
+      let dragging = false;
+      const at = (e) => { const b = document.elementFromPoint(e.clientX, e.clientY); const h = b && b.closest('.houses button'); return h && row.contains(h) ? +h.dataset.n : null; };
+      row.addEventListener('pointerdown', e => { dragging = true; const n = at(e); if (n) pick(n); });
+      row.addEventListener('pointermove', e => { if (dragging) { const n = at(e); if (n) pick(n); } });
+      addEventListener('pointerup', () => { dragging = false; });
+      check.addEventListener('click', () => {
+        const g = guess; row.classList.add('revealed');
+        $$('button', row).forEach(x => { const n = +x.dataset.n; x.classList.toggle('oil', n <= A); x.classList.toggle('you', n <= g && n > A); });
+        H.innerHTML = md(s.reveal);
+        count.innerHTML = md(g === A ? s.fbRight : Math.abs(g - A) === 1 ? fill(s.fbClose, { n: g }) : fill(s.fbFar, { n: g, dir: g > A ? s.fewer : s.more }));
+        count.classList.add('done'); check.classList.add('hide'); nxt.classList.remove('hide');
+      });
+      resets[i] = () => { guess = null; row.classList.remove('revealed'); $$('button', row).forEach(x => x.classList.remove('sel', 'oil', 'you')); count.innerHTML = md(s.hint); count.classList.remove('done'); check.classList.add('hide'); nxt.classList.add('hide'); H.innerHTML = md(s.ask); };
+    },
+    price: (sc, s, i) => {
+      const f = (v) => money(v, s.dec || 0), range = $('.range', sc), lock = $('.lock', sc), nxt = $('[data-next]', sc), H = $('.hero', sc), now = $('.col.now', sc), rbar = $('.now .bar', sc), gbar = $('.bar.guess', sc), gval = $('.gval', sc), fbx = $('.fbx', sc), ask = $('.ask', sc);
+      const setGuess = (v) => { gbar.style.setProperty('--v', v); gval.textContent = f(v); };
+      range.addEventListener('input', () => { setGuess(+range.value); lock.classList.remove('hide'); });
+      lock.addEventListener('click', async () => {
+        const g = +range.value;
+        ask.classList.add('hide'); lock.classList.add('hide');
+        rbar.style.setProperty('--v', 0.001); void rbar.offsetHeight;
+        now.classList.add('shown'); rbar.classList.remove('empty'); requestAnimationFrame(() => rbar.style.setProperty('--v', s.now.v));
+        await wait(1300);
+        H.innerHTML = md(s.reveal);
+        const d = s.now.v - g, a = Math.abs(d);
+        fbx.innerHTML = md(a <= s.close ? fill(s.fbClose, { g: f(g) }) : fill(s.fbOff, { g: f(g), a: f(a), dir: d > 0 ? s.low : s.high })); fbx.classList.add('show');
+        nxt.classList.remove('hide');
+      });
+      resets[i] = () => { range.value = s.past.v; setGuess(s.past.v); ask.classList.remove('hide'); lock.classList.add('hide'); nxt.classList.add('hide'); fbx.classList.remove('show'); now.classList.remove('shown'); rbar.classList.add('empty'); rbar.style.setProperty('--v', s.max); H.innerHTML = md(s.ask); };
+    },
+    pick: (sc, s, i) => {
+      const opts = $('.opts', sc), fbx = $('.fb', sc), nxt = $('[data-next]', sc), H = $('.hero', sc), ask = $('.ask', sc), askpic = $('.askpic', sc), note = $('.pnote', sc), anote = $('.anote', sc), hk = HOOKS[s.key] || {};
+      opts.addEventListener('click', async e => {
+        const o = e.target.closest('.opt'); if (!o || opts.classList.contains('locked')) return;
+        opts.classList.add('locked');
+        const right = o.dataset.v === s.right;
+        o.classList.add(right ? 'right' : 'wrong'); if (!right) $(`.opt[data-v="${s.right}"]`, opts).classList.add('right');
+        fb(fbx, right ? s.fbRight : s.fbWrong, right ? 'good' : 'bad');
+        await wait(700);
+        ask.classList.add('hide'); H.innerHTML = md(s.reveal);
+        if (askpic) askpic.classList.add('gone'); /* the answer's picture appears only after the answer, so it never gives the answer away */
+        if (note) note.classList.remove('hide'); if (anote) anote.classList.add('hide');
+        playArt(sc); if (hk.answer) hk.answer(sc);
+        await wait(s.wait || 1200); nxt.classList.remove('hide');
+      });
+      hooks[i] = () => { if (hk.show) hk.show(sc); };
+      resets[i] = () => { if (askpic) askpic.classList.remove('gone'); if (note) note.classList.add('hide'); if (anote) anote.classList.remove('hide'); opts.classList.remove('locked'); $$('.opt', opts).forEach(o => o.classList.remove('right', 'wrong')); fbx.classList.remove('show'); ask.classList.remove('hide'); nxt.classList.add('hide'); H.innerHTML = md(s.ask); if (hk.reset) hk.reset(sc); };
+    },
+    steps: (sc, s, i) => { hooks[i] = () => { $('.steps', sc).innerHTML = s.steps.map((t, k) => `<li style="--i:${k}">${md(t)}</li>`).join(''); }; },
+    opponent: () => {},
+    compare: () => {},
+    quiz: (sc, s, i) => {
+      const rnext = $('.rnext', sc), fin = $('[data-next]', sc), rounds = $$('.round', sc);
+      let round = 0;
+      s.rounds.forEach((r, k) => {
+        const opts = $('.opts', rounds[k]), fbx = $('.fb', rounds[k]); let misses = 0;
+        opts.addEventListener('click', e => {
+          const o = e.target.closest('.opt'); if (!o || opts.classList.contains('locked')) return;
+          const ok = o.dataset.v === 'ok';
+          if (!ok && misses === 0) { misses = 1; o.classList.add('wrong', 'missed'); fb(fbx, r.retry, 'bad'); if (rounds[k].scrollHeight > rounds[k].clientHeight + 1) rounds[k].classList.add('tight'); return; }
+          opts.classList.add('locked'); o.classList.add(ok ? 'right' : 'wrong');
+          if (!ok) $('.opt[data-v=ok]', opts).classList.add('right'); else state.score++;
+          $$('.opt', opts).forEach(x => { if (!x.classList.contains('right') && !x.classList.contains('wrong')) x.classList.add('dim'); });
+          fb(fbx, ok ? (misses ? '<b>' + s.retake + '</b> ' + r.right : r.right) : r.wrong, ok ? 'good' : 'bad');
+          /* the voter picture steps aside only when the answer and its reason would not fit */
+          rounds[k].classList.remove('tight'); if (rounds[k].scrollHeight > rounds[k].clientHeight + 1) rounds[k].classList.add('tight');
+          if (k === s.rounds.length - 1) fin.classList.remove('hide'); else { rnext.textContent = s.next[k]; rnext.classList.remove('hide'); }
+        });
+        rounds[k]._reset = () => { misses = 0; rounds[k].classList.remove('tight'); opts.classList.remove('locked'); $$('.opt', opts).forEach(x => x.classList.remove('right', 'wrong', 'missed', 'dim')); fbx.classList.remove('show'); };
+      });
+      rnext.addEventListener('click', () => { round++; rounds.forEach((el, k) => el.classList.toggle('cur', k === round)); rnext.classList.add('hide'); const hd = $('.hero', rounds[round]); if (hd) { hd.setAttribute('tabindex', '-1'); hd.focus({ preventScroll: true }); } });
+      resets[i] = () => { round = 0; state.score = 0; rounds.forEach((el, k) => { el.classList.toggle('cur', k === 0); el._reset(); }); rnext.classList.add('hide'); fin.classList.add('hide'); };
+    },
+    done: (sc, s, i) => {
+      hooks[i] = () => {
+        const n = state.score, all = n === s.of;
+        $('.dh', sc).innerHTML = md(all ? s.hAll : fill(s.hLess, { n }));
+        $('.dsub', sc).innerHTML = md(all ? s.subAll : s.subLess);
+        $('.retake', sc).classList.toggle('hide', all);
+        $$('.lamp', sc).forEach(l => l.classList.add('on')); /* every window lit at once: the ending never reads as a score or a closing */
+        if (EMB || IN_APP) tellApp({ warmup: 'issues-done', lesson: T.id }); /* the training is finished whether or not the canvasser goes on to practice */
+      };
+      $('.retake', sc).addEventListener('click', () => { maxSeen = Math.max(maxSeen, total - 2); show(total - 2, -1); });
+      /* the spoken practice lives in the Warmup app: tell the app to open it. Inside the app the app answers (it opens the door
+         or says why it can't); anywhere else a short note says the practice is in the app */
+      $('.practice', sc).addEventListener('click', () => { tellApp({ warmup: 'issues-practice', lesson: T.id }); if (!IN_APP) $('#practice-sheet').classList.add('show'); });
+    },
+  };
+  screens.forEach((sc, i) => WIRE[T.screens[i].type](sc, T.screens[i], i));
+  Object.values(HOOKS).forEach(h => { if (h.init) h.init(); });
+
+  /* ---------- start ---------- */
+  const m = location.hash.match(/s=(\d+)/);
+  const start = m ? Math.max(0, Math.min(total - 1, +m[1] - 1)) : 0;
+  maxSeen = start; show(start, 1);
+  window.Lesson = { show, next, back, state, total };
+})();
+
+</script>
+</body>
+</html>
