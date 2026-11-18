@@ -122,6 +122,27 @@ const FAKE_SR = () => {
   ok(await waitFor(p, () => __T.S.screen === 'score', 20000), 'the 2nd intro goes to its feedback');
   await p.close();
 
+  /* D. version 172 (Robert, Nov 17): a line that stops mid-thought waits for more; a finished one sends at 1.2 s */
+  p = await open('zzhooked165.html', '?convo=kevin');
+  await p.evaluate(() => { const S = __T.S; S.tryRes = null; S.tryKnocked = false; S.trySaid = false; S.tryHeard = false; S.tryPend = false; __T.go('try', { noBeat: true }); });
+  await p.waitForTimeout(600);
+  await p.click('[data-act="try-knock"]', { force: true });
+  await waitThem(p, 1, 8000);
+  await waitFor(p, () => { const b0 = document.querySelector('#talk [data-act="talk"]'); return b0 && !b0.disabled && __T.S.convo && !__T.S.convo.busy; }, 20000);
+  await p.click('#talk [data-act="talk"]', { force: true });
+  await waitFor(p, () => !!(window.__sr && window.__sr.on && window.__sr.onresult), 5000);
+  await p.waitForTimeout(150);
+  await p.evaluate(() => window.__speak("Hi, I'm Robert, um, I'm"));
+  await p.waitForTimeout(1700);
+  ok(await p.evaluate(() => document.querySelectorAll('#thread .bub.you').length === 0), 'a pause after "um, I\'m" doesn\'t send the line (version 172)');
+  await p.evaluate(() => window.__speak("Hi, I'm Robert, um, I'm your neighbor down the street."));
+  const tq = Date.now();
+  ok(await waitFor(p, () => document.querySelectorAll('#thread .bub.you').length === 1, 2500), 'the finished line sends by itself');
+  const dq = Date.now() - tq;
+  ok(dq >= 1000 && dq < 2200, 'a finished line sends after about 1.2 s of quiet: ' + (dq / 1000).toFixed(2) + ' s');
+  ok(((await you(p))[0] || '').includes('your neighbor'), 'the whole line went, the pause included: ' + (await you(p))[0]);
+  await p.close();
+
   /* C. leaving the 1st intro's door mid-way ends 1st intro mode */
   p = await open('zzhooked165.html', '?convo=kevin');
   await p.evaluate(() => { const S = __T.S; S.tryRes = null; S.tryKnocked = false; __T.go('try', { noBeat: true }); });

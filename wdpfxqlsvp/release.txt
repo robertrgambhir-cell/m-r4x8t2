@@ -34,3 +34,6 @@ app.html sha256: 7031192675aa4276c1a1b4b8540106e84fe669fa28be710637418c32639fb37
 
 update: 2026-11-16 Version 171, from Robert's 10:02 PM PT run ("a really, really long trunk"): every voter gets a real upper body, square shoulders to the doorframe, arms at the sides and a crew neckline over the bottom of the neck (none with a v-neck or headphones). Patch ai/tools/v171-voter-body.py.
 app.html sha256: 82e1cd56330c024714b1a233e36ff948277866b29afaad399ad685a38c2e1ba2
+
+update: 2026-11-17 Version 172, from Robert's 7:54 PM PT run ("Hi, I'm Robert, um, I'm" was sent mid-sentence): on an AI door a finished-sounding line sends after 1.2 s of quiet (was 1 s) and a line that stops mid-thought waits 2.8 s. Practice AI 165-12: Sofia asks "What can I do for you?" when she only has a name, and says "volunteering" only after the volunteer has. Patch ai/tools/v172-patient-pause.py.
+app.html sha256: a55169bb1af4ca4d1d61511cd86cce1ee0c91ea14e90982a2ab174488f1e7f21

@@ -5695,6 +5695,13 @@ function micHelp() {
 const isTouch = () => !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
 const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 let micTyped = false; /* version 161: the volunteer chose to type for the rest of this visit */
+/* version 172 (Robert, Nov 17): how long to wait for the volunteer depends on how their words end. A line that stops
+   mid-thought gets time to go on; a finished one gets a quick answer. [early answer starts, sends] in ms */
+const WAI_MID = /\b(um+|uh+|uhm|er+|erm|hmm+|ah|and|but|so|or|because|cause|i|i'?m|i am|my|me|we|we'?re|our|the|a|an|to|for|with|of|in|on|at|about|from|like|just|that|this|is|are|was|am|be|it'?s|you|your|who|what|if|then|also|really|very|name'?s|called|here|um i'?m)$/i;
+function waiPause(text) {
+  const t = String(text).trim().replace(/[\s.,!?;:\u2026-]+$/, "");
+  return WAI_MID.test(t) || t.split(/\s+/).filter(Boolean).length < 3 ? [2000, 2800] : [500, 1200];
+}
 let micBlocked = false, micWhy = "", micPrimed = false, micPriming = false, rec = null, recStop = false, recDog = 0, recCap = 0, micErr = "", micNoStart = 0;
 /* version 109: ask for the mic in the audio mode made for playing and recording, then give the voices their playback mode back */
 async function micAsk() {
@@ -5988,7 +5995,7 @@ function micToggle(armOnly) {
   const goCue = () => { if (r.armed) { started = true; return; } if (r.cued) return; r.cued = true; started = true; const c0 = $("#talk-live"); if (c0 && c0.classList.contains("warm")) { c0.classList.remove("warm"); c0.classList.add("go"); setTimeout(() => { const c1 = $("#talk-live"); if (c1) c1.classList.remove("go"); }, 1600); } }; /* version 96: the green go cue */
   r.onstart = () => { micNoStart = 0; micGranted = true; goCue(); };
   r.onaudiostart = () => { micNoStart = 0; micGranted = true; goCue(); };
-  r.onresult = (e) => { r.seen = e.results.length; if (r.armed) { r.base = e.results.length; return; } goCue(); const rs = Array.prototype.slice.call(e.results, r.base); heard = heardFrom(rs); const box = $("#say"); if (box) { box.value = heard; autoGrow(box); } liveCardWords(heard); if (S.screen === "door" && S.convo && WAI.full()) { const said0 = hearName(heard.trim()); clearTimeout(r.pz); clearTimeout(r.pc); WAI.hold(said0); if (said0) { r.pz = setTimeout(() => { if (rec === r) WAI.spec(said0); }, 450); r.pc = setTimeout(() => { if (rec === r && !recStop) { recStop = true; try { r.stop(); } catch (e2) { /* ignore */ } r.onend(); } }, 1000); } } /* version 165: an AI door sends on its own after 1 s of quiet and starts the answer at 0.45 s */ };
+  r.onresult = (e) => { r.seen = e.results.length; if (r.armed) { r.base = e.results.length; return; } goCue(); const rs = Array.prototype.slice.call(e.results, r.base); heard = heardFrom(rs); const box = $("#say"); if (box) { box.value = heard; autoGrow(box); } liveCardWords(heard); if (S.screen === "door" && S.convo && WAI.full()) { const said0 = hearName(heard.trim()); clearTimeout(r.pz); clearTimeout(r.pc); WAI.hold(said0); if (said0) { const pw = waiPause(said0); r.pz = setTimeout(() => { if (rec === r) WAI.spec(said0); }, pw[0]); r.pc = setTimeout(() => { if (rec === r && !recStop) { recStop = true; try { r.stop(); } catch (e2) { /* ignore */ } r.onend(); } }, pw[1]); } } /* version 165: an AI door sends on its own after 1 s of quiet and starts the answer at 0.45 s (version 172: after 1.2 s, or 2.8 s when the words stop mid-thought; see waiPause) */ };
   r.goLive = () => { r.armed = false; r.base = r.seen; r.live(); if (started) goCue(); clearTimeout(recCap); recCap = setTimeout(() => { if (rec === r) { try { r.stop(); } catch (e) { /* ignore */ } } }, 30000); };
   r.onerror = (e) => { const k = e && e.error; if (["not-allowed", "service-not-allowed", "audio-capture"].includes(k)) { micBlocked = true; micWhy = k === "audio-capture" ? "busy" : "denied"; micErr = "speech: " + k; } };
   r.onend = () => {
