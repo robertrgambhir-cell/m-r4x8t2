@@ -9,6 +9,7 @@ import worker from "../worker.js";
 
 const ROOT = process.argv[2];
 const stats = { voter: 0, coach: 0 }, failNext = { voter: 0, coach: 0 };
+let coachDelay = 0; /* version 173: /__mock/coach-delay?ms=N slows the coach so a test can see the card fill in */
 let healthDown = false, healthHang = false;
 const realFetch = globalThis.fetch;
 const said = (body) => body.messages[0].content;
@@ -67,10 +68,12 @@ http.createServer(async (req, res) => {
   if (u.pathname === "/__mock/health") { healthDown = u.searchParams.get("down") === "1"; healthHang = u.searchParams.get("hang") === "1"; res.end("ok"); return; }
   if (u.pathname === "/health" && healthHang) return; /* never answers */
   if (u.pathname === "/health" && healthDown) { await new Promise((r) => setTimeout(r, 2500)); res.writeHead(200, { "access-control-allow-origin": "*", "content-type": "application/json" }); res.end(JSON.stringify({ ok: false })); return; }
+  if (u.pathname === "/__mock/coach-delay") { coachDelay = Number(u.searchParams.get("ms") || 0); res.writeHead(200, { "access-control-allow-origin": "*" }); res.end("ok"); return; }
   if (u.pathname === "/__mock/fail") { failNext.voter = Number(u.searchParams.get("voter") || 0); failNext.coach = Number(u.searchParams.get("coach") || 0); res.end("ok"); return; }
   const route = u.pathname.slice(1) === "turn" ? "voter" : u.pathname.slice(1); /* version 165: /turn counts and fails as the voter */
   if (req.method === "POST" && failNext[route] > 0) { failNext[route] -= 1; stats[route] += 1; res.writeHead(504, { "access-control-allow-origin": req.headers.origin || "*", "content-type": "application/json" }); res.end(JSON.stringify({ error: "timeout" })); return; }
   const chunks = []; for await (const c of req) chunks.push(c);
+  if (req.method === "POST" && route === "coach" && coachDelay) await new Promise((r) => setTimeout(r, coachDelay));
   const r = await worker.fetch(new Request(u.toString(), { method: req.method, headers: req.headers, body: req.method === "POST" ? Buffer.concat(chunks) : undefined }), env);
   res.writeHead(r.status, Object.fromEntries(r.headers)); res.end(Buffer.from(await r.arrayBuffer()));
 }).listen(8799, "127.0.0.1");

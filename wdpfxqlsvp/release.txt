@@ -37,3 +37,6 @@ app.html sha256: 82e1cd56330c024714b1a233e36ff948277866b29afaad399ad685a38c2e1ba
 
 update: 2026-11-17 Version 172, from Robert's 7:54 PM PT run ("Hi, I'm Robert, um, I'm" was sent mid-sentence): on an AI door a finished-sounding line sends after 1.2 s of quiet (was 1 s) and a line that stops mid-thought waits 2.8 s. Practice AI 165-12: Sofia asks "What can I do for you?" when she only has a name, and says "volunteering" only after the volunteer has. Patch ai/tools/v172-patient-pause.py.
 app.html sha256: a55169bb1af4ca4d1d61511cd86cce1ee0c91ea14e90982a2ab174488f1e7f21
+
+update: 2026-11-18 Version 173, from Robert's Nov 17, 8:47 PM PT run (5 to 15 s frozen after the door): grading starts as the voter's goodbye arrives, and the result card opens as soon as the door shuts with the four parts pulsing, then fills in. 1st intro card and score card. Patch ai/tools/v173-no-wait-after-door.py.
+app.html sha256: b804a5f58f67cb0b16119b1a8191dfceebe14d359afa358b49b0490fd5c72dda

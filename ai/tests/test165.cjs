@@ -56,6 +56,7 @@ const FAKE_SR = () => {
   };
 
   /* A. the 1st intro: Knock opens Sofia's door as a live conversation */
+  await fetch('http://127.0.0.1:8799/__mock/coach-delay?ms=4000'); /* version 173: a slow coach, so the card can be seen filling in */
   let p = await open('zzhooked165.html', '?convo=kevin');
   ok((await p.evaluate(() => __T.WAI.state())) === 'on', 'the page reaches the worker');
   await p.evaluate(() => { const S = __T.S; S.tryRes = null; S.tryKnocked = false; S.trySaid = false; S.tryHeard = false; S.tryPend = false; __T.go('try', { noBeat: true }); });
@@ -98,6 +99,10 @@ const FAKE_SR = () => {
   ok(s1.voter - s0.voter >= 1, 'the voter came from the server');
   console.log('   last word to the voter’s first words (mock: 0.25 s model, 0.08 s voice):', lat.map((x) => (x / 1000).toFixed(2) + ' s').join(', '));
   ok(lat.every((x) => x < 3000), 'each answer arrives within 3 s of the last word against the mock');
+  /* version 173 (Robert, Nov 17): the card opens as the door shuts, its four parts pulsing, and fills in when the coach answers (the mock coach takes 4 s here) */
+  ok(await waitFor(p, () => __T.S.screen === 'try' && document.querySelectorAll('.four-list li.wait').length === 4, 6000), 'the 1st intro card opens while the coach is still reading');
+  ok(await p.evaluate(() => { const b = document.querySelector('.btn[disabled]'); return !!b && /hear it done/i.test(b.textContent); }), 'its Next button waits for the grade');
+  ok(await waitFor(p, () => __T.S.screen === 'try' && !document.querySelector('.four-list li.wait') && document.querySelectorAll('.four-list li').length === 4, 12000), 'the four parts fill in when the grade comes back');
   ok(await waitFor(p, () => __T.S.screen === 'try', 20000), 'the conversation comes back to the 1st intro');
   const R = await p.evaluate(() => __T.S.tryRes);
   ok(R && !R.pending && R.lesson === 1 && Array.isArray(R.hits) && R.hits.length === 4, 'the 1st intro is graded on the same four parts');
@@ -108,6 +113,7 @@ const FAKE_SR = () => {
   await p.waitForTimeout(7000); /* the card's rows cascade in */
   await p.screenshot({ path: path.join(ROOT, '..', `t165-try-card-${W}x${H}.png`) });
 
+  await fetch('http://127.0.0.1:8799/__mock/coach-delay?ms=0');
   /* B. the 2nd intro is the same kind of door, with Kevin, and ends within four of your lines */
   await p.evaluate(() => __T.go('door', { noBeat: true }));
   await p.waitForTimeout(500);
@@ -120,6 +126,7 @@ const FAKE_SR = () => {
   for (const l of kl) { if (await p.evaluate(() => __T.S.screen !== 'door' || __T.S.convo.ended)) break; await speakLine(p, l); n += 1; await waitThem(p, n + 1, 15000); await waitFor(p, () => __T.S.screen !== 'door' || !__T.S.convo || !__T.S.convo.busy || __T.S.convo.ended, 15000); }
   ok(n <= 4, `Kevin's door ends within four of your lines (${n})`);
   ok(await waitFor(p, () => __T.S.screen === 'score', 20000), 'the 2nd intro goes to its feedback');
+  ok(await waitFor(p, () => __T.S.screen === 'score' && !!__T.S.last && !__T.S.last.grading && !document.querySelector('.sc-list li.wait'), 12000), 'its score card is filled in');
   await p.close();
 
   /* D. version 172 (Robert, Nov 17): a line that stops mid-thought waits for more; a finished one sends at 1.2 s */
