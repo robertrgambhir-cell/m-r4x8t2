@@ -34,7 +34,7 @@ async function frames(res) {
     out.push(t === 1 ? { t: 1, j: JSON.parse(new TextDecoder().decode(p)) } : { t: 2, i: p[0], fmt: p[1], n: p.length - 2 }); }
   return out;
 }
-const O = SCENARIOS.oil.voter.opening.say; /* version 173: the issue practice is Sarah (oil) and Linda (social) */
+const O = SCENARIOS.oil.voter.opening.say; /* version 174: the issue practice is Sarah (oil) and Linda (social) */
 
 /* the splitter */
 { const got = []; const sp = makeSplitter("Barb", (p, i) => got.push([i, p]));
@@ -83,7 +83,7 @@ r = await post({ scenario: "social", turns: [{ who: "them", text: SCENARIOS.soci
 f = await frames(r);
 ok(f.some((x) => x.t === 2 && x.fmt === 2) && f.find((x) => x.t === 1 && x.j.t === "done").j.voice === "ok", "MP3 when PCM is refused");
 
-/* version 173: the narration route left with the Nov 6 trainings (the new trainings are read, not narrated) */
+/* version 174: the narration route left with the Nov 6 trainings (the new trainings are read, not narrated) */
 const g = (q) => worker.fetch(new Request("https://w.example/narrate?" + q), env0);
 r = await g("s=oil&k=0"); ok(r.status === 404, "no narration route: " + r.status);
 r = await worker.fetch(new Request("https://w.example/scenario/oh_bills"), env0); ok(r.status === 404, "the Nov 6 electric bill scenario is gone from the server");
@@ -216,7 +216,7 @@ r = await worker.fetch(new Request("https://w.example/scenario/social"), env0);
   rs = await post({ scenario: "sofia_intro", turns: bye }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
   ok(done && done.j.say === "You too, bye!" && done.j.end === true, "the canvasser's goodbye gets a goodbye and ends the door, no question: " + (done && JSON.stringify(done.j.say) + " end " + done.j.end));
 }
-/* 173-2: on an issue door, "see you at the polls" from the canvasser is not a goodbye: Sarah's question is spoken and the
+/* 174-2: on an issue door, "see you at the polls" from the canvasser is not a goodbye: Sarah's question is spoken and the
    door stays open. A real goodbye still drops her question and closes the door. */
 { const says = async (line) => { const conv = [{ who: "them", text: O }, { who: "you", text: "That sounds really hard." }];
     conv.push({ who: "them", text: "Thanks.", sig: await signLine(env0, "oil", "Thanks.", conv.length) });

@@ -1,4 +1,4 @@
-/* Version 173 checks on a built page, the way a canvasser meets it: Maya's issue trainings are Heating oil and Social
+/* Version 174 checks on a built page, the way a canvasser meets it: Maya's issue trainings are Heating oil and Social
    Security; a row on Learn opens its training in the overlay; the canvasser taps through it; its last screen checks it off;
    Practice the conversation opens the door practice with the training's voter (Sarah or Linda), shut, with Knock; the
    conversation is spoken, the coach scores the four parts of the door answer; Try this conversation again and Done for
@@ -6,17 +6,17 @@
    the links (?issues, ?convo) and the old issue addresses.
    The AI is the real worker.js with a canned model (ai/tests/mock-server.mjs): this is plumbing, not model quality.
    Usage: (mock-server.mjs running on a copy of the site whose pages point at 127.0.0.1:8799)
-   NODE_PATH=$(npm root -g) node ai/tests/test173.cjs /abs/site-root [page=wdpfxqlsvp/app.html] [outdir] [w h] */
+   NODE_PATH=$(npm root -g) node ai/tests/test174.cjs /abs/site-root [page=wdpfxqlsvp/app.html] [outdir] [w h] */
 const { chromium } = require('playwright');
 const fs = require('fs'), path = require('path');
 const realFonts = require('/home/claude/work/fonts.js');
-const [,, ROOT, REL = 'wdpfxqlsvp/app.html', OUT = '/tmp/t173', W = '390', H = '844'] = process.argv;
+const [,, ROOT, REL = 'wdpfxqlsvp/app.html', OUT = '/tmp/t174', W = '390', H = '844'] = process.argv;
 fs.mkdirSync(OUT, { recursive: true });
 const END = '\nloadVoices();\nrender();\n})();\n</script>';
 const HOOK = '\nloadVoices();\nrender();\nwindow.__T = { get S() { return S; }, go, render, WAI, DOORS, CAMPAIGN };\n})();\n</script>';
 const src = fs.readFileSync(path.join(ROOT, REL), 'utf8');
 if (!src.includes(END)) throw new Error('IIFE end not found');
-const HREL = path.join(path.dirname(REL), 'zzhooked173.html');
+const HREL = path.join(path.dirname(REL), 'zzhooked174.html');
 fs.writeFileSync(path.join(ROOT, HREL), src.replace(END, HOOK));
 const SITE = 'http://127.0.0.1:' + (process.env.WARMUP_SITE_PORT || 8765) + '/', PAGE = SITE + HREL, AI = 'http://127.0.0.1:' + (process.env.WARMUP_AI_PORT || 8799);
 let pass = 0, fail = 0, shots = 0;
@@ -58,6 +58,8 @@ const FAKE_SR = () => {
   const waitFor = async (p, fn, ms = 20000, arg) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await p.evaluate(fn, arg).catch(() => false)) return true; await p.waitForTimeout(100); } return false; };
   const shot = async (p, name) => { shots += 1; await p.screenshot({ path: path.join(OUT, `${tag}-${String(shots).padStart(2, '0')}-${name}.png`) }); };
   const frame = (p) => p.frames().find((f) => /\/trainings\//.test(f.url()));
+  /* version 173 (main, Nov 18): the score card opens as the door shuts, its parts pulsing, and fills in when the coach answers */
+  const cardFilled = (p, ms = 20000) => waitFor(p, () => __T.S.screen === 'score' && !!__T.S.last && !__T.S.last.grading && !document.querySelector('.sc-list li.wait'), ms);
   const row = (p, id) => p.$(`[data-act="brief-open"][data-lesson="${id}"]`);
   const them = (p) => p.$$eval('#thread .bub.them', (xs) => xs.map((x) => x.textContent));
   const waitThem = (p, n, ms) => waitFor(p, (k) => document.querySelectorAll('#thread .bub.them').length >= k, ms, n);
@@ -108,7 +110,7 @@ const FAKE_SR = () => {
   for (const gone of ['wdpfxqlsvp/p1/issues/index.html', 'wdpfxqlsvp/dev/issues/index.html', 'wdpfxqlsvp/train/audio']) ok(!fs.existsSync(path.join(ROOT, gone)), 'removed from the site: ' + gone);
 
   /* ---------- A. Learn lists the two ---------- */
-  let p = await open(PAGE + '?unlock&v=173');
+  let p = await open(PAGE + '?unlock&v=174');
   ok((await p.evaluate(() => __T.WAI.state())) === 'on', 'the page reaches the practice AI: ' + await p.evaluate(() => __T.WAI.state()));
   let t = await text(p);
   ok(/Seven lessons, one a day/.test(t), 'Learn says seven lessons');
@@ -123,7 +125,7 @@ const FAKE_SR = () => {
     const X = T[id];
     if (!(await p.evaluate(() => __T.S.screen === 'library'))) { await p.evaluate(() => __T.go('library')); await p.waitForTimeout(500); }
     await (await row(p, id)).click();
-    ok(await waitFor(p, (k) => { const f = document.querySelector('#issues-ov iframe'); return f && f.src.endsWith('/wdpfxqlsvp/trainings/' + k + '.html?app=1&v=173'); }, 15000, id), `${id}: its row opens the training in the overlay`);
+    ok(await waitFor(p, (k) => { const f = document.querySelector('#issues-ov iframe'); return f && f.src.endsWith('/wdpfxqlsvp/trainings/' + k + '.html?app=1&v=174'); }, 15000, id), `${id}: its row opens the training in the overlay`);
     await p.waitForTimeout(1500);
     let fr = frame(p);
     ok(fr && X.cover.test(await fr.evaluate(() => document.body.innerText)), `${id}: the training's cover shows inside the app`);
@@ -142,6 +144,7 @@ const FAKE_SR = () => {
     ok(/Done$/.test(await fr.$eval('#tag-screen', (e) => e.textContent)), `${id}: tapping through reaches the last screen`);
     ok(await waitFor(p, (k) => !!(__T.S.briefsDoneIds || {})[k], 5000, id), `${id}: the last screen checks the training off`);
     await shot(p, `${id}-last-screen`);
+    if (id === 'oil') await mock('coach-delay?ms=4000'); /* a slow coach at Sarah's door, so the walk sees the card open and then fill in */
     const before = await stats();
     await fr.click('.screen.is-active .practice');
     ok(await waitFor(p, () => !document.getElementById('issues-ov') && __T.S.screen === 'door', 8000), `${id}: Practice the conversation closes the training and opens the door`);
@@ -163,6 +166,15 @@ const FAKE_SR = () => {
       if (k === 1) { await p.waitForTimeout(500); await shot(p, `${id}-door-talking`); }
     }
     ok(await waitFor(p, () => __T.S.screen === 'score', 30000), `${id}: she ends it and the coach scores it`);
+    if (id === 'oil') { /* the coach is slow here (set before her door): the card is open and waiting on the sheet's four parts, with her picture */
+      const w = await p.evaluate(() => ({ grading: !!(__T.S.last && __T.S.last.grading), rows: [...document.querySelectorAll('.sc-card.grading .sc-list li.wait')].map((x) => x.textContent), head: (document.querySelector('.sc-top.grading') || {}).textContent || '', who: (document.querySelector('.sc-voter svg, .sc-voter [aria-label]') || { getAttribute: () => '' }).getAttribute('aria-label') || '', noBack: !document.querySelector('header [data-act="back"]') }));
+      ok(w.grading && w.rows.join('|') === 'Agree with Sarah|Offer the heating help|Give the choice|Ask for her vote', `${id}: the card opens while the coach reads, listing the four parts of her door answer: ` + w.rows.join(' | '));
+      ok(/Checking your conversation/.test(w.head) && /Your coach is reading the conversation/.test(await text(p)), `${id}: and says the coach is reading`);
+      await p.waitForTimeout(500);
+      await shot(p, `${id}-score-reading`);
+    }
+    ok(await cardFilled(p), `${id}: the card fills in when the coach answers`);
+    if (id === 'oil') await mock('coach-delay?ms=0');
     await p.waitForTimeout(900);
     const sc = await p.evaluate(() => ({ rows: [...document.querySelectorAll('.sc-list li')].map((x) => x.className + ':' + x.textContent), ring: (document.querySelector('.ring-num') || {}).textContent, coach: (document.querySelector('.sc-coach') || {}).textContent || '', btns: [...document.querySelectorAll('footer .btn, footer .link')].map((x) => x.textContent), prior: !!document.querySelector('.prior-line'), scen: __T.S.last.scen, over: (() => { const c = document.querySelector('#content'); return c ? c.scrollHeight - c.clientHeight : 0; })() }));
     ok(sc.rows.length === 4 && sc.rows.every((r, k) => r === 'y:' + X.rows[k]) && sc.ring === '4/4', `${id}: the card is the four parts of the door answer: ` + sc.rows.join(' | ') + ' ' + sc.ring);
@@ -205,7 +217,7 @@ const FAKE_SR = () => {
 
   /* ---------- D. the practice AI doesn't answer ---------- */
   await mock('health?down=1');
-  p = await open(PAGE + '?unlock&v=173d');
+  p = await open(PAGE + '?unlock&v=174d');
   await p.waitForTimeout(2800);
   ok((await p.evaluate(() => __T.WAI.state())) === 'down', 'with the server not ok, the page knows');
   await (await row(p, 'oil')).click(); await p.waitForSelector('#issues-ov iframe'); await p.waitForTimeout(1500);
@@ -255,7 +267,7 @@ const FAKE_SR = () => {
       await p2.close();
     }
   }
-  /* ---------- F. found by an independent review of version 173 (Nov 18) ---------- */
+  /* ---------- F. found by an independent review of version 174 (Nov 18) ---------- */
   /* F1. an issue practice is a whole conversation: it is not cut at lesson 1's four lines. Sarah keeps asking until she is
      asked for her vote, here on the canvasser's fifth line. */
   p = await open(PAGE + '?convo=oil');
@@ -268,6 +280,7 @@ const FAKE_SR = () => {
       if (k === 3) { await p.waitForTimeout(2500); ok(await p.evaluate(() => __T.S.screen === 'door' && !!__T.S.convo), 'F1: after four of the canvasser\'s lines the door is still open (it used to shut here, on her open question)'); }
     }
     ok(await waitFor(p, () => __T.S.screen === 'score', 30000), 'F1: she ends it once she is asked for her vote, on line five');
+    await cardFilled(p);
     await p.waitForTimeout(700);
     ok((await p.evaluate(() => (document.querySelector('.ring-num') || {}).textContent)) === '4/4', 'F1: all four parts are credited across the five lines: ' + await p.evaluate(() => (document.querySelector('.ring-num') || {}).textContent)); }
   await p.close();
@@ -292,7 +305,7 @@ const FAKE_SR = () => {
     return f;
   };
   const quiet = (q) => q.evaluate(() => { const x = document.getElementById('toast'); return !x || x.hidden; });
-  p = await slowPage(PAGE + '?unlock&v=173f');
+  p = await slowPage(PAGE + '?unlock&v=174f');
   ok((await p.evaluate(() => __T.WAI.state())) === 'down', 'F2: the first check failed, so the tap has to ask the server again');
   fr = await tapPractice(p);
   await fr.click('#close');
@@ -301,7 +314,7 @@ const FAKE_SR = () => {
   await p.waitForTimeout(4200);
   ok(await p.evaluate(() => __T.S.screen === 'welcome' && !__T.S.drill) && (await quiet(p)), 'F2: the answer comes back and nothing opens over Today: ' + await p.evaluate(() => __T.S.screen));
   await p.close();
-  p = await slowPage(PAGE + '?unlock&v=173h'); /* a fresh page: the first one has heard from the server by now */
+  p = await slowPage(PAGE + '?unlock&v=174h'); /* a fresh page: the first one has heard from the server by now */
   fr = await tapPractice(p);
   await fr.click('#close');
   await waitFor(p, () => !document.getElementById('issues-ov'), 3000);
@@ -309,7 +322,7 @@ const FAKE_SR = () => {
   ok(await p.evaluate(() => __T.S.screen === 'library' && !__T.S.drill && !document.getElementById('issues-ov')) && (await quiet(p)), 'F2: closed and still on Learn: no door opens either');
   await p.close();
   /* F3. the Practice tab lists a finished training's conversation even though the first check failed; the tap asks again */
-  p = await slowPage(PAGE + '?unlock&v=173i');
+  p = await slowPage(PAGE + '?unlock&v=174i');
   ok((await p.evaluate(() => __T.WAI.state())) === 'down', 'F3: the first check failed');
   await p.evaluate(() => { __T.S.briefsDoneIds = { oil: Date.now() }; __T.go('coach'); }); await p.waitForTimeout(400);
   ok(!!(await p.$('[data-act="wai-issue"][data-arg="oil"]')), 'F3: the Practice tab offers the conversation though the check at load failed');
@@ -318,7 +331,7 @@ const FAKE_SR = () => {
   await p.close();
 
   /* F4. leaving an issue door between the knock and her first line: she says nothing on the next screen */
-  p = await open(PAGE + '?unlock&v=173g');
+  p = await open(PAGE + '?unlock&v=174g');
   await p.evaluate(() => __T.WAI.startIssue('oil', { knock: true, back: 'library' }));
   ok(await waitFor(p, () => __T.S.screen === 'door' && !!document.querySelector('[data-act="knock"]'), 9000), 'F4: the door waits for a knock');
   await p.click('[data-act="knock"]'); await p.waitForTimeout(250);
@@ -340,6 +353,6 @@ const FAKE_SR = () => {
   ok(errs.length === 0, 'no page errors: ' + errs.join(' | '));
   ok(outside.length === 0, 'nothing reached the live site or the live AI server: ' + [...new Set(outside)].join(' '));
   await b.close();
-  console.log(`v173 ${REL} ${tag}: ${pass} pass, ${fail} fail (${shots} screenshots in ${OUT})`);
+  console.log(`v174 ${REL} ${tag}: ${pass} pass, ${fail} fail (${shots} screenshots in ${OUT})`);
   process.exit(fail ? 1 : 0);
-})().catch((e) => { console.error('test173 stopped:', e); process.exit(1); });
+})().catch((e) => { console.error('test174 stopped:', e); process.exit(1); });

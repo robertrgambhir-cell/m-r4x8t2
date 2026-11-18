@@ -1,4 +1,4 @@
-/* The issue trainings in the app (version 173, Nov 18, 2026): Heating oil, with the voter Sarah, and Social Security, with
+/* The issue trainings in the app (version 174, Nov 18, 2026): Heating oil, with the voter Sarah, and Social Security, with
    the voter Linda. Each training is a page built in the issue-trainings repo (robertrgambhir-cell/issue-trainings) and
    copied to wdpfxqlsvp/trainings/. After it, "Practice the conversation" opens the app's spoken door practice, and this
    file is what the AI server needs for that: who the voter is, the facts the coach checks and what the coach scores.

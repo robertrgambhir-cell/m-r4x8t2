@@ -1,5 +1,5 @@
 /* The first real conversations with Sarah (oil) and Linda (social), against the DEPLOYED practice AI.
-   Version 173 was built where no key and no deployed copy of these voters existed, so until this runs nobody has heard
+   Version 174 was built where no key and no deployed copy of these voters existed, so until this runs nobody has heard
    the real model play them or seen the real coach grade them. Run it once after the branch is live, and after any change
    to a voter sheet (ai/voters/scenarios.js).
 

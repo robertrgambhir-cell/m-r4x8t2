@@ -108,7 +108,7 @@ const stats = async () => JSON.parse(await mock('stats'));
   ok(ft.coach && ft.hits.length === 4 && ft.level === 'strong', 'the 1st try goes to the coach: ' + JSON.stringify(ft));
   await p.close();
 
-  /* C. the issue conversation (version 173: Sarah, the practice after the Heating oil training; the health insurance door left the app) */
+  /* C. the issue conversation (version 174: Sarah, the practice after the Heating oil training; the health insurance door left the app) */
   p = await open('zzhooked156.html', '?convo=oil');
   ok(await waitThem(p, 1), 'Sarah says her first line');
   ok((await them(p))[0] === "I can't afford to fill my tank this winter." && (await p.$eval('#thread', (t) => t.textContent)).includes('Live AI voter'), 'Sarah' + "'" + 's door is the live AI and she opens with the line her training gives her');
@@ -128,7 +128,7 @@ const stats = async () => JSON.parse(await mock('stats'));
   ok(await waitThem(p, 1), 'Try this conversation again knocks again');
   await p.click('[data-act="back"]').catch(() => {});
   await p.waitForTimeout(400);
-  /* F. the Practice tab offers an issue conversation only after its training is done (version 173) */
+  /* F. the Practice tab offers an issue conversation only after its training is done (version 174) */
   const link = await p.evaluate(() => { const S = __T.S; S.drill = null; S.done5 = { 1: [true, true, true, true] }; S.briefsDoneIds = {}; __T.go('coach'); const a = !!document.querySelector('[data-act="wai-issue"]'); S.briefsDoneIds = { oil: Date.now() }; __T.render(); const b2 = !!document.querySelector('[data-act="wai-issue"][data-arg="oil"]'), c2 = !!document.querySelector('[data-act="wai-issue"][data-arg="social"]'); return { a, b: b2, c: c2 }; });
   ok(link.b && !link.a && !link.c, 'the Practice tab offers the heating oil conversation after its training, not before, and not Linda' + "'" + 's yet: ' + JSON.stringify(link));
   await p.close();

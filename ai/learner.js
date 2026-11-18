@@ -50,7 +50,7 @@ export const isAdmin = (env, req) => !!env.ADMIN_TOKEN && String(env.ADMIN_TOKEN
 /* ---------------- the progress record ---------------- */
 /* { v: 1, campaign: "kaur", lessons: { "1": { first: [b,b,b,b], best: [b,b,b,b], at: ms, retakes: n } },
      issues: { ga: ms }, doors: n, activeDays: ["2026-11-06"], updatedAt: ms } */
-const LESSON_IDS = ["1", "2", "3", "4", "5"], ISSUE_IDS = ["ga", "tx", "oh", "me", "mi", "oil", "social"]; /* version 173: the app's issue trainings are oil and social; the five older ids stay so a record that holds them still reads and merges */
+const LESSON_IDS = ["1", "2", "3", "4", "5"], ISSUE_IDS = ["ga", "tx", "oh", "me", "mi", "oil", "social"]; /* version 174: the app's issue trainings are oil and social; the five older ids stay so a record that holds them still reads and merges */
 const bools = (x, n) => (Array.isArray(x) && x.length === n && x.every((v) => typeof v === "boolean") ? x.slice() : null);
 const time = (x) => (Number.isFinite(x) && x > 1.6e12 && x < 4.1e12 ? Math.round(x) : null);
 const count = (x, max) => (Number.isInteger(x) && x >= 0 ? Math.min(x, max) : 0);

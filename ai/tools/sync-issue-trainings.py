@@ -12,7 +12,7 @@ It also refreshes the four app pages' own copy of the voters' cards (WAI_PUB: na
 card's rows, read from ai/scenarios.js), so a changed opening line or card row reaches the pages in the same step.
 
 Which trainings: the ids in ai/scenarios-issues.js (ISSUE_IDS). To add one, add its id there and to briefIds on the app
-pages (see ai/tools/v173-two-issue-trainings.py), then run this.
+pages (see ai/tools/v174-two-issue-trainings.py), then run this.
 
 Usage: python3 ai/tools/sync-issue-trainings.py /path/to/issue-trainings   (from anywhere; add --check to compare only)
 """
@@ -78,7 +78,7 @@ except Exception:
     commit, dirty, branch = "unknown", "", "unknown"
 note = (f"Copied from robertrgambhir-cell/issue-trainings, branch {branch}, commit {commit}"
         + (" (with uncommitted changes)" if dirty else "") + " by ai/tools/sync-issue-trainings.py.\n" + "\n".join(lines) + "\n")
-# the pages' copy of the cards, from the server's own definitions (the same lines version 173's patch wrote)
+# the pages' copy of the cards, from the server's own definitions (the same lines version 174's patch wrote)
 pub = subprocess.run(["node", "--input-type=module", "-e",
                       "import { SCENARIOS, publicScenario } from " + json.dumps(str(ROOT / "ai" / "scenarios.js")) + ";"
                       "const o = {}; for (const k of Object.keys(SCENARIOS)) if (k !== 'bri_health') o[k] = publicScenario(k); console.log(JSON.stringify(o));"],

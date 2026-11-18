@@ -10,9 +10,9 @@ What it does:
 - every visible promise of a text says what really happens unless reminders are switched on (REMIND, off by default);
 - the door-ready Today and the lesson 5 card say the issue lessons open tomorrow when they do; Learn's issue rows hold to
   one new lesson a day.
-Version 173 (Nov 18, 2026): the issue trainings are pages of their own (wdpfxqlsvp/trainings/, one copy for every build),
+Version 174 (Nov 18, 2026): the issue trainings are pages of their own (wdpfxqlsvp/trainings/, one copy for every build),
 so this builder no longer makes a copy of the old issue page and takes no ISSUES.html. It expects a staging page with
-ai/tools/v173-two-issue-trainings.py applied.
+ai/tools/v174-two-issue-trainings.py applied.
 Usage: python3 ai/build-phase1.py STAGING.html OUT_DIR [--dev] [--remind]
   writes OUT_DIR/index.html. --dev turns on the test clock (?day=+1).
 No backslashes or non-ASCII in this file: @RQ@ is a right single quote, @NB@ a no-break space."""
@@ -26,7 +26,7 @@ REMIND = "--remind" in sys.argv
 HERE = os.path.dirname(os.path.abspath(__file__))
 RQ, NB = chr(8217), chr(160)
 s = open(APP, encoding="utf-8").read()
-iss = ""  # version 173: no issue page copy any more (kept so swap() below reads the same)
+iss = ""  # version 174: no issue page copy any more (kept so swap() below reads the same)
 n_edits = []
 
 
@@ -167,14 +167,14 @@ const P1x = {
 swap("function vTodayG() {", tok(P1X) + "function vTodayG() {")
 swap('case "brief-open": { const d5 = S.done5 || {}; if (LESSONS5.every((x) => d5[x.n])) issuesOpen(el.dataset.lesson || "");',
      'case "brief-open": { const d5 = S.done5 || {}; if (LESSONS5.every((x) => d5[x.n]) && !window.__wuUnlock && !P1.issueOpen(el.dataset.lesson || "")) { toast("One new lesson a day. This one opens tomorrow morning."); break; } if (LESSONS5.every((x) => d5[x.n])) issuesOpen(el.dataset.lesson || "");')  # the unlock check is version 164's
-swap('case "issues-open": { /* version 173:', 'case "issues-open": { P1.ev("issue_open", {}); /* version 173:')
+swap('case "issues-open": { /* version 174:', 'case "issues-open": { P1.ev("issue_open", {}); /* version 174:')
 
-# (version 173: the issue frame and the old issue page copy are gone; the trainings open from wdpfxqlsvp/trainings/ in every build)
+# (version 174: the issue frame and the old issue page copy are gone; the trainings open from wdpfxqlsvp/trainings/ in every build)
 
 # ---------- Progress: where the record is saved, the personal link and erase ----------
 swap('<p class="pg-links"><button class="link" data-act="go" data-arg="statushow">How status works</button><span aria-hidden="true">\u00b7</span><button class="link" data-act="go" data-arg="record">Your record</button></p></div>',
      '<p class="pg-links"><button class="link" data-act="go" data-arg="statushow">How status works</button><span aria-hidden="true">\u00b7</span><button class="link" data-act="go" data-arg="record">Your record</button></p>${P1x.saveFoot()}</div>')
-swap('b.click(); b.remove(); break; }\n',  # the end of the issues-open case (version 173)
+swap('b.click(); b.remove(); break; }\n',  # the end of the issues-open case (version 174)
      'b.click(); b.remove(); break; }\n    case "p1-link": P1x.copyLink(); break;\n    case "p1-erase": P1x.erasing = arg === "ask"; render(); break;\n    case "p1-erase-yes": P1x.eraseNow(); break;\n')
 
 # ---------- the laptop guide (Version 160): its stops load sample progress, so nothing is saved from the first jump ----------

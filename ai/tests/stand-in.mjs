@@ -16,7 +16,7 @@ export function standIn(stats = { voter: 0, coach: 0 }) {
     const lines = ["Oh, hey. Yeah, I'm voting for her.", "Do you know what time the polls close Tuesday?", "Okay, no worries. Thanks.", "I've got to hop on a call. Thanks for coming by!"];
     return /bye|thanks|have a good/.test(last) && n > 1 ? { say: "You too, bye!", mood: "warm", end: true } : { say: lines[Math.min(n - 1, 3)], mood: n === 1 ? "warm" : "neutral", end: n >= 4 };
   };
-  /* version 173: the issue practice's voters, Sarah and Linda, get canned lines of their own, so a test's screenshots read like
+  /* version 174: the issue practice's voters, Sarah and Linda, get canned lines of their own, so a test's screenshots read like
      their doors (still a stand-in: it says nothing about how the real model plays them). She keeps asking until she is asked
      for her vote (or six lines), so a conversation can run past lesson 1's four lines, as her voter sheet allows. */
   const ISSUE_LINES = {
@@ -57,7 +57,7 @@ export function standIn(stats = { voter: 0, coach: 0 }) {
       const q = (re) => { const m = all.match(re); return m ? m[0] : ""; };
       const ids = body.tools[0].input_schema.properties.items.items.properties.id.enum;
       const ev = { name: q(/I'?m [A-Z][a-z]+/), maya: q(/Maya Kaur/i), tuesday: q(/Tuesday/i), listen: you[1] ? you[1].split(" ").slice(0, 4).join(" ") : "", close: q(/(thanks|bye)[^.!?]*/i), gap: q(/200,000/), plan: q(/Medicaid expansion/i), opp: q(/work hours/i),
-        /* version 173: the four parts of an issue door answer */ agree: q(/(That sounds really hard|You're right to worry|I'm sorry to hear that)/i), help: q(/heating help covers renters[^.]*/i), cause: q(/fewer workers pay in[^.,]*/i), choice: q(/Jack Dufner voted[^.]*\. Maya Kaur would[^.]*/i), ask: q(/Can Maya count on your vote[^.?]*/i) };
+        /* version 174: the four parts of an issue door answer */ agree: q(/(That sounds really hard|You're right to worry|I'm sorry to hear that)/i), help: q(/heating help covers renters[^.]*/i), cause: q(/fewer workers pay in[^.,]*/i), choice: q(/Jack Dufner voted[^.]*\. Maya Kaur would[^.]*/i), ask: q(/Can Maya count on your vote[^.?]*/i) };
       input = {
         items: ids.map((id) => ({ id, status: id === "nominute" || id === "accurate" ? "met" : ev[id] ? "met" : "missed", evidence: ev[id] || "", note: ev[id] ? "" : "Not in what you said." })),
         invented: [], transcription: [],
@@ -65,7 +65,7 @@ export function standIn(stats = { voter: 0, coach: 0 }) {
         improvement: { text: "Remind him Election Day is Tuesday in your first line.", try_saying: "Hi, I'm Sam, a neighbor with Maya Kaur. Election Day is Tuesday." },
         summary: "MOCK coach: a friendly start.",
       };
-      /* version 173: on an issue door the stand-in says plainly that it is one, so a screenshot is never mistaken for the real coach */
+      /* version 174: on an issue door the stand-in says plainly that it is one, so a screenshot is never mistaken for the real coach */
       if (ids.includes("agree") && ids.includes("ask")) Object.assign(input, {
         strength: first ? { text: "Stand-in coach: the real coach names one thing you did well here.", quote: first.split(" ").slice(0, 3).join(" ") } : { text: "", quote: "" },
         improvement: { text: "Stand-in coach: the real coach gives one thing to try next here.", try_saying: "" },

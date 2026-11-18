@@ -1,4 +1,4 @@
-/* Unit tests for the issue practice's two voters (version 173): Sarah after the Heating oil training, Linda after Social
+/* Unit tests for the issue practice's two voters (version 174): Sarah after the Heating oil training, Linda after Social
    Security. The model is a stub (no network, no key, no cost): these prove the sheets carry everything the server needs,
    that the prompts are built from them, that the coach's card is the four parts of the door answer and that a credit
    still needs the canvasser's own words. How well the real model plays Sarah and Linda needs the deployed server.
@@ -44,7 +44,7 @@ ok(ISSUE_SCENARIOS.oil === ISSUE_SCENARIOS_V2.oil, "the server uses the voter sh
   let m4 = ""; try { checkSheet("oil", five); } catch (e) { m4 = e.message; }
   ok(/four/.test(m4), "the card must be the four parts: " + m4); }
 
-/* 173-2: an issue conversation is about cuts, care and help. On the issue doors an ordinary sentence about those is not a
+/* 174-2: an issue conversation is about cuts, care and help. On the issue doors an ordinary sentence about those is not a
    threat, a come-on, an insult or a goodbye; a real one still is; and every other door keeps its checks as they were. */
 { const T = (lines) => [{ who: "them", text: "x" }].concat(lines.map((x) => ({ who: "you", text: x })));
   const L = SCENARIOS.social, SA = SCENARIOS.oil, K = SCENARIOS.kevin_intro;

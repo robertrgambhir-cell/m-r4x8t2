@@ -16,7 +16,7 @@ phone (staging page)  --scenario id + transcript-->  Cloudflare Worker (ai/worke
 
 Models: Claude Haiku 5.5 plays the voter (fast and cheap per turn); Claude Sonnet 5.5 coaches (more careful judgment). Both are settings (VOTER_MODEL, COACH_MODEL).
 
-## The issue trainings (Version 173, Nov 18)
+## The issue trainings (Version 174, Nov 18)
 
 Maya's issue trainings are Heating oil (id `oil`, voter Sarah) and Social Security (id `social`, voter Linda). They are built in another repo, robertrgambhir-cell/issue-trainings, and the app holds copies:
 

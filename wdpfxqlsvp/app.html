@@ -1471,6 +1471,11 @@
   .sc-list li::before { content: ""; position: absolute; left: 0; top: 1px; width: 18px; height: 18px; border-radius: 50%; box-sizing: border-box; }
   .sc-list li.y::before { background: var(--accent) url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5 L6.6 11.5 L12.5 5' fill='none' stroke='%23FFFFFF' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 11px 11px no-repeat; }
   .sc-list li.n::before { border: 2px solid var(--ink-3); }
+  .sc-list li.wait { color: var(--ink-2); } /* version 173: a part the coach is still reading */
+  .sc-list li.wait::before { border: 2px solid var(--ink-3); animation: waitPulse 1.1s ease-in-out infinite; animation-delay: calc(var(--i, 0) * .14s); }
+  .fb.try .four-list li.wait small { color: var(--ink-3); }
+  @keyframes waitPulse { 0%, 100% { opacity: .3; transform: scale(.85); } 50% { opacity: 1; transform: scale(1); } }
+  @media (prefers-reduced-motion: reduce) { .sc-list li.wait::before { animation: none; opacity: .6; } }
   .sc-list li.n::after { content: ""; position: absolute; left: 5px; top: 9px; width: 8px; height: 2px; background: var(--ink-3); }
   .sc-tip { margin-top: 12px; padding: 11px 13px; border-radius: 14px; background: var(--accent-soft); }
   .sc-tip b { display: block; font-size: 12.5px; font-weight: 700; color: var(--accent-ink); margin-bottom: 3px; }
@@ -2494,8 +2499,8 @@ const LOOKS = {
   gloria:  { skin: "#CF9F78", shade: "#B0825C", style: "bob",   hair: "#4A403C", shirt: "#3F7F86", shirtShade: "#30666C", glasses: true },
   omar:    { skin: "#C08A62", shade: "#A2704B", style: "short", hair: "#231A15", shirt: "#4B5E7A", shirtShade: "#3C4C63", beard: true },
   brianna: { skin: "#F2D3BC", shade: "#D9B49A", style: "long",  hair: "#A8622E", shirt: "#5A7F55", shirtShade: "#476643" },
-  oil_sarah: { skin: "#E3B48F", shade: "#C89671", style: "long", hair: "#5C4329", shirt: "#33435F", shirtShade: "#27344B" }, /* version 173: Sarah, as the Heating oil training draws her */
-  social_linda: { skin: "#B9825C", shade: "#9C6945", style: "curls", hair: "#D9D4CC", shirt: "#4F7A5A", shirtShade: "#3E6248", earrings: true }, /* version 173: Linda, as the Social Security training draws her (short silver curls, small gold earrings) */
+  oil_sarah: { skin: "#E3B48F", shade: "#C89671", style: "long", hair: "#5C4329", shirt: "#33435F", shirtShade: "#27344B" }, /* version 174: Sarah, as the Heating oil training draws her */
+  social_linda: { skin: "#B9825C", shade: "#9C6945", style: "curls", hair: "#D9D4CC", shirt: "#4F7A5A", shirtShade: "#3E6248", earrings: true }, /* version 174: Linda, as the Social Security training draws her (short silver curls, small gold earrings) */
   finnegan: { skin: "#EBC09F", shade: "#CC9A78", style: "short", hair: "#6A4128", shirt: "#3F5F8C", shirtShade: "#304B73" },
 };
 const GENDER = { walter: "f", kevin: "m", jamal: "m", priya: "f", doug: "m", gloria: "f", omar: "m", brianna: "f", maya: "f", nadia: "f", jess: "f", denise: "f", ana: "f", student: "f", mei: "f", marcus: "m", maria: "f", dad: "m", wrongid: "m", theo: "m", finnegan: "f", linda: "f", gary: "m", pushback: "m", quiet: "f", oil_sarah: "f", social_linda: "f" };
@@ -2510,7 +2515,7 @@ const HOME = {
   maria: { kind: "house", wall: "#F1E1C6", door: "#2E6A50", frame: "#FFFDF6", glass: true, window: true, num: "2207", extra: "plant" },
   omar: { kind: "house", wall: "#E9CFAF", door: "#6B4A2E", frame: "#F7EEDF", window: true, num: "655", extra: "plant" },
   brianna: { kind: "apt", wall: "#DCE6E0", floor: "#BFCFC6", door: "#3E6E5E", frame: "#5E6E66", num: "2F", extra: "bike" },
-  oil_sarah: { kind: "house", wall: "#E3DBCC", texture: "boards", line: "#D3C9B8", door: "#7A3B33", frame: "#FFFFFF", window: true, num: "14" }, /* version 173 */
+  oil_sarah: { kind: "house", wall: "#E3DBCC", texture: "boards", line: "#D3C9B8", door: "#7A3B33", frame: "#FFFFFF", window: true, num: "14" }, /* version 174 */
   social_linda: { kind: "house", wall: "#E6DDCF", door: "#6B4F7A", frame: "#FFFDF6", glass: true, window: true, num: "208", extra: "plant" },
 };
 /* the welcome series: 5 lessons, 5 minutes each (get out the vote at the door) */
@@ -4511,7 +4516,7 @@ const DOORS = {
       return { say: "Cool. Anything else?", expr: "neutral" };
     },
   },
-  /* version 173 (Robert, Nov 18): the spoken practice after each issue training, as a live AI conversation. The voters are the
+  /* version 174 (Robert, Nov 18): the spoken practice after each issue training, as a live AI conversation. The voters are the
      trainings' own (ai/scenarios-issues.js, from the voter sheets written with the trainings); a door's key is its training's
      id. No scripted lines, so a door opens only when the practice AI is on. The first line is read from the server's card. */
   oil: {
@@ -4910,7 +4915,7 @@ const skKey = () => (S.track === "gotv" ? LESSON_SKILL[S.lesson || 1] || "open" 
 const SK = () => SKILLS[skKey()];
 const doorKey = () => (S.try1 && !S.drill ? "sofia" : S.drill && (S.drill.kind === "knock" || S.drill.kind === "aiissue") ? S.drill.door : SK().door); /* version 165: the 1st intro's door */ /* version 150: a Practice knock plays its own door */
 /* version 63 (Monday option B, Robert's call Oct 11): lesson 1's Your turn is a short door, the opener and Kevin's answer, since only the opener is graded */
-const shortDoor = () => S.track === "gotv" && (S.lesson || 1) === 1 && !(S.drill && S.drill.kind === "aiissue"); /* version 173: an issue practice is a whole conversation, not lesson 1’s four lines */
+const shortDoor = () => S.track === "gotv" && (S.lesson || 1) === 1 && !(S.drill && S.drill.kind === "aiissue"); /* version 174: an issue practice is a whole conversation, not lesson 1’s four lines */
 const skinNow = () => (settings.look === "org" ? T().skin : "recognize");
 
 /* ---------- voices: the device's built-in speech ---------- */
@@ -4990,7 +4995,7 @@ const WAI = (() => {
     : Promise.resolve();
   const ready = () => state === "on"; /* only after the server said so: a door never starts as AI on a guess */
   const settle = () => ping;
-  /* which scenario this door plays: lesson 1's two doors (Sofia, then Kevin) and the issue practice (version 173: Sarah and Linda) */
+  /* which scenario this door plays: lesson 1's two doors (Sofia, then Kevin) and the issue practice (version 174: Sarah and Linda) */
   const scenFor = () => {
     if (S.drill) return S.drill.kind === "aiissue" ? (DOORS[S.drill.door] || {}).ai || null : null;
     return S.track === "gotv" && (S.lesson || 1) === 1 ? (doorKey() === "kevin" ? "kevin_intro" : doorKey() === "sofia" ? "sofia_intro" : null) : null; /* version 165: Sofia's 1st intro too */
@@ -5146,19 +5151,19 @@ const WAI = (() => {
   }
   /* a stated fact that isn't in the materials keeps a perfect card from reading Excellent */
   const flagged = (L) => !!(L && L.coach && L.coach.items.some((x) => x.id === "accurate" && x.status === "missed"));
-  function issueLink() { /* version 173: once an issue training is done, its conversation stays open on the Practice tab */
+  function issueLink() { /* version 174: once an issue training is done, its conversation stays open on the Practice tab */
     if (state === "off") return ""; /* shown whenever the practice AI is set up, even if the check from when the page opened failed or hasn’t answered: the tap asks the server again */
     const ids = (CAMPAIGN.gotv || {}).briefIds || [], bd = S.briefsDoneIds || {};
     return ids.filter((id) => bd[id] && DOORS[id] && DOORS[id].ai).map((id) => `<button class="link center" data-act="wai-issue" data-arg="${id}">Practice the ${DOORS[id].topic} conversation with ${DOORS[id].name}</button>`).join("");
   }
   function autoKnock() { setTimeout(() => { if (S.screen === "door" && S.convo && !S.convo.knocked) knock(); }, 380); }
-  /* version 173: a "not reachable" answer from when the page opened is asked again once, when a conversation is about to start */
+  /* version 174: a "not reachable" answer from when the page opened is asked again once, when a conversation is about to start */
   async function recheck() {
     if (!base) return;
     const ac = new AbortController(), t = setTimeout(() => ac.abort(), 4000);
     try { const j = await fetch(base + "/health", { cache: "no-store", signal: ac.signal }).then((r) => r.json()); if (j && j.ok) state = "on"; } catch (e) { /* still not reachable */ } finally { clearTimeout(t); }
   }
-  /* version 173: any issue door (door is its training's id). o.knock leaves the door shut until the canvasser taps Knock;
+  /* version 174: any issue door (door is its training's id). o.knock leaves the door shut until the canvasser taps Knock;
      o.back is the screen Done for now goes to. Says so and returns false when the practice AI can't be reached. The
      server's answer can take 4 s: if the canvasser has moved on by then (another screen, or o.still says the training was
      closed), nothing opens and nothing is said. */
@@ -5289,6 +5294,7 @@ const WAI = (() => {
     try { o = await h.done; } finally { live.delete(h); if (S.convo && S.convo.req === h) S.convo.req = null; }
     if (S.screen !== "door" || !S.convo) { h.abort(); return null; }
     S.convo.turns.push({ who: "them", text: o.say });
+    if (o.end || S.convo.turns.filter((x) => x.who === "you").length >= (shortDoor() ? 4 : 10)) earlyGrade(d); /* version 173 */
     if (o.sig) sigs.set(h.at + "|" + o.say, o.sig);
     if (o.care) showCare();
     setExpr(o.mood || "neutral");
@@ -5492,7 +5498,7 @@ function figure(p, tall) { /* version 170: tall runs the shirt on below the old 
     bob: `<path d="M128 152 C124 114 142 104 160 104 C178 104 196 114 192 152 C193 166 195 177 197 185 C187 188 182 178 182 166 L138 166 C138 178 133 188 123 185 C125 177 127 166 128 152 Z" fill="${p.hair}"/>`,
     long: `<path d="M126 150 C122 110 142 100 160 100 C178 100 198 110 194 150 L199 216 C189 217 184 198 182 172 L138 172 C136 198 131 217 121 216 Z" fill="${p.hair}"/>`,
     puff: `<circle cx="147" cy="106" r="12" fill="${p.hair}"/><circle cx="173" cy="106" r="12" fill="${p.hair}"/><circle cx="160" cy="97" r="15" fill="${p.hair}"/>`,
-    curls: `<g fill="${p.hair}">${[[137.5, 117, 8.8], [146, 108.2, 9.6], [158.3, 104.7, 9.6], [170.4, 105.6, 9.6], [180.8, 111.8, 8.8], [186, 124, 7.9], [133.2, 129.4, 7.9], [187, 134.7, 7], [132.4, 141.8, 6.2]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join("")}</g>`, /* version 173: short curls all round the head */
+    curls: `<g fill="${p.hair}">${[[137.5, 117, 8.8], [146, 108.2, 9.6], [158.3, 104.7, 9.6], [170.4, 105.6, 9.6], [180.8, 111.8, 8.8], [186, 124, 7.9], [133.2, 129.4, 7.9], [187, 134.7, 7], [132.4, 141.8, 6.2]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join("")}</g>`, /* version 174: short curls all round the head */
     short: "",
     bald: "",
   }[p.style] || "";
@@ -5665,7 +5671,7 @@ const ICON = {
 /* ---------- shell ---------- */
 /* version 105: the campaign skin is one config (name, the line under it, its one color and the lockup style). Get out the vote only. */
 /* version 153 (Robert, Nov 2): Maya runs for U.S. Senate in Franklin, a made-up state; four of her five briefs are Senate races */
-const CAMPAIGN = { gotv: { name: "Maya Kaur", line: "For U.S. Senate \u00b7 Franklin", lines: ["For U.S. Senate", "Franklin"], aria: "Maya Kaur for U.S. Senate in Franklin", track: "0.062em", color: "#1F4C91", soft: "rgba(31, 76, 145, 0.38)", lockup: "stack", briefs: ["Heating oil", "Social Security"], briefIds: ["oil", "social"], briefShort: [["Heating", "oil"], ["Social", "Security"]] } }; /* version 173 (Robert, Nov 18): the two issue trainings built in the issue-trainings repo, Heating oil and Social Security; the four lessons before them left the app */ /* version 164 (Robert, Nov 6): only lessons from Democrats who won 2026 Senate races; Georgia (a governor's race) is hidden, not deleted */
+const CAMPAIGN = { gotv: { name: "Maya Kaur", line: "For U.S. Senate \u00b7 Franklin", lines: ["For U.S. Senate", "Franklin"], aria: "Maya Kaur for U.S. Senate in Franklin", track: "0.062em", color: "#1F4C91", soft: "rgba(31, 76, 145, 0.38)", lockup: "stack", briefs: ["Heating oil", "Social Security"], briefIds: ["oil", "social"], briefShort: [["Heating", "oil"], ["Social", "Security"]] } }; /* version 174 (Robert, Nov 18): the two issue trainings built in the issue-trainings repo, Heating oil and Social Security; the four lessons before them left the app */ /* version 164 (Robert, Nov 6): only lessons from Democrats who won 2026 Senate races; Georgia (a governor's race) is hidden, not deleted */
 if (/[?&]unlock\b/.test(location.search)) { window.__wuPreview = true; window.__wuUnlock = true; } /* version 164: the investor link, every lesson open, nothing saved */
 const NB = () => ((CAMPAIGN.gotv || {}).briefIds || []).length, NL = () => 5 + NB(), NWORD = (n) => ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"][n] || String(n); /* version 149: the tile labels, two short lines each */ /* version 146: "Health insurance", never "coverage" (the playbook rule), and each brief\u2019s lesson id in issues/ for the door-ready deep link */ /* version 143: the five briefs in issues/, by short name, in the field director\u2019s order */ /* version 142: soft tints the path dots for the campaign briefs */
 const campNow = () => (S && CAMPAIGN[S.track]) || null;
@@ -6550,7 +6556,7 @@ function houseTall(h) {
   </svg>`;
 }
 /* the briefing's own issue icons (issues/index.html, ICONS), one tile each */
-const ISSUE_ICONS = [ /* version 173: a flame for Heating oil, a mailbox for Social Security (its training's cover) */
+const ISSUE_ICONS = [ /* version 174: a flame for Heating oil, a mailbox for Social Security (its training's cover) */
   ['<path d="M12 22c4.4 0 7-2.9 7-6.8 0-3.6-2.4-5.6-3.6-8.6-.4 1.9-1.4 3-2.6 3.6.3-3.3-1.2-6.4-4-8.2.2 3.3-1.6 5.3-3.3 7.4C4.2 11.1 5 12.6 5 15.2 5 19.1 7.6 22 12 22z" fill="#fff"/><path d="M12 22c-1.9 0-3.1-1.3-3.1-3 0-2 1.6-3 2.4-4.6.9 1.2 3.8 2.2 3.8 4.6 0 1.7-1.2 3-3.1 3z" fill="COL"/>', "#f07c3c"],
   ['<path d="M12 16v5.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><path d="M2.5 12.5a4.5 4.5 0 0 1 4.5-4.5h10a4.5 4.5 0 0 1 4.5 4.5V17h-19z" fill="#fff"/><path d="M11.5 17v-4.5A4.5 4.5 0 0 0 7 8" fill="none" stroke="COL" stroke-width="1.4"/><path d="M5 13.5h3.5" stroke="COL" stroke-width="1.5" stroke-linecap="round"/><path d="M16 12V3.5h4v3h-4" fill="#fff" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/>', "#3b80b6"],
 ];
@@ -7705,7 +7711,7 @@ function vDoor() {
   const d = DOORS[doorKey()], sk = SK();
   if (S.drill && (S.drill.kind === "knock" || S.drill.kind === "aiissue")) return app(`
     <div class="frame stage-frame door-stage convo-stage">${scene(d.scene, d.persona, { main: true, shut: true, tall: true, label: `${d.name}, ${d.sub}` }).replace(/<svg ([^>]*?)viewBox="[^"]*" /, '<svg $1').replace("<svg ", d.scene === "store" ? '<svg viewBox="0 18 320 222" preserveAspectRatio="xMidYMid slice" ' : '<svg viewBox="0 60 320 256" preserveAspectRatio="xMidYMin slice" ')}<video class="selfie" id="selfie" playsinline muted autoplay hidden></video><div class="thread" id="thread">${WAI.pill()}${S.drill.kind === "aiissue" ? `<p class="note">${esc(d.intro)}</p><p hidden>` : `<p class="note">`}Door ${(S.round ? S.round.i : 0) + 1} of 3 \u00b7 ${d.street}</p></div></div>
-  `, { back: S.drill.back || "coach", stage: true, ft: true, footer: S.drill.knock && !(S.convo && S.convo.knocked) ? `<button class="btn" data-act="knock">Knock</button>` : composer("send", "Type what you\u2019d say") }); /* version 150: a Practice knock opens straight on the door; version 169: full screen; version 173: an issue door opened from its training waits for a knock */
+  `, { back: S.drill.back || "coach", stage: true, ft: true, footer: S.drill.knock && !(S.convo && S.convo.knocked) ? `<button class="btn" data-act="knock">Knock</button>` : composer("send", "Type what you\u2019d say") }); /* version 150: a Practice knock opens straight on the door; version 169: full screen; version 174: an issue door opened from its training waits for a knock */
   if (S.track === "gotv" && !S.drill && !S.try1 && !(S.convo && S.convo.knocked)) return doorIntro(d, sk); /* version 54; version 165: the 1st intro knocks straight away, nothing taught first */
   /* version 87 (Robert): too much empty space after the knock. The lesson's door keeps the stage the intro drew (the frame fills the spare
      height, as the 1st try's does), the voter's line and yours sit under it as bubbles, and the mic stays pinned below. Drills keep the
@@ -7741,6 +7747,10 @@ function baLine(after) {
   return `<p class="ba-line">1st try <b>${a} of 4</b>. 2nd try <b>${b} of 4</b>.</p>`;
 }
 function vScore() {
+  if (S.last && S.last.grading) { /* version 173: the card opens while the coach reads, then fills in */
+    const G = S.last, gd = S.track === "gotv" ? DOORS[S.drill ? S.drill.door : SK().door] : null;
+    return app(`${S.track === "gotv" ? progressBar(repMoves().length + 2, 1) : ""}${gd ? `<div class="frame stage-frame sc-voter">${scene(gd.scene, gd.persona, { main: true, label: `${gd.name}, ${gd.sub}` })}<div class="sc-top grading"><h1 class="h1 verdict-h" style="margin:0">Checking your conversation\u2026</h1></div></div>` : ""}<div class="sc-card grading"><ul class="sc-list">${G.gradeRows.map((m, i) => `<li class="wait" style="--i:${i}">${esc(m)}</li>`).join("")}</ul></div><p class="sc-coach">Your coach is reading the conversation\u2026</p>`, { tag: S.drill ? "Practice" : "Feedback", noBack: true, stage: !!gd });
+  }
   const L = S.last, sk = SKILLS[L.skill], g = S.track === "gotv", drill = g ? S.drill : null, warm = !!drill && drill.kind === "warm";
   const hits = L.moves.filter(Boolean).length;
   const miss = L.moves.findIndex((m) => !m);
@@ -7961,7 +7971,7 @@ function closeStory(n, cnt, nx, R, after, anim, key) {
     const path = LESSONS5.map((L, j) => { const done = !!d5[L.n], isNext = !!nx && L.n === nx.n; return `<div class="dn-pw${isNext ? " on" : ""}"><span class="dn-pt${done ? " done" : isNext ? " next" : ""}">${done ? CHECK : L.n}</span>${CLOSE_NAMES[j]}</div>`; }).join("");
     const locked = !!nx && lessonLocked(nx.n);
     const h = !nx ? `Next: ${(CAMPAIGN[S.track] || CAMPAIGN.gotv).name.split(" ")[0]}\u2019s issue lessons.` : locked ? `Lesson ${nx.n} unlocks tomorrow.` : `Lesson ${nx.n} opens tomorrow.`;
-    const lede = !nx ? `${NWORD(NB()).replace(/^./, (c) => c.toUpperCase())} short lessons on the issues voters raise. The first opens tomorrow.` /* version 173: the count follows the list (two) */ : locked ? "There\u2019ll be a new 5 minute lesson every morning, right here." : "One new lesson a day, five minutes each.";
+    const lede = !nx ? `${NWORD(NB()).replace(/^./, (c) => c.toUpperCase())} short lessons on the issues voters raise. The first opens tomorrow.` /* version 174: the count follows the list (two) */ : locked ? "There\u2019ll be a new 5 minute lesson every morning, right here." : "One new lesson a day, five minutes each.";
     const nextCard = nx ? `<div class="dn-next"><p><b>Lesson ${nx.n}: ${nx.title}.</b></p></div>` : "";
     const arc = nx ? "Finish all five lessons and you\u2019ll have a strong foundation for great conversations at the door." : "You have all five moves for your canvass.";
     body = `<div class="dn3"><p class="kicker">What\u2019s next</p><h1 class="h1">${h}</h1><p class="lede">${lede}</p><div class="dn-path">${path}</div>${nextCard}<p class="dn-arc">${arc}</p>${oneOffer(n, d5, R)}</div>`;
@@ -8441,6 +8451,7 @@ function vTry() {
       ${knocked ? `<p class="rep-quote${S.swing ? " late" : ""}"><b>${L.name}:</b> \u201c${f.line}\u201d</p>` : ""}</div>`;
   const title = R && !R.pending ? "Your 1st intro" : knock ? (knocked ? "The door opens. How would you start?" : "How would you greet this voter?") : "Try it before the lesson. What would you say?";
   const head = `${lessonBar(0, R && !R.pending ? 1 : knocked ? 0.4 : 0.1)}<h2 class="h2 tight">${title}</h2>`;
+  if (R && R.pending && R.grading) return app(`${lessonBar(0, 1)}<h2 class="h2 tight">Your 1st intro</h2><div class="fb try grading"><h3>A good introduction does four things.</h3><ul class="sc-list four-list">${sk.moves.map((m, i) => `<li class="wait ev" style="--i:${i}"><span class="ev-l"><small>Checking</small>${esc(m)}</span></li>`).join("")}</ul><p class="try-lead had">Your coach is reading the conversation\u2026</p></div>`, { tag: "", stage: true, footer: `<button class="btn" disabled>Next: hear it done</button>` }); /* version 173 */
   if (R && R.pending) return app(`${head}${scenePart}${pendingCard("Reading your answer\u2026")}`, { tag: "", stage: knocked });
   if (!R) {
     const footer = knocked
@@ -9664,7 +9675,7 @@ function setComposer(on) {
   if (!say || !say.value.trim()) trayClose();
 }
 async function knock() {
-  const d = DOORS[doorKey()], issueDoor = !!(S.drill && S.drill.kind === "aiissue"); /* version 173 */
+  const d = DOORS[doorKey()], issueDoor = !!(S.drill && S.drill.kind === "aiissue"); /* version 174 */
   if (S.convo.knocking) return; S.convo.knocking = true; if (WAI.scenFor()) await WAI.settle(); /* only AI doors wait for the check, at most 4 s */ if (!S.convo || S.screen !== "door") return; S.convo.wai = WAI.full(d); /* version 156 */
   S.convo.knocked = true;
   const fr0 = $("#screen .frame.door-stage"), h0 = fr0 ? fr0.getBoundingClientRect().height : 0; /* version 87: where the intro's door sat */
@@ -9683,7 +9694,7 @@ async function knock() {
     shake.classList.remove("knock");
     svg.classList.remove("shut");
     await wait(900);
-    if (issueDoor && (S.screen !== "door" || !S.convo)) return; /* version 173: the canvasser left an issue door before she spoke */
+    if (issueDoor && (S.screen !== "door" || !S.convo)) return; /* version 174: the canvasser left an issue door before she spoke */
     await voterSays(d.first.say, d.first.expr, d);
   } else {
     svg.classList.remove("away");
@@ -9773,6 +9784,20 @@ async function voterReply(d, scripted, typing) {
   S.convo.busy = false;
   setComposer(true);
 }
+/* version 173 (Robert, Nov 17): grading starts as the goodbye arrives, not after it plays and the door shuts */
+function earlyGrade(d) {
+  if (!S.convo || S.convo.gradeP || S.convo.mode !== "live" || !WAI.full(d)) return;
+  S.convo.gradeP = WAI.coachConvo(d, S.convo.turns.slice());
+  S.convo.gradeP.catch(() => {});
+}
+/* version 173: the result card opens as the door shuts and fills in when the grade comes back */
+function gradingScreen(d) {
+  if (S.try1) { S.tryRes = { lesson: 1, pending: true, grading: true, at: 0 }; go("try", { noPush: true, noBeat: true }); return "try"; }
+  const sc = WAI.scenFor(), pub = sc && WAI_PUB[sc], card = pub ? pub.rubric.filter((r) => r.card).map((r) => r.label) : null;
+  S.last = { skill: skKey(), lesson: S.lesson || 1, grading: true, gradeRows: card && card.length ? card : SK().moves.slice(), moves: SK().moves.map(() => false), prior: [], text: "", who: d.name, day: S.day };
+  go("score");
+  return "score";
+}
 async function endConvo(d) {
   S.convo.ended = true;
   setComposer(false);
@@ -9788,20 +9813,23 @@ async function finishConvo(d) {
   S.convo.ended = true;
   setComposer(false);
   const fallback = [0, 1, 2, 3].map((i) => S.convo.st.moves.has(i));
-  let result = { hits: fallback, praise: "", tip: "" };
+  let result = { hits: fallback, praise: "", tip: "" }, back = null;
+  const conv = S.convo, t1 = S.try1; /* leaving the door for the card ends 1st intro mode, so remember it */
   if (S.convo.mode === "live" && (WAI.full(d) || aiOn()) && S.convo.turns.some((x) => x.who === "you")) {
-    const note = addNote(WAI.full(d) ? "Your coach is reading the conversation…" : "Scoring your conversation\u2026");
-    try { result = await aiGradeConvo(d); } catch (e) { if (WAI.full(d)) { try { result = await aiGradeConvo(d); } catch (e2) { result = Object.assign(result, { coachErr: true }); } } else aiFail(e); } /* version 156: one quiet retry, then an honest label */
+    if (WAI.full(d)) back = gradingScreen(d); /* version 173 */
+    const note = back ? null : addNote("Scoring your conversation\u2026");
+    try { result = await (conv.gradeP || aiGradeConvo(d)); } catch (e) { if (WAI.full(d)) { try { result = await aiGradeConvo(d); } catch (e2) { result = Object.assign(result, { coachErr: true }); } } else aiFail(e); } /* version 156: one quiet retry, then an honest label */
     if (note) note.remove();
   }
-  if (S.screen !== "door") return;
-  if (S.try1) { /* version 165: the 1st intro's conversation comes back to its own card, graded like the 2nd */
+  const here = back ? S.screen === back && S.convo === conv : S.screen === "door"; /* version 173: a grade that lands after they left is still saved */
+  if (!back && !here) return;
+  if (t1) { /* version 165: the 1st intro's conversation comes back to its own card, graded like the 2nd */
     const said1 = S.convo.turns.filter((x) => x.who === "you").map((x) => x.text), text1 = said1.slice(0, 2).join(" "), h1 = result.hits.slice(), c1 = h1.filter(Boolean).length;
     S.tryRes = { lesson: 1, text: text1, hits: h1, phr: phrFinal(text1, h1, result.phr || null), pending: false, at: Date.now(), convo: S.convo.turns.map((x) => ({ who: x.who, text: x.text })), coach: result.coach || null };
     S.skipWatch = false; /* version 167 */
     S.placement = [!h1[3] ? "weak" : c1 === 4 ? "strong" : c1 === 3 ? "ok" : "weak", openerNote(h1)]; S.placementSeen = true; S.placementText = text1;
     S.try1 = false;
-    go("try", { noPush: true, noBeat: true });
+    if (here) go("try", { noPush: true, noBeat: true });
     return;
   }
   const youText = S.convo.turns.filter((x) => x.who === "you").slice(0, 2).map((x) => x.text).join(" ");
@@ -9819,7 +9847,7 @@ async function finishConvo(d) {
   }
   S.sayNow = null;
   S.lastAt[S.track] = Date.now();
-  go("score");
+  if (here) go("score", back ? { noPush: true, noBeat: true } : {});
 }
 
 /* ---------- practice (one best practice at a time, or an optional lesson) and placement ---------- */
@@ -10166,7 +10194,7 @@ document.addEventListener("click", (e) => {
     case "text-at": S.textAt = S.textAt === arg ? null : arg; render(); break; /* version 142 (Robert): the hour the text comes tomorrow, a plan she makes herself */
     case "invite-copy": try { navigator.clipboard.writeText("https://yourwarmup.com/kaur"); } catch (e) { /* ignore */ } toast("Invite link copied."); break; /* version 126 */
     case "course-open": S.courseN = Number(arg); go("course"); break; /* version 125 */
-    case "issues-open": { P1.ev("issue_open", {}); /* version 173: from Today, Learn (the two issue rows lead it); on Learn, the first training not done yet, through its row\u2019s own checks */ if (S.screen !== "library") { go("library"); break; } const ids = (CAMPAIGN[S.track] || CAMPAIGN.gotv).briefIds || [], bd = S.briefsDoneIds || {}, b = document.createElement("button"); b.dataset.act = "brief-open"; b.dataset.lesson = ids.find((x) => !bd[x]) || ids[0] || ""; b.hidden = true; document.body.appendChild(b); b.click(); b.remove(); break; }
+    case "issues-open": { P1.ev("issue_open", {}); /* version 174: from Today, Learn (the two issue rows lead it); on Learn, the first training not done yet, through its row\u2019s own checks */ if (S.screen !== "library") { go("library"); break; } const ids = (CAMPAIGN[S.track] || CAMPAIGN.gotv).briefIds || [], bd = S.briefsDoneIds || {}, b = document.createElement("button"); b.dataset.act = "brief-open"; b.dataset.lesson = ids.find((x) => !bd[x]) || ids[0] || ""; b.hidden = true; document.body.appendChild(b); b.click(); b.remove(); break; }
     case "p1-link": P1x.copyLink(); break;
     case "p1-erase": P1x.erasing = arg === "ask"; render(); break;
     case "p1-erase-yes": P1x.eraseNow(); break;
@@ -10236,11 +10264,11 @@ document.addEventListener("click", (e) => {
       break;
     }
     case "end-convo": if (S.convo && !S.convo.ended) { stopSpeech(); finishConvo(DOORS[doorKey()]); } break;
-    case "door-again": if (S.drill && S.drill.kind === "aiissue") S.drill.knock = false; go("door"); if (S.drill && S.drill.kind === "aiissue") WAI.autoKnock(); break; /* version 173: this tap is the knock */
+    case "door-again": if (S.drill && S.drill.kind === "aiissue") S.drill.knock = false; go("door"); if (S.drill && S.drill.kind === "aiissue") WAI.autoKnock(); break; /* version 174: this tap is the knock */
     case "wai-retry": WAI.retry(); break; /* version 156 */
     case "coach-full": go("coachfull"); break;
     case "coach-retry": WAI.recoach(); break;
-    case "wai-issue": S.hist = []; WAI.startIssue(arg); break; /* version 173: arg is the training\u2019s id */
+    case "wai-issue": S.hist = []; WAI.startIssue(arg); break; /* version 174: arg is the training\u2019s id */
     case "mic-retry": micRetry(); break; /* version 94 */
     case "mic-type": break; /* version 163: audio only, typing is never offered */
     case "place-knock": placeKnock(); break;
@@ -10321,7 +10349,7 @@ case "wai-type": break; case "wai-type-off": { S.typeMode = true; stopMic(); con
     case "knock-next": { const R = S.round; if (!R || !S.drill || S.drill.kind !== "knock") { go("coach"); break; } if (R.i >= R.doors.length - 1) { go("round"); break; } R.i += 1; S.drill.door = R.doors[R.i]; S.drill.step = R.i + 1; go("door", { noPush: true }); knockSoon(); break; }
     case "knock-done": S.round = null; S.hist = []; go("coach"); break;
     case "coach-surprise": { const d5 = S.done5 || {}; let pool = Object.keys(DOOR_LESSON).filter((k) => d5[DOOR_LESSON[k]]); if (!pool.length) pool = Object.keys(DOOR_LESSON); if (S.drill && pool.length > 1) pool = pool.filter((k) => k !== S.drill.door); startDrill("practice", pool[Math.floor(Math.random() * pool.length)]); break; }
-    case "coach-back": { const to = (S.drill && S.drill.back) || "coach"; endDrillState(); go(VIEWS[to] ? to : "coach"); break; } /* version 173: an issue practice opened from its training goes back to Learn */
+    case "coach-back": { const to = (S.drill && S.drill.back) || "coach"; endDrillState(); go(VIEWS[to] ? to : "coach"); break; } /* version 174: an issue practice opened from its training goes back to Learn */
     case "cool-say": coolSay(); break;
     case "cool-signup": S.signedUp = true; render(); toast("You\u2019re signed up for next Saturday at 9 AM."); break;
     case "strip": settings.watchStrip = arg; store.set("watchStrip", arg); openMenu(); break;
@@ -10373,10 +10401,10 @@ document.addEventListener("focusout", (e) => {
 /* tapping the arrow keeps the box focused, so nothing moves under the finger before the tap lands */
 document.addEventListener("mousedown", (e) => { if (e.target && e.target.closest && e.target.closest("#talk-tray button")) e.preventDefault(); });
 
-/* version 173 (Robert, Nov 18): an issue training (wdpfxqlsvp/trainings/<id>.html, in the overlay's frame) tells the app two
+/* version 174 (Robert, Nov 18): an issue training (wdpfxqlsvp/trainings/<id>.html, in the overlay's frame) tells the app two
    things here: issues-done, when its last screen shows, and issues-practice, when Practice the conversation is tapped
    there. Both check the lesson off (the first finish counts); practice also opens the door. Only the training this page
-   opened is listened to. (Before 173 the older issue pages sent brief-done.) */
+   opened is listened to. (Before 174 the older issue pages sent brief-done.) */
 let issuePracticeBusy = false;
 async function issuePractice(id) {
   if (issuePracticeBusy || !DOORS[id] || !DOORS[id].ai) return;
@@ -10479,7 +10507,7 @@ const gState = { on: !gClean && (/[?&]guide\b/.test(location.search) || store.ge
 const G_WIDE = "(min-width: 1100px) and (min-height: 620px) and (pointer: fine)";
 function guideStop() {
   if (document.getElementById("issues-ov")) return 7;
-  if (S.drill && ["main", "door", "score", "warmtip"].includes(S.screen)) return S.drill.kind === "aiissue" ? 7 : 8; /* version 173: the practice after an issue training is part of the issues stop */
+  if (S.drill && ["main", "door", "score", "warmtip"].includes(S.screen)) return S.drill.kind === "aiissue" ? 7 : 8; /* version 174: the practice after an issue training is part of the issues stop */
   return G_AT[S.screen] || 0;
 }
 function gVal(v) { return typeof v === "function" ? v() : v; }
@@ -10614,7 +10642,7 @@ function tourRender() {
     <p class="t-fine">Maya Kaur for U.S. Senate is a sample campaign. Stops 5 to 9 load sample progress, as if five days had passed. Nothing here is saved, and no texts are sent.</p>`;
 }
 
-{ const cv = new URLSearchParams(location.search).get("convo"); if (cv && S.track === "gotv") { S.lesson = 1; S.intakeDone = true; S.mode = S.mode || "voice"; S.hist = []; S.screen = "welcome"; setTimeout(() => { if (DOORS[cv] && DOORS[cv].ai) WAI.startIssue(cv); else go("door"); }, 0); } } /* version 156; version 173: ?convo=oil and ?convo=social open the issue practice for review */
+{ const cv = new URLSearchParams(location.search).get("convo"); if (cv && S.track === "gotv") { S.lesson = 1; S.intakeDone = true; S.mode = S.mode || "voice"; S.hist = []; S.screen = "welcome"; setTimeout(() => { if (DOORS[cv] && DOORS[cv].ai) WAI.startIssue(cv); else go("door"); }, 0); } } /* version 156; version 174: ?convo=oil and ?convo=social open the issue practice for review */
 /* phase 1: the daily rule and the learner's record (ai/schedule.js, ai/client/phase1.js) */
 /* Phase 1: the one rule for when a new lesson opens, shared by the page (inlined by ai/build-phase1.py) and the reminder
    planner (ai/reminders.js), so the app and any text can never disagree.
@@ -10624,7 +10652,7 @@ function tourRender() {
    progress: { lessons: { "1": { at } ... "5": { at } }, issues: { oil: at, ... } } with at = first finish time in ms.
    No exports keyword on purpose: the page inlines this file as is, and node reads it through ai/schedule.mjs. */
 var SCHED = (function () {
-  var DAY_START_HOUR = 5, ISSUES = ["oil", "social"]; /* version 173: the two issue trainings in the app, Heating oil and Social Security */
+  var DAY_START_HOUR = 5, ISSUES = ["oil", "social"]; /* version 174: the two issue trainings in the app, Heating oil and Social Security */
   /* the learner's calendar day for a moment, with the day starting at 5 AM; tz is an IANA zone (planner) or omitted (the phone's own) */
   function dayKey(t, tz) {
     /* the local calendar date and hour of t; before 5 AM it is still the day before. Done on the local clock, not by
@@ -10723,7 +10751,7 @@ const P1 = (() => {
   const sched = (p) => ({ lessons: p.lessons, issues: p.issues });
   /* every record read from the phone or the server is rebuilt from known fields only: lessons 1 to 5, the five issue ids,
      booleans, numbers, short words; nothing else can reach the page (a crafted key must never reach HTML) */
-  const ISS = ["ga", "tx", "oh", "me", "mi", "oil", "social"]; /* version 173: oil and social are the app\u2019s issue trainings; the five older ids still read */
+  const ISS = ["ga", "tx", "oh", "me", "mi", "oil", "social"]; /* version 174: oil and social are the app\u2019s issue trainings; the five older ids still read */
   const b4 = (x) => (Array.isArray(x) && x.length === 4 && x.every((v) => typeof v === "boolean") ? x.slice() : null);
   const tm = (x) => (Number.isFinite(x) && x > 1.6e12 && x < 4.1e12 ? x : null);
   const dk = (x) => (typeof x === "string" && /^\d{4}-\d{2}-\d{2}$/.test(x) ? x : null);
@@ -10946,7 +10974,7 @@ render();
   @media (prefers-reduced-motion: reduce) { .issues-ov { animation: none; } }
 </style>
 <script>
-/* version 173 (Robert, Nov 18): the issue trainings are pages of their own, built in the issue-trainings repo and copied to
+/* version 174 (Robert, Nov 18): the issue trainings are pages of their own, built in the issue-trainings repo and copied to
    wdpfxqlsvp/trainings/ (ai/tools/sync-issue-trainings.py). A training opens over the app in a frame, so the app keeps its
    place. Its engine sends three messages: issues-done and issues-practice (handled above, where the lesson list lives) and
    issues-close (here). With no id, the first training not done yet opens. */
@@ -10962,12 +10990,12 @@ function issuesOpen(lesson) {
   /* the trainings folder sits beside the live page; the test builds (p1, dev, staging) are one folder down */
   var at = location.pathname.indexOf("/wdpfxqlsvp/"), base = at >= 0 ? location.pathname.slice(0, at) + "/wdpfxqlsvp/trainings/" : "trainings/";
   fr.title = "Maya Kaur\u2019s issue training: " + (I.names[lesson] || lesson);
-  fr.src = base + lesson + ".html?app=1&v=173";
+  fr.src = base + lesson + ".html?app=1&v=174";
   fr.addEventListener("load", function () { try { fr.contentDocument.addEventListener("pointerdown", function () { if (window.__warmupWake) window.__warmupWake(true); }, true); } catch (e) { /* not this page's own frame: nothing to do */ } });
   ov.appendChild(fr); host.appendChild(ov);
 }
 window.addEventListener("message", function (e) { var ov = document.getElementById("issues-ov"), fr = ov && ov.querySelector("iframe"); if (e && e.data && e.data.warmup === "issues-close" && fr && e.source === fr.contentWindow) ov.remove(); });
-/* version 134 (Robert, Nov 1): yourwarmup.com/wdpfxqlsvp/?issues opens straight to the issue lessons, over the Learn tab; version 173: ?issues=social opens that one */
+/* version 134 (Robert, Nov 1): yourwarmup.com/wdpfxqlsvp/?issues opens straight to the issue lessons, over the Learn tab; version 174: ?issues=social opens that one */
 if (/[?&]issues\b/.test(location.search)) setTimeout(function () {
   var b = document.createElement("button"); b.dataset.act = "go"; b.dataset.arg = "library"; b.hidden = true; document.body.appendChild(b); b.click(); b.remove();
   issuesOpen((location.search.match(/[?&]issues=([a-z]+)/) || [])[1] || "");

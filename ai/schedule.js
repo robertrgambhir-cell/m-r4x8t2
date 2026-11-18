@@ -6,7 +6,7 @@
    progress: { lessons: { "1": { at } ... "5": { at } }, issues: { oil: at, ... } } with at = first finish time in ms.
    No exports keyword on purpose: the page inlines this file as is, and node reads it through ai/schedule.mjs. */
 var SCHED = (function () {
-  var DAY_START_HOUR = 5, ISSUES = ["oil", "social"]; /* version 173: the two issue trainings in the app, Heating oil and Social Security */
+  var DAY_START_HOUR = 5, ISSUES = ["oil", "social"]; /* version 174: the two issue trainings in the app, Heating oil and Social Security */
   /* the learner's calendar day for a moment, with the day starting at 5 AM; tz is an IANA zone (planner) or omitted (the phone's own) */
   function dayKey(t, tz) {
     /* the local calendar date and hour of t; before 5 AM it is still the day before. Done on the local clock, not by

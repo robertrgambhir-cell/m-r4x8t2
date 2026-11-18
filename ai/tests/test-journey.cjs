@@ -108,7 +108,7 @@ async function lesson(p, n, o = {}) {
 }
 /* a first visit: the welcome video (skipped), then lesson 1 */
 async function first(p) { await L.act(p, "video-skip"); await p.waitForTimeout(4300); return lesson(p, 1, { fromHere: true }); }
-/* an issue training inside the app's frame, the way a learner walks it (version 173): Learn, the first row not done yet, every
+/* an issue training inside the app's frame, the way a learner walks it (version 174): Learn, the first row not done yet, every
    screen tapped through (the taps of tests/walk.js in the issue-trainings repo), the last screen, then its close button.
    "locked" when today's new lesson is used. */
 async function issueLesson(p) {
@@ -152,7 +152,7 @@ const saveLine = (p) => p.evaluate(() => (document.querySelector(".pg-save") || 
 async function saveLineSettled(p, want, ms) { const t0 = Date.now(); let s = ""; while (Date.now() - t0 < (ms || 6000)) { await tab(p, "me"); s = await saveLine(p); if (want.test(s)) return s; await p.waitForTimeout(700); } return s; }
 
 (async () => {
-  cp.execFileSync("python3", ["ai/build-phase1.py", "wdpfxqlsvp/staging/index.html", OUTDIR], { cwd: REPO }); /* version 173: no issue page copy */
+  cp.execFileSync("python3", ["ai/build-phase1.py", "wdpfxqlsvp/staging/index.html", OUTDIR], { cwd: REPO }); /* version 174: no issue page copy */
   await fetch(L.AI + "/__p1/reset"); await fetch(L.AI + "/__p1/nokey?on=0"); await fetch(L.AI + "/__p1/down?on=0"); await fetch(L.AI + "/__p1/kvfail?on=0");
   /* belt and braces: the browser can't even find Warmup's real server, so nothing a page does can reach production */
   const b = await require("playwright").chromium.launch({ args: ["--autoplay-policy=no-user-gesture-required", "--host-resolver-rules=MAP warmup-ai.robertrgambhir.workers.dev ~NOTFOUND"] }), errs = [];
@@ -268,7 +268,7 @@ async function saveLineSettled(p, want, ms) { const t0 = Date.now(); let s = "";
   T = await tabs(p);
   ok(T.learnDone === 5 && T.ring === 0 && /door-ready|5 of 7|issue lesson/i.test(T.progress + T.learn), "day 4: Learn shows five done, and Progress (door-ready) starts counting issue lessons at 0: " + JSON.stringify({ learn: T.learnDone, ring: T.ring }));
 
-  /* ---- days 5 and 6: the two issue trainings, one a day, for real (version 173: Heating oil, then Social Security) ---- */
+  /* ---- days 5 and 6: the two issue trainings, one a day, for real (version 174: Heating oil, then Social Security) ---- */
   for (let d = 5; d <= 6; d += 1) {
     await setDay(c, d); p = await reopen(p, c, errs);
     t = await text(p);

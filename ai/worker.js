@@ -16,7 +16,7 @@
    - Nothing said in a conversation is stored or logged: the logs hold the route, scenario, timing, tokens and cost. */
 
 import { SCENARIOS, publicScenario } from "./scenarios.js";
-import { ISSUE_SCENARIOS } from "./scenarios-issues.js"; /* 173-2: which sheets are issue doors */
+import { ISSUE_SCENARIOS } from "./scenarios-issues.js"; /* 174-2: which sheets are issue doors */
 import { isAdmin, isLearnerRoute, learnerRoute, LearnerError } from "./learner.js"; /* phase 1: progress, events, admin views */
 
 const DEFAULTS = {
@@ -33,7 +33,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "173-2"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "174-2"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -170,7 +170,7 @@ export const CARE = /\b(kill(ing)? myself|end(ing)? (my|it) (life|all)|suicid\w*
 const THREAT = /\b(or (we|i)'?ll\b(?! (text|call|send|follow))|(we'?ll|i'?ll) remember (this|your) (house|place|door|face)|i know where you live|i'?ll be back (tonight|later|for you)|should (shoot|kill|hurt|beat)\b|(shoot|kill|hurt|beat up) (him|her|you|them)\b|report you to (immigration|ice|the police|the cops)|you'?ll regret|watch your back|or else[.!?]*\s*$)/i;
 const SEXUAL = /\b(you'?re (so )?(hot|cute|sexy|gorgeous|beautiful|fine)|hey,? (gorgeous|sexy|beautiful|babe|baby|hottie)|are you single|you single|what are you wearing|come in for a (bit|while)|give me your number,? (gorgeous|babe|beautiful))/i;
 const INSULT = /\b(idiot|stupid|moron|loser|dumbass|dumb|pathetic|shut up|piece of (crap|shit)|bitch|asshole|jerk|clown)\b/gi;
-/* 173-2: the issue practice's doors (Sarah, Linda) run longer than the intro doors and are about cuts, care and help. The
+/* 174-2: the issue practice's doors (Sarah, Linda) run longer than the intro doors and are about cuts, care and help. The
    checks above were written for short introductions, and there they read ordinary sentences as a threat, a come-on, an
    insult or a goodbye: "A cut like that would hurt you", "Congress has to act, or we'll see smaller checks", "I want to
    make sure you're fine this winter", "a stupid war", "kids to take care of", "see you at the polls". For the issue sheets
@@ -194,7 +194,7 @@ export function conduct(turns, s) {
 }
 /* asked whether the voter is an AI, and the reply denies it: replace it with the honest line */
 const ASKS_AI = /\b(are you (an? )?(ai|a\.i\.|bot|robot|real( person)?|human|computer)|is this (an? )?(ai|bot|robot|real person)|am i talking to (an? )?(ai|bot|robot|computer))\b/i;
-const DENIES_AI = /\b(not an? (ai|bot|robot|computer)|i'?m (a )?real (person|guy|woman)|i'?m human|no,? i'?m (kevin|bri|sarah|linda)\b)/i; /* 173-1: the issue practice's voters, Sarah and Linda */
+const DENIES_AI = /\b(not an? (ai|bot|robot|computer)|i'?m (a )?real (person|guy|woman)|i'?m human|no,? i'?m (kevin|bri|sarah|linda)\b)/i; /* 174-1: the issue practice's voters, Sarah and Linda */
 export const needsCare = (turns) => { const you = turns.filter((t) => t.who === "you"); return !!you.length && CARE.test(you[you.length - 1].text); };
 
 /* ---------------- the voter ---------------- */
@@ -321,7 +321,7 @@ const VOTER_TOOL = {
 export const FAREWELL = /\b(good ?night|goodbye|bye( now)?|have a (good|great|nice|lovely) (night|evening|one|day|afternoon|weekend)|take care|see you( later| around)?|thanks for (coming|stopping) by)\b/i;
 export const outOfCharacter = (p, name) => new RegExp(`\\b(I (can'?t|cannot|won'?t|am unable to|'m unable to) (write|continue|generate|produce|give|provide)|next (line|turn|response)|(this|the) (exchange|conversation|scene|role-?play|transcript|dialogue)\\b[^.]*\\b(ended|over|already|reached)|${name}'s (next|final|last) (line|words|turn)|as an AI\\b|language model|the volunteer\\b|if you'?re practicing|role-?play)`, "i").test(p);
 export const GOODBYE = "Bye now!";
-export const FAREWELL_ISSUE = /\b(good ?night|goodbye|bye( now)?|have a (good|great|nice|lovely) (night|evening|one|day|afternoon|weekend)|take care(?! of\b)|see you (later|around|soon|then)|thanks for (coming|stopping) by)\b/i; /* 173-2: for the issue sheets (see conduct) */
+export const FAREWELL_ISSUE = /\b(good ?night|goodbye|bye( now)?|have a (good|great|nice|lovely) (night|evening|one|day|afternoon|weekend)|take care(?! of\b)|see you (later|around|soon|then)|thanks for (coming|stopping) by)\b/i; /* 174-2: for the issue sheets (see conduct) */
 const farewell = (s) => (isIssue(s) ? FAREWELL_ISSUE : FAREWELL);
 const saidBye = (turns, s) => { const you = turns.filter((t) => t.who === "you").length; const them = turns.filter((t) => t.who === "them"); return you >= 2 && them.length >= 2 && farewell(s).test(them[them.length - 1].text); };
 export function cleanVoter(x, s, turns) {
@@ -513,7 +513,7 @@ async function speak(env, s, text, voice) {
 }
 
 /* ---------------- Nov 6, 2026: the fast spoken turn (POST /turn) ----------------
-   (The narration route, GET /narrate, read the two Nov 6 issue trainings aloud; it left with them in 173-1.)
+   (The narration route, GET /narrate, read the two Nov 6 issue trainings aloud; it left with them in 174-1.)
    /turn is /voter and /speak in one streamed answer, so the voter starts talking while the rest of the line is still
    being written. The model streams plain text; each sentence goes to the voice the moment it's complete, and the page
    plays the first sentence while later ones are still being made. Same checks as /voter: the origin, signed voter

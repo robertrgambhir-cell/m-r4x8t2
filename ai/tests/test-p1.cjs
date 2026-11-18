@@ -1,5 +1,5 @@
 /* Phase 1 browser tests: progress that survives a reload, the daily rule across days (with the dev build's ?day= test clock),
-   retakes, interruptions, door-ready and the issue trainings (version 173: Heating oil and Social Security, in the overlay),
+   retakes, interruptions, door-ready and the issue trainings (version 174: Heating oil and Social Security, in the overlay),
    presenter shortcuts, the server copy and its failures.
    Needs: node tests/p1-server.mjs <repo root> running, and the dev build at wdpfxqlsvp/dev (python3 ai/build-phase1.py ... --dev).
    Usage: NODE_PATH=$(npm root -g) node tests/test-p1.cjs */
@@ -75,7 +75,7 @@ const noText = (t) => !/text you|get a text|by text/i.test(t);
   ok(lc.length >= 2 && lc.every((e) => e.props.ms > 10000), "lesson_complete carries the time spent: " + lc.map((e) => e.props.ms).join(","));
   await c.close();
 
-  /* 6. door-ready: the issue trainings open the next morning, one a day, on Today and Learn (version 173: Heating oil and
+  /* 6. door-ready: the issue trainings open the next morning, one a day, on Today and Learn (version 174: Heating oil and
      Social Security, each a page of its own in the overlay; the training's last screen tells the app it is finished) */
   const now = Date.now();
   c = await L.ctx(b);
@@ -174,7 +174,7 @@ const noText = (t) => !/text you|get a text|by text/i.test(t);
   {
     const fs = require("fs"), path = require("path"), cp = require("child_process");
     const repo = path.resolve(__dirname, "..", "..");
-    cp.execFileSync("python3", ["ai/build-phase1.py", "wdpfxqlsvp/staging/index.html", "wdpfxqlsvp/.p1-test-prod"], { cwd: repo }); /* version 173: no issue page copy */
+    cp.execFileSync("python3", ["ai/build-phase1.py", "wdpfxqlsvp/staging/index.html", "wdpfxqlsvp/.p1-test-prod"], { cwd: repo }); /* version 174: no issue page copy */
     await fetch(L.AI + "/__p1/reset");
     const PROD = "http://127.0.0.1:8765/wdpfxqlsvp/.p1-test-prod/";
     c = await L.ctx(b);
@@ -190,9 +190,9 @@ const noText = (t) => !/text you|get a text|by text/i.test(t);
     await seed(c, { v: 1, lessons: { 1: L1(now - 5 * DAY), 2: L1(now - 4 * DAY), 3: L1(now - 3 * DAY), 4: L1(now - 2 * DAY), 5: L1(now - DAY), "<img src=x onerror=window.__pwn=1>": L1(now) }, issues: { ga: now - DAY / 2, 'x" onload="window.__pwn=1" data-x="': now } });
     p = await L.open(c, "?noai", errs);
     await L.act(p, "issues-open"); await p.waitForTimeout(800);
-    await p.evaluate(() => { const r0 = document.querySelector('[data-act="brief-open"][data-lesson="oil"]'); if (r0) r0.click(); }); await p.waitForTimeout(2200); /* version 173: a training's frame, opened from its row */
-    { const src173 = await p.evaluate(() => (document.querySelector("#issues-ov iframe") || {}).src || "");
-      ok(!(await p.evaluate(() => window.__pwn)) && /\/trainings\/oil\.html\?app=1&v=173$/.test(src173) && !/onload|onerror/.test(src173), "a poisoned record can't put script into the page: " + src173); }
+    await p.evaluate(() => { const r0 = document.querySelector('[data-act="brief-open"][data-lesson="oil"]'); if (r0) r0.click(); }); await p.waitForTimeout(2200); /* version 174: a training's frame, opened from its row */
+    { const src174 = await p.evaluate(() => (document.querySelector("#issues-ov iframe") || {}).src || "");
+      ok(!(await p.evaluate(() => window.__pwn)) && /\/trainings\/oil\.html\?app=1&v=174$/.test(src174) && !/onload|onerror/.test(src174), "a poisoned record can't put script into the page: " + src174); }
     const st = await L.state(p);
     ok(Object.keys(st.lessons).join() === "1,2,3,4,5" && Object.keys(st.issues).join() === "ga", "and the stored record is rebuilt from known fields only: " + JSON.stringify(Object.keys(st.issues)));
     await c.close();
