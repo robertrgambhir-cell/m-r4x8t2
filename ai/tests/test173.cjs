@@ -74,6 +74,8 @@ const FAKE_SR = () => {
     const A = '.screen.is-active ';
     const S = await fr.evaluate(() => window.TRAINING.screens);
     const next = async () => { await p.waitForTimeout(450); await fr.click(A + '[data-next]:not(.hide)'); };
+    let slid = 0; /* a tap that lands while a screen is still sliding in must not push the training sideways (it once scrolled 18px) */
+    const side = async () => { slid = Math.max(slid, await fr.evaluate(() => Math.abs(document.getElementById('phone').scrollLeft) + Math.abs(document.scrollingElement.scrollLeft))); };
     for (let i = 0; i < S.length - 1; i += 1) {
       const s = S[i];
       if (s.type === 'count') { await fr.click(A + '.houses button:nth-child(4)'); await fr.click(A + '.check'); }
@@ -85,10 +87,13 @@ const FAKE_SR = () => {
         await fr.click(A + '.round.cur .opt[data-v=ok]'); await fr.click(A + '.rnext');
         await fr.click(A + '.round.cur .opt[data-v=ok]');
       }
+      await side();
       if (snap) { await p.waitForTimeout(500); await shot(p, `${id}-step${String(i).padStart(2, '0')}-${s.type}`); }
       await next();
     }
     await p.waitForTimeout(900);
+    await side();
+    return slid;
   };
 
   /* ---------- the source: nothing of the removed trainings is left on the page ---------- */
@@ -132,7 +137,8 @@ const FAKE_SR = () => {
     /* a message that doesn't come from the training is ignored */
     await p.evaluate((k) => { window.postMessage({ warmup: 'issues-done', lesson: k }, '*'); window.postMessage({ warmup: 'issues-practice', lesson: k }, '*'); window.postMessage({ warmup: 'issues-close' }, '*'); }, id); await p.waitForTimeout(500);
     ok(!!(await p.$('#issues-ov')) && (await p.evaluate((k) => !(__T.S.briefsDoneIds || {})[k] && __T.S.screen === 'library', id)), `${id}: messages from anywhere but the training do nothing`);
-    await walk(p, fr, id, id === 'oil');
+    const slid = await walk(p, fr, id, true); /* a screenshot of every step of both trainings */
+    ok(slid === 0, `${id}: fast taps never push the training sideways inside the app: ` + slid + 'px');
     ok(/Done$/.test(await fr.$eval('#tag-screen', (e) => e.textContent)), `${id}: tapping through reaches the last screen`);
     ok(await waitFor(p, (k) => !!(__T.S.briefsDoneIds || {})[k], 5000, id), `${id}: the last screen checks the training off`);
     await shot(p, `${id}-last-screen`);

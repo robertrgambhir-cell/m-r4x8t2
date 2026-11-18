@@ -28,7 +28,9 @@ a { color: var(--maya); }
 
 /* the column: full screen on a phone, a centered column inside the app's overlay or on a laptop */
 .stage { position: fixed; inset: 0; height: 100dvh; background: var(--bg); }
-.phone { position: relative; height: 100%; max-width: 520px; margin: 0 auto; overflow: hidden; container-type: size; container-name: phone; }
+/* overflow: clip (after hidden, for older browsers): the waiting screens sit 18px to the side, and a hidden box can still be
+   scrolled to them by a keyboard, a screen reader or a test's scroll-into-view; a clipped box cannot be scrolled at all */
+.phone { position: relative; height: 100%; max-width: 520px; margin: 0 auto; overflow: hidden; overflow: clip; container-type: size; container-name: phone; }
 .island { display: none; }
 
 /* top row: close, story bar */
@@ -510,7 +512,7 @@ window.TRAINING = {
       steps: [
         'The war with Iran closed the Strait of Hormuz to cargo ships.[4]',
         'With the Strait of Hormuz closed, less oil and fuel reached the world.[6]',
-        'Fuel prices rose around the world, including the price of heating oil.[8]',
+        'Fuel prices rose around the world, including the price of heating oil.[8][9]',
         'Sarah pays *about $80 more a month* to heat her home.',
       ],
       foot: "Franklin's two US senators vote on whether the war with Iran continues.[10]",
@@ -522,18 +524,18 @@ window.TRAINING = {
         quote: '"a very, very small volume."[9]', extra: 'A barrel is 42 gallons.[15]', extraIcon: 'barrel' },
       next: 'See how Maya Kaur would help Sarah' },
     { type: 'compare',
-      h: "Maya Kaur would end the war with Iran and send more money to LIHEAP, the federal program that helps people like Sarah pay for heat.[11]",
+      h: "Maya Kaur would end the war with Iran and send more money to LIHEAP, the federal program that helps people like Sarah pay for heat.[11][17]",
       rows: [
         { topic: 'The war with Iran', jd: 'Voted five times against ending the war before he voted to end the war', mk: 'Would end the war' },
         { topic: "Heating bills like Sarah's", jd: 'Pushed for a heating oil release that an analyst called very small', mk: 'Would send more money to LIHEAP' },
       ],
-      record: 'In 2023, as state Senate President, Maya Kaur helped pass $40 million more for heating aid and $450 relief checks to more than 880,000 residents.[12]',
+      record: 'In 2023, as state Senate President, Maya Kaur helped pass $40 million more for heating aid and $450 relief checks to more than 880,000 residents.[12][16]',
       next: 'Answer 3 questions about heating oil' },
     { type: 'quiz', pill: 'Sarah asks',
       rounds: [
         { h: 'Sarah asks, "Why does my heating oil cost so much more?" Which answer is right?', opts: ['The war with Iran closed the Strait of Hormuz, so less oil and fuel reached the world', 'Iran stopped selling heating oil to the US, so Franklin ran short of heating oil', "A colder winter used up Franklin's heating oil, so dealers raised their prices"], ok: 0,
-          right: "Right. The war with Iran closed the Strait of Hormuz, so less oil and fuel reached the world. Fuel prices rose around the world, including the price of Sarah's heating oil.[4][8]",
-          wrong: "<b>The war with Iran closed the Strait of Hormuz.</b> Less oil and fuel reached the world, so fuel prices rose, including the price of Sarah's heating oil.[4][8]",
+          right: "Right. The war with Iran closed the Strait of Hormuz, so less oil and fuel reached the world. Fuel prices rose around the world, including the price of Sarah's heating oil.[4][8][9]",
+          wrong: "<b>The war with Iran closed the Strait of Hormuz.</b> Less oil and fuel reached the world, so fuel prices rose, including the price of Sarah's heating oil.[4][8][9]",
           retry: '<b>Try once more.</b> Think about the cargo ships that could not pass through the Strait of Hormuz. Two answers are left.' },
         { h: 'Sarah asks, "How much more does heating oil cost in fall 2026 than in fall 2025?" Which answer is right?', opts: ['Heating oil costs about 20% more than in fall 2025', 'Heating oil costs about 200% more than in fall 2025', 'Heating oil costs about 80% more than in fall 2025'], ok: 2,
           right: 'Right. Heating oil costs about 80% more: $3.33 a gallon in fall 2025 became $6.01 a gallon in fall 2026.[2][3]',
@@ -569,19 +571,21 @@ window.TRAINING = {
   sources: {
       1: ['The Boston Globe, Oct 8, 2026', 'About half of homes in the state heat with oil.', 'https://www.bostonglobe.com/2026/10/08/metro/susan-collinsn-maine-senate-race-heating-oil/', 'The Boston Globe (from The New York Times), Oct 8, 2026'],
       2: ['Franklin Governor\'s Energy Office, Sep 22, 2025', 'Statewide average heating oil price: $3.33 a gallon.', 'https://www.maine.gov/energy/sites/maine.gov.energy/files/inline-files/2024-2025-Heating-Season-Weekly-Prices-09-22-25.pdf', 'Maine Governor\'s Energy Office, weekly heating season prices, Sep 22, 2025'],
-      3: ['Franklin Governor\'s Energy Office, Nov 2, 2026', 'Statewide average heating oil price: $6.01 a gallon.', 'https://www.maine.gov/energy/heating-fuel-prices', 'Maine Governor\'s Energy Office, heating fuel prices, Nov 2, 2026'],
+      3: ['Franklin Department of Energy Resources, Nov 2, 2026', 'Statewide average heating oil price: $6.01 a gallon.', 'https://www.maine.gov/energy/sites/maine.gov.energy/files/inline-files/2025-2026%20Heating-Season-Weekly-Prices-11-2-2026.pdf', 'Maine Department of Energy Resources, weekly heating fuel prices, Nov 2, 2026'],
       4: ['WSHU Public Radio, Mar 27, 2026', 'The US and Israel went to war with Iran in late February 2026; Iran then barred cargo ships from the Strait of Hormuz.', 'https://www.wshu.org/news/2026-03-27/ct-long-island-gas-prices-surge-iran-war', 'WSHU Public Radio, Mar 27, 2026'],
-      5: ['ABC News, Mar 2, 2026', 'About a fifth of the world\'s oil passes through the Strait of Hormuz.', 'https://www.goodmorningamerica.com/amp/news/story/iran-attack-drive-gas-prices-days-analysts-130671838', 'ABC News, Mar 2, 2026'],
+      5: ['ABC News, Mar 2, 2026', 'About a fifth of the world\'s oil passes through the Strait of Hormuz.', 'https://abcnews.com/Business/iran-attack-drive-gas-prices-days-analysts/story?id=130671838', 'ABC News, Mar 2, 2026'],
       6: ['Reuters, Mar 11, 2026', '10 to 20 percent of the diesel shipped by sea moves through the strait.', 'https://profit.pakistantoday.com.pk/2026/03/11/diesel-markets-upended-by-middle-east-conflict-threaten-global-economic-slowdown', 'Reuters (republished by Profit, Pakistan Today), Mar 11, 2026'],
-      7: ['Barchart, 2026', 'Heating oil, diesel and jet fuel are the same family of fuels.', 'https://www.barchart.com/story/news/2442489/why-have-heating-oil-and-distillate-prices-been-volatile', 'Barchart, 2026'],
-      8: ['Reuters, Mar 18, 2026', 'When Middle East diesel stopped coming, US fuel prices rose with the world\'s.', 'https://d2233.cms.socastsrm.com/?p=2486402', 'Reuters (syndicated copy), Mar 18, 2026'],
-      9: ['Franklin Public Radio, Oct 21, 2026', 'Jack Dufner pushed for the release of up to 315,000 barrels from a federal emergency heating oil reserve. An analyst called the release "a very, very small volume," and the state Chamber of Commerce said the heating oil won\'t reach home tanks quickly.', 'https://www.vermontpublic.org/2026-10-21/feds-to-release-315-000-barrels-from-heating-oil-reserve', 'Maine Public (republished by Vermont Public), Oct 21, 2026'],
-      10: ['Franklin Daily News fact check, Oct 8, 2026', 'Jack Dufner voted five times against ending the war and has voted to end it since late April.', 'https://www.bangordailynews.com/2026/10/08/news/maine-election-senate-2026-troy-jackson-susan-collins-debate-fact-check/', 'Bangor Daily News debate fact check, Oct 8, 2026'],
-      11: ['Maya Kaur campaign, quoting a TV interview, Oct 18, 2026', 'The candidate\'s plan: end the war and send more money to LIHEAP, the federal program that helps families pay heating bills.', 'https://www.jacksonformaine.com/news/jackson-hits-the-airwaves-directing-mainers-to-heating-assistance-as-energy-costs-skyrocket', 'The Democratic candidate\'s campaign site, quoting a WGME interview, Oct 18, 2026'],
-      12: ['Franklin Public Radio, Jan 4, 2023', 'In 2023, as state Senate President, the candidate helped pass emergency relief: $40 million more for heating aid and $450 checks to more than 880,000 residents.', 'https://www.mainepublic.org/politics/2023-01-04/legislature-approves-emergency-bill-containing-450-relief-checks', 'Maine Public, Jan 4, 2023'],
+      7: ['Barchart, Jun 12, 2026', 'Heating oil, diesel and jet fuel are the same family of fuels.', 'https://www.theglobeandmail.com/investing/markets/commodities/HO*1/pressreleases/2442489/why-have-heating-oil-and-distillate-prices-been-volatile/', 'Barchart (on The Globe and Mail), Jun 12, 2026'],
+      8: ['Reuters, Mar 18, 2026', 'When Middle East diesel stopped coming, US fuel prices rose with the world\'s.', 'https://wsau.com/2026/03/18/from-texas-to-new-jersey-middle-east-war-sends-traders-on-hunt-for-diesel-storage/', 'Reuters (republished by WSAU), Mar 18, 2026'],
+      9: ['Franklin Public Radio, Oct 21, 2026', 'Jack Dufner pushed for the release of up to 315,000 barrels from a federal emergency heating oil reserve. An analyst called the release "a very, very small volume," and the state Chamber of Commerce said the heating oil won\'t reach home tanks quickly. Heating oil prices are high because of the energy crunch the war with Iran set off.', 'https://www.mainepublic.org/climate/2026-10-21/feds-to-release-315-000-barrels-from-heating-oil-reserve', 'Maine Public, Oct 21, 2026'],
+      10: ['Franklin Daily News fact check, Oct 8, 2026', 'Jack Dufner voted five times against ending the war and has voted to end it since late April, nine times through September.', 'https://www.bangordailynews.com/2026/10/08/politics/elections/maine-election-senate-2026-troy-jackson-susan-collins-debate-fact-check/', 'Bangor Daily News debate fact check, Oct 8, 2026'],
+      11: ['Franklin TV News, Oct 16, 2026', 'The candidate\'s plan: end the war and send more money to LIHEAP.', 'https://wgme.com/news/local/maine-families-feel-pressure-as-heating-oil-costs-continue-to-rise-senate-race-election-politics-iran-war-economy', 'WGME, Oct 16, 2026'],
+      12: ['Franklin Public Radio, Jan 4, 2023', 'The 2023 emergency relief law: $40 million more for LIHEAP and $450 checks to more than 880,000 residents.', 'https://www.mainepublic.org/politics/2023-01-04/legislature-approves-emergency-bill-containing-450-relief-checks', 'Maine Public, Jan 4, 2023'],
       13: ['Maya Kaur campaign ad "Act," Oct 14, 2026', '"This winter is going to break some people."', 'https://www.jacksonformaine.com/news/new-ad-jackson-demands-action-on-heating-oil-points-to-record-delivering-energy-relief-for-mainers', 'The Democratic candidate\'s campaign ad "Act," Oct 14, 2026'],
-      15: ['Reuters, Mar 1, 2026', 'A barrel is 42 gallons.', 'https://bizenglish.adaderana.lk/oil-jumps-10-on-iran-conflict-and-could-spike-to-100-a-barrel-analysts-say', 'Reuters, Mar 1, 2026'],
+      15: ['US Energy Information Administration, energy units', 'A barrel is 42 gallons.', 'https://www.eia.gov/energyexplained/units-and-calculators/', 'U.S. Energy Information Administration, "Energy units and calculators explained"'],
       14: ['FranklinHousing, home energy assistance', 'The state\'s heating help covers renters, up to $73,213 a year in income for a family of four.', 'https://www.mainehousing.org/programs-services/energy/energydetails/home-energy-assistance-program', 'MaineHousing, Home Energy Assistance Program'],
+      16: ['Franklin Legislature, the relief bill as printed, Dec 20, 2022', 'The state Senate President cosponsored the emergency relief bill.', 'https://legislature.maine.gov/legis/bills/getPDF.asp?paper=HP0005&item=1&snum=131', 'Maine Legislature, L.D. 3 (H.P. 5), 131st Legislature, printed Dec 20, 2022'],
+      17: ['US Administration for Children and Families, LIHEAP', 'LIHEAP is the federal program that helps people pay home heating bills.', 'https://acf.gov/ocs/programs/liheap', 'U.S. Administration for Children and Families, Low Income Home Energy Assistance Program (LIHEAP)'],
   },
 };
 

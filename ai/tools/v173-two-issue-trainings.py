@@ -24,6 +24,9 @@ App pages (live app.html, staging, dev and p1):
   - After a training is done, its conversation stays open on the Practice tab.
   - Open Maya's issues goes to Learn from Today, and on Learn opens the first training not done yet.
   - ?issues still opens the issue trainings; ?issues=social opens one. ?convo=oil and ?convo=social open a practice for review.
+  - Words that follow: "about six minutes each" and "After both" on Learn, "Two short lessons on the issues" after lesson 5,
+    and the investor tour's stop 7 (about six minutes; graded on the four parts of a good answer).
+  - The voter drawing learns short curls and earrings (for Linda).
   - Gone from the pages: the four older issue lessons (tx, oh, me, mi), Bri's door and her link, ?convo=bri.
 
 To undo: git revert the Version 173 commits. Usage: python3 ai/tools/v173-two-issue-trainings.py APP.html ... (edits in place)
@@ -186,6 +189,11 @@ def patch(path):
          'goal("brief", briefed, briefed ? "Earned" : briefs.length === 2 ? "After both" : "After all " + NWORD(briefs.length), "Briefed", "")')
     swap('const lede = !nx ? "Five short lessons on the issues voters raise. The first opens tomorrow."',
          'const lede = !nx ? `${NWORD(NB()).replace(/^./, (c) => c.toUpperCase())} short lessons on the issues voters raise. The first opens tomorrow.` /* version 173: the count follows the list (two) */')
+
+    # the investor tour's words for an issue lesson (stop 7) follow the new trainings: about six minutes, four graded parts
+    swap('h: "Where the candidate stands, in five minutes.",', 'h: "Where the candidate stands, in about six minutes.",')
+    swap('b: "Learn covers the problem, the candidate\u2019s plan and the opponent\u2019s plan, each sourced. Then the volunteer explains it out loud to a voter at the door and is graded on those three.",',
+         'b: "A briefing in the candidate\u2019s voice covers what the issue costs a voter, why, the opponent\u2019s record and the candidate\u2019s plan, each sourced, then three check questions. Then the canvasser practices the conversation out loud with that voter and is graded on the four parts of a good answer.",')
 
     # 2. the voters at the door: Sarah and Linda, drawn the way their trainings draw them
     swap('''  brianna: { skin: "#F2D3BC", shade: "#D9B49A", style: "long",  hair: "#A8622E", shirt: "#5A7F55", shirtShade: "#476643" },\n''',

@@ -166,7 +166,7 @@ export const ISSUE_SCENARIOS_V2 = {
       "In years when more came in than went out, the extra was saved in the trust fund: savings lent to the federal government, which has always paid them back with interest.",
       "Social Security now pays out more than it takes in because fewer workers pay in for each person getting a check: about 5 in 1960 and about 2.6 in 2025.",
       "The trustees expect the retirement trust fund to run out in late 2032. From then on the money coming in pays about 78% of each check at first, less in later years, unless Congress acts. Checks do not stop. For Linda that is about $460 a month less, in today's dollars.",
-      "Jack Dufner voted for the 2025 federal law. Social Security's chief actuary said the law makes the trust funds run out sooner, mainly because less income tax on Social Security checks flows into them, partly through its tax break for people 65 and over. The chief actuary's Aug 2025 letter estimated that the law moves the date for the two trust funds together from the third quarter of 2034 to the first quarter of 2034, about six months sooner (the retirement trust fund that pays her check runs out in late 2032).",
+      "Jack Dufner voted for the 2025 federal law. Social Security's chief actuary said the law makes the trust funds run out sooner, mainly because less income tax on Social Security checks flows into them, partly through its tax break for people 65 and over. The chief actuary's Aug 2025 letter estimated that the law moves the date for the two trust funds together from the third quarter of 2034 to the first quarter of 2034, about six months sooner, and the date for the retirement trust fund alone (the one that pays her check) from the first quarter of 2033 to the fourth quarter of 2032, about three months sooner.",
       "The tax break is an extra $6,000 deduction for people 65 and over, 2025 through 2028, smaller above $75,000 of income. It does not end tax on Social Security; about two thirds of people collecting already paid no tax on their checks.",
       "Jack Dufner said: \"I have not voted for cuts to Social Security benefits, and I will not support cuts to Social Security benefits.\" No vote of his cut a check. His plan is a panel from both parties whose answer Congress would vote on, yes or no. He voted in 2024 for a law that raised checks for some people with public pensions.",
       "Jack Dufner was reported in 2024 as not supporting raising the retirement age; in October 2026, asked about it, he said only that it is \"a very different conversation\" for a 20-year-old than for someone at retirement age.",
@@ -181,7 +181,7 @@ export const ISSUE_SCENARIOS_V2 = {
       "Saying Congress stole or raided the trust fund.",
       "Blaming immigrants for the shortfall.",
       "Saying ending the wage cap fixes Social Security for good.",
-      "Saying the 2025 law alone moved the date to 2032.",
+      "Saying the 2025 law is the only reason the trust fund runs short.",
       "Saying he voted to cut Social Security by $450 million (a 2024 committee bill that would have cut its office budget, not checks).",
       "Mixing up 2034 (both trust funds together) with late 2032 (the retirement trust fund that pays her check)."
     ],

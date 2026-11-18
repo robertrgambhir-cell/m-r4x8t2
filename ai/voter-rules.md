@@ -31,6 +31,15 @@ Every rule here came from Robert testing the app on his phone. Each one says wha
 
 10b. **Wait for the volunteer; nervous people pause (Robert, Nov 17).** A line that sounds finished sends after 1.2 s of quiet; a line that stops mid-thought (ends on "um", "I'm", "and", "with" and the like, or is under three words) waits 2.8 s. Before: "Hi, I'm Robert, um, I'm" went to Sofia after 1 s. *Enforced:* waiPause in the app pages (version 172); test165.cjs.
 
+## The issue practice (Sarah after Heating oil, Linda after Social Security; version 173, Nov 18)
+
+These two voters were wired in overnight from the trainings' own voter sheets. **No person and no real model has talked to them yet:** they were built where the practice AI's key and a deployed copy of them didn't exist. Until `tests/issue-voters-live.mjs` has run against the live server and Robert has tried each door on his phone, treat everything below as untested with the real AI.
+
+11. **The voter comes from the training, word for word.** Who she is, what she knows, how she reacts, her first line, the approved facts and the lines never to say are the voter sheet written with the training (issue-trainings repo, `voters/scenarios.js`), copied as it is. To change a voter, change the sheet there and run `ai/tools/sync-issue-trainings.py`. *Enforced:* `scenarios-issues.js` uses the sheet object itself and refuses a sheet that is missing a field; `tests/issues.test.mjs`.
+12. **Her first line is the training's line.** Sarah: "I can't afford to fill my tank this winter." Linda: "Is my Social Security going to run out?" The page reads it from the server's card, so the two can't drift. *Enforced:* the door's `first` reads `WAI_PUB`; test173 checks the line on screen.
+13. **The card is the four parts of the door answer:** agree, offer help (or explain the cause), give the choice, ask for the vote. "Stick to the facts" is judged off the card: a wrong claim shows as "Check this" and keeps the card from reading Excellent. *Enforced:* `checkSheet` (exactly four card rows), `tests/issues.test.mjs`.
+14. **The door waits for a knock when it opens from a training.** The tap on "Practice the conversation" happens inside the training's frame, and a phone only starts a voice from a tap on the page itself. *Enforced:* `startIssue(..., { knock: true })`; test173.
+
 ## On screen
 
 10. **A FaceTime call, not a transcript (Robert, Nov 15).** The voter fills the screen edge to edge, the button floats over the picture, and only the latest lines show as captions (on a short phone, only the voter's). Her face sits in the top third of the picture and the captions sit over her chest, never her face (Robert, Nov 16: "We want to be able to see their face there moving"). Every voter has a normal upper body, square shoulders, arms at the sides and a neckline, not a long rounded tube (Robert, Nov 16, version 171). *Enforced:* versions 168, 169, 170 and 171 (the app pages; version 170 draws a taller doorway on the conversation screen); test165.cjs checks the layout.
@@ -42,3 +51,4 @@ Every rule here came from Robert testing the app on his phone. Each one says wha
 - 2026-11-16: version 170 and practice AI 165-10. The face sits above the captions; a goodbye from the canvasser closes the door with no question tacked on (found by test156 while checking version 170).
 - 2026-11-17: practice AI 165-12 and version 172 from Robert's 7:54 PM PT run (the open door question; waiting through a mid-thought pause). 24 of 24 replays pass live.
 - 2026-11-17: practice AI 165-13 from Robert's 8:34 PM PT run (his question answered first).
+- 2026-11-18: the issue practice's voters, Sarah and Linda (version 173, practice AI 173-1). Not yet tried with the real model.
