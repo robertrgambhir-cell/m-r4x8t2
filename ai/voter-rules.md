@@ -27,6 +27,8 @@ Every rule here came from Robert testing the app on his phone. Each one says wha
 8. **The goodbye isn't the canvasser's to miss when the voter closed the door (Nov 15).** *Enforced:* the close item's definition (scenarios.js).
 9. **Spoken words get punctuation, never changed words (Robert, Nov 15).** *Enforced:* /tidy and sameWords in worker.js; turn.test.mjs.
 
+4b. **Answer the volunteer's question before asking hers (Robert, Nov 17).** Before: "Hi, I'm Robert, um, I'm volunteering, do you know that we have an election here next Tuesday" got "Oh, hi Robert! Who are you volunteering with?" After: "Oh, hi Robert! Yes, I know about Tuesday. Who are you volunteering with?" Lesson 1's voters are a little easier than real ones on purpose, so volunteers stay engaged. *Enforced:* smallTalk in worker.js (questions about the election, voting plans and "any questions?" are answered by the server if the AI skipped them; a greeting keeps its place); turn.test.mjs; the replays.
+
 10b. **Wait for the volunteer; nervous people pause (Robert, Nov 17).** A line that sounds finished sends after 1.2 s of quiet; a line that stops mid-thought (ends on "um", "I'm", "and", "with" and the like, or is under three words) waits 2.8 s. Before: "Hi, I'm Robert, um, I'm" went to Sofia after 1 s. *Enforced:* waiPause in the app pages (version 172); test165.cjs.
 
 ## On screen
@@ -39,3 +41,4 @@ Every rule here came from Robert testing the app on his phone. Each one says wha
 - 2026-11-16: practice AI 165-8 and 165-9. The first replay run caught Sofia skipping the weather one run in two; the server now makes sure small talk gets a reply. 18 of 18 replays pass live.
 - 2026-11-16: version 170 and practice AI 165-10. The face sits above the captions; a goodbye from the canvasser closes the door with no question tacked on (found by test156 while checking version 170).
 - 2026-11-17: practice AI 165-12 and version 172 from Robert's 7:54 PM PT run (the open door question; waiting through a mid-thought pause). 24 of 24 replays pass live.
+- 2026-11-17: practice AI 165-13 from Robert's 8:34 PM PT run (his question answered first).

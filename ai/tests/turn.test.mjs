@@ -189,7 +189,7 @@ r = await g("s=kevin_intro&k=0"); ok(r.status === 404, "a scenario without narra
   conv.push({ who: "them", text: done.j.say, sig: done.j.sig }, { who: "you", text: "Hi I'm here knocking on neighbor's doors do you know about the election on Tuesday" });
   modelText = "neutral|Sorry, I'm a bit confused by what you're after. Your name first?";
   rs = await post({ scenario: "sofia_intro", turns: conv }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
-  ok(done && done.j.say === "Sorry, I didn't catch your name.", "asked again, a second way; the confused reaction is dropped: " + (done && done.j.say));
+  ok(done && done.j.say === "Yes, I know about Tuesday. Sorry, I didn't catch your name.", "asked again, a second way; the confused reaction is dropped and his question answered (165-13): " + (done && done.j.say));
   conv.push({ who: "them", text: done.j.say, sig: done.j.sig }, { who: "you", text: "Yeah so the election is Tuesday" });
   modelText = "warm|Oh, right.";
   rs = await post({ scenario: "sofia_intro", turns: conv }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
@@ -197,7 +197,14 @@ r = await g("s=kevin_intro&k=0"); ok(r.status === 404, "a scenario without narra
   ok(cleanReaction("warm|Ha, it sure is. So who are you?", "Sofia").say === "Ha, it sure is.", "a reaction keeps only its first sentence, no question");
   modelText = "neutral|Oh, hi Robert!";
   rs = await post({ scenario: "sofia_intro", turns: [{ who: "them", text: SO }, { who: "you", text: "Hi, I'm Robert, I'm volunteering for Maya Kaur. Boy, it sure is sunny today." }] }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
-  ok(done && done.j.say === "Ha, it sure is! What's this about?", "small talk gets an answer even when the AI's reaction skips it (165-9): " + (done && done.j.say));
+  ok(done && done.j.say === "Oh, hi Robert! Ha, it sure is! What's this about?", "small talk gets an answer even when the AI's reaction skips it (165-9), after her greeting (165-13): " + (done && done.j.say));
+  /* 165-13 (Robert, Nov 17): his question is answered before hers */
+  modelText = "neutral|Oh, hi Robert!";
+  rs = await post({ scenario: "sofia_intro", turns: [{ who: "them", text: SO }, { who: "you", text: "Hi I'm Robert um I'm volunteering do you know that we have an election here next Tuesday" }] }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
+  ok(done && done.j.say === "Oh, hi Robert! Yes, I know about Tuesday. Who are you volunteering with?", "the volunteer's question is answered before the voter's: " + (done && done.j.say));
+  modelText = "warm|Yes, I do!";
+  rs = await post({ scenario: "sofia_intro", turns: [{ who: "them", text: SO }, { who: "you", text: "Hi I'm Robert um I'm volunteering do you know that we have an election here next Tuesday" }] }); fr = await frames(rs); done = fr.find((x) => x.t === 1 && x.j.t === "done");
+  ok(done && done.j.say === "Yes, I do! Who are you volunteering with?", "the AI's own answer stands when it answered: " + (done && done.j.say));
   /* 165-10: a goodbye from the canvasser closes the door, even with a part missing (the old code tacked "And what brings you by?" onto her goodbye) */
   const bye = [{ who: "them", text: SO }, { who: "you", text: "Hi, I'm Sam with Maya Kaur." }];
   modelText = "warm|Oh, hi Sam.";

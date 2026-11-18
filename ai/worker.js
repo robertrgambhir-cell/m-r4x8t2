@@ -33,7 +33,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "165-12"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "165-13"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -214,10 +214,16 @@ export function introPlan(turns) {
   }
   return { ask: "" };
 }
-const REACT_FORMAT = (name) => `\n\nHOW TO ANSWER THIS TURN: write one mood word from this list: ${MOODS.join(", ")}. Then a vertical bar |. Then ONLY a short, friendly reaction from ${name} to the LAST thing they said, at most eight words. If they made small talk (the weather, asking how ${name} is), answer it ("Ha, it sure is!", "Oh, I'm good, thanks."); otherwise a short greeting ("Oh, hi there.", "Oh, hi Robert!"). No question, nothing about what they haven't said yet, no goodbye. A question will follow it. Example: warm|Ha, it sure is!`; /* version 165-8: the replays caught small talk being skipped */
+const REACT_FORMAT = (name) => `\n\nHOW TO ANSWER THIS TURN: write one mood word from this list: ${MOODS.join(", ")}. Then a vertical bar |. Then ONLY a short, friendly reaction from ${name} to the LAST thing they said, at most eight words. If they asked you something, answer it in a few words ("Oh, hi Robert! Yes, I know about Tuesday."). If they made small talk (the weather, asking how ${name} is), answer it ("Ha, it sure is!", "Oh, I'm good, thanks."); otherwise a short greeting ("Oh, hi there.", "Oh, hi Robert!"). No question, nothing about what they haven't said yet, no goodbye. A question will follow it. Example: warm|Ha, it sure is!`; /* version 165-8: the replays caught small talk being skipped */
 /* small talk in the volunteer's last line, and the answer the voter gives it if the AI's reaction skipped it */
 export function smallTalk(turns) {
   const you = turns.filter((t) => t.who === "you"), last = you.length ? you[you.length - 1].text : "";
+  /* 165-13 (Robert, Nov 17: "do you know that we have an election here next Tuesday" got only "Oh, hi Robert! Who are you
+     volunteering with?"). A question from the volunteer is answered before the voter asks hers; speech has no question marks,
+     so these go by the words */
+  if (/\b(do|did) you (know|hear|realize|remember)\b|\bare you aware\b|\bhave you heard\b|\byou know (about|that)\b/i.test(last) && /\b(election|tuesday|vote|voting|polls|ballot|primary)\b/i.test(last)) return { say: "Yes, I know about Tuesday.", heard: /\b(yes|yeah|i know|i do|i heard|aware|i did)\b/i };
+  if (/\b(are|will) you (be )?(planning|going|gonna|voting|vote)\b|\bdo you plan to vote\b|\bhave you voted\b|\bplan(ning)? (on|to) vote\b/i.test(last)) return { say: "I'm planning to vote, yes.", heard: /\b(plan|planning|i will|i'?ll|yes|yeah|i am|voting)\b/i };
+  if (/\b(any|have) questions\b|\banything (else )?i can (help|do|answer)\b|\bcan i help you with\b/i.test(last)) return { say: "No, I'm all set, thanks.", heard: /all set|i'?m good|i'?m fine|no,? thanks|nope/i };
   if (/\b(sunny|sunshine|rain(y|ing)?|weather|hot (one|today|out)|cold (one|today|out)|beautiful day|nice day|lovely day|gorgeous day)\b/i.test(last)) return { say: "Ha, it sure is!", heard: /sure is|it is|isn'?t it|sun|weather|lovely|beautiful|gorgeous|nice|rain|hot|cold|warm/i };
   if (/\bhow are you( doing)?\b|\bhow'?s (it going|your day)\b/i.test(last)) return { say: "Oh, I'm good, thanks.", heard: /good|fine|well|great|thanks|not bad/i };
   return null;
@@ -654,7 +660,7 @@ function turnStream(env, c, s, scen, turns, h, t0, ip) {
         usd = r.usd; usage = r.usage;
         const re = cleanReaction(txt, s.voter.name);
         const st = smallTalk(turns); /* version 165-9: small talk always gets an answer before the question (the replays caught it skipped one run in two) */
-        if (st && !st.heard.test(re.say)) re.say = st.say;
+        if (st && !st.heard.test(re.say)) re.say = re.say && /^(oh,? )?(hi|hello|hey)\b[^.!?]{0,30}[.!]$/i.test(re.say) ? `${re.say} ${st.say.replace(/^Oh,\s*/, "").replace(/^./, (c) => c.toUpperCase())}` : st.say; /* 165-13: a greeting keeps its place and the answer follows it */
         if (re.say) say1(re.say, 0);
         say1(plan.ask, re.say ? 1 : 0);
         out = { say: [re.say, plan.ask].filter(Boolean).join(" "), mood: re.mood, end: false };
