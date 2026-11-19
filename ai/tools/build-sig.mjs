@@ -32,7 +32,11 @@ function fill(x) {
   return o;
 }
 const card = { title: SIG_CARD.title, rules: SIG_CARD.rules.map((r) => (st.funders === "printed" && r[2] && r[2].printed ? r[2].printed : [r[0], r[1]]).map((t) => sigFill(t, st))) };
-const DATA = { st: Object.assign({}, st, { label: SIG_MEASURE.label }), shared: fill(SIG_SHARED), measure: fill(SIG_MEASURE), cast: SIG_CAST, lessons: fill(SIG_LESSONS), card };
+/* the painted pictures (Nov 19): the manifest from ai/tools/sig-pictures.md's steps; every file it names must be there */
+const IMG = JSON.parse(fs.readFileSync(path.join(OUT, "img/manifest.json"), "utf8"));
+for (const [n, m] of Object.entries(IMG)) for (const f of [n].concat((m.v || []).map((k) => n + "-" + k), m.face ? [n + "-close", n + "-av"] : [])) if (!fs.existsSync(path.join(OUT, "img", f + ".webp"))) throw new Error("no picture file: img/" + f + ".webp");
+for (const who of Object.keys(SIG_CAST)) if (!["lena", "rico", "joan", "karim"].includes(who) && !IMG[who]) throw new Error("no painted portrait for " + who);
+const DATA = { st: Object.assign({}, st, { label: SIG_MEASURE.label }), shared: fill(SIG_SHARED), measure: fill(SIG_MEASURE), cast: SIG_CAST, lessons: fill(SIG_LESSONS), card, img: IMG };
 const read = (f) => fs.readFileSync(path.join(ROOT, "ai/sig", f), "utf8");
 let html = read("sig.html");
 const slot = (name, body) => { if (!html.includes(name)) throw new Error("no slot " + name); html = html.split(name).join(body); };

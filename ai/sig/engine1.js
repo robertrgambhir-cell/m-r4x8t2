@@ -65,9 +65,10 @@ function sayLine(line, r) {
 var MOUTH = { neutral: "M151.5 164 Q160 169 168.5 164", smile: "M150 162 Q160 172.5 170 162", flat: "M152 166.5 L168 163.5", open: "M151.5 162.5 Q160 176 168.5 162.5 Q160 165.5 151.5 162.5 Z", mid: "M153.5 163.5 Q160 170.5 166.5 163.5 Q160 165.5 153.5 163.5 Z", o: "M160 159.5 C163.6 159.5 165 162.6 165 165.6 C165 168.6 163 171 160 171 C157 171 155 168.6 155 165.6 C155 162.6 156.4 159.5 160 159.5 Z" };
 var REST = {}; /* each person's resting mouth */
 function setMouth(el, k) { if (!el) return; el.setAttribute("d", MOUTH[k]); el.setAttribute("fill", k === "open" || k === "mid" || k === "o" ? "#45261F" : "none"); }
-function lip(who) { if (lipEl) setMouth(lipEl.el, REST[lipEl.who] || "neutral"); var el = who ? document.querySelector("#p-" + who + " .mouth") : null; lipEl = el ? { el: el, who: who } : null; }
+function lip(who) { if (lipEl) setMouth(lipEl.el, REST[lipEl.who] || "neutral"); var el = who ? document.querySelector("#p-" + who + " .mouth") : null; lipEl = el ? { el: el, who: who } : null;
+  [].forEach.call(document.querySelectorAll(".ph.talking"), function (e) { e.classList.remove("talking"); }); var pe = who && document.querySelector(".ph#p-" + who); if (pe) pe.classList.add("talking"); }
 (function loop() { if (lipEl && !PAUSED) { var lv = level(); setMouth(lipEl.el, lv > 0.09 ? "open" : lv > 0.03 ? "mid" : REST[lipEl.who] || "neutral"); } requestAnimationFrame(loop); })();
-function expr(who, e) { var p = $("#p-" + who); if (!p) return; p.classList.remove("warm", "surprised", "busy"); if (e && e !== "neutral") p.classList.add(e); REST[who] = { warm: "smile", busy: "flat", surprised: "o" }[e] || "neutral"; if (!lipEl || lipEl.who !== who) setMouth(p.querySelector(".mouth"), REST[who]); }
+function expr(who, e) { var p = $("#p-" + who); if (!p) return; p.classList.remove("warm", "surprised", "busy"); if (p.classList.contains("ph") && e === "surprised" && pv(who).indexOf("turned") >= 0) p.classList.add("turned"); if (e && e !== "neutral") p.classList.add(e); REST[who] = { warm: "smile", busy: "flat", surprised: "o" }[e] || "neutral"; if (!lipEl || lipEl.who !== who) setMouth(p.querySelector(".mouth"), REST[who]); }
 
 /* ---------------- listening: the phone's speech recognition, ended by quiet ---------------- */
 function listen(o) {
@@ -156,14 +157,41 @@ function store(o) {
     (o.table != null ? '<g transform="translate(' + o.table + ' ' + ((o.ground || 340) - 340) + ')"><rect x="-10" y="262" width="118" height="10" rx="3" fill="#B08A5E"/><rect x="-4" y="272" width="106" height="84" fill="#5A3E99"/><text x="49" y="304" text-anchor="middle" font-family="Figtree, sans-serif" font-weight="800" font-size="10" letter-spacing="1" fill="#fff">LIBRARIES</text><text x="49" y="318" text-anchor="middle" font-family="Figtree, sans-serif" font-weight="800" font-size="10" letter-spacing="1" fill="#fff">FOR ALL</text><rect x="6" y="246" width="30" height="16" rx="2" fill="#8A6A45" transform="rotate(-8 21 254)"/><rect x="56" y="250" width="34" height="12" rx="2" fill="#FFFEFA" stroke="#C9C1B3"/></g>' : "");
 }
 /* one passerby, close up: the practice voters' picture (face in the top third, the captions over the chest) */
-function sceneOne(who, cls) { return '<svg class="close" viewBox="62 84 196 236" preserveAspectRatio="xMidYMin slice" role="img" aria-label="' + esc(CAST[who].full || CAST[who].name) + ' outside Westside Market">' + store({ signY: 84, doorX: 218, signX: 132, noText: true }) + person(who, cls, 0) + '</svg>'; }
-/* a canvasser and a passerby, for the parts you watch */
-function sceneTwo(by, who, cls) { return '<svg class="fitw two" viewBox="8 70 304 780" role="img" aria-label="' + esc(CAST[by].name + " and " + (CAST[who].full || CAST[who].name)) + ' outside Westside Market">' + store({ signY: 70, doorX: 250, signX: 160 }) + person(by, "", -74) + person(who, cls, 76) + '</svg>'; }
+/* ---------------- the painted pictures (Nov 19, Robert's note and playbook rule 67) ----------------
+   Every person and every scene with people is a realistic painting, made ahead of time (ai/tools/sig-pictures.md says how)
+   and served from wdpfxqlsvp/sig/img/. DATA.img is the manifest: each picture's size, where its faces are (fractions of
+   the picture: x0, y0, x1, y1) and the versions it comes in (warm: a smile; turned: Kayla with an earbud out; sheet: the
+   canvasser holding up the top funders sheet). place() frames each picture so the face sits where the screen needs it. */
+var IMG = DATA.img || {};
+function imgUrl(n) { return "img/" + n + ".webp"; }
+function layers(name, v, sfx) { return '<img class="b" src="' + imgUrl(name + (sfx || "")) + '" alt="" decoding="async">' + (v || []).map(function (k) { return '<img class="v v-' + k + '" src="' + imgUrl(name + "-" + k + (sfx || "")) + '" alt="" decoding="async">'; }).join(""); }
+function pv(name) { return (IMG[name] && IMG[name].v) || []; }
+/* one person, framed from the waist up, outside Westside Market: the video call, a tap screen's picture, a portrait */
+function sceneOne(who, cls) { return '<div class="ph one p ' + (cls || "") + '" id="p-' + who + '" data-img="' + who + '" role="img" aria-label="' + esc(CAST[who].full || CAST[who].name) + ' outside Westside Market"><div class="bobber">' + layers(who, pv(who)) + '</div></div>'; }
+/* a canvasser and a passerby, for the parts you watch. Coming in, the scene fades in; it carries the passerby's id */
+function sceneTwo(by, who, cls) { var n = "two-" + by + "-" + who; return '<div class="ph two p ' + (cls || "") + '" id="p-' + who + '" data-img="' + n + '" role="img" aria-label="' + esc(CAST[by].name + " and " + (CAST[who].full || CAST[who].name)) + ' outside Westside Market"><div class="bobber">' + layers(n, pv(n)) + '</div></div>'; }
 /* the storefront with nobody in it yet, for the beat before a try */
-function sceneStore() { return '<svg class="fitw shop" viewBox="0 36 320 820" role="img" aria-label="Westside Market, with your table out front">' + store({ signY: 52, doorX: 196, win: 28, table: 34 }) + '</svg>'; }
-/* the same person as a small picture on a card: head and shoulders, centered */
-function sceneFace(who) { return '<svg class="close" viewBox="40 92 240 116" preserveAspectRatio="xMidYMid meet" style="overflow:visible" role="img" aria-label="' + esc(CAST[who].full || CAST[who].name) + '">' + store({ signY: 58, doorX: 236, noText: true }) + person(who, "", 0) + '</svg>'; }
-function face(who) { return '<svg viewBox="116 100 88 88" aria-hidden="true">' + figure(LOOKS[who]) + '</svg>'; }
+function sceneStore() { return '<div class="ph shop" role="img" aria-label="Westside Market, with your table out front">' + layers("store") + '</div>'; }
+/* the same person as a small picture on a card: the face, framed whole */
+function sceneFace(who) { var v = pv(who).filter(function (k) { return k === "warm"; }); return '<div class="ph close" id="p-' + who + '" role="img" aria-label="' + esc(CAST[who].full || CAST[who].name) + '">' + layers(who, v, "-close") + '</div>'; }
+function face(who) { return '<img class="av" src="' + imgUrl(who + "-av") + '" alt="" decoding="async">'; }
+/* frame each picture: object-fit cover, shifted so the face (or the faces) sit near the top third, never past an edge */
+function frameOf(el) {
+  var m = IMG[el.getAttribute("data-img")], W = el.clientWidth, H = el.clientHeight; if (!m || !m.w || !W || !H) return null;
+  var s0 = Math.max(W / m.w, H / m.h), fs = m.face ? [m.face] : m.faces || [];
+  var x0 = 1, y0 = 1, x1 = 0, y1 = 0; fs.forEach(function (f) { x0 = Math.min(x0, f[0]); y0 = Math.min(y0, f[1]); x1 = Math.max(x1, f[2]); y1 = Math.max(y1, f[3]); });
+  var cx = fs.length ? (x0 + x1) / 2 : 0.5, cy = fs.length ? (y0 + y1) / 2 : 0.3, ft = el.parentElement && el.parentElement.classList.contains("ft") ? el.parentElement : null;
+  var ty = el.classList.contains("two") ? 0.3 : ft && ft.querySelector(".dock.haspet") ? 0.2 : 0.27; /* with the petition docked on the call, the face sits higher */
+  /* when the picture has no room to move the face up to its place, it is drawn up to a quarter larger so it can */
+  var s = s0; if (cy * m.h * s0 > H * ty + 1) s = Math.min(s0 * 1.25, Math.max(s0, (H - H * ty) / ((1 - cy) * m.h)));
+  var rw = m.w * s, rh = m.h * s;
+  return { m: m, fs: fs, rw: rw, rh: rh, ox: Math.min(0, Math.max(W - rw, W * 0.5 - cx * rw)), oy: Math.min(0, Math.max(H - rh, H * ty - cy * rh)) };
+}
+function place() { [].forEach.call(document.querySelectorAll(".ph[data-img]"), function (el) { var f = frameOf(el); if (!f) return; el.style.setProperty("--ox", f.ox.toFixed(1) + "px"); el.style.setProperty("--oy", f.oy.toFixed(1) + "px"); el.style.setProperty("--rw", f.rw.toFixed(1) + "px"); el.style.setProperty("--rh", f.rh.toFixed(1) + "px"); }); }
+/* tests: where each face is on screen, for the checks that captions never cover a face */
+window.__faces = function () { var out = []; [].forEach.call(document.querySelectorAll(".ph[data-img]"), function (el) { if (el.classList.contains("off-l") || el.classList.contains("off-r") || !el.getClientRects().length) return; var f = frameOf(el); if (!f) return; var r = el.getBoundingClientRect(); f.fs.forEach(function (b) { out.push({ ft: !!el.closest(".ft"), panelTop: r.top, panelH: r.height, left: r.left + f.ox + b[0] * f.rw, right: r.left + f.ox + b[2] * f.rw, top: r.top + f.oy + b[1] * f.rh, bottom: r.top + f.oy + b[3] * f.rh }); }); }); return out; };
+/* the lesson's pictures load while its cover is read */
+function preloadPics(names) { var seen = {}; names.forEach(function (n) { if (!n || seen[n] || !IMG[n]) return; seen[n] = 1; var u = [n].concat(pv(n).map(function (k) { return n + "-" + k; })); if (IMG[n].face) u.push(n + "-close", n + "-av"); u.forEach(function (x) { var i = new Image(); i.decoding = "async"; i.src = imgUrl(x); }); }); }
 /* where to stand: four small pictures, drawn so the choice reads without words */
 function mini(x, y, c, o) { /* a small standing or seated canvasser, drawn facing right unless flipped */
   o = o || {}; var skin = o.skin || "#C99470";
@@ -183,13 +211,13 @@ var MINI_TABLE = function (x, y) { return '<rect x="' + x + '" y="' + y + '" wid
 var MINI_DOOR = function (x) { return '<rect x="' + x + '" y="46" width="60" height="104" fill="#D7E4E6" stroke="#5B6B6A" stroke-width="5"/><path d="M' + (x + 30) + ' 46 V150" stroke="#5B6B6A" stroke-width="3"/>'; };
 var PICS = {
   /* behind the table, head down over a phone, while people walk past */
-  sit: function () { return MINI_BG + mini(80, 96, "#5A3E99", { sit: true, down: true, phone: true }) + MINI_TABLE(47, 118) + walker(26, 122, "#7A9A6B") + walker(136, 126, "#C2603F") + '</svg>'; },
+  sit: function () { return '<img src="' + imgUrl("spot-sit") + '" alt="" decoding="async">'; },
   /* in front of the table, board out, facing someone who is walking up */
-  stand: function () { return MINI_BG + MINI_TABLE(90, 104) + mini(86, 104, "#5A3E99", { board: true, flip: true }) + walker(36, 112, "#7A9A6B", false, true) + '</svg>'; },
+  stand: function () { return '<img src="' + imgUrl("spot-stand") + '" alt="" decoding="async">'; },
   /* in the middle of the doorway, with people bunched up on both sides */
-  doorway: function () { return MINI_BG + MINI_DOOR(50) + mini(80, 100, "#5A3E99", { board: true }) + walker(40, 116, "#C2603F", false, true) + walker(122, 118, "#7A9A6B", true, true) + '</svg>'; },
+  doorway: function () { return '<img src="' + imgUrl("spot-doorway") + '" alt="" decoding="async">'; },
   /* a few steps to the side of the door, with the way in clear */
-  side: function () { return MINI_BG + MINI_DOOR(84) + mini(34, 100, "#5A3E99", { board: true }) + walker(114, 100, "#C2603F") + walker(78, 122, "#7A9A6B") + '</svg>'; },
+  side: function () { return '<img src="' + imgUrl("spot-side") + '" alt="" decoding="async">'; },
 };
 /* handwriting always fits its box: the writing shrinks, it is never clipped */
 /* ---- pictures for the tap screens: each shows what its question is about, with no words of its own ---- */

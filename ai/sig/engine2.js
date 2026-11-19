@@ -51,7 +51,7 @@ var btn = function (label, id, cls) { return '<button class="btn' + (cls ? " " +
 var row = function (cls, text, small) { return '<li class="' + cls + '"><span class="ck">' + (cls === "fix" ? ICON.dot : ICON.ok) + '</span><span>' + (small ? '<small>' + q(small) + '</small>' : "") + q(text) + '</span></li>'; };
 var why = function (right, text, plain) { return '<div class="why' + (plain ? " plain" : "") + '"><span class="dot' + (right ? "" : " no") + '">' + (right ? ICON.ok : ICON.dot) + '</span><span>' + q(text) + '</span></div>'; };
 var whoTag = function (who) { var c = CAST[who]; return esc((c.full || c.name) + (c.age ? ", " + c.age : "")); };
-function show(html, sub) { $("#scr").innerHTML = html; tag(sub); fillUp(); fitPic(); fitHw(); }
+function show(html, sub) { $("#scr").innerHTML = html; tag(sub); fillUp(); fitPic(); place(); fitHw(); }
 /* fill: a screen with room to spare grows its words and pictures together, up to FILL_MAX times their size, until the room is
    used (playbook A50: content scaled to fill the screen, no blank bands). The main button keeps its size. A screen whose
    picture already takes the spare room is left alone. The measuring is done with the blocks packed at the sizes they would
@@ -61,7 +61,7 @@ function fillUp() {
   var scr = $("#scr"); if (!scr) return;
   scr.style.removeProperty("--k");
   if (!fillWatch && window.MutationObserver) {
-    var pend = false, later = function () { if (pend) return; pend = true; requestAnimationFrame(function () { pend = false; fillUp(); fitPic(); fitHw(); }); };
+    var pend = false, later = function () { if (pend) return; pend = true; requestAnimationFrame(function () { pend = false; fillUp(); fitPic(); place(); fitHw(); }); };
     fillWatch = new MutationObserver(function (ms) { for (var i = 0; i < ms.length; i += 1) { var x = ms[i].target; if (x.nodeType !== 1) x = x.parentElement; if (x && !x.closest("svg, .capts, .mic, .dock, .pet, .ft")) return later(); } });
     fillWatch.observe(scr, { childList: true, subtree: true });
     window.addEventListener("resize", later);
@@ -203,6 +203,11 @@ function vCover() {
   $("#start").onclick = function () { audio(); go(0, 0); };
   /* the lesson's voices load while the cover is read */
   (function walk(x) { if (!x || typeof x !== "object") return; if (x.clip) fetchClip(x.clip); Object.keys(x).forEach(function (k) { walk(x[k]); }); })(L.steps);
+  /* and its pictures: everyone it shows, the two-person scenes, the storefront and the four places to stand */
+  var pics = ["store", "spot-sit", "spot-stand", "spot-doorway", "spot-side"];
+  L.steps.forEach(function (st) { var by = st.by || "lena"; (st.scenes || []).concat(st.people || [], [st]).forEach(function (x) { if (x && x.who) { pics.push(x.who); pics.push("two-" + (x.by || by) + "-" + x.who); } });
+    JSON.stringify(st, function (k, v) { if (k === "pic" && v && v.who) pics.push(v.who); if (k === "pic" && v && v.two) pics.push("two-" + v.two[0] + "-" + v.two[1]); if (k === "face" && typeof v === "string") pics.push(v); return v; }); });
+  preloadPics(pics);
 }
 
 /* Your 1st try: never scored. Then the card: what you did, and what to watch for. */
@@ -245,7 +250,7 @@ async function playScenes(st, by) {
     if (!sc.stopped) { await enter(sc.who); if (r !== RUN) return false; }
     for (var j = 0; j < sc.lines.length; j += 1) {
       var ln = sc.lines[j], lab = $("#labels");
-      if (ln.act === "sheet" || ln.act === "board") { var pr = document.querySelector("#p-" + ln.who + " .prop." + ln.act); if (pr) pr.classList.remove("hid"); } else if (ln.act) act(ln.who === by ? sc.who : ln.who, ln.act);
+      if (ln.act === "sheet" || ln.act === "board") { var pr = document.querySelector("#p-" + ln.who + " .prop." + ln.act); if (pr) pr.classList.remove("hid"); var scn = document.querySelector("#panel .ph.two"); if (scn) scn.classList.add(ln.act); } else if (ln.act) act(ln.who === by ? sc.who : ln.who, ln.act);
       if (ln.label != null && lab) lab.children[ln.label].classList.add("on");
       if (ln.glow) redraw({ glow: ln.glow });
       if (ln.fill) { Object.assign(fill, ln.fill); redraw({ fresh: Object.keys(ln.fill) }); }
@@ -268,7 +273,7 @@ async function playScenes(st, by) {
 /* once the answer is on screen the picture gives it room; a sliver of a picture is no picture, so then it goes */
 function shrinkPic() { var f = $(".fill"), pg = $(".fill > .panel.grow"); if (!f || !pg) return; f.classList.add("answered"); requestAnimationFrame(function () { if (pg.getBoundingClientRect().height < 76) { pg.style.display = "none"; fillUp(); } else fitPic(); }); }
 /* a person's picture that takes the room that is left: in a short strip the face is framed whole, in a tall one the person is */
-function fitPic() { var pg = $(".fill > .panel[data-who]"); if (!pg) return; var h = pg.getBoundingClientRect().height, close = h < 150, who = pg.getAttribute("data-who"); if (pg.getAttribute("data-close") === String(close)) return; pg.setAttribute("data-close", String(close)); var s = pg.querySelector("svg"); if (s) s.outerHTML = close ? sceneFace(who) : sceneOne(who, ""); }
+function fitPic() { var pg = $(".fill > .panel[data-who]"); if (!pg) return; var h = pg.getBoundingClientRect().height, close = h < 150, who = pg.getAttribute("data-who"); if (pg.getAttribute("data-close") === String(close)) return; pg.setAttribute("data-close", String(close)); var s = pg.querySelector(".ph, svg"); if (s) { s.outerHTML = close ? sceneFace(who) : sceneOne(who, ""); place(); } }
 /* taps: the question, the options, and the coach's line that opens with the right answer */
 VIEW.taps = function (st) {
   var r = RUN, k = S.sub, Q = st.qs[k], last = k === st.qs.length - 1, lt = "ABC";

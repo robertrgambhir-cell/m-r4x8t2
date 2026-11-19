@@ -59,21 +59,32 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.12; }
 .panel.short { flex: 0 0 auto; height: 30%; min-height: 150px; }
 .panel > svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .panel > svg.fitw { height: auto; bottom: auto; } /* a wide picture always shows its full width; a short panel crops it from the bottom */
+/* the painted pictures (playbook rule 67): each fills its frame, shifted by place() so faces sit where the screen needs them */
+.ph { position: absolute; inset: 0; overflow: hidden; background: #E9E1D2; }
+.ph .bobber { position: absolute; inset: -6px 0; }
+.ph img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; object-position: 50% 30%; }
+.ph[data-img] img { inset: auto; left: var(--ox, 0px); top: var(--oy, 0px); width: var(--rw, 100%); height: var(--rh, 100%); } /* place() sizes and moves the picture */
+.ph.close img { object-position: 50% 50%; }
+.ph .v { opacity: 0; transition: opacity .45s ease; }
+.ph.warm .v-warm, .ph.turned .v-turned, .ph.sheet .v-sheet { opacity: 1; }
+.ph.p.walk .bobber { animation: walkph .62s ease-in-out infinite; } @keyframes walkph { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+.ph.two.p.off-l { transform: translateX(-18px); opacity: 0; } .ph.two.p.off-r { transform: none; opacity: 1; } /* a two-person scene fades in as the passerby arrives, and stays when they go */
+/* a painting can't move its lips, so the person talking gets a soft pulsing mark beside their name */
+.ph.talking ~ .who::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); margin-right: 7px; vertical-align: 1px; animation: talkdot 1s ease-in-out infinite; }
+@keyframes talkdot { 50% { transform: scale(.55); opacity: .55; } }
+@media (prefers-reduced-motion: reduce) { .ph.p.walk .bobber, .ph.talking ~ .who::before { animation: none; } }
 /* a cover and the beat before a try have few words, so on a tall phone their picture would show a band of empty pavement.
    There the panel stops growing at the picture's own height (--cap, with a little ground under the shoes), and the room that
    is left goes to the words (fillUp). The storefront with nobody in it first draws up to a quarter larger, cropped at its
    sides, so it fills a tall panel */
-.panel.cap:has(> svg.two) { --cap: 142cqw; max-height: var(--cap); margin-bottom: auto; }
-.panel.cap:has(> svg.shop) { --cap: 134.4cqw; max-height: var(--cap); margin-bottom: auto; }
-.panel:has(> svg.shop) { container-type: size; }
-.panel > svg.shop { left: 50%; right: auto; translate: -50% 0; width: clamp(100cqw, calc(100cqh * 0.93), 125cqw); }
+.panel.cap:has(> .ph.two), .panel.cap:has(> .ph.shop) { --cap: 148cqw; max-height: var(--cap); margin-bottom: auto; } /* the paintings are 896 by 1216: at the cap, a little of each side is cropped and no pavement band shows */
 #scr.fitting > .panel.cap { flex: 0 0 auto; height: var(--cap); margin-bottom: 0; }
 .panel.cap ~ .foot { margin-top: auto; padding-top: 12px; } /* any room still left sits half under the picture and half over the button */
 #scr.fitting > .panel.cap ~ .foot { margin-top: 0; }
 .who { position: absolute; left: 10px; top: 10px; background: rgba(255,255,255,.92); border-radius: 99px; padding: 6px 11px; font: 700 calc(13 * var(--u))/1 "Figtree"; z-index: 2; }
 .who.r { left: auto; right: 10px; }
 .nextp { flex: none; display: flex; align-items: center; gap: 10px; margin-top: 10px; font: 700 calc(15 * var(--u))/1.2 "Figtree"; }
-.nextp svg { flex: none; width: calc(40 * var(--u)); height: calc(40 * var(--u)); border-radius: 50%; background: var(--soft); }
+.nextp svg, .nextp img.av { flex: none; object-fit: cover; width: calc(40 * var(--u)); height: calc(40 * var(--u)); border-radius: 50%; background: var(--soft); }
 .capts { position: absolute; left: 10px; right: 10px; bottom: 10px; display: flex; flex-direction: column; gap: 6px; z-index: 3; pointer-events: none; }
 .capt { max-width: 92%; padding: 9px 13px; border-radius: 16px; font: 500 calc(16 * var(--u))/1.32 "Newsreader", Georgia, serif; animation: in .22s ease both; box-shadow: 0 1px 0 rgba(0,0,0,.06); }
 .capt b { font: 800 calc(11 * var(--u))/1 "Figtree"; letter-spacing: .05em; text-transform: uppercase; display: block; margin-bottom: 4px; color: var(--muted); }
@@ -134,6 +145,8 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.12; }
 .pics { display: grid; grid-template-columns: 1fr; grid-auto-rows: 1fr; gap: 10px; margin-top: 14px; flex: 1; min-height: 56cqw; } /* A over B, each as wide as the screen: the two pictures take the room that is left, and each scene is drawn as large as its tile allows */
 .pic { border: 0; padding: 0; border-radius: 18px; background: #EFE7D8; box-shadow: inset 0 0 0 2px var(--line), 0 4px 0 var(--line); position: relative; overflow: hidden; cursor: pointer; }
 .pic svg { position: absolute; left: 0; right: 0; bottom: 0; top: 12%; width: 100%; height: 88%; display: block; } /* the scene sits under the awning, so no head is ever behind it */
+.pic img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; object-position: 50% 45%; } /* a painting carries the store's own sign */
+.pic:has(img)::before { display: none; }
 .pic::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 12%; background: #2F5D50; z-index: 1; }
 .pic .lt { position: absolute; left: 8px; top: 8px; width: 26px; height: 26px; border-radius: 50%; background: #fff; display: grid; place-items: center; font: 800 13px/1 "Figtree"; z-index: 2; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
 .pic.right { box-shadow: 0 4px 0 var(--green-d); } .pic.right .lt { background: var(--green); color: #fff; }
@@ -240,15 +253,15 @@ svg.close .kid { display: none; } /* a close-up of Tanya leaves her daughter out
 .pet-more .pet-r:nth-child(odd) { margin-top: calc(16 * var(--u)); }
 .faces.big { flex: 1 1 0; min-height: 0; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px 18px; margin-top: 0; }
 .faces.big div { min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: calc(15.5 * var(--u)); }
-.faces.big svg { flex: 0 1 auto; width: auto; height: calc(100% - 26px); max-height: min(calc(132 * var(--u)), calc(50cqw - 30px)); aspect-ratio: 1; } /* a face is never wider than its column */
+.faces.big svg, .faces.big img.av { flex: 0 1 auto; object-fit: cover; border-radius: 50%; width: auto; height: calc(100% - 26px); max-height: min(calc(132 * var(--u)), calc(50cqw - 30px)); aspect-ratio: 1; } /* a face is never wider than its column */
 .decl { align-items: center; } .decl .dpic { flex: none; width: calc(80 * var(--u)); height: auto; }
 .opts.decls { flex: 1 1 auto; justify-content: space-evenly; } .opts.decls + .fill { flex: 0 0 auto; } /* the three declarations take the room; the answer takes what it needs */
 .sctext { margin: 12px 2px 0; font: 600 calc(17 * var(--u))/1.38 "Figtree"; text-wrap: pretty; }
 .sc { margin-top: 14px; border-radius: 20px; background: var(--soft); padding: 16px; display: flex; gap: 14px; align-items: flex-start; }
-.sc svg { flex: none; width: calc(72 * var(--u)); height: calc(72 * var(--u)); border-radius: 50%; background: #E4DDD0; }
+.sc svg, .sc img.av { flex: none; object-fit: cover; width: calc(72 * var(--u)); height: calc(72 * var(--u)); border-radius: 50%; background: #E4DDD0; }
 .sc p { margin: 0; font: 600 calc(16.5 * var(--u))/1.36 "Figtree"; text-wrap: pretty; }
 .count { flex: none; margin: 10px 0 0; font: 700 calc(13 * var(--u))/1 "Figtree"; color: var(--muted); }
-.faces { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; } .faces div { text-align: center; font: 700 calc(12.5 * var(--u))/1.2 "Figtree"; color: var(--muted); } .faces svg { width: 100%; aspect-ratio: 1; border-radius: 50%; background: var(--soft); display: block; margin-bottom: 5px; }
+.faces { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; } .faces div { text-align: center; font: 700 calc(12.5 * var(--u))/1.2 "Figtree"; color: var(--muted); } .faces svg, .faces img.av { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 50%; background: var(--soft); display: block; margin-bottom: 5px; }
 .labels { position: absolute; left: 8px; right: 8px; bottom: 8px; display: flex; gap: 5px; z-index: 3; } /* the course line, along the bottom, each label on one line */
 .panel.lab .capts { bottom: calc(50 * var(--u)); }
 .labels span { flex: 1 1 auto; display: grid; place-items: center; text-align: center; white-space: nowrap; padding: 6px 4px; min-height: calc(34 * var(--u)); border-radius: 9px; background: rgba(255,255,255,.9); font: 800 calc(10.5 * var(--u))/1.15 "Figtree"; color: #A69E92; transition: background .3s, color .3s; }

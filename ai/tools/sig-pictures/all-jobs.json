@@ -1,0 +1,1127 @@
+[
+{
+"name": "store-wide-3",
+"prompt": "Westside Market, a small neighborhood grocery store in Los Angeles: a dark green sign with white capital letters that read WESTSIDE MARKET above double glass doors, wooden crates of oranges and apples in the front window, a wide light concrete sidewalk. a small folding table covered with a purple cloth that reads LIBRARIES FOR ALL in white letters stands on the sidewalk to the right of the doors. Nobody is in the picture. An eye-level view from across the sidewalk, the doors in the center of the frame. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 3,
+"refs": []
+},
+{
+"name": "store-wide-5",
+"prompt": "Westside Market, a small neighborhood grocery store in Los Angeles: a dark green sign with white capital letters that read WESTSIDE MARKET above double glass doors, wooden crates of oranges and apples in the front window, a wide light concrete sidewalk. a small folding table covered with a purple cloth that reads LIBRARIES FOR ALL in white letters stands on the sidewalk to the right of the doors. Nobody is in the picture. An eye-level view from across the sidewalk, the doors in the center of the frame. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 5,
+"refs": []
+},
+{
+"name": "store-wide-8",
+"prompt": "Westside Market, a small neighborhood grocery store in Los Angeles: a dark green sign with white capital letters that read WESTSIDE MARKET above double glass doors, wooden crates of oranges and apples in the front window, a wide light concrete sidewalk. a small folding table covered with a purple cloth that reads LIBRARIES FOR ALL in white letters stands on the sidewalk to the right of the doors. Nobody is in the picture. An eye-level view from across the sidewalk, the doors in the center of the frame. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 8,
+"refs": []
+},
+{
+"name": "store-wide-13",
+"prompt": "Westside Market, a small neighborhood grocery store in Los Angeles: a dark green sign with white capital letters that read WESTSIDE MARKET above double glass doors, wooden crates of oranges and apples in the front window, a wide light concrete sidewalk. a small folding table covered with a purple cloth that reads LIBRARIES FOR ALL in white letters stands on the sidewalk to the right of the doors. Nobody is in the picture. An eye-level view from across the sidewalk, the doors in the center of the frame. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 13,
+"refs": []
+},
+{
+"name": "ref-lena-2",
+"prompt": "Lena, a canvasser about 30 years old with warm brown skin and long dark hair in a low ponytail, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, holding a clipboard with a petition on it. The canvasser stands on the sidewalk outside the grocery store in image 1, smiling, facing the viewer. Framed from the knees up, centered. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1152,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "ref-lena-4",
+"prompt": "Lena, a canvasser about 30 years old with warm brown skin and long dark hair in a low ponytail, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, holding a clipboard with a petition on it. The canvasser stands on the sidewalk outside the grocery store in image 1, smiling, facing the viewer. Framed from the knees up, centered. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1152,
+"seed": 4,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "ref-lena-6",
+"prompt": "Lena, a canvasser about 30 years old with warm brown skin and long dark hair in a low ponytail, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, holding a clipboard with a petition on it. The canvasser stands on the sidewalk outside the grocery store in image 1, smiling, facing the viewer. Framed from the knees up, centered. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1152,
+"seed": 6,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "ref-rico-2",
+"prompt": "Rico, a canvasser about 30 years old with tan skin and short dark hair, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, holding a clipboard with a petition on it. The canvasser stands on the sidewalk outside the grocery store in image 1, smiling, facing the viewer. Framed from the knees up, centered. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1152,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "ref-rico-4",
+"prompt": "Rico, a canvasser about 30 years old with tan skin and short dark hair, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, holding a clipboard with a petition on it. The canvasser stands on the sidewalk outside the grocery store in image 1, smiling, facing the viewer. Framed from the knees up, centered. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1152,
+"seed": 4,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "ref-rico-6",
+"prompt": "Rico, a canvasser about 30 years old with tan skin and short dark hair, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, holding a clipboard with a petition on it. The canvasser stands on the sidewalk outside the grocery store in image 1, smiling, facing the viewer. Framed from the knees up, centered. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1152,
+"seed": 6,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-ben-1",
+"prompt": "Ben, a 38-year-old man with light skin, short brown hair and a short brown beard, wearing a blue-gray crewneck sweater and holding a paper coffee cup. The person stands on the sidewalk outside the grocery store in image 1 and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame, the store softly out of focus behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-tanya-1",
+"prompt": "Tanya, a 45-year-old Black woman with dark brown skin and black hair in a chin-length bob, wearing a rust-orange top, one hand on the handle of a shopping cart. The person stands on the sidewalk outside the grocery store in image 1 and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame, the store softly out of focus behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-dwayne-1",
+"prompt": "Dwayne, a 58-year-old Black man with brown skin, a bald head and a short gray beard, wearing an olive green button-up shirt. The person stands on the sidewalk outside the grocery store in image 1 and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame, the store softly out of focus behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-hank-1",
+"prompt": "Hank, a 71-year-old white man with short gray hair and wire-rimmed glasses, wearing a brown canvas jacket, a folded newspaper under his arm. The person stands on the sidewalk outside the grocery store in image 1 and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame, the store softly out of focus behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-soojin-1",
+"prompt": "Soo-jin, a 67-year-old Korean American woman with gray hair in a short bob, wearing a sage green cardigan, a canvas tote bag on her shoulder. The person stands on the sidewalk outside the grocery store in image 1 and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame, the store softly out of focus behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-kayla-1",
+"prompt": "Kayla, a 24-year-old woman with light brown skin and long dark hair, wearing a mustard yellow top, small white earbuds in her ears. The person stands on the sidewalk outside the grocery store in image 1 and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame, the store softly out of focus behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-luis-1",
+"prompt": "Luis, a 29-year-old Latino man with short black hair, wearing a white shirt under a dark kitchen apron. The person stands on the sidewalk outside the grocery store in image 1 and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame, the store softly out of focus behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-marisol-1",
+"prompt": "Marisol, a 34-year-old Latina woman with dark brown hair in a bob, wearing teal hospital scrubs with an ID badge clipped on. The person stands on the sidewalk outside the grocery store in image 1 and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame, the store softly out of focus behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-ines-1",
+"prompt": "Ines, a 39-year-old woman with light olive skin and long brown hair, wearing a mauve top, her hands on the handle of a baby stroller. The person stands on the sidewalk outside the grocery store in image 1 and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame, the store softly out of focus behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-bob-1",
+"prompt": "Bob, a 73-year-old white man, bald with white hair at the sides, wearing glasses and a slate blue button-up shirt. The person stands on the sidewalk outside the grocery store in image 1 and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame, the store softly out of focus behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-anika-1",
+"prompt": "Anika, a 41-year-old Indian American woman with long black hair, wearing a raspberry pink top, carrying two reusable grocery bags. The person stands on the sidewalk outside the grocery store in image 1 and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame, the store softly out of focus behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-joan-1",
+"prompt": "Joan, a 60-year-old white woman with a silver bob and glasses, wearing a charcoal blazer over a white blouse. The person stands on the sidewalk outside the grocery store in image 1 and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame, the store softly out of focus behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-karim-1",
+"prompt": "Karim, a 33-year-old Arab American man with short black hair and a trimmed black beard, wearing a dark green jacket, car keys in one hand. The person stands on the sidewalk outside the grocery store in image 1 and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame, the store softly out of focus behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-pat-1",
+"prompt": "Pat, a 64-year-old white woman with short silver-white hair and glasses, wearing a lavender cardigan. The person stands on the sidewalk outside the grocery store in image 1 and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame, the store softly out of focus behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-theo-1",
+"prompt": "Theo, a 22-year-old Black man with short black hair, wearing a blue hoodie. The person stands on the sidewalk outside the grocery store in image 1 and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame, the store softly out of focus behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-carmen-1",
+"prompt": "Carmen, a 52-year-old Latina woman with dark brown hair in a bob, wearing a terracotta blouse. The person stands on the sidewalk outside the grocery store in image 1 and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame, the store softly out of focus behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-anika-2",
+"prompt": "Anika, a 41-year-old Indian American woman with long black hair, wearing a raspberry pink top, carrying two reusable grocery bags. The person stands on the sidewalk outside the grocery store in image 1 and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame, the store softly out of focus behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-anika-3",
+"prompt": "Anika, a 41-year-old Indian American woman with long black hair, wearing a raspberry pink top, carrying two reusable grocery bags. The person stands on the sidewalk outside the grocery store in image 1 and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame, the store softly out of focus behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 3,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-theo-2",
+"prompt": "Theo, a 22-year-old Black man with short black hair, wearing a blue hoodie. The person stands on the sidewalk outside the grocery store in image 1 and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame, the store softly out of focus behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-theo-3",
+"prompt": "Theo, a 22-year-old Black man with short black hair, wearing a blue hoodie. The person stands on the sidewalk outside the grocery store in image 1 and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame, the store softly out of focus behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 3,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "two-lena-ines-1",
+"prompt": "Outside the grocery store in image 1, Lena, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of her folding table with the purple LIBRARIES FOR ALL cloth, holding her clipboard. Ines, the woman from image 3, walks up from the right pushing a baby stroller and turns toward her. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-ines-1.jpg"
+]
+},
+{
+"name": "two-lena-ines-2",
+"prompt": "Outside the grocery store in image 1, Lena, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of her folding table with the purple LIBRARIES FOR ALL cloth, holding her clipboard. Ines, the woman from image 3, walks up from the right pushing a baby stroller and turns toward her. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-ines-1.jpg"
+]
+},
+{
+"name": "two-lena-tanya-1",
+"prompt": "Outside the grocery store in image 1, Lena, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of her folding table with the purple LIBRARIES FOR ALL cloth, holding her clipboard. Tanya, the woman from image 3, pushes a shopping cart with her daughter, about five years old, riding in the cart's seat, and slows down beside her. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-tanya-1.jpg"
+]
+},
+{
+"name": "two-lena-tanya-2",
+"prompt": "Outside the grocery store in image 1, Lena, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of her folding table with the purple LIBRARIES FOR ALL cloth, holding her clipboard. Tanya, the woman from image 3, pushes a shopping cart with her daughter, about five years old, riding in the cart's seat, and slows down beside her. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-tanya-1.jpg"
+]
+},
+{
+"name": "two-lena-dwayne-1",
+"prompt": "Outside the grocery store in image 1, Lena, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of her folding table with the purple LIBRARIES FOR ALL cloth, holding her clipboard. Dwayne, the man from image 3, walks up to her from the right. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-dwayne-1.jpg"
+]
+},
+{
+"name": "two-lena-dwayne-2",
+"prompt": "Outside the grocery store in image 1, Lena, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of her folding table with the purple LIBRARIES FOR ALL cloth, holding her clipboard. Dwayne, the man from image 3, walks up to her from the right. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-dwayne-1.jpg"
+]
+},
+{
+"name": "two-rico-hank-1",
+"prompt": "Outside the grocery store in image 1, Rico, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of his folding table with the purple LIBRARIES FOR ALL cloth, holding his clipboard. Hank, the man from image 3, walks up from the right with a folded newspaper under his arm. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-rico.jpg",
+"p/por-hank-1.jpg"
+]
+},
+{
+"name": "two-rico-hank-2",
+"prompt": "Outside the grocery store in image 1, Rico, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of his folding table with the purple LIBRARIES FOR ALL cloth, holding his clipboard. Hank, the man from image 3, walks up from the right with a folded newspaper under his arm. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-rico.jpg",
+"p/por-hank-1.jpg"
+]
+},
+{
+"name": "two-lena-bob-1",
+"prompt": "Outside the grocery store in image 1, Lena, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of her folding table with the purple LIBRARIES FOR ALL cloth, holding her clipboard. Bob, the man from image 3, has stopped in front of her and holds a pen over her clipboard. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-bob-1.jpg"
+]
+},
+{
+"name": "two-lena-bob-2",
+"prompt": "Outside the grocery store in image 1, Lena, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of her folding table with the purple LIBRARIES FOR ALL cloth, holding her clipboard. Bob, the man from image 3, has stopped in front of her and holds a pen over her clipboard. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-bob-1.jpg"
+]
+},
+{
+"name": "two-rico-soojin-1",
+"prompt": "Outside the grocery store in image 1, Rico, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of his folding table with the purple LIBRARIES FOR ALL cloth, holding his clipboard. Soo-jin, the woman from image 3, has stopped to talk to him, a tote bag on her shoulder. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-rico.jpg",
+"p/por-soojin-1.jpg"
+]
+},
+{
+"name": "two-rico-soojin-2",
+"prompt": "Outside the grocery store in image 1, Rico, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of his folding table with the purple LIBRARIES FOR ALL cloth, holding his clipboard. Soo-jin, the woman from image 3, has stopped to talk to him, a tote bag on her shoulder. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-rico.jpg",
+"p/por-soojin-1.jpg"
+]
+},
+{
+"name": "two-lena-joan-1",
+"prompt": "Outside the grocery store in image 1, Lena, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of her folding table with the purple LIBRARIES FOR ALL cloth, holding her clipboard. Joan, the woman from image 3, has stopped to talk to her. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-joan-1.jpg"
+]
+},
+{
+"name": "two-lena-joan-2",
+"prompt": "Outside the grocery store in image 1, Lena, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of her folding table with the purple LIBRARIES FOR ALL cloth, holding her clipboard. Joan, the woman from image 3, has stopped to talk to her. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-joan-1.jpg"
+]
+},
+{
+"name": "two-rico-karim-1",
+"prompt": "Outside the grocery store in image 1, Rico, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of his folding table with the purple LIBRARIES FOR ALL cloth, holding his clipboard. Karim, the man from image 3, has stopped to talk to him, car keys in one hand. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-rico.jpg",
+"p/por-karim-1.jpg"
+]
+},
+{
+"name": "two-rico-karim-2",
+"prompt": "Outside the grocery store in image 1, Rico, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of his folding table with the purple LIBRARIES FOR ALL cloth, holding his clipboard. Karim, the man from image 3, has stopped to talk to him, car keys in one hand. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-rico.jpg",
+"p/por-karim-1.jpg"
+]
+},
+{
+"name": "two-lena-ben-1",
+"prompt": "Outside the grocery store in image 1, Lena, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of her folding table with the purple LIBRARIES FOR ALL cloth, holding her clipboard. Ben, the man from image 3, walks past her with a coffee cup in hand, heading for the store's door. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-ben-1.jpg"
+]
+},
+{
+"name": "two-lena-ben-2",
+"prompt": "Outside the grocery store in image 1, Lena, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of her folding table with the purple LIBRARIES FOR ALL cloth, holding her clipboard. Ben, the man from image 3, walks past her with a coffee cup in hand, heading for the store's door. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-ben-1.jpg"
+]
+},
+{
+"name": "two-lena-anika-1",
+"prompt": "Outside the grocery store in image 1, Lena, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of her folding table with the purple LIBRARIES FOR ALL cloth, holding her clipboard. Anika, the woman from image 3, walks up from the right carrying two grocery bags. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-anika-1.jpg"
+]
+},
+{
+"name": "two-lena-anika-2",
+"prompt": "Outside the grocery store in image 1, Lena, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of her folding table with the purple LIBRARIES FOR ALL cloth, holding her clipboard. Anika, the woman from image 3, walks up from the right carrying two grocery bags. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-anika-1.jpg"
+]
+},
+{
+"name": "two-lena-hank-1",
+"prompt": "Outside the grocery store in image 1, Lena, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of her folding table with the purple LIBRARIES FOR ALL cloth, holding her clipboard. Hank, the man from image 3, walks up from the right with a folded newspaper under his arm. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-hank-1.jpg"
+]
+},
+{
+"name": "two-lena-hank-2",
+"prompt": "Outside the grocery store in image 1, Lena, the canvasser from image 2 (the same face, purple t-shirt and clipboard) stands on the left in front of her folding table with the purple LIBRARIES FOR ALL cloth, holding her clipboard. Hank, the man from image 3, walks up from the right with a folded newspaper under his arm. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-hank-1.jpg"
+]
+},
+{
+"name": "spot-sit-1",
+"prompt": "Lena, the canvasser from image 2, sits on a folding chair behind her folding table with the purple LIBRARIES FOR ALL cloth, outside the store in image 1, looking down at her phone. Two shoppers walk past on the sidewalk, one on each side of the table, without looking at her. A wide shot from across the sidewalk at eye level, whole bodies visible, the grocery store's doors and green sign behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg"
+]
+},
+{
+"name": "spot-sit-2",
+"prompt": "Lena, the canvasser from image 2, sits on a folding chair behind her folding table with the purple LIBRARIES FOR ALL cloth, outside the store in image 1, looking down at her phone. Two shoppers walk past on the sidewalk, one on each side of the table, without looking at her. A wide shot from across the sidewalk at eye level, whole bodies visible, the grocery store's doors and green sign behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg"
+]
+},
+{
+"name": "spot-stand-1",
+"prompt": "Lena, the canvasser from image 2, stands in front of her folding table with the purple LIBRARIES FOR ALL cloth, out on the sidewalk outside the store in image 1, holding her clipboard in one hand and holding a pen out in the other, smiling and facing a shopper who walks toward her. A wide shot from across the sidewalk at eye level, whole bodies visible, the grocery store's doors and green sign behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg"
+]
+},
+{
+"name": "spot-stand-2",
+"prompt": "Lena, the canvasser from image 2, stands in front of her folding table with the purple LIBRARIES FOR ALL cloth, out on the sidewalk outside the store in image 1, holding her clipboard in one hand and holding a pen out in the other, smiling and facing a shopper who walks toward her. A wide shot from across the sidewalk at eye level, whole bodies visible, the grocery store's doors and green sign behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg"
+]
+},
+{
+"name": "spot-doorway-1",
+"prompt": "Lena, the canvasser from image 2, stands right in the middle of the open doorway of the store in image 1, holding her clipboard and blocking the door. A shopper coming out of the store has to stop and turn sideways to squeeze past her. Her table with the purple cloth stands off to one side. A wide shot from across the sidewalk at eye level, whole bodies visible, the grocery store's doors and green sign behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg"
+]
+},
+{
+"name": "spot-doorway-2",
+"prompt": "Lena, the canvasser from image 2, stands right in the middle of the open doorway of the store in image 1, holding her clipboard and blocking the door. A shopper coming out of the store has to stop and turn sideways to squeeze past her. Her table with the purple cloth stands off to one side. A wide shot from across the sidewalk at eye level, whole bodies visible, the grocery store's doors and green sign behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg"
+]
+},
+{
+"name": "spot-side-1",
+"prompt": "Lena, the canvasser from image 2, stands on the sidewalk a few steps to the side of the door of the store in image 1, next to the front window and her table with the purple cloth, holding her clipboard. Shoppers walk past close to her with plenty of room to keep going, and one of them turns toward her. A wide shot from across the sidewalk at eye level, whole bodies visible, the grocery store's doors and green sign behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg"
+]
+},
+{
+"name": "spot-side-2",
+"prompt": "Lena, the canvasser from image 2, stands on the sidewalk a few steps to the side of the door of the store in image 1, next to the front window and her table with the purple cloth, holding her clipboard. Shoppers walk past close to her with plenty of room to keep going, and one of them turns toward her. A wide shot from across the sidewalk at eye level, whole bodies visible, the grocery store's doors and green sign behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg"
+]
+},
+{
+"name": "store-tall-1",
+"prompt": "The same grocery store as in image 1, with the folding table with the purple LIBRARIES FOR ALL cloth on the sidewalk to the right of the doors. Nobody is in the picture. Framed taller: the green sign near the top, the glass doors in the center, the sidewalk at the bottom. Eye level. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "store-tall-2",
+"prompt": "The same grocery store as in image 1, with the folding table with the purple LIBRARIES FOR ALL cloth on the sidewalk to the right of the doors. Nobody is in the picture. Framed taller: the green sign near the top, the glass doors in the center, the sidewalk at the bottom. Eye level. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "two-lena-ines-1",
+"prompt": "Outside the grocery store in image 1, Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. Her folding table with the purple LIBRARIES FOR ALL cloth stands behind her, against the store's front window, and she stands out on the open sidewalk in front of it, with nothing between her and the passerby. Ines, the woman from image 3, walks up pushing a baby stroller and turns toward her. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-ines-1.jpg"
+]
+},
+{
+"name": "two-lena-ines-2",
+"prompt": "Outside the grocery store in image 1, Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. Her folding table with the purple LIBRARIES FOR ALL cloth stands behind her, against the store's front window, and she stands out on the open sidewalk in front of it, with nothing between her and the passerby. Ines, the woman from image 3, walks up pushing a baby stroller and turns toward her. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-ines-1.jpg"
+]
+},
+{
+"name": "two-lena-tanya-1",
+"prompt": "Outside the grocery store in image 1, Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. Her folding table with the purple LIBRARIES FOR ALL cloth stands behind her, against the store's front window, and she stands out on the open sidewalk in front of it, with nothing between her and the passerby. Tanya, the woman from image 3, pushes a shopping cart with her one daughter, a single girl about five years old, riding alone in the cart's child seat, and slows down beside her. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-tanya-1.jpg"
+]
+},
+{
+"name": "two-lena-tanya-2",
+"prompt": "Outside the grocery store in image 1, Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. Her folding table with the purple LIBRARIES FOR ALL cloth stands behind her, against the store's front window, and she stands out on the open sidewalk in front of it, with nothing between her and the passerby. Tanya, the woman from image 3, pushes a shopping cart with her one daughter, a single girl about five years old, riding alone in the cart's child seat, and slows down beside her. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-tanya-1.jpg"
+]
+},
+{
+"name": "two-lena-dwayne-1",
+"prompt": "Outside the grocery store in image 1, Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. Her folding table with the purple LIBRARIES FOR ALL cloth stands behind her, against the store's front window, and she stands out on the open sidewalk in front of it, with nothing between her and the passerby. Dwayne, the man from image 3, walks up to her. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-dwayne-1.jpg"
+]
+},
+{
+"name": "two-lena-dwayne-2",
+"prompt": "Outside the grocery store in image 1, Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. Her folding table with the purple LIBRARIES FOR ALL cloth stands behind her, against the store's front window, and she stands out on the open sidewalk in front of it, with nothing between her and the passerby. Dwayne, the man from image 3, walks up to her. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-dwayne-1.jpg"
+]
+},
+{
+"name": "two-rico-hank-1",
+"prompt": "Outside the grocery store in image 1, Rico, a Latino man about 30 years old with tan skin and short dark hair, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. His folding table with the purple LIBRARIES FOR ALL cloth stands behind him, against the store's front window, and he stands out on the open sidewalk in front of it, with nothing between him and the passerby. Hank, the man from image 3, walks up with a folded newspaper under his arm. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-rico.jpg",
+"p/por-hank-1.jpg"
+]
+},
+{
+"name": "two-rico-hank-2",
+"prompt": "Outside the grocery store in image 1, Rico, a Latino man about 30 years old with tan skin and short dark hair, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. His folding table with the purple LIBRARIES FOR ALL cloth stands behind him, against the store's front window, and he stands out on the open sidewalk in front of it, with nothing between him and the passerby. Hank, the man from image 3, walks up with a folded newspaper under his arm. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-rico.jpg",
+"p/por-hank-1.jpg"
+]
+},
+{
+"name": "two-lena-bob-1",
+"prompt": "Outside the grocery store in image 1, Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. Her folding table with the purple LIBRARIES FOR ALL cloth stands behind her, against the store's front window, and she stands out on the open sidewalk in front of it, with nothing between her and the passerby. Bob, the man from image 3, has stopped in front of her and holds a pen over her clipboard. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-bob-1.jpg"
+]
+},
+{
+"name": "two-lena-bob-2",
+"prompt": "Outside the grocery store in image 1, Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. Her folding table with the purple LIBRARIES FOR ALL cloth stands behind her, against the store's front window, and she stands out on the open sidewalk in front of it, with nothing between her and the passerby. Bob, the man from image 3, has stopped in front of her and holds a pen over her clipboard. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-bob-1.jpg"
+]
+},
+{
+"name": "two-rico-soojin-1",
+"prompt": "Outside the grocery store in image 1, Rico, a Latino man about 30 years old with tan skin and short dark hair, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. His folding table with the purple LIBRARIES FOR ALL cloth stands behind him, against the store's front window, and he stands out on the open sidewalk in front of it, with nothing between him and the passerby. Soo-jin, the woman from image 3, has stopped to talk to him, a tote bag on her shoulder. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-rico.jpg",
+"p/por-soojin-1.jpg"
+]
+},
+{
+"name": "two-rico-soojin-2",
+"prompt": "Outside the grocery store in image 1, Rico, a Latino man about 30 years old with tan skin and short dark hair, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. His folding table with the purple LIBRARIES FOR ALL cloth stands behind him, against the store's front window, and he stands out on the open sidewalk in front of it, with nothing between him and the passerby. Soo-jin, the woman from image 3, has stopped to talk to him, a tote bag on her shoulder. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-rico.jpg",
+"p/por-soojin-1.jpg"
+]
+},
+{
+"name": "two-lena-joan-1",
+"prompt": "Outside the grocery store in image 1, Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. Her folding table with the purple LIBRARIES FOR ALL cloth stands behind her, against the store's front window, and she stands out on the open sidewalk in front of it, with nothing between her and the passerby. Joan, the woman from image 3, has stopped to talk to her. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-joan-1.jpg"
+]
+},
+{
+"name": "two-lena-joan-2",
+"prompt": "Outside the grocery store in image 1, Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. Her folding table with the purple LIBRARIES FOR ALL cloth stands behind her, against the store's front window, and she stands out on the open sidewalk in front of it, with nothing between her and the passerby. Joan, the woman from image 3, has stopped to talk to her. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-joan-1.jpg"
+]
+},
+{
+"name": "two-rico-karim-1",
+"prompt": "Outside the grocery store in image 1, Rico, a Latino man about 30 years old with tan skin and short dark hair, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. His folding table with the purple LIBRARIES FOR ALL cloth stands behind him, against the store's front window, and he stands out on the open sidewalk in front of it, with nothing between him and the passerby. Karim, the man from image 3, has stopped to talk to him, car keys in one hand. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-rico.jpg",
+"p/por-karim-1.jpg"
+]
+},
+{
+"name": "two-rico-karim-2",
+"prompt": "Outside the grocery store in image 1, Rico, a Latino man about 30 years old with tan skin and short dark hair, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. His folding table with the purple LIBRARIES FOR ALL cloth stands behind him, against the store's front window, and he stands out on the open sidewalk in front of it, with nothing between him and the passerby. Karim, the man from image 3, has stopped to talk to him, car keys in one hand. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-rico.jpg",
+"p/por-karim-1.jpg"
+]
+},
+{
+"name": "two-lena-ben-1",
+"prompt": "Outside the grocery store in image 1, Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. Her folding table with the purple LIBRARIES FOR ALL cloth stands behind her, against the store's front window, and she stands out on the open sidewalk in front of it, with nothing between her and the passerby. Ben, the man from image 3, walks past her with a coffee cup in hand, heading for the store's door. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-ben-1.jpg"
+]
+},
+{
+"name": "two-lena-ben-2",
+"prompt": "Outside the grocery store in image 1, Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. Her folding table with the purple LIBRARIES FOR ALL cloth stands behind her, against the store's front window, and she stands out on the open sidewalk in front of it, with nothing between her and the passerby. Ben, the man from image 3, walks past her with a coffee cup in hand, heading for the store's door. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-ben-1.jpg"
+]
+},
+{
+"name": "two-lena-anika-1",
+"prompt": "Outside the grocery store in image 1, Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. Her folding table with the purple LIBRARIES FOR ALL cloth stands behind her, against the store's front window, and she stands out on the open sidewalk in front of it, with nothing between her and the passerby. Anika, the woman from image 3, walks up carrying two grocery bags. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-anika-1.jpg"
+]
+},
+{
+"name": "two-lena-anika-2",
+"prompt": "Outside the grocery store in image 1, Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. Her folding table with the purple LIBRARIES FOR ALL cloth stands behind her, against the store's front window, and she stands out on the open sidewalk in front of it, with nothing between her and the passerby. Anika, the woman from image 3, walks up carrying two grocery bags. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-anika-1.jpg"
+]
+},
+{
+"name": "two-lena-hank-1",
+"prompt": "Outside the grocery store in image 1, Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. Her folding table with the purple LIBRARIES FOR ALL cloth stands behind her, against the store's front window, and she stands out on the open sidewalk in front of it, with nothing between her and the passerby. Hank, the man from image 3, walks up with a folded newspaper under his arm. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 1,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-hank-1.jpg"
+]
+},
+{
+"name": "two-lena-hank-2",
+"prompt": "Outside the grocery store in image 1, Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. Her folding table with the purple LIBRARIES FOR ALL cloth stands behind her, against the store's front window, and she stands out on the open sidewalk in front of it, with nothing between her and the passerby. Hank, the man from image 3, walks up with a folded newspaper under his arm. Seen from across the sidewalk at eye level. Both people are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 2,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-hank-1.jpg"
+]
+},
+{
+"name": "spot-stand-3",
+"prompt": "Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same woman as in image 2, stands out on the open sidewalk in front of the store in image 1. Her folding table with the purple LIBRARIES FOR ALL cloth is behind her, against the store window, and nothing is between her and the people walking by. She holds her clipboard in one hand and holds a pen out with the other, smiling, facing a shopper who walks toward her. A wide shot from across the sidewalk at eye level, whole bodies visible, the grocery store's doors and green sign behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 3,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg"
+]
+},
+{
+"name": "spot-stand-4",
+"prompt": "Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same woman as in image 2, stands out on the open sidewalk in front of the store in image 1. Her folding table with the purple LIBRARIES FOR ALL cloth is behind her, against the store window, and nothing is between her and the people walking by. She holds her clipboard in one hand and holds a pen out with the other, smiling, facing a shopper who walks toward her. A wide shot from across the sidewalk at eye level, whole bodies visible, the grocery store's doors and green sign behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 4,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg"
+]
+},
+{
+"name": "spot-stand-5",
+"prompt": "Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same woman as in image 2, stands out on the open sidewalk in front of the store in image 1. Her folding table with the purple LIBRARIES FOR ALL cloth is behind her, against the store window, and nothing is between her and the people walking by. She holds her clipboard in one hand and holds a pen out with the other, smiling, facing a shopper who walks toward her. A wide shot from across the sidewalk at eye level, whole bodies visible, the grocery store's doors and green sign behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 5,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg"
+]
+},
+{
+"name": "spot-doorway-3",
+"prompt": "Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same woman as in image 2, stands right in the middle of the open doorway of the store in image 1, holding her clipboard and blocking the way in and out. A shopper stepping out of the store has to stop and turn sideways to squeeze past her shoulder. Her table with the purple cloth stands off to one side. A wide shot from across the sidewalk at eye level, whole bodies visible, the grocery store's doors and green sign behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 3,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg"
+]
+},
+{
+"name": "spot-doorway-4",
+"prompt": "Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same woman as in image 2, stands right in the middle of the open doorway of the store in image 1, holding her clipboard and blocking the way in and out. A shopper stepping out of the store has to stop and turn sideways to squeeze past her shoulder. Her table with the purple cloth stands off to one side. A wide shot from across the sidewalk at eye level, whole bodies visible, the grocery store's doors and green sign behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 4,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg"
+]
+},
+{
+"name": "spot-doorway-5",
+"prompt": "Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same woman as in image 2, stands right in the middle of the open doorway of the store in image 1, holding her clipboard and blocking the way in and out. A shopper stepping out of the store has to stop and turn sideways to squeeze past her shoulder. Her table with the purple cloth stands off to one side. A wide shot from across the sidewalk at eye level, whole bodies visible, the grocery store's doors and green sign behind. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 5,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg"
+]
+},
+{
+"name": "store-tall-3",
+"prompt": "The same grocery store as in image 1, seen from farther back so the whole storefront fits: the entire green sign with the full words WESTSIDE MARKET near the top, the glass doors in the center, the folding table with the purple LIBRARIES FOR ALL cloth on the sidewalk to the right of the doors and a wide stretch of sidewalk at the bottom. Nobody is in the picture. Eye level. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 3,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "store-tall-4",
+"prompt": "The same grocery store as in image 1, seen from farther back so the whole storefront fits: the entire green sign with the full words WESTSIDE MARKET near the top, the glass doors in the center, the folding table with the purple LIBRARIES FOR ALL cloth on the sidewalk to the right of the doors and a wide stretch of sidewalk at the bottom. Nobody is in the picture. Eye level. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 4,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "store-tall-5",
+"prompt": "The same grocery store as in image 1, seen from farther back so the whole storefront fits: the entire green sign with the full words WESTSIDE MARKET near the top, the glass doors in the center, the folding table with the purple LIBRARIES FOR ALL cloth on the sidewalk to the right of the doors and a wide stretch of sidewalk at the bottom. Nobody is in the picture. Eye level. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 5,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-theo-4",
+"prompt": "Theo, a 22-year-old Black man with short black hair, wearing a blue hoodie. He stands outdoors on the sunny sidewalk outside the grocery store in image 1, its green WESTSIDE MARKET sign and glass doors softly out of focus behind him, and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 4,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "por-theo-5",
+"prompt": "Theo, a 22-year-old Black man with short black hair, wearing a blue hoodie. He stands outdoors on the sunny sidewalk outside the grocery store in image 1, its green WESTSIDE MARKET sign and glass doors softly out of focus behind him, and looks straight at the viewer with a calm, friendly face, as if on a video call. Framed from the waist up, centered, the face in the upper third of the frame. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 768,
+"h": 1344,
+"seed": 5,
+"refs": [
+"p/ref-store.jpg"
+]
+},
+{
+"name": "two-lena-tanya-3",
+"prompt": "Outside the grocery store in image 1, Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. Her folding table with the purple LIBRARIES FOR ALL cloth stands behind her, against the store's front window, and she stands out on the open sidewalk in front of it, with nothing between her and the passerby. Tanya, the woman from image 3, pushes a shopping cart and slows down beside her. Exactly one child is in the cart: her little daughter, about five years old, sitting in the cart's child seat. The rest of the cart holds groceries. Seen from across the sidewalk at eye level. Both adults are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 3,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-tanya-1.jpg"
+]
+},
+{
+"name": "two-lena-tanya-4",
+"prompt": "Outside the grocery store in image 1, Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. Her folding table with the purple LIBRARIES FOR ALL cloth stands behind her, against the store's front window, and she stands out on the open sidewalk in front of it, with nothing between her and the passerby. Tanya, the woman from image 3, pushes a shopping cart and slows down beside her. Exactly one child is in the cart: her little daughter, about five years old, sitting in the cart's child seat. The rest of the cart holds groceries. Seen from across the sidewalk at eye level. Both adults are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 4,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-tanya-1.jpg"
+]
+},
+{
+"name": "two-lena-tanya-5",
+"prompt": "Outside the grocery store in image 1, Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. Her folding table with the purple LIBRARIES FOR ALL cloth stands behind her, against the store's front window, and she stands out on the open sidewalk in front of it, with nothing between her and the passerby. Tanya, the woman from image 3, pushes a shopping cart and slows down beside her. Exactly one child is in the cart: her little daughter, about five years old, sitting in the cart's child seat. The rest of the cart holds groceries. Seen from across the sidewalk at eye level. Both adults are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 5,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-tanya-1.jpg"
+]
+},
+{
+"name": "two-lena-tanya-6",
+"prompt": "Outside the grocery store in image 1, Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same person as in image 2, holds a clipboard on the left of the frame. Her folding table with the purple LIBRARIES FOR ALL cloth stands behind her, against the store's front window, and she stands out on the open sidewalk in front of it, with nothing between her and the passerby. Tanya, the woman from image 3, pushes a shopping cart and slows down beside her. Exactly one child is in the cart: her little daughter, about five years old, sitting in the cart's child seat. The rest of the cart holds groceries. Seen from across the sidewalk at eye level. Both adults are framed from head to knees, their heads in the upper third of the frame, the store's doors and green sign behind them. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 896,
+"h": 1216,
+"seed": 6,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg",
+"p/por-tanya-1.jpg"
+]
+},
+{
+"name": "spot-side-3",
+"prompt": "Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same woman as in image 2, stands on the sidewalk a few steps to the right of the open door of the store in image 1, beside her table with the purple LIBRARIES FOR ALL cloth, holding her clipboard. The doorway is clear. Shoppers walk past her close by, with plenty of room to keep going, and one of them turns toward her. A wide, straight-on shot from across the sidewalk at eye level, the store's doors in the center of the frame and its whole green sign at the top, whole bodies visible. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 3,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg"
+]
+},
+{
+"name": "spot-side-4",
+"prompt": "Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same woman as in image 2, stands on the sidewalk a few steps to the right of the open door of the store in image 1, beside her table with the purple LIBRARIES FOR ALL cloth, holding her clipboard. The doorway is clear. Shoppers walk past her close by, with plenty of room to keep going, and one of them turns toward her. A wide, straight-on shot from across the sidewalk at eye level, the store's doors in the center of the frame and its whole green sign at the top, whole bodies visible. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 4,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg"
+]
+},
+{
+"name": "spot-side-5",
+"prompt": "Lena, a Black woman about 30 years old with dark brown skin and long black hair in a low ponytail, a canvasser, wearing a plain purple t-shirt with a small white name badge clipped at the collar, dark jeans, the same woman as in image 2, stands on the sidewalk a few steps to the right of the open door of the store in image 1, beside her table with the purple LIBRARIES FOR ALL cloth, holding her clipboard. The doorway is clear. Shoppers walk past her close by, with plenty of room to keep going, and one of them turns toward her. A wide, straight-on shot from across the sidewalk at eye level, the store's doors in the center of the frame and its whole green sign at the top, whole bodies visible. A realistic digital painting with soft visible brushwork, natural adult proportions and warm natural morning light. Clearly a painting, not a photograph.",
+"w": 1024,
+"h": 768,
+"seed": 5,
+"refs": [
+"p/ref-store.jpg",
+"p/ref-lena.jpg"
+]
+}
+]
