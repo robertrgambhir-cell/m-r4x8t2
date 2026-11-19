@@ -42,7 +42,7 @@ const [,, lesson = "2", W = "375", H = "667", scriptName = "show", mode = "fast"
   const p = await c.newPage(); const errs = []; p.on("pageerror", (e) => errs.push(String(e).slice(0, 300))); p.on("console", (m) => { if (m.type() === "error" && !/Failed to load resource|ERR_FAILED/.test(m.text())) errs.push("console: " + m.text().slice(0, 200)); });
   const out = path.join(process.env.OUT || path.join(os.tmpdir(), "sig-walk"), `L${lesson}-${W}${scriptName === "show" ? "" : "-" + scriptName}`); fs.rmSync(out, { recursive: true, force: true }); fs.mkdirSync(out, { recursive: true });
   const srv = process.env.BASE ? null : await serve(), base = process.env.BASE || `http://127.0.0.1:${srv.address().port}/wdpfxqlsvp/sig/`;
-  await p.goto(`${base}index.html?l=${lesson}${mode === "fast" ? "&fast" : ""}`, { waitUntil: "load" });
+  await p.goto(`${base}index.html?l=${lesson}${mode === "fast" ? "&fast" : mode === "caps" ? "&fast=320" : ""}`, { waitUntil: "load" });
   await p.waitForSelector("#start", { timeout: 8000 });
   await p.evaluate(() => document.fonts.ready);
   const say = SCRIPTS[lesson][scriptName].slice(); const problems = []; let n = 0, lastSig = "", idle = 0;
@@ -62,6 +62,7 @@ const [,, lesson = "2", W = "375", H = "667", scriptName = "show", mode = "fast"
       const pan = document.querySelector("#panel, .panel, .ft"); if (pan && vis(pan)) { const pr = pan.getBoundingClientRect(); if (pr.height < (pan.classList.contains("short") ? 82 : 118)) out.push("picture squeezed to " + Math.round(pr.height) + " px");
         const eyes = [...pan.querySelectorAll(".p:not(.off-l):not(.off-r) .eyes")], caps = pan.querySelector(".capts"); eyes.forEach((e) => { const er = e.getBoundingClientRect(); if (pan.classList.contains("ft") && er.top > pr.top + pr.height * 0.36) out.push("face below the top third: eyes at " + Math.round((er.top - pr.top) / pr.height * 100) + "%"); if (caps && caps.children.length) { const cr = caps.getBoundingClientRect(); if (cr.top < er.bottom + 14) out.push("captions over the face: caption top " + Math.round(cr.top) + ", eyes " + Math.round(er.bottom)); } }); }
       const tag = document.querySelector("#tag").textContent; if (!/^Sig \d\.\d+[a-z]?\d?s?$/.test(tag)) out.push("screen tag: " + tag);
+      { const tq = document.querySelector("#tag").getBoundingClientRect(), R = parseFloat(getComputedStyle(document.querySelector("#app")).borderTopLeftRadius) || 0; if (R) { const dx = tq.right - (app.right - R), dy = tq.bottom - (app.bottom - R); if (dx > 0 && dy > 0 && dx * dx + dy * dy > (R - 1) * (R - 1)) out.push("the screen tag is cut by the frame's round corner"); } if (tq.right > app.right + 0.5 || tq.bottom > app.bottom + 0.5 || tq.width < 8) out.push("the screen tag is off the screen"); }
       if (/—/.test(document.body.innerText)) out.push("an em dash");
       if (/\b(undefined|NaN|null)\b|\{[a-zA-Z]+\}/.test(document.querySelector("#scr").innerText)) out.push("raw text: " + document.querySelector("#scr").innerText.match(/.{0,20}(undefined|NaN|null|\{[a-zA-Z]+\}).{0,20}/)[0]);
       return { out, tag, text: document.querySelector("#scr").innerText.replace(/\s+/g, " ").slice(0, 160) };
@@ -83,14 +84,14 @@ const [,, lesson = "2", W = "375", H = "667", scriptName = "show", mode = "fast"
     if (st.cover && step > 2) break;
     if (/pulse/.test(st.mic)) {
       const t = say.shift(); if (t == null) { problems.push(st.tag + " the script ran out of things to say"); break; }
-      await tap("#mic"); await settle(120); await p.evaluate((x) => window.__speak(x), t); await settle(180); await check("speaking"); await tap("#mic"); await settle(mode === "fast" ? 600 : 900); continue;
+      await tap("#mic"); await settle(120); await p.evaluate((x) => window.__speak(x), t); await settle(180); await check("speaking"); await tap("#mic"); await settle(mode === "fast" ? 600 : mode === "caps" ? 500 : 900); continue;
     }
     if (st.decl) { const want = SCRIPTS[lesson].decl || [1, 2]; for (const i of want) { await tap(`.decl[data-i="${i}"]`); await settle(150); } continue; }
     if (st.boxes || st.okb) { const pick = (SCRIPTS[lesson].boxes || []).shift() || "ok"; if (pick === "ok") await tap("#okb"); else await tap(`button.box[data-box="${pick}"]`); await settle(); continue; }
     if (st.opts) { const pick = (SCRIPTS[lesson].taps || []).shift(); await p.evaluate((i) => { const bs = [...document.querySelectorAll("#opts button")]; (bs[i == null ? 0 : i] || bs[0]).click(); }, pick); await settle(); continue; }
     if (st.go) { await tap("#go"); await settle(350); continue; }
-    if (idle > (mode === "fast" ? 40 : 400)) { problems.push(st.tag + " stuck: " + JSON.stringify(st)); break; }
-    await settle(mode === "fast" ? 120 : 250);
+    if (idle > (mode === "fast" ? 40 : mode === "caps" ? 120 : 400)) { problems.push(st.tag + " stuck: " + JSON.stringify(st)); break; }
+    await settle(mode === "fast" ? 120 : mode === "caps" ? 90 : 250);
   }
   const timing = await p.evaluate(() => window.__sg.time());
   console.log(JSON.stringify({ lesson, size: W + "x" + H, script: scriptName, screens: n, left: say.length, errs, problems, timing: Object.fromEntries(Object.entries(timing).map(([k, v]) => [k, Math.round(v / 100) / 10])) }, null, 1));
