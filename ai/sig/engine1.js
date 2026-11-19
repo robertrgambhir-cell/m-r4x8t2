@@ -3,6 +3,7 @@ var ST = DATA.st, SH = DATA.shared, ME = DATA.measure, CAST = DATA.cast;
 var qs = new URLSearchParams(location.search);
 var LN = qs.get("l") === "card" ? 0 : Math.max(1, Math.min(5, parseInt(qs.get("l"), 10) || 2));
 var L = DATA.lessons[LN] || null;
+var PRACTICE = qs.has("practice"); /* a practice round on one lesson's must, opened from lesson 5's last screen */
 var FAST = qs.has("fast"), HOLD = Math.max(10, parseInt(qs.get("fast"), 10) || 10); /* tests: no sound, no waiting. fast=300 holds each spoken line 300 ms so a test sees every caption */
 var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 var $ = function (s) { return document.querySelector(s); };
@@ -201,6 +202,6 @@ function pet(fill, o) {
     var inner = '<i>' + esc(B[k]) + '</i><span class="hw' + (other.indexOf(k) >= 0 ? " other" : "") + ((o.fresh || []).indexOf(k) >= 0 ? " in" : "") + '">' + v + '</span>';
     return o.tap ? '<button class="' + cls + '" data-box="' + k + '" style="flex:' + flex + '" aria-label="' + esc(B[k]) + '">' + inner + '</button>' : '<div class="' + cls + '" data-box="' + k + '" style="flex:' + flex + '">' + inner + '</div>';
   };
-  return '<div class="pet' + (o.big ? " big" : "") + '" id="pet"><div class="pet-h"><span>' + esc(ME.name) + '</span></div>' + (o.top === false ? "" : '<div class="pet-s">' + esc(ME.summary) + '</div>') + '<div class="stamp">' + esc(ME.stamp).replace(". ", ".<br>") + '</div>' +
+  return '<div class="pet' + (o.big ? " big" : "") + '" id="pet"><div class="pet-h"><div class="pet-t"><span>' + esc(ME.name) + '</span>' + (o.top === false ? "" : '<div class="pet-s">' + esc(ME.summary) + '</div>') + '</div><div class="stamp">' + esc(ME.stamp).replace(". ", ".<br>") + '</div></div>' + /* the stamp sits in the heading, so no box can cover it */
     '<div class="pet-r">' + box("name", 1) + box("sig", 1) + '</div><div class="pet-r">' + box("addr", 1.7) + box("city", 1.05) + box("zip", .62) + '</div>' + (o.note ? '<div class="pn">' + q(o.note) + '</div>' : "") + '</div>';
 }

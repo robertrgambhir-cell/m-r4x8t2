@@ -154,15 +154,44 @@ var SIGG = (function () {
   }
   function tipFor(hits) { for (var i = 0; i < 4; i += 1) if (!hits[i]) return i; return -1; }
   var at = function (re, t) { var m = re.exec(t); return m ? m.index : -1; };
+  /* a goodbye ends a conversation at once (playbook A4): no extra turn, no question tacked on */
+  var BYE_RE = /\b(?:good ?)?bye\b|\bsee (?:you|ya)\b|\btake care\b|\bhave a (?:good|great|nice|wonderful|lovely|blessed) (?:one|day|night|evening|afternoon|morning|weekend)\b|\bnever ?mind\b|\bthanks anyway\b|\bforget it\b/;
+  function bye(text) { return BYE_RE.test(norm(text)); }
+  /* the words around a match, as the canvasser said them: two before and three after, so a card can show what was untrue */
+  function around(t, m, raw) {
+    if (!m) return "";
+    /* the canvasser's own sentence, when the phone gave punctuation and the sentence is short */
+    var parts = String(raw || "").split(/[.!?;]+/), i;
+    for (i = 0; i < parts.length; i += 1) { var n = norm(parts[i]); if (n && n.indexOf(m[0]) >= 0 && words(n).length <= 10) return parts[i].replace(/\s+/g, " ").trim(); }
+    var a = t.slice(0, m.index).split(" ").filter(function (w) { return w && w !== "?"; }).slice(-1), b = t.slice(m.index + m[0].length).split(" ").filter(Boolean), c = [];
+    for (i = 0; i < b.length && c.length < 3 && b[i] !== "?"; i += 1) c.push(b[i]);
+    while (c.length && /^(?:a|an|the|and|or|but|so|to|of|it|you|i|we|is|are|have|has|will|would|can|did|do)$/.test(c[c.length - 1])) c.pop(); /* don't stop on half a thought */
+    return a.concat([m[0]], c).join(" ").trim();
+  }
   var THANKS = /\bthank|\bno problem\b|\bno worries\b|\bnot a problem\b|\bthat's (?:ok|okay|fine|all right|alright|cool)\b|\bok(?:ay)?\b|\ball good\b|\bno sweat\b|\bgot it\b|\ball right\b|\balright\b|\bhave a (?:good|great|nice|wonderful|lovely)\b|\btake care\b|\b(?:good)?bye\b|\bsee you\b|\bfair enough\b|\bunderstood\b|\bi understand\b|\bappreciate\b/;
 
   /* ---------------- lesson 1: the question, and why you ask ---------------- */
   var CHECK_RE = /\b(?:county|counties|elections? office|registrar|clerk|state|they|officials?)\b(?: [a-z']+){0,4}? (?:check|checks|checking|checked|verif(?:y|ies|ied|ying)|looks? (?:up|at|over)|go(?:es)? (?:through|over)|reviews?|compares?|match(?:es)?|validates?)\b|\b(?:thrown|tossed|kicked|struck|taken) out\b|\bthrow(?:s|n)? (?:it |them |those |these |yours |that |the [a-z]+ )?(?:out|away)\b|\btoss(?:es|ed)?\b|\breject(?:s|ed)?\b|\bdisqualif|\b(?:checked|verified) by\b|\b(?:is|gets|get|are) (?:checked|verified)\b|\bchecks? (?:every|each|all)\b/;
-  function grade1(q, a, st) {
-    var tq = norm(q), ta = norm(a), Q = question(tq, st), all = (tq + " " + ta).trim();
-    var p3 = /\bregist/.test(ta), p4 = CHECK_RE.test(ta), promise = PROMISE_RE.test(all);
-    var hits = [!!Q, !!(Q && Q.county), p3, p4];
-    return { hits: hits, n: hits.filter(Boolean).length, alt: [false, false, false, false], promise: promise, untrue: null, why: p3 || p4, text: [q, a].filter(Boolean).join(" ") };
+  /* every place the registered question is asked in a line (a statement such as "only registered voters count" isn't one) */
+  function questionSpans(t, st) {
+    var re = /\bregist(?:er|ered|ration)\b/g, m, out = [];
+    while ((m = re.exec(t))) {
+      var before = t.slice(0, m.index).trim(), last4 = before.split(" ").slice(-4).join(" ");
+      if (STATEMENT.test(before) || /\b(?:have|has|need|needs|must|should|got|gotta) to be$|\bonly(?: [a-z']+){0,2}$/.test(last4)) continue;
+      out.push([m.index, m.index + m[0].length]);
+    }
+    return out;
+  }
+  /* the question and the reason, scored together whichever piece they came in (the scoring contract: "a try can come in
+     pieces"). Parts 1 and 2 are the question, wherever it was asked. Part 3 is being registered said as a reason, so the
+     question's own "registered" doesn't count for it. A short "in LA County?" said after the question finishes the question. */
+  function grade1(q, a, st, pieces) {
+    var all = norm([q, a].filter(Boolean).join(" ")), Q = question(all, st), rest = all;
+    questionSpans(all, st).reverse().forEach(function (s) { rest = rest.slice(0, s[0]) + rest.slice(s[1]); });
+    var cre = countyRe(st), late = !!Q && !Q.county && (pieces || [q, a]).some(function (x) { var n = norm(x); return !!n && real(n).length <= 5 && cre.test(n) && !question(n, st); });
+    var p3 = /\bregist|\bunregistered\b/.test(rest), p4 = CHECK_RE.test(all), promise = PROMISE_RE.test(all), u = untrueOf(all, [q, a].filter(Boolean).join(" "));
+    var hits = [!!Q, !!(Q && (Q.county || late)), p3, p4];
+    return { hits: hits, n: hits.filter(Boolean).length, alt: [false, false, false, false], promise: promise, untrue: u ? u.kind : null, untrueSaid: u ? u.said : "", why: p3 || p4, text: [q, a].filter(Boolean).join(" ") };
   }
 
   /* ---------------- lesson 3: the ask ---------------- */
@@ -175,6 +204,14 @@ var SIGG = (function () {
   var DBL_RE = /\b(?:have|did|haven't|didn't|had|has) (?:you|ya|u|he|she)(?: guys| already| ever| maybe| possibly)* (?:sign|signed|seen and signed)\b|\b(?:already|previously) sign(?:ed)?\b|\bsign(?:ed)? (?:this|it|that|one|the [a-z]+)(?: [a-z']+){0,3} (?:already|before|yet)\b|\bsign(?:ed)? (?:already|before)\b|\bfirst time (?:signing|seeing)\b/;
   var HOURS_RE = /\b(?:longer|more|extended|extra|later|additional|added|expanded) (?:[a-z']+ ){0,3}?hours\b|\bhours\b(?: [a-z']+){0,4}? (?:longer|later)\b|\b(?:evenings?|weekends?|nights?)\b(?: [a-z']+){0,4}? (?:hours|open)\b|\bopen (?:later|longer|more|late|evenings?|weekends?|nights?|on (?:evenings|weekends|nights))\b|\bstays? open\b|\bkeep(?:s|ing)?\b(?: [a-z']+){0,4}? open (?:later|longer|late|more|evenings?|weekends?|nights?)\b|\b(?:extends?|expands?|lengthens?)\b(?: [a-z']+){0,4}? hours\b/;
   var TAX_RE = /\btax(?:es|ed)?\b/;
+  /* something untrue about the measure or about being paid, in any lesson (the scoring contract): what kind, and the words */
+  function untrueOf(t, raw) {
+    var m = VOL_RE.exec(t), i;
+    if (m && !/\bnot (?:a |an )?volunteer/.test(t)) return { kind: "volunteer", said: around(t, m, raw) };
+    for (i = 0; i < CLOSING.length; i += 1) { m = CLOSING[i].exec(t); if (m) return { kind: "closing", said: around(t, m, raw) }; }
+    var ta = t.replace(/\bfeel free\b/g, "feel okay"); m = COST.exec(ta);
+    return m ? { kind: "cost", said: around(ta, m, raw) } : null;
+  }
   function grade3(text, st) {
     var t = norm(text), ta = t.replace(/\bfeel free\b/g, " ");
     var askAt = at(ASK_RE, t), press = PRESS_RE.test(t), paidAt = NOT_PAID_RE.test(t) ? -1 : at(PAID_RE, t), funAt = at(FUND_RE, t);
@@ -188,7 +225,9 @@ var SIGG = (function () {
       hits: hits, n: hits.filter(Boolean).length, text: String(text || "").trim(),
       alt: [paid && !fun, tax && !hours && !cost, false, false], /* the second "missed" line: only the sheet, or only the hours half */
       paid: paid, funders: fun, late: (paidAt >= 0 && !paid) || (sheet && funAt >= 0 && !before(funAt)), hours: hours, tax: tax, dbl: dbl, ask: askAt >= 0, press: press,
-      untrue: untrue, promise: promise, heardTopic: /\blibrar|\bpetition\b|\bballot\b|\bmeasure\b|\bsignatures?\b|\bhours\b|\binitiative\b|\bact\b/.test(t),
+      untrue: untrue, untrueSaid: untrue ? (untrueOf(t, text) || { said: "" }).said : "", promise: promise, heardTopic: /\blibrar|\bpetition\b|\bballot\b|\bmeasure\b|\bsignatures?\b|\bhours\b|\binitiative\b|\bact\b/.test(t),
+      /* a part that was missed in a way its "missed" line doesn't describe: the paid line said after the ask, or pressure in place of an ask */
+      vague: [!(paid && fun) && ((paidAt >= 0 && !paid) || (sheet && funAt >= 0 && !before(funAt))) && paidAt >= 0, false, false, press && askAt < 0],
     };
   }
   /* a passerby who thinks he signed already: thank him and let him go */
@@ -202,11 +241,15 @@ var SIGG = (function () {
   var SELF_RE = /\b(?:has|have|needs?|got|gotta|'s got) to be (?:in )?(?:your|ur|the signer's)(?: own)? (?:hand ?writing|writing|hand|words)\b|\byou(?:'ll| will)? (?:have|need|got|gotta|'ve got|ve got) to (?:write|fill|do|print|put)\b|\byou (?:must|should) (?:write|fill|do)\b|\b(?:can't|cannot|can not|not allowed to|not able to|unable to|not supposed to|couldn't|shouldn't|may not|am not allowed|i'm not allowed)(?: [a-z']+){0,2}? (?:write|fill|do that|do it|put)\b|\bonly you can\b|\bin your (?:own )?(?:hand ?writing|writing|hand)\b|\byour (?:own )?hand ?writing\b|\bi(?:'ll| can| will| could) hold\b|\blet me hold\b|\bhand me (?:the|your|a|that)\b|\b(?:signer|voter|you) (?:has|have) to write\b|\bhas to be you\b|\bneeds to be you\b|\bwrite it yourself\b|\bfill it (?:in |out )?yourself\b/;
   var AGREE_RE = /^(?:oh )?(?:sure|yes|yeah|yep|yup|ok|okay|of course|no problem|absolutely|happy to|you bet|certainly|definitely|i can|i got you|got you|i can do that)\b|\bi(?:'ll| can| will) (?:write|fill|put|do|get|take care of)\b|\bwhat(?:'s| is) (?:your|the) address\b|\blet me (?:write|fill|get|do)\b|\bgo ahead and tell me\b|\bi got (?:it|you)\b|\btell me (?:your|the) address\b/;
   var GAP_RE = /\b(?:sign|signature|signed|signing)\b/;
+  var GAP_NAMED = /\b(?:blank|empty|missing|forgot|skipped|unsigned)\b|\b(?:didn't|did not|haven't|have not|hasn't|not) sign(?:ed)?\b|\bno signature\b|\bstill (?:need|have to|got to)\b|\b(?:can|could|will|would) you (?:please |just |go ahead and )*sign\b|\bsign (?:right )?(?:here|there)\b|\bneed(?:s)? (?:your|a|the) signature\b|\bplease sign\b|\bsignature (?:box|line)\b|\bone more (?:thing|box)\b/;
   var FINE_RE = /\b(?:looks?|look|that's|you're|we're|everything's|everything is|it's)(?: all)? (?:good|great|fine|perfect|set|done|complete)\b|\ball set\b|\bgood to go\b|\bthat's it\b|\bperfect\b/;
   function grade4(text, st) {
     var t = norm(text), self = SELF_RE.test(t), agree = !self && AGREE_RE.test(t.replace(/^(?:um+|uh+|oh|well|so) /, ""));
     var gap = GAP_RE.test(t) && !(FINE_RE.test(t) && !/\b(?:but|except|just|still|one more|forgot|missing|blank|empty|need|didn't|haven't|skipped|without)\b/.test(t));
-    return { print: PRINT_RE.test(t), addr: ADDR_REG_RE.test(t) && !/\bmailing address\b/.test(t), self: self, agree: agree, gap: gap, fine: FINE_RE.test(t) || THANKS.test(t), dbl: DBL_RE.test(t), promise: PROMISE_RE.test(t) };
+    /* saying the whole walk-through again ("print your name, then sign, then the address") names no gap: the hard part counts only when it's done */
+    if (gap && PRINT_RE.test(t) && /\baddress\b/.test(t) && !GAP_NAMED.test(t)) gap = false;
+    var u = untrueOf(t, text);
+    return { print: PRINT_RE.test(t), addr: ADDR_REG_RE.test(t) && !/\bmailing address\b/.test(t), self: self, agree: agree, gap: gap, fine: FINE_RE.test(t) || THANKS.test(t), dbl: DBL_RE.test(t), promise: PROMISE_RE.test(t), untrue: u ? u.kind : null, untrueSaid: u ? u.said : "" };
   }
 
   /* ---------------- lesson 5: the hard question ---------------- */
@@ -230,23 +273,49 @@ var SIGG = (function () {
     }
     if (!untrue && (CLOSING.some(function (r) { return r.test(t); }))) untrue = "closing";
     var askAt = at(ASK_RE, t);
-    return { straight: straight && !untrue, untrue: untrue, paid: paid, shows: SHOW_RE.test(t), ask: askAt >= 0 && !PRESS_RE.test(t), promise: PROMISE_RE.test(t), text: String(text || "").trim() };
+    var um = !untrue ? null : untrue === "tax" ? (NOTAX_RE.exec(ta) || NO_RE.exec(t)) : untrue === "volunteer" ? (VOL_RE.exec(t) || /^(?:(?:um+|uh+|oh|well|so) )*(?:yes|yeah|yep|yup|i am|sure am)\b/.exec(t)) : null;
+    return { straight: straight && !untrue, untrue: untrue, untrueSaid: untrue === "closing" ? (untrueOf(t, text) || { said: "" }).said : around(untrue === "tax" ? ta : t, um, text), paid: paid, shows: SHOW_RE.test(t), ask: askAt >= 0 && !PRESS_RE.test(t), promise: PROMISE_RE.test(t), text: String(text || "").trim() };
   }
   function argues(text) { var t = norm(text); return ARGUE_RE.test(t) || ASK_RE.test(t) || PRESS_RE.test(t) || /\bsign\b/.test(t); }
 
   /* ---------------- the passersby: who says which line, and when a try is over ----------------
      talk(key, st) returns one try with one passerby. hear(piece) takes the canvasser's next words and returns
      { say: [...], end: true|false }: say lists the passerby's lines by the script's keys, with "@..." for something that
-     happens on screen. A passerby answers what was actually said, asks for a missing part once and never more, and a
-     try is over after four of the canvasser's lines at most. grade() scores the pieces together as one try. */
+     happens on screen. An empty say with end false means the passerby is listening and the mic opens again.
+     The rules every passerby keeps (the practice voter rules, playbook A4):
+     - they answer what was actually said: a question asked in this piece gets its answer, whatever else is missing;
+     - while the canvasser is still adding to what they have to say, the passerby listens. The script's nudge ("So, what do
+       you need from me?") comes once, when a piece adds nothing new or when everything but the ask has been said;
+     - a goodbye ends it at once, with no extra turn;
+     - a try is over after four of the canvasser's lines at most (where the passerby has just asked the canvasser something,
+       the answer to that is still heard);
+     - grade() scores every piece together as one try. st.again marks the one more try a must or an untrue statement gives:
+       there an untrue statement no longer stops the try, it just can't pass. */
   function talk(key, st) {
-    var P = [], S = { pieces: P, said: [], end: false, phase: 0, asked: false }, join = function (a, b) { return P.slice(a || 0, b).join(" "); };
-    var out = function (say, end) { S.said = S.said.concat(say); if (end || P.length >= 4) S.end = true; return { say: say, end: S.end }; };
+    var CAP = 4, P = [], S = { pieces: P, said: [], end: false, phase: 0, asked: false }, join = function (a, b) { return P.slice(a || 0, b).join(" "); };
+    /* more: the passerby has just said or done something the canvasser gets to answer, even past the fourth line */
+    var out = function (say, end, more) { S.said = S.said.concat(say); if (end || (P.length >= CAP && !more)) S.end = true; return { say: say, end: S.end }; };
+    var mine = function () { return P[P.length - 1] || ""; }, saidK = function (k) { return S.said.indexOf(k) >= 0; };
+    /* does this piece add to the ask: being paid, the funders, what it does, how it's paid for, or what it is */
+    var adds3 = function (text) { var x = norm(text); return PAID_RE.test(x) || FUND_RE.test(x) || HOURS_RE.test(x) || TAX_RE.test(x) || /\blibrar|\bpetition\b|\bballot\b|\bmeasure\b|\binitiative\b|\bact\b/.test(x); };
     var M = {
-      /* lesson 1, step 6: the question, then why you ask */
+      /* lesson 1, step 6: the question, then why you ask. She answers the question when it has been asked, in whichever piece. */
       "1.marisol": {
-        hear: function () { if (P.length === 1) return out(["ask"]); var g = grade1(P[0], join(1), st); return out([g.why ? "yes" : "other"], true); },
-        grade: function () { return grade1(P[0] || "", join(1), st); },
+        hear: function () {
+          var tm = norm(mine()), g = grade1(P[0], join(1), st, P), rest = tm;
+          questionSpans(tm, st).reverse().forEach(function (s) { rest = rest.slice(0, s[0]) + rest.slice(s[1]); });
+          var whyNow = /\bregist|\bunregistered\b/.test(rest) || CHECK_RE.test(tm);
+          if (!S.answered) {
+            if (g.hits[0]) { S.answered = true; return g.why ? out(["yes"], true) : out(["ask"]); } /* told why already: she doesn't ask why */
+            if (bye(mine()) || S.waited) return out(whyNow && !bye(mine()) ? ["other"] : [], true);
+            S.waited = true; return out([]); /* no question yet: she waits, once */
+          }
+          if (whyNow) return out(["yes"], true);
+          if (bye(mine())) return out([], true);
+          if (!S.waited2 && (questionSpans(tm, st).length || (real(tm).length <= 5 && countyRe(st).test(tm)))) { S.waited2 = true; return out([]); } /* finishing the question: she has answered it, and waits for the why */
+          return out(["other"], true);
+        },
+        grade: function () { return grade1(P[0] || "", join(1), st, P); },
       },
       /* lesson 2. A passerby answers what was actually said (playbook A4), with only the script's lines:
          - asked if they're registered: they answer that, whatever else is missing;
@@ -287,93 +356,127 @@ var SIGG = (function () {
       },
       /* lesson 3 */
       "3.tanya": {
-        hear: function () { var g = grade3(join(), st), say = []; if (g.dbl && S.said.indexOf("nodbl") < 0) say.push("nodbl"); if (g.ask) return out(say.concat(["yes"]), true); if (!S.asked) { S.asked = true; return out(say.concat(["wait"])); } return out(say, true); },
-        grade: function () { return grade3(join(), st); },
-      },
-      "3.marisol": { /* the opener, then the stop that is scored */
         hear: function () {
-          if (P.length === 1) return out(["reg"]);
-          var g = grade3(join(1), st), say = [];
-          if (g.dbl && S.said.indexOf("dbl") < 0) say.push("dbl");
-          if (g.ask) return out(say.concat(["yes"]), true);
+          var g = grade3(join(), st), gm = grade3(mine(), st), say = [];
+          if (gm.dbl && !saidK("nodbl")) say.push("nodbl");
+          if (gm.ask || gm.press) return out(say.concat(["yes"]), true); /* asked to sign, or told to: she answers that */
+          if (bye(mine())) return out(say, true);
           if (say.length) return out(say);
+          var allBut = g.hits[0] && g.hits[1] && g.hits[2];
+          if (adds3(mine()) && !allBut) return out([]); /* still telling her: she listens */
+          if (allBut && !S.asked) { S.asked = true; return out(["wait"]); } /* everything but the ask */
+          if (!S.idle) { S.idle = true; return out([]); } /* nothing new: she waits a beat */
           if (!S.asked) { S.asked = true; return out(["wait"]); }
           return out([], true);
         },
-        grade: function () { var g = grade3(join(1), st), o = grade(P[0] || "", st); g.from = o.n >= 3 && !o.void; g.opener = o; return g; },
+        grade: function () { return grade3(join(), st); },
+      },
+      "3.marisol": { /* the opener and the ask, in as many pieces as they come. Every piece is scored together. */
+        hear: function () {
+          var g = grade3(join(), st), gm = grade3(mine(), st), o = grade(mine(), st), say = [];
+          if (P.length === 1) S.openerOnly = !(PAID_RE.test(norm(mine())) || FUND_RE.test(norm(mine())) || TAX_RE.test(norm(mine())) || gm.dbl || gm.ask);
+          var room = P.length < CAP + (S.openerOnly ? 1 : 0); /* the opener is lesson 2's; the ask that follows gets its four lines */
+          if (o.regAsked && !saidK("reg")) say.push("reg");
+          if (gm.dbl && !saidK("dbl")) say.push("dbl");
+          if (gm.ask || gm.press) return out(say.concat(["yes"]), true);
+          if (bye(mine()) && !say.length) return out([], true);
+          if (say.length) return out(say, false, room);
+          var allBut = g.hits[0] && g.hits[1] && g.hits[2];
+          if ((adds3(mine()) || o.greet) && !allBut) return out([], false, room);
+          if (allBut && !S.asked) { S.asked = true; return out(["wait"], false, room); }
+          if (!S.idle) { S.idle = true; return out([], false, room); }
+          if (!S.asked) { S.asked = true; return out(["wait"], false, room); }
+          return out([], true);
+        },
+        grade: function () { var g = grade3(join(), st), o = grade(join(), st); g.from = o.greet && o.regAsked && o.county && o.timeAt < 0 && !o.void; g.opener = o; g.quote = P.length > 1 && !adds3(P[0]) ? join(1) : join(); return g; },
       },
       "3.luis": { /* he thinks he signed already */
         hear: function () {
-          if (S.phase === 0) { var g = grade3(join(), st); if (g.heardTopic || P.length >= 2) { S.phase = 1; S.mark = P.length; return out(["signed"]); } return out([]); }
-          var mine = P[P.length - 1];
-          if (signAgain(mine)) { S.again = true; if (S.said.indexOf("again") < 0) return out(["again"]); return out([], true); }
-          if (letsGo(mine)) return out(["go"], true);
+          if (S.phase === 0) {
+            var g = grade3(join(), st);
+            if (g.heardTopic || P.length >= 2) { S.phase = 1; S.mark = P.length; return out(["signed"], false, true); }
+            if (bye(mine())) return out([], true);
+            return out([]);
+          }
+          if (signAgain(mine())) { S.again = true; if (!saidK("again")) return out(["again"]); return out([], true); }
+          if (letsGo(mine())) return out(["go"], true);
           return out([], true);
         },
         grade: function () { return { from: S.phase === 1 && !S.again && letsGo(join(S.mark)) }; },
       },
       /* lesson 4 */
       "4.anika": {
-        hear: function () { var g = grade4(join(), st); if (g.self) return out(["self"], true); if (g.agree) return out(["agree"], true); if (!S.asked) { S.asked = true; return out([]); } return out([], true); },
-        grade: function () { var g = grade4(join(), st), hits = [g.print, g.addr, g.self, false]; return { hits: hits, n: hits.filter(Boolean).length, alt: [false, false, false, false], untrue: null, promise: g.promise, wrote: g.agree, text: join() }; },
+        hear: function () { var g = grade4(join(), st); if (g.self) return out(["self"], true); if (g.agree) return out(["agree"], true); if (bye(mine())) return out([], true); if (!S.asked) { S.asked = true; return out([]); } return out([], true); },
+        grade: function () { var g = grade4(join(), st), hits = [g.print, g.addr, g.self, false]; return { hits: hits, n: hits.filter(Boolean).length, alt: [false, false, false, false], untrue: g.untrue, untrueSaid: g.untrueSaid, promise: g.promise, wrote: g.agree, text: join() }; },
       },
-      "4.tanya": { /* before the pen: the double question and her ask. Then who writes. Then the look before she leaves. */
+      "4.tanya": { /* before the pen: the double question, whenever it is asked, and her ask. Then who writes. Then the look before she leaves. */
         hear: function () {
-          var mine = P[P.length - 1], g = grade4(mine, st);
-          if (S.phase === 0) { S.phase = 1; S.dbl = grade4(join(), st).dbl; return out((S.dbl ? ["nodbl"] : []).concat(["ask"])); }
-          if (S.phase === 1) {
-            if (g.self) { S.pen = "hers"; S.phase = 2; S.mark = P.length; return out(["self", "@fill", "set"]); }
-            if (g.agree) { S.pen = "yours"; S.phase = 2; S.mark = P.length; return out(["@fillOther", "set"]); }
-            if (!S.asked && P.length < 3) { S.asked = true; return out([]); }
-            S.pen = "silent"; S.phase = 2; S.mark = P.length; return out(["@fill", "set"]);
+          var gm = grade4(mine(), st), say = [];
+          if (S.phase < 2) {
+            if (gm.dbl && !saidK("nodbl")) { say.push("nodbl"); S.dbl = true; }
+            if (S.phase === 0) { if (bye(mine()) && !gm.dbl && !gm.print && !gm.addr) return out([], true); S.phase = 1; return out(say.concat(["ask"]), false, true); } /* her ask follows the canvasser's first words */
+            if (gm.self) { S.pen = "hers"; S.phase = 2; return out(say.concat(["self", "@fill", "set"]), false, true); }
+            if (gm.agree) { S.pen = "yours"; S.phase = 2; return out(say.concat(["@fillOther", "set"]), false, true); }
+            if (bye(mine())) return out(say, true);
+            if (P.length >= CAP) { S.pen = "silent"; S.phase = 2; return out(say.concat(["@fill", "set"]), false, true); } /* nobody answered her: she writes it herself */
+            return out(say, false, true); /* she waits for an answer about her address */
           }
-          S.gap = grade4(join(S.mark), st).gap;
-          if (S.gap) return out(["oops", "@sign", "there"].concat(S.pen === "yours" ? ["@glowAddr"] : []), true);
+          S.looks = (S.looks || 0) + 1;
+          if (gm.gap) { S.gap = true; return out(["oops", "@sign", "there"].concat(S.pen === "yours" ? ["@glowAddr"] : []), true); }
+          if (S.looks < 2 && !gm.fine && (gm.self || gm.dbl)) { /* said late: it does have to be her writing, and she did write it. She still waits for the look. */
+            if (gm.self && S.pen === "silent") S.pen = "hers";
+            return out(gm.dbl && !saidK("nodbl") ? ["nodbl"] : [], false, true);
+          }
           return out(["good", "@glowSig"].concat(S.pen === "yours" ? ["@glowAddr"] : []), true);
         },
         grade: function () {
           var g = grade4(join(), st), hits = [g.print, g.addr, S.pen === "hers", !!S.gap];
-          return { hits: hits, n: hits.filter(Boolean).length, alt: [false, false, S.pen === "silent" || !S.pen, false], untrue: null, promise: g.promise, from: !!S.dbl, text: join() };
+          return { hits: hits, n: hits.filter(Boolean).length, alt: [false, false, S.pen !== "yours" && S.pen !== "hers", false], vague: [false, false, false, S.phase < 2], untrue: g.untrue, untrueSaid: g.untrueSaid, promise: g.promise, from: !!S.dbl, text: join() };
         },
       },
       /* lesson 5 */
       "5.hank": {
         hear: function () { var a = answer5(join(), "tax", st); return out([a.straight ? "straight" : "dodge"], true); },
-        grade: function () { var a = answer5(join(), "tax", st), hits = [a.straight, a.shows, a.ask, false]; return { hits: hits, n: hits.filter(Boolean).length, alt: [!!a.untrue, false, false, false], untrue: null, promise: false, text: join() }; },
+        grade: function () { var a = answer5(join(), "tax", st), hits = [a.straight, a.shows, a.ask, false]; return { hits: hits, n: hits.filter(Boolean).length, alt: [!!a.untrue, false, false, false], untrue: a.untrue, untrueSaid: a.untrueSaid, promise: false, text: join() }; },
       },
       "5.ben": { /* "Are you a volunteer?", then the line if he signs */
         hear: function () {
           if (S.phase === 0) {
-            var a = answer5(join(), "paid", st), say = [];
-            if (a.untrue) { S.untrue = a.untrue; return out([], true); }
-            if (a.paid && S.said.indexOf("paid") < 0) say.push("paid");
-            if (a.ask) { S.phase = 1; S.mark = P.length; return out(say.concat(["yes", "@hint"])); }
-            if (P.length >= 2) return out(say, true);
-            return out(say);
+            var a = answer5(join(), "paid", st), am = answer5(mine(), "paid", st), say = [];
+            if (a.untrue) { S.untrue = a.untrue; S.untrueSaid = a.untrueSaid; if (!st.again) return out([], true); }
+            if (am.paid && !saidK("paid")) say.push("paid");
+            if (am.ask) { S.phase = 1; S.mark = P.length; return out(say.concat(["yes", "@hint"]), false, true); }
+            if (bye(mine())) return out(say, true);
+            if (say.length) return out(say);
+            if (!a.straight && !a.untrue && !S.again1) { S.again1 = true; return out(["again"]); } /* his question wasn't answered: he asks it once more */
+            return out([]); /* he listens */
           }
           return out([], true);
         },
         grade: function () {
           var a = answer5(join(0, S.phase === 1 ? S.mark : undefined), "paid", st), l = S.phase === 1 ? grade4(join(S.mark), st) : null;
-          return { straight: a.straight, shows: a.shows, ask: a.ask, untrue: S.untrue || a.untrue, promise: a.promise || !!(l && l.promise), from: !!(l && l.print && l.addr), text: join() };
+          return { straight: a.straight, shows: a.shows, ask: a.ask, untrue: S.untrue || a.untrue, untrueSaid: S.untrueSaid || a.untrueSaid, promise: a.promise || !!(l && l.promise), from: !!(l && l.print && l.addr), text: join() };
         },
       },
       "5.pat": { /* "Is this a new tax?", a no, and letting it go */
         hear: function () {
           if (S.phase === 0) {
-            var a = answer5(join(), "tax", st);
-            if (a.untrue) { S.untrue = a.untrue; return out([], true); }
-            if (a.ask || S.asked) { S.phase = 1; S.mark = P.length; S.straight = a.straight; S.askedOnce = a.ask; return out((a.straight ? ["no1"] : []).concat(["no2"])); }
-            S.asked = true; return out(["wait"]);
+            var a = answer5(join(), "tax", st), am = answer5(mine(), "tax", st);
+            if (a.untrue) { S.untrue = a.untrue; S.untrueSaid = a.untrueSaid; if (!st.again) return out([], true); }
+            if (am.ask || S.nudged) { S.phase = 1; S.mark = P.length; S.straight = a.straight; S.askedOnce = a.ask; return out((a.straight ? ["no1"] : []).concat(["no2"]), false, true); }
+            if (bye(mine())) return out([], true);
+            if (!a.straight && !a.untrue && !a.shows && !S.again1) { S.again1 = true; return out(["again"]); } /* her question wasn't answered: she asks it once more */
+            if ((a.straight && a.shows) || S.listened || P.length >= 3) { S.nudged = true; return out(["wait"]); } /* answered and shown, and no ask */
+            S.listened = true; return out([]); /* mid-answer: she listens */
           }
-          var mine = join(S.mark);
-          if (argues(mine)) { S.argued = true; return out(["argue"], true); }
-          S.let = THANKS.test(norm(mine)) && real(norm(mine)).length > 0;
+          var tail = join(S.mark);
+          if (argues(tail)) { S.argued = true; return out(["argue"], true); }
+          S.let = THANKS.test(norm(tail)) && words(norm(tail)).length > 0;
           return out(S.let && S.straight ? ["thanks"] : [], true);
         },
         grade: function () {
           var a = answer5(join(0, S.phase === 1 ? S.mark : undefined), "tax", st);
-          return { straight: a.straight, shows: a.shows, ask: !!S.askedOnce || (S.phase === 0 && a.ask), untrue: S.untrue || a.untrue, promise: a.promise, let: !!S.let && !S.argued, argued: !!S.argued, text: join() };
+          return { straight: a.straight, shows: a.shows, ask: !!S.askedOnce || (S.phase === 0 && a.ask), untrue: S.untrue || a.untrue, untrueSaid: S.untrueSaid || a.untrueSaid, promise: a.promise, let: !!S.let && !S.argued, argued: !!S.argued, heardNo: S.phase === 1, text: join() };
         },
       },
     };
@@ -387,7 +490,7 @@ var SIGG = (function () {
   /* lesson 5's score: parts 1 to 3 count with either passerby, part 4 is scored with Pat */
   function score5(ben, pat) {
     var untrue = ben.untrue || (pat && pat.untrue) || null, hits = [(ben.straight || !!(pat && pat.straight)) && !untrue, ben.shows || !!(pat && pat.shows), ben.ask || !!(pat && pat.ask), !!(pat && pat.let)];
-    return { hits: hits, n: hits.filter(Boolean).length, alt: [!!untrue, false, false, false], untrue: untrue, promise: ben.promise || !!(pat && pat.promise), from: ben.from, text: [ben.text, pat ? pat.text : ""].filter(Boolean).join(" ") };
+    return { hits: hits, n: hits.filter(Boolean).length, alt: [!!untrue, false, false, false], vague: [false, false, false, !(pat && pat.argued)], untrue: untrue, untrueSaid: (ben.untrue ? ben.untrueSaid : pat && pat.untrue ? pat.untrueSaid : "") || "", promise: ben.promise || !!(pat && pat.promise), from: ben.from, text: [ben.text, pat ? pat.text : ""].filter(Boolean).join(" ") };
   }
   /* lesson 2's score: the best of the openers, with "said sorry" told apart from "asked for a minute" */
   function score2(tries) {
@@ -398,6 +501,6 @@ var SIGG = (function () {
   /* the musts a scored try missed, as part numbers from 0 */
   function mustsMissed(lesson, hits) { return ({ 3: [0, 1], 4: [2], 5: [0] }[lesson] || []).filter(function (i) { return !hits[i]; }); }
 
-  return { norm: norm, grade: grade, grade1: grade1, grade3: grade3, grade4: grade4, answer5: answer5, misheard: misheard, letGo: letGo, letsGo: letsGo, signAgain: signAgain, argues: argues,
+  return { norm: norm, grade: grade, grade1: grade1, grade3: grade3, grade4: grade4, answer5: answer5, misheard: misheard, letGo: letGo, letsGo: letsGo, signAgain: signAgain, argues: argues, bye: bye, untrueOf: function (text) { return untrueOf(norm(text), text); },
     best: best, tipFor: tipFor, pauseMs: pauseMs, talk: talk, score2: score2, score5: score5, sorry: sorry, mustsMissed: mustsMissed };
 })();
