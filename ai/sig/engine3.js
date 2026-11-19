@@ -3,7 +3,7 @@
 VIEW.cards = function (st) {
   var r = RUN + 0;
   top({ pp: true });
-  show(kick(st) + '<div class="coach q3" id="coach">' + q(st.coach.text) + '</div><div class="stack" id="stack">' + st.cards.map(function (c) { return '<div class="cardq">' + q(c.text) + '</div>'; }).join("") + '</div><div class="grow"></div>' + foot(btn(nextLabel(), "go", "ghost")), "");
+  show(kick(st) + '<div class="coach q3" id="coach">' + q(st.coach.text) + '</div><div class="fill"><div class="record"><div class="rec-h"><span>Voter record</span><span>County elections office</span></div><div class="stack" id="stack">' + st.cards.map(function (c) { var m = c.text.match(/^(\d)\. (.*)$/); return '<div class="cardq"><i>' + m[1] + '</i><span>' + q(m[2]) + '</span></div>'; }).join("") + '</div></div></div>' + foot(btn(nextLabel(), "go", "ghost")), "");
   $("#go").onclick = nextStep;
   (async function () {
     if (!(await sayLine(st.coach, r))) return;
@@ -19,19 +19,19 @@ VIEW.sort = function (st) {
   top({});
   if (k >= n) {
     var out = st.cards.filter(function (c) { return c.right === 1; });
-    show(kick(st) + '<div class="coach q3">' + q(st.after.text) + '</div><div class="faces">' + out.map(function (c) { return '<div>' + face(c.face) + esc(CAST[c.face].name) + '</div>'; }).join("") + '</div><div class="grow"></div>' + foot(btn(nextLabel(), "go")), "g");
+    show(kick(st) + '<div class="fill"><div class="faces">' + out.map(function (c) { return '<div>' + face(c.face) + esc(CAST[c.face].name) + '</div>'; }).join("") + '</div><div class="coach q3" style="font-size:calc(19 * var(--u))">' + q(st.after.text) + '</div></div>' + foot(btn(nextLabel(), "go")), "g");
     $("#go").onclick = nextStep; sayLine(st.after, r); return;
   }
   var C = st.cards[k];
-  show(kick(st) + (k === 0 ? '<div class="coach" id="coach">' + q(st.coach.text) + '</div>' : "") + '<div class="count">' + (k + 1) + " of " + n + '</div><div class="sc">' + face(C.face) + '<p>' + q(C.text) + '</p></div>' +
-    '<div class="opts row" id="opts">' + st.buttons.map(function (b, i) { return '<button class="opt" data-i="' + i + '"><span style="flex:1">' + q(b) + '</span></button>'; }).join("") + '</div><div id="why"></div><div class="grow"></div><div id="ft"></div>', "abcdef"[k]);
+  show(kick(st) + (k === 0 ? '<div class="coach" id="coach">' + q(st.coach.text) + '</div>' : "") + '<div class="count">' + (k + 1) + " of " + n + '</div><div class="fill"><div class="panel short">' + sceneFace(C.face) + '</div><p class="sctext">' + q(C.text) + '</p>' +
+    '<div class="opts row" id="opts">' + st.buttons.map(function (b, i) { return '<button class="opt" data-i="' + i + '"><span style="flex:1">' + q(b) + '</span></button>'; }).join("") + '</div><div id="why"></div></div><div id="ft"></div>', "abcdef"[k]);
   if (k === 0) sayLine(st.coach, r);
   [].forEach.call(document.querySelectorAll("#opts button"), function (b) {
     b.onclick = function () {
       var i = +b.getAttribute("data-i"), box = $("#opts"); if (box.classList.contains("done")) return; box.classList.add("done"); stopSound();
       [].forEach.call(box.children, function (x, j) { x.classList.add(j === C.right ? "right" : j === i ? "wrong" : "faded"); x.disabled = true; });
       var c = $("#coach"); if (c) c.remove();
-      $("#why").innerHTML = '<div class="why plain"><span class="dot' + (i === C.right ? "" : " no") + '">' + ICON.ok + '</span><span>' + q(C.why) + '</span></div>';
+      $("#why").innerHTML = why(i === C.right, C.why, true);
       $("#ft").innerHTML = foot(btn(k + 1 < n ? "Next line" : "Next: the four you threw out", "go"));
       $("#go").onclick = function () { go(S.step, k + 1); };
     };
@@ -57,12 +57,12 @@ VIEW.stop = function (st) {
     top({ pp: true });
     show(kick(st) + '<div class="panel" id="panel"></div><div class="grow" style="flex:0 0 8px"></div>', "a");
     $("#panel").onclick = function () { stopSound(); };
-    playScenes({ coach: st.coach, labels: st.labels, scenes: [{ who: st.who, lines: st.lines, after: st.after }] }, r, "lena").then(function (ok) { if (ok && r === RUN) go(S.step, 1); });
+    playScenes({ coach: st.coach, labels: st.labels, scenes: [{ who: st.who, lines: st.lines, after: st.after }] }, "lena").then(function (ok) { if (ok && r === RUN) go(S.step, 1); });
     return;
   }
   var k = sub - 1, line = st.say[k], T = { n: 0 };
   top({});
-  show(kick(st) + '<div class="sayq"><small>' + q(st.sayLead) + '</small>“' + q(line) + '”</div><div class="grow"></div><div class="coach" id="coach"></div>' + micHtml() + '<div id="ft"></div>', "bc"[k]);
+  show(kick(st) + '<div class="panel" id="panel">' + sceneTwo("lena", st.who, "") + '</div><div class="sayq"><small>' + q(st.sayLead) + '</small>“' + q(line) + '”</div><div class="coach" id="coach" style="min-height:0"></div>' + micHtml() + '<div id="ft"></div>', "bc"[k]);
   var finish = function (text) {
     if (SIGG.misheard(text)) { micState("idle", "<b>" + q(SH.misheard) + "</b>"); return; }
     M.used = true; micState("wait", "");
@@ -77,7 +77,7 @@ VIEW.lines = function (st) {
   var r = RUN + 0, k = S.sub, X = st.lines[k], last = k === st.lines.length - 1;
   top({});
   show(kick(st) + (k === 0 ? '<div class="coach q3" id="coach">' + q(st.coach.text) + '</div>' : "") + '<div class="count">Line ' + X.tag + '</div><div id="pw">' + pet(X.fill, { tap: true, big: true, note: X.note }) + '</div>' +
-    '<div class="opts" id="opts"><button class="opt" id="okb"><span style="flex:1;text-align:center">' + q(st.ok) + '</span></button></div><div id="why"></div><div class="grow"></div><div id="ft"></div>', "abcd"[k]);
+    '<div class="fill"><div class="opts" id="opts"><button class="opt" id="okb"><span style="flex:1;text-align:center">' + q(st.ok) + '</span></button></div><div id="why"></div></div><div id="ft"></div>', "abcd"[k]);
   if (k === 0) sayLine(st.coach, r);
   var done = false, pick = function (key) {
     if (done) return; done = true; stopSound();
@@ -85,7 +85,7 @@ VIEW.lines = function (st) {
     $("#pw").innerHTML = pet(X.fill, { big: true, note: X.note, marks: marks }); fitHw();
     $("#okb").classList.add(X.right === "ok" ? "right" : key === "ok" ? "wrong" : "faded"); $("#okb").disabled = true; $("#opts").classList.add("done");
     var c = $("#coach"); if (c) c.remove();
-    $("#why").innerHTML = '<div class="why plain"><span class="dot' + (key === X.right ? "" : " no") + '">' + ICON.ok + '</span><span>' + q(X.why) + '</span></div>';
+    $("#why").innerHTML = why(key === X.right, X.why, true);
     $("#ft").innerHTML = foot(btn(last ? nextLabel() : "Next line", "go")); $("#go").onclick = function () { last ? nextStep() : go(S.step, k + 1); };
   };
   $("#pw").onclick = function (e) { var b = e.target.closest ? e.target.closest("[data-box]") : null; if (b) pick(b.getAttribute("data-box")); };
@@ -96,7 +96,7 @@ VIEW.decl = function (st) {
   var r = RUN + 0, sel = [];
   top({});
   show(kick(st) + '<div class="coach q3" id="coach">' + q(st.coach.text) + '</div><h1 style="font-size:calc(19 * var(--u))">' + q(st.ask) + '</h1><div class="opts" id="opts">' +
-    st.cards.map(function (c, i) { return '<button class="decl" data-i="' + i + '"><span class="lt" style="flex:none;width:24px;height:24px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font:800 12px/1 Figtree;color:var(--muted)">' + (i + 1) + '</span><span>' + q(c) + '</span></button>'; }).join("") + '</div><div id="why"></div><div class="grow"></div><div id="ft"></div>', "");
+    st.cards.map(function (c, i) { return '<button class="decl" data-i="' + i + '"><span class="lt" style="flex:none;width:24px;height:24px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font:800 12px/1 Figtree;color:var(--muted)">' + (i + 1) + '</span><span>' + q(c) + '</span></button>'; }).join("") + '</div><div class="fill"><div id="why"></div></div><div id="ft"></div>', "");
   sayLine(st.coach, r);
   [].forEach.call(document.querySelectorAll(".decl"), function (b) {
     b.onclick = function () {
@@ -108,7 +108,7 @@ VIEW.decl = function (st) {
       [].forEach.call(document.querySelectorAll(".decl"), function (x, j) { x.classList.remove("sel"); x.classList.add(st.right.indexOf(j) >= 0 ? "right" : sel.indexOf(j) >= 0 ? "wrong" : "keep"); x.disabled = true; });
       var ok = st.right.every(function (x) { return sel.indexOf(x) >= 0; }); $("#opts").classList.add("done");
       $("#coach").remove();
-      $("#why").innerHTML = '<div class="why"><span class="dot' + (ok ? "" : " no") + '">' + ICON.ok + '</span><span>' + q(st.after.text) + '</span></div>';
+      $("#why").innerHTML = why(ok, st.after.text);
       $("#ft").innerHTML = foot(btn(nextLabel(), "go")); $("#go").onclick = nextStep;
       sayLine(st.after, RUN);
     };

@@ -296,7 +296,9 @@ const L4 = {
   parts: [
     { name: "Asks them to print their name", done: "Asked her to print her name.", missed: "Didn't ask her to print her name.", tip: "Start with 'Print your name here.' It gets the pen moving in the right box." },
     { name: "Asks for the address where they're registered to vote", done: "Asked for the address where she's registered.", missed: "Didn't ask for the address where she's registered.", tip: "Say 'the address where you're registered to vote.' That phrase is your guard against a wrong address." },
-    { name: "Keeps the pen in the signer's hand", must: "The signer writing their own line is a must. One more time.", done: "Kept the pen in her hand.", missed: "Offered to write on her line.", tip: "Keep the pen in their hand. Offer to hold the bag." },
+    { name: "Keeps the pen in the signer's hand", must: "The signer writing their own line is a must. One more time.", done: "Kept the pen in her hand.", missed: "Offered to write on her line.",
+      /* the script has no missed line for a canvasser who says nothing when she asks, and "Offered to write" would be untrue of them, so the must's own sentence shows */
+      missedAlt: "The signer writing their own line is a must.", tip: "Keep the pen in their hand. Offer to hold the bag." },
     { name: "Catches the gap before she leaves", done: "Caught the empty signature box.", missed: "Let her go with the box empty.", tip: "Look before they leave: name, signature, address, city. Then say thanks." },
   ],
   tipAll: "Every box, in her own writing, checked before she left. That's a good line.",

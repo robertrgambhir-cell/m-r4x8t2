@@ -1,0 +1,26 @@
+/* The signature course's browser walks: what the stand-in canvasser says and taps in each one (used by sig-walk.cjs and sig-time.cjs). "show" visits every screen, including a correction and a retry. */
+const OPENER = "Hi there! Longer library hours. Are you registered to vote in LA County?";
+const PAID = "I'm paid to gather signatures, and here are the top funders.", TWO = "It funds longer evening and weekend hours at branch libraries, and it's paid for by a new state tax on digital ad sales.", DBL = "Have you signed this one already?", ASK = "Will you sign to put it on the ballot?";
+const WALK = "Print your name here, then sign, then the address where you're registered to vote.";
+module.exports = {
+  1: { show: ["Are you registered to vote in LA?", "Only registered voters count, so yours will count.", "Are you registered to vote in LA County?", "Only registered voters count, and the county checks every line.", "I'm paid to gather these signatures.", "It funds longer evening and weekend hours at branch libraries. It's paid for by a new state tax on digital ad sales."],
+       normal: ["Are you registered to vote in LA County?", "Only registered voters count, and the county checks every line.", "I'm paid to gather these signatures.", "It funds longer evening and weekend hours at branch libraries. It's paid for by a new state tax on digital ad sales."], tapsNormal: [1, 0, 1, 0, 1, 1, 1, 2, 1],
+       taps: [0, 0, 1, 0, 1, 1, 0, 2, 0] },
+
+  2: { show: ["Hi, do you have a minute?", OPENER, OPENER, "No problem. Have a good one!", "Hi there! Save our libraries! Are you registered to vote in LA County?", "Hi! Longer library hours. Are you registered to vote?"],
+       perfect: [OPENER, OPENER, OPENER, "Thanks anyway!", OPENER],
+       normal: ["Hi, do you have a minute for the library?", OPENER, OPENER, "No problem. Have a good one!", "Hi! Longer library hours. Are you registered to vote?"], tapsNormal: [1, 1, 3, 0],
+       pieces: ["Hi there! Longer library hours!", "Are you registered to vote in LA County?", "Are you registered to vote in LA County?", "Hi there, longer library hours.", OPENER, "You can sign anyway.", "Sorry to bother you. Got a second?", "It's about the library."],
+       taps: [0, 1, 1, 0] },
+  3: { show: ["It's for longer library hours. " + DBL, ASK, OPENER, [TWO, DBL].join(" "), ASK, OPENER, [PAID, "It funds longer evening and weekend hours at branch libraries.", DBL, ASK].join(" "), "It's the Neighborhood Libraries Act, for longer library hours.", "No problem, once is enough. Thanks!"],
+       perfect: [[PAID, TWO, DBL, ASK].join(" "), OPENER, [PAID, TWO, DBL, ASK].join(" "), "It's for longer library hours.", "Thanks, have a good one!"],
+       normal: ["It's for longer hours at the branch libraries. Would you like to sign?", OPENER, [PAID, TWO, DBL].join(" "), ASK, "It's the Neighborhood Libraries Act, for longer library hours.", "No problem, once is enough. Thanks!"], tapsNormal: [1, 1, 1, 1, 0],
+       taps: [0, 1, 1, 2, 1] },
+  4: { show: ["Sure, what's your address?", DBL + " " + WALK, "Sure, I can write it.", "Looks good, thanks!", DBL + " " + WALK, "It has to be in your handwriting. I'll hold her hand.", "The signature's still blank. Could you sign right here?"],
+       normal: ["Sure, what's your address?", DBL + " " + WALK, "It has to be in your handwriting. I can hold your bag.", "The signature's still blank. Could you sign right here?"], tapsNormal: [2, 2], boxesNormal: ["addr", "sig", "ok", "addr"], declNormal: [1, 2],
+       boxes: ["city", "sig", "ok", "addr"], taps: [0, 2], decl: [0, 1] },
+  5: { show: ["Don't worry about that part.", "Yes, I'm a volunteer.", "No, I'm paid to gather signatures. Want to sign?", WALK, "Yes, it's a new state tax on digital ad sales. It's printed right here in the summary.", "Want to sign?", "But don't you care about libraries?"],
+       perfect: ["Yes, it's a new state tax on digital ad sales. It's printed right here. Want to sign?", "No, I'm paid to gather signatures. It's printed right here. Want to sign?", WALK, "Yes, it's a new state tax on digital ad sales. It's printed right here. Want to sign?", "No problem. Thanks for stopping."],
+       normal: ["Well, it's mostly about keeping libraries open later.", "No, I'm paid to gather signatures. It's printed right here. Want to sign?", WALK, "Yes, it's a new state tax on digital ad sales. It's printed right here in the summary. Want to sign?", "No problem. Thanks for stopping."], tapsNormal: [1, 0, 1, 0, 0],
+       taps: [0, 1, 0, 1, 1] },
+};
