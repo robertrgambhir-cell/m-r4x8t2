@@ -20,7 +20,7 @@ import { standIn } from "./stand-in.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const PORT = Number(process.argv[2] || process.env.PORT || 8173);
-const START = "wdpfxqlsvp/?learn&ready";
+const START = "wdpfxqlsvp/?unlock"; /* Learn, door-ready, and both issue trainings open in one sitting (with ?learn&ready the app's one-new-lesson-a-day rule holds the second until tomorrow) */
 const PAGES = ["wdpfxqlsvp/app.html", "wdpfxqlsvp/p1/index.html", "wdpfxqlsvp/dev/index.html", "wdpfxqlsvp/staging/index.html"];
 const SWAPS = [
   ['const WAI_URL_DEFAULT = "https://warmup-ai.robertrgambhir.workers.dev";', 'const WAI_URL_DEFAULT = location.origin + location.pathname.split("/wdpfxqlsvp/")[0] + "/__ai";'],
