@@ -579,6 +579,54 @@ export const INSULT_PAIRS = [
   ["What a stupid question.","What a dumb answer."],
 ];
 
+/* near misses of the server's own hand: well-meant lines (one line, or the lines of one conversation) built on its trigger words that go on past them ("or I'll shoot you their number", "I'm worried I'll hurt you more than help"). The server must not end the door on any of them, in any written form. */
+export const PLAIN_NEAR = [
+  ["You can call the office, or I'll shoot you their number."],
+  ["I can read it to you now, or I'll shoot you both links tonight."],
+  ["You can look her up, or I'll shoot you Maya's website."],
+  ["We can give you a ride on Tuesday, or we'll shoot you directions to your polling place."],
+  ["Actually, I should shoot you both links, the application and the income chart."],
+  ["Those cuts are only proposals, and somebody should kill them before they get a vote."],
+  ["We have to fix Social Security, or we'll wreck your kids' retirement too."],
+  ["We have to end this war, or we'll wreck your family budget again next winter."],
+  ["I can text you the link, or I'll shoot your husband the link if he handles the bills."],
+  ["I'll keep it short, or I'll wreck your family dinner."],
+  ["I'm worried I'll hurt you more than help if I guess at that number."],
+  ["I'm new at this, so if I get a number wrong I'll hurt you instead of helping."],
+  ["I don't want to guess, or I'll hurt you with bad information."],
+  ["My dad's rule was, I'll kill you if you touch that thermostat."],
+  ["Sorry, I'm going to kill you with numbers for a second."],
+  ["When that bill comes I'm going to hurt, you're going to hurt, half the state is going to hurt."],
+  ["I hear you. I heat with oil too and I'm gonna hurt, you know, same as you."],
+  ["A cold house can make you ill, kill you even, so please look at the heating help."],
+  ["Congress has to act, or we'll burn, you know, right through the trust fund by late 2032."],
+  ["I can text it, or I'll remember this house and drop a paper copy off tomorrow."],
+  ["I can write your address down, or I'll remember this house, it's the one with the wreath."],
+  ["I can jot down the address, or we'll remember your door, it's the green one."],
+  ["So in the winter you're cold, in the summer you're hot."],
+  ["So in the winter you're cold, in the summer you're hot, and the same program helps with both."],
+  ["It helps whether you're cold or you're hot."],
+  ["The same program helps with cooling in the summer, in case you're hot."],
+  ["I wear two sweaters and a hat inside. What are you wearing?"],
+  ["My house is freezing too, I'm in two sweaters. To stay warm, what are you wearing?"],
+  ["It's not like I can report you to immigration for applying."],
+  ["It's not as though I'm going to hurt you."],
+  ["I'm not here to hurt you. I'm going to hurt you? Never."],
+  ["Nobody said \"I'll hurt you.\""],
+  ["My organizer would know. I should shoot her... a text."],
+  ["I can text you the link or, well, shoot, you never gave me your number."],
+  ["You're beautiful, thank you so much."],
+  ["Hey, beautiful, isn't it? All that snow."],
+  ["Could you give me your number? Gorgeous wreath, by the way."],
+  ["Dufner's bet is simple: you're stupid, you're dumb, and you won't check his votes."],
+  ["You're an idiot.","Sorry, that was out of line.","Heating oil is up about 80 percent.","The state has heating help.","You idiot-proofed the form by reading it first."],
+];
+
+/* contrived lines the server still ends. Kept here so a change shows. */
+export const PLAIN_NEAR_ENDED = [
+  ["Sorry, I lost my place. Idiot.","No, sorry, the limit is $73,213, not $37,000. Idiot!"],
+];
+
 /* the voter's goodbyes, with her sheet's way of leaving: each closes an issue door (a line with a name in it is for that voter's door) */
 export const BYE_HERS = [
   "Okay. Take care now.",

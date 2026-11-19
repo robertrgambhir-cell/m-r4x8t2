@@ -7,7 +7,7 @@ import worker, { voterPrompt, coachPrompt, signLine, conduct, suspect, cleanVote
 import { SCENARIOS, publicScenario } from "../scenarios.js";
 import { ISSUE_IDS, ISSUE_SCENARIOS, checkSheet } from "../scenarios-issues.js";
 import { ISSUE_SCENARIOS_V2 } from "../voters/scenarios.js";
-import { ORDINARY, THREATS, COMEONS, INSULT_PAIRS, BYE_HERS, BYE_HERS_MISSED, BYE_YOURS, BYE_YOURS_MISSED, NOT_BYE_HERS, NOT_BYE_HERS_READ, NOT_BYE_YOURS, NOT_BYE_YOURS_READ, BREAKS, BREAKS_MISSED, HER_WORDS, HER_WORDS_LOST, HER_WORDS_MAIN } from "./issue-lines.mjs";
+import { ORDINARY, THREATS, COMEONS, INSULT_PAIRS, PLAIN_NEAR, PLAIN_NEAR_ENDED, BYE_HERS, BYE_HERS_MISSED, BYE_YOURS, BYE_YOURS_MISSED, NOT_BYE_HERS, NOT_BYE_HERS_READ, NOT_BYE_YOURS, NOT_BYE_YOURS_READ, BREAKS, BREAKS_MISSED, HER_WORDS, HER_WORDS_LOST, HER_WORDS_MAIN } from "./issue-lines.mjs";
 
 let pass = 0, fail = 0;
 const ok = (c, m) => { if (c) pass += 1; else { fail += 1; console.log("FAIL", m); } };
@@ -53,7 +53,8 @@ ok(ISSUE_SCENARIOS.oil === ISSUE_SCENARIOS_V2.oil, "the server uses the voter sh
    no punctuation, no apostrophes) and with a phone's curly apostrophes. */
 { const T = (lines) => [{ who: "them", text: "x" }].concat(lines.flatMap((x, i) => (i ? [{ who: "them", text: "Okay." }] : []).concat([{ who: "you", text: x }])));
   const L = SCENARIOS.social, SA = SCENARIOS.oil, K = SCENARIOS.kevin_intro, SO = SCENARIOS.sofia_intro;
-  const forms = (line) => [...new Set([line, line.toLowerCase(), line.replace(/['’]/g, ""), line.toLowerCase().replace(/['’]/g, "").replace(/[.,!?;:"“”]/g, "").replace(/\s+/g, " ").trim(), line.replace(/'/g, "’")])];
+  const bare = (x) => x.replace(/[.,!?;:"“”]/g, "").replace(/\s+/g, " ").trim(); /* speech recognition: no punctuation */
+  const forms = (line) => [...new Set([line, line.toLowerCase(), line.replace(/['’]/g, ""), bare(line.toLowerCase()), bare(line.toLowerCase().replace(/['’]/g, "")), bare(line), line.replace(/'/g, "’")])];
   ok(isIssue(L) && isIssue(SA) && !isIssue(K) && !isIssue(SO) && !isIssue(SCENARIOS.bri_health) && !isIssue(undefined), "the issue doors' rules are for the issue sheets and no other door");
   /* ordinary sentences: the server alone never ends the door, said once or twice */
   let n = 0, bad = [], judged = 0;
@@ -79,6 +80,12 @@ ok(ISSUE_SCENARIOS.oil === ISSUE_SCENARIOS_V2.oil, "the server uses the voter sh
     [["Vote for Maya Kaur or we'll remember this house."], "a threat"], [["Hi, I'm with Maya Kaur.", "If her opponent wins, someone should shoot him."], "a threat"], [["If you don't vote for her, I'll report you to immigration."], "a threat"]];
   for (const [lines, what] of RED) ok(conduct(T(lines), K) === what && conduct(T(lines), SA) === what && conduct(T(lines), L) === what, "a red-team line ends an issue door by the server's own hand, as it ends Kevin's: " + lines[lines.length - 1]);
   ok(conduct(T(["I know where you live now. I'll be back tonight."]), K) === "a threat" && conduct(T(["I know where you live now. I'll be back tonight."]), SA) === "" && suspect(T(["I know where you live now. I'll be back tonight."]), SA) === "a threat", "the ninth is judged: a neighbor with a form to drop off says the same words");
+  /* 174-9: a plain line is a complete thought. A fourth reader's well-meant lines that go on past the trigger words, in every written form */
+  { const ended = PLAIN_NEAR.filter((lines) => (lines.length === 1 ? forms(lines[0]).map((x) => [x]) : [lines]).some((v) => conduct(T(v), SA) || conduct(T(v), L)));
+    ok(PLAIN_NEAR.length >= 35 && ended.length === 0, `no well-meant line that goes on past the trigger words is ended by the server (${PLAIN_NEAR.length} lines): ` + ended.slice(0, 3).map((v) => v.join(" / ")).join(" | "));
+    ok(PLAIN_NEAR_ENDED.every((lines) => conduct(T(lines), SA)), `known gap, pinned: ${PLAIN_NEAR_ENDED.length} contrived conversation the server still ends ("Idiot." said about oneself, twice)`); }
+  for (const line of ["You can call the office, or I'll shoot you their number.", "We have to fix Social Security, or we'll wreck your kids' retirement too.", "I'm worried I'll hurt you more than help if I guess at that number.", "I can text it, or I'll remember this house and drop a paper copy off tomorrow.", "So in the winter you're cold, in the summer you're hot.", "I wear two sweaters and a hat inside. What are you wearing?"])
+    ok(conduct(T([line]), SA) === "" && suspect(T([line]), SA) !== "", "goes on past the trigger words, so it is judged, not ended: " + line);
   /* the plain set's near misses: said to no one, about a thing, or to reassure */
   for (const line of ["I'll remember this house, it's the one with the wreath.", "We'll remember your door for the follow-up visit.", "It's not like I'm going to hurt you.", "They should shoot him an email about it.", "Congress should kill her bill before it passes.", "Landlords can't report you to immigration for applying.", "I can text it, or I'll shoot you the link tonight.", "The heat pump cools the house when you're hot.", "Hey, beautiful afternoon, isn't it?", "What are you wearing to stay warm in there?"])
     ok(conduct(T([line]), SA) === "" && conduct(T([line, line]), L) === "", "not ended by the server: " + line);
