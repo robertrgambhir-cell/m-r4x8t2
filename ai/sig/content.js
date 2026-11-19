@@ -242,7 +242,8 @@ const L3 = {
   steps: [
     { kind: "try1", name: "Your 1st try", secs: 35, coach: c("Tanya stopped for you. Now get her signature."), who: "tanya", note: "Tanya Brooks, 45, with her cart.",
       opens: s("tanya", "Yeah, I'm registered. What's this about?"),
-      replies: { yes: s("tanya", "Okay, sure.", { act: "pen" }), wait: s("tanya", "So, do you need something from me?") } },
+      /* nodbl is Tanya's own line from lesson 4, so a canvasser who asks about a double here gets an answer */
+      replies: { yes: s("tanya", "Okay, sure.", { act: "pen" }), wait: s("tanya", "So, do you need something from me?"), nodbl: s("tanya", "No, I haven't signed it.") } },
     { kind: "hear", name: "Hear it done", secs: 45, coach: c("Listen to Lena with Bob."),
       scenes: [{ who: "bob", stopped: true, note: "Bob Hall, 73, has stopped.",
         lines: [
@@ -428,17 +429,18 @@ export function sigText(line, st) {
   st = st || SIG_SETTINGS;
   return st.funders === "printed" && line.printed ? line.printed : line.text;
 }
-/* every spoken line of the course, in order: { who, voice, text, say } */
+/* every spoken line of the course, in order: { n (lesson), who, voice, text, say } */
 export function sigVoiceLines(st) {
   st = st || SIG_SETTINGS;
   const out = [];
+  let cur = 0;
   const walk = (x) => {
     if (!x || typeof x !== "object") return;
     if (Array.isArray(x)) { x.forEach(walk); return; }
-    if (typeof x.who === "string" && typeof x.text === "string" && SIG_VOICES[x.who]) out.push({ who: x.who, voice: SIG_VOICES[x.who], text: sigFill(sigText(x, st), st), say: sigSay(x, st) });
+    if (typeof x.who === "string" && typeof x.text === "string" && SIG_VOICES[x.who]) out.push({ n: cur, who: x.who, voice: SIG_VOICES[x.who], text: sigFill(sigText(x, st), st), say: sigSay(x, st) });
     Object.keys(x).forEach((k) => { if (k !== "printed" || st.funders === "printed") walk(x[k]); });
   };
-  [1, 2, 3, 4, 5].forEach((n) => walk(SIG_LESSONS[n].steps));
+  [1, 2, 3, 4, 5].forEach((n) => { cur = n; walk(SIG_LESSONS[n].steps); });
   return out;
 }
 /* the only lines the server's voice may speak for this course: each distinct line once */
