@@ -26,9 +26,9 @@ const mock = async (q) => (await fetch(AI + '/__mock/' + q)).text();
 const stats = async () => JSON.parse(await mock('stats'));
 const tag = `${W}x${H}`, pane = Number(W) >= 1000;
 const T = {
-  oil: { name: 'Sarah', title: 'Heating oil', cover: /Franklin voters keep asking about heating oil at the door/, open: "I can't afford to fill my tank this winter.", rows: ['Agreed with Sarah', 'Offered the heating help', 'Gave the choice between the candidates', 'Asked for her vote'],
+  oil: { name: 'Sarah', title: 'Heating oil', wait: 'Agree with Sarah|Offer the heating help|Give the choice|Ask for her vote', cover: /Franklin voters keep asking about heating oil at the door/, open: "I can't afford to fill my tank this winter.", rows: ['Agreed with Sarah', 'Offered the heating help', 'Gave the choice between the candidates', 'Asked for her vote'],
     say: ["That sounds really hard. Heating oil costs about 80% more than last fall.", "The state's heating help covers renters too. I can text you the link.", "Jack Dufner voted five times against ending the war before he voted to end it. Maya Kaur would end the war and send more money to LIHEAP.", "Can Maya count on your vote on Tuesday?"] },
-  social: { name: 'Linda', title: 'Social Security', cover: /Franklin voters keep asking about Social Security at the door/, open: 'Is my Social Security going to run out?', rows: ['Agreed with Linda', 'Explained the cause', 'Gave the choice between the candidates', 'Asked for her vote'],
+  social: { name: 'Linda', title: 'Social Security', wait: 'Agree with Linda|Explain the cause|Give the choice|Ask for her vote', cover: /Franklin voters keep asking about Social Security at the door/, open: 'Is my Social Security going to run out?', rows: ['Agreed with Linda', 'Explained the cause', 'Gave the choice between the candidates', 'Asked for her vote'],
     say: ["You're right to worry. Checks get smaller, they don't stop.", "Fewer workers pay in for each person getting a check, so the trust fund runs out in late 2032.", "Jack Dufner voted for the 2025 federal law, though it gave people 65 and over a tax break. Maya Kaur would end the wage cap.", "Can Maya count on your vote?"] },
 };
 /* a stand-in for the phone's speech recognizer: the test says the words; nothing ends unless the page stops it */
@@ -86,8 +86,8 @@ const FAKE_SR = () => {
       if (s.type === 'pick') { await fr.click(A + `.opt[data-v="${s.right}"]`); await p.waitForTimeout(2200); }
       if (s.type === 'steps') await p.waitForTimeout(1500);
       if (s.type === 'quiz') {
-        await fr.click(A + '.round.cur .opt[data-v=ok]'); await fr.click(A + '.rnext');
-        await fr.click(A + '.round.cur .opt[data-v=ok]'); await fr.click(A + '.rnext');
+        await fr.click(A + '.round.cur .opt[data-v=ok]'); if (snap) { await p.waitForTimeout(500); await shot(p, `${id}-quiz-q1`); } await fr.click(A + '.rnext');
+        await fr.click(A + '.round.cur .opt[data-v=ok]'); if (snap) { await p.waitForTimeout(500); await shot(p, `${id}-quiz-q2`); } await fr.click(A + '.rnext');
         await fr.click(A + '.round.cur .opt[data-v=ok]');
       }
       await side();
@@ -135,6 +135,7 @@ const FAKE_SR = () => {
     /* close on the cover: back to Learn, nothing checked off */
     await fr.click('#close'); await p.waitForTimeout(500);
     ok(!(await p.$('#issues-ov')) && (await p.evaluate((k) => !__T.S.briefsDoneIds || !__T.S.briefsDoneIds[k], id)), `${id}: close on the cover closes the training and checks nothing off`);
+    await shot(p, `${id}-closed`);
     await (await row(p, id)).click(); await p.waitForSelector('#issues-ov iframe'); await p.waitForTimeout(1500);
     fr = frame(p);
     /* a message that doesn't come from the training is ignored */
@@ -145,7 +146,7 @@ const FAKE_SR = () => {
     ok(/Done$/.test(await fr.$eval('#tag-screen', (e) => e.textContent)), `${id}: tapping through reaches the last screen`);
     ok(await waitFor(p, (k) => !!(__T.S.briefsDoneIds || {})[k], 5000, id), `${id}: the last screen checks the training off`);
     await shot(p, `${id}-last-screen`);
-    if (id === 'oil') await mock('coach-delay?ms=4000'); /* a slow coach at Sarah's door, so the walk sees the card open and then fill in */
+    await mock('coach-delay?ms=4000'); /* a slow coach at her door, so the walk sees the card open and then fill in */
     const before = await stats();
     await fr.click('.screen.is-active .practice');
     ok(await waitFor(p, () => !document.getElementById('issues-ov') && __T.S.screen === 'door', 8000), `${id}: Practice the conversation closes the training and opens the door`);
@@ -167,16 +168,16 @@ const FAKE_SR = () => {
       if (k === 1) { await p.waitForTimeout(500); await shot(p, `${id}-door-talking`); }
     }
     ok(await waitFor(p, () => __T.S.screen === 'score', 30000), `${id}: she ends it and the coach scores it`);
-    if (id === 'oil') { /* the coach is slow here (set before her door): the card is open and waiting on the sheet's four parts, with her picture */
+    { /* the coach is slow here (set before her door): the card is open and waiting on the sheet's four parts, with her picture */
       const w = await p.evaluate(() => ({ grading: !!(__T.S.last && __T.S.last.grading), rows: [...document.querySelectorAll('.sc-card.grading .sc-list li.wait')].map((x) => x.textContent), head: (document.querySelector('.sc-top.grading') || {}).textContent || '', who: (document.querySelector('.sc-voter svg, .sc-voter [aria-label]') || { getAttribute: () => '' }).getAttribute('aria-label') || '', noBack: !document.querySelector('header [data-act="back"]') }));
-      ok(w.grading && w.rows.join('|') === 'Agree with Sarah|Offer the heating help|Give the choice|Ask for her vote', `${id}: the card opens while the coach reads, listing the four parts of her door answer: ` + w.rows.join(' | '));
+      ok(w.grading && w.rows.join('|') === X.wait, `${id}: the card opens while the coach reads, listing the four parts of her door answer: ` + w.rows.join(' | '));
       ok(/Checking your conversation/.test(w.head) && /Your coach is reading the conversation/.test(await text(p)), `${id}: and says the coach is reading`);
       ok((await p.$$eval('footer [data-act]', (xs) => xs.map((x) => x.dataset.act + ':' + x.textContent)).catch(() => [])).join('|') === 'coach-back:Done for now', `${id}: the waiting card of a practice has one way out, Done for now`);
       await p.waitForTimeout(500);
       await shot(p, `${id}-score-reading`);
     }
     ok(await cardFilled(p), `${id}: the card fills in when the coach answers`);
-    if (id === 'oil') await mock('coach-delay?ms=0');
+    await mock('coach-delay?ms=0');
     await p.waitForTimeout(900);
     const sc = await p.evaluate(() => ({ rows: [...document.querySelectorAll('.sc-list li')].map((x) => x.className + ':' + x.textContent), ring: (document.querySelector('.ring-num') || {}).textContent, coach: (document.querySelector('.sc-coach') || {}).textContent || '', btns: [...document.querySelectorAll('footer .btn, footer .link')].map((x) => x.textContent), prior: !!document.querySelector('.prior-line'), scen: __T.S.last.scen, over: (() => { const c = document.querySelector('#content'); return c ? c.scrollHeight - c.clientHeight : 0; })() }));
     ok(sc.rows.length === 4 && sc.rows.every((r, k) => r === 'y:' + X.rows[k]) && sc.ring === '4/4', `${id}: the card is the four parts of the door answer: ` + sc.rows.join(' | ') + ' ' + sc.ring);
@@ -192,6 +193,8 @@ const FAKE_SR = () => {
     await p.click('footer [data-act="back"]'); await p.waitForTimeout(400);
     await p.click('[data-act="door-again"]');
     ok(await waitThem(p, 1, 9000) && !(await p.$('[data-act="knock"]')), `${id}: Try this conversation again knocks by itself`);
+    await p.waitForTimeout(700);
+    await shot(p, `${id}-try-again`);
     await p.click('[data-act="back"]'); await p.waitForTimeout(500);
     ok(await waitFor(p, () => __T.S.screen === 'score' || __T.S.screen === 'library', 3000), `${id}: back leaves the door`);
     if (await p.evaluate(() => __T.S.screen === 'score')) { await p.click('[data-act="coach-back"]'); await p.waitForTimeout(500); }
