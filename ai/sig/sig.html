@@ -27,7 +27,7 @@ button { font: inherit; color: inherit; }
 #app { position: fixed; inset: 0; display: flex; flex-direction: column; max-width: 520px; margin: 0 auto; padding: calc(env(safe-area-inset-top, 0px) + 10px) 18px calc(env(safe-area-inset-bottom, 0px) + 16px); }
 .top { flex: none; display: flex; align-items: center; gap: 10px; height: 34px; }
 .x, .pp { flex: none; width: 34px; height: 34px; border: 0; background: none; padding: 0; display: grid; place-items: center; color: #7A7268; cursor: pointer; }
-.x { margin-left: -8px; }
+.x { margin-left: -8px; } span.x { cursor: default; } /* a result screen has no way back; the bar keeps its place */
 .x svg { width: 24px; height: 24px; } .pp svg { width: 20px; height: 20px; }
 .bar { flex: 1; display: flex; gap: 4px; }
 .bar button { flex: 1; height: 26px; border: 0; background: none; padding: 0; cursor: pointer; position: relative; }
@@ -75,6 +75,7 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.12; }
 .dock { position: absolute; left: 12px; right: 12px; bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); display: flex; flex-direction: column; gap: 8px; z-index: 3; }
 .dock .capts { position: static; }
 .dock .pet { margin: 0; box-shadow: inset 0 0 0 1.5px #D9D2C4, 0 2px 10px rgba(38,35,32,.14); }
+.dock.haspet .capt:not(:last-child) { display: none; } /* with the petition on screen only the latest line stays, so it always sits under the chin */
 .dock .mic { margin: 0; min-height: 0; background: rgba(255,255,255,.96); border-radius: 40px; padding: 7px 16px 7px 7px; box-shadow: 0 2px 12px rgba(38,35,32,.18); }
 .dock .micb { width: calc(58 * var(--u)); height: calc(58 * var(--u)); }
 /* people */
@@ -109,6 +110,7 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.12; }
 .opt.right { background: var(--green-soft); box-shadow: inset 0 0 0 2px var(--green), 0 4px 0 var(--green-d); } .opt.right .lt { background: var(--green); color: #fff; }
 .opt.wrong { background: var(--red-soft); box-shadow: inset 0 0 0 2px var(--red), 0 4px 0 #9A3222; }
 .opt.faded { opacity: .5; }
+.opt.picked { box-shadow: inset 0 0 0 2px #A69E92, 0 4px 0 var(--line); } /* a guess that wasn't the number: kept plain, never marked wrong */
 .opts.done .opt { pointer-events: none; }
 .pics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; flex: 1; min-height: 42cqw; max-height: min(70cqw, 360px); }
 .pic { border: 0; padding: 0; border-radius: 18px; background: #EFE7D8; box-shadow: inset 0 0 0 2px var(--line), 0 4px 0 var(--line); position: relative; overflow: hidden; cursor: pointer; }
@@ -162,9 +164,10 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.12; }
 .typed { flex: 1; display: flex; gap: 8px; } .typed input { flex: 1; min-width: 0; border: 2px solid var(--line); border-radius: 14px; padding: 12px 12px; font: 500 16px/1.2 "Figtree"; } .typed button { flex: none; }
 /* the practice petition */
 .pet { flex: none; margin-top: 10px; border-radius: 12px; background: #FFFEFA; box-shadow: inset 0 0 0 1.5px #D9D2C4, 0 2px 0 #E6E0D6; padding: 8px 10px 9px; position: relative; overflow: hidden; }
-.pet-h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font: 800 calc(10 * var(--u))/1.2 "Figtree"; letter-spacing: .05em; text-transform: uppercase; color: #5B554D; }
-.pet-s { margin-top: 3px; padding-right: 104px; font: 500 calc(9.5 * var(--u))/1.25 "Figtree"; color: #7A7268; }
-.stamp { position: absolute; right: 8px; top: 6px; transform: rotate(3deg); border: 1.5px solid var(--red); color: var(--red); border-radius: 4px; padding: 3px 5px; font: 800 calc(7.5 * var(--u))/1.15 "Figtree"; letter-spacing: .05em; text-align: center; background: rgba(255,254,250,.9); max-width: 96px; }
+.pet-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.pet-t { flex: 1; min-width: 0; } .pet-t > span { display: block; white-space: nowrap; font: 800 calc(10 * var(--u))/1.2 "Figtree"; letter-spacing: .05em; text-transform: uppercase; color: #5B554D; }
+.pet-s { margin-top: 3px; font: 500 calc(9.5 * var(--u))/1.25 "Figtree"; color: #7A7268; }
+.stamp { flex: none; margin: 1px 3px 0 0; transform: rotate(3deg); border: 1.5px solid var(--red); color: var(--red); border-radius: 4px; padding: 3px 5px; font: 800 calc(8.5 * var(--u))/1.15 "Figtree"; letter-spacing: .05em; text-align: center; white-space: nowrap; background: rgba(255,254,250,.9); } /* both lines always show: it sits in the heading, beside the measure's name */
 .pet-r { margin-top: 5px; display: flex; gap: 5px; } .pet-r .box { min-width: 0; }
 .box { border: 0; background: #fff; box-shadow: inset 0 0 0 1.2px #C9C1B3; border-radius: 6px; padding: 4px 5px 5px; min-height: calc(42 * var(--u)); text-align: left; position: relative; display: block; width: 100%; }
 .box.w2 { grid-column: span 2; } .box.w3 { grid-column: span 3; }
@@ -220,7 +223,7 @@ button.box { cursor: pointer; } .box.right { box-shadow: inset 0 0 0 2.5px var(-
 .drive { margin-top: 16px; display: inline-flex; flex-direction: column; color: var(--drive); text-transform: uppercase; line-height: 1; }
 .drive b { font-weight: 800; font-size: 19px; letter-spacing: -0.01em; } .drive small { font-weight: 700; font-size: 8px; letter-spacing: .06em; margin-top: 4px; }
 .meta { flex: none; margin-top: 12px; display: flex; gap: 14px; font: 700 calc(14 * var(--u))/1 "Figtree"; color: var(--muted); }
-.rules { flex: 1; min-height: 0; overflow-y: auto; margin: 12px 0 0; padding: 0 2px 0 22px; font: 500 calc(15 * var(--u))/1.42 "Figtree"; } .rules li { margin: 0 0 10px; } .rules b { font-weight: 800; }
+.rules { flex: 1; min-height: 0; overflow: hidden; margin: 10px 0 0; padding: 0 2px 0 22px; font: 500 16px/1.32 "Figtree"; } .rules li { margin: 0; } .rules b { font-weight: 800; } /* all eight rules on one screen: the type is sized to fit (vCard) */
 /* sources */
 .sheet { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; justify-content: flex-end; background: rgba(20,18,16,.38); animation: fade .2s ease both; }
 .sheet > div { background: #fff; border-radius: 22px 22px 0 0; max-height: 96%; display: flex; flex-direction: column; padding: 16px 18px calc(env(safe-area-inset-bottom, 0px) + 18px); width: 100%; animation: up .28s cubic-bezier(.2,.8,.2,1) both; }
@@ -236,9 +239,21 @@ button.box { cursor: pointer; } .box.right { box-shadow: inset 0 0 0 2.5px var(-
 }
 @media (min-height: 780px) { :root { --u: 1.07px; } }
 @media (min-height: 880px) { :root { --u: 1.14px; } }
-@media (max-height: 700px) { :root { --u: .94px; } .dock.haspet .capt.you:not(:last-child) { display: none; } } /* a short phone with the petition on screen: only the passerby's latest line stays */
+@media (max-height: 700px) { :root { --u: .94px; }
+}
+/* Hear it done with the petition under the picture, on a short phone or in the laptop frame: the picture gets the room, so a
+   three-line caption still sits under the chins */
+@media (max-height: 800px) {
+  .panel:has(+ .pet) .capt { padding: 6px 11px 7px; font-size: calc(15 * var(--u)); line-height: 1.22; } .panel:has(+ .pet) .capt b { margin-bottom: 2px; } .panel:has(+ .pet) .capts { bottom: 7px; }
+  .panel + .pet .pet-s { display: none; } .panel + .pet { margin-top: 7px; padding-top: 6px; padding-bottom: 7px; } .panel + .pet ~ .rows { gap: calc(4 * var(--u)); margin-top: 5px; } .panel + .pet ~ .lbl { margin-top: 8px; } }
+/* a laptop window shorter than a small phone: the store sign gives its room to the faces, and captions sit a little tighter */
+@media (min-width: 700px) and (max-height: 700px) { .panel:has(+ .pet) > svg.fitw { transform: translateY(-9.5%); } .panel:has(+ .pet) .capt { font-size: calc(14 * var(--u)); } .capt { padding: 6px 11px 7px; line-height: 1.22; } .capt b { margin-bottom: 2px; } .capts { gap: 4px; } }
 @media (max-height: 640px) { :root { --u: .88px; } }
 @media (max-height: 560px) { :root { --u: .8px; } }
+/* in the laptop frame the lesson has 36 px less height than the window, so each step comes 36 px sooner */
+@media (min-width: 700px) and (max-height: 736px) { :root { --u: .94px; } }
+@media (min-width: 700px) and (max-height: 690px) { :root { --u: .84px; } }
+@media (min-width: 700px) and (max-height: 620px) { :root { --u: .78px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
 </style>
 </head>

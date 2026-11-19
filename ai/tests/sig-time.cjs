@@ -42,14 +42,18 @@ const [,, lesson = "2", scriptName = "normal", W = "390", H = "844"] = process.a
   await p.waitForSelector("#start", { timeout: 8000 });
   const say = SCRIPTS[lesson][scriptName].slice(), taps = (SCRIPTS[lesson][scriptName === "normal" ? "tapsNormal" : "taps"] || []).slice(), boxes = (SCRIPTS[lesson][scriptName === "normal" ? "boxesNormal" : "boxes"] || []).slice(), decl = SCRIPTS[lesson][scriptName === "normal" ? "declNormal" : "decl"] || [1, 2];
   const tap = (sel) => p.evaluate((s) => { const e = document.querySelector(s); if (e) e.click(); }, sel);
-  const words = () => p.evaluate(() => document.querySelector("#scr").innerText.split(/\s+/).filter(Boolean).length);
-  const log = []; let spokeFor = -1, lastWords = 0, lastTag = "", t0 = Date.now();
-  const read = async () => { const w = await words(), tag = await p.evaluate(() => document.querySelector("#tag").textContent + "|" + document.querySelectorAll(".done").length); const fresh = tag === lastTag ? Math.max(0, w - lastWords) : w; lastWords = w; lastTag = tag; await p.waitForTimeout(Math.min(14000, Math.round(fresh / 200 * 60000))); };
+  /* silent reading: each line on screen is read once in a step, at 200 words a minute (an answer under a card is read
+     once, and the card, the step's name and the petition's printed words aren't read again on the next screen) */
+  const lines = () => p.evaluate(() => document.querySelector("#scr").innerText.split(/\n+/).map((x) => x.trim()).filter(Boolean));
+  const count = (ls) => ls.reduce((a, l) => a + l.split(/\s+/).filter(Boolean).length, 0);
+  const log = []; let spokeFor = -1, seenLines = new Set(), curStep = -1, t0 = Date.now(), readWords = 0;
+  const read = async () => { const ls = await lines(); const fresh = count(ls.filter((l) => !seenLines.has(l))); ls.forEach((l) => seenLines.add(l)); readWords += fresh; await p.waitForTimeout(Math.min(14000, Math.round(fresh / 200 * 60000))); };
   await p.waitForTimeout(3000); await tap("#start"); /* three seconds on the cover */
   await p.evaluate(() => { window.__t0 = performance.now(); });
   for (let i = 0; i < 4000; i++) {
-    const st = await p.evaluate(() => ({ cover: !!document.querySelector("#start"), mic: document.querySelector("#mic") ? document.querySelector("#mic").className : "", go: !!document.querySelector("#go") && !document.querySelector("#go").classList.contains("ghost"), opts: document.querySelectorAll("#opts:not(.done) button").length, decl: document.querySelectorAll(".decl:not([disabled])").length, boxes: document.querySelectorAll("button.box").length, okb: !!document.querySelector("#okb:not([disabled])"), srs: (window.__srs || []).length, playing: !!document.querySelector(".capt"), tag: document.querySelector("#tag").textContent, kind: window.__sg.L.steps[window.__sg.S.step] ? window.__sg.L.steps[window.__sg.S.step].kind : "" }));
+    const st = await p.evaluate(() => ({ cover: !!document.querySelector("#start"), mic: document.querySelector("#mic") ? document.querySelector("#mic").className : "", go: !!document.querySelector("#go") && !document.querySelector("#go").classList.contains("ghost"), opts: document.querySelectorAll("#opts:not(.done) button").length, decl: document.querySelectorAll(".decl:not([disabled])").length, boxes: document.querySelectorAll("button.box").length, okb: !!document.querySelector("#okb:not([disabled])"), srs: (window.__srs || []).length, playing: !!document.querySelector(".capt"), tag: document.querySelector("#tag").textContent, step: window.__sg.S.step, kind: window.__sg.L.steps[window.__sg.S.step] ? window.__sg.L.steps[window.__sg.S.step].kind : "" }));
     if (st.cover) break;
+    if (st.step !== curStep) { curStep = st.step; seenLines = new Set(); } /* each line is read once in a step */
     if (/pulse/.test(st.mic)) { await p.waitForTimeout(700); await tap("#mic"); await p.waitForTimeout(150); continue; }
     if (/\bon\b/.test(st.mic) && st.srs !== spokeFor) {
       spokeFor = st.srs; const t = say.shift(); if (t == null) { errs.push(st.tag + ": nothing left to say"); break; }
@@ -65,7 +69,7 @@ const [,, lesson = "2", scriptName = "normal", W = "390", H = "844"] = process.a
       /* words that were just spoken aloud were heard, not read: only silent text takes reading time */
       let heard = st.kind === "hear" || st.kind === "cards" || st.kind === "stop";
       for (let k = 0; k < 400; k++) { const busy = await p.evaluate(() => !!(window.__sg && window.__sgBusy && window.__sgBusy())); if (!busy) break; heard = true; await p.waitForTimeout(100); }
-      if (heard) { lastWords = await words(); lastTag = await p.evaluate(() => document.querySelector("#tag").textContent + "|" + document.querySelectorAll(".done").length); } else await read();
+      if (heard) { (await lines()).forEach((l) => seenLines.add(l)); } else await read();
       await p.waitForTimeout(1200); await tap("#go"); await p.waitForTimeout(300); continue;
     }
     await p.waitForTimeout(100);

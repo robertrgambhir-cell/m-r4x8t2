@@ -105,12 +105,14 @@ ok(SIGG.grade3([PAID, TWO, DBL, ASK].join(" "), Object.assign({}, ST, { funders:
 ok(String(SIGG.mustsMissed(3, [false, true, true, true])) === "0" && String(SIGG.mustsMissed(3, [true, false, false, false])) === "1" && SIGG.mustsMissed(3, [true, true, false, false]).length === 0, "L3 parts 1 and 2 are the musts");
 { const m = run("3.marisol", [OPENER, [PAID, TWO, DBL].join(" "), ASK]); ok(m.said === "reg / dbl / yes" && bits(m.g.hits) === "1111" && m.g.from === true, "L3 Marisol: the whole stop, with lesson 2's opener ticked"); }
 { const m = run("3.marisol", [OPENER, [PAID, TWO, DBL, ASK].join(" ")]); ok(m.said === "reg / dbl+yes", "L3 Marisol answers the double question, then says yes"); }
-{ const m = run("3.marisol", [OPENER, [PAID, TWO].join(" "), ASK]); ok(m.said === "reg / wait / yes" && bits(m.g.hits) === "1101", "L3 Marisol asks what you need when no ask comes"); }
+{ const m = run("3.marisol", [OPENER, [PAID, TWO].join(" "), ASK]); ok(m.said === "reg / - / yes" && bits(m.g.hits) === "1101", "L3 Marisol listens while the ask is still coming"); }
+{ const m = run("3.marisol", [OPENER, [PAID, TWO, DBL].join(" "), "Okay, great."]); ok(m.said === "reg / dbl / wait" && !m.t.end, "L3 Marisol asks what you need once everything but the ask has been said"); }
 { const m = run("3.marisol", [OPENER, [TWO, DBL, ASK].join(" "), PAID]); ok(m.said === "reg / dbl+yes" && m.t.end && !m.g.hits[0] && String(SIGG.mustsMissed(3, m.g.hits)) === "0", "L3 extra: once she has the pen the try is over, so a paid line after it is missed and the must fires"); }
 { const m = run("3.marisol", ["Hey, got a minute?", [PAID, TWO, DBL, ASK].join(" ")]); ok(m.g.from === false && bits(m.g.hits) === "1111", "L3 a weak opener doesn't tick lesson 2 and doesn't change the score"); }
 { const l = run("3.luis", ["It's the Neighborhood Libraries Act, for longer library hours.", "No problem, once is enough. Thanks!"]); ok(l.said === "signed / go" && l.g.from === true, "L3 Luis: thanked and let go ticks lesson 1"); }
 { const l = run("3.luis", ["It's for longer library hours.", "Just sign again to be safe.", "Okay, never mind. Thanks!"]); ok(l.said === "signed / again / go" && l.g.from === false, "L3 Luis: told to sign again, no tick"); }
-{ const t = run("3.tanya", [[PAID, TWO, DBL].join(" "), ASK]); ok(t.said === "nodbl+wait / yes", "L3 Tanya answers the double question, asks what you need, then says yes"); }
+{ const t = run("3.tanya", [[PAID, TWO, DBL].join(" "), ASK]); ok(t.said === "nodbl / yes", "L3 Tanya answers the double question, then says yes when she is asked"); }
+{ const t = run("3.tanya", [[PAID, TWO, DBL].join(" "), "So yeah."]); ok(t.said === "nodbl / wait", "L3 Tanya asks what you need once everything but the ask has been said"); }
 ok(run("3.tanya", ["It's for longer library hours. " + ASK]).said === "yes", "L3 Tanya says yes when asked");
 
 /* ---------------- lesson 4 ---------------- */
@@ -130,7 +132,7 @@ const WALK = "Have you signed this one already? Print your name here, then sign,
   ok(t.said === "nodbl+ask / @fillOther+set / oops+@sign+there+@glowAddr" && bits(t.g.hits) === "1101" && String(SIGG.mustsMissed(4, t.g.hits)) === "2" && t.g.alt[2] === false, "L4 extra: agreeing to write the address misses the must");
 }
 { const t = run("4.tanya", ["Print your name here, then the address where you're registered to vote.", "It has to be in your handwriting.", "You're all set."]); ok(t.said === "ask / self+@fill+set / good+@glowSig" && t.g.from === false, "L4 Tanya doesn't answer a double question nobody asked"); }
-{ const t = run("4.tanya", [WALK, "Hmm.", "Well.", "Could you sign right here?"]); ok(t.said === "nodbl+ask / - / @fill+set / oops+@sign+there" && !t.g.hits[2] && t.g.alt[2] === true, "L4 saying nothing about who writes doesn't count"); }
+{ const t = run("4.tanya", [WALK, "Hmm.", "Well.", "Could you sign right here?"]); ok(t.said === "nodbl+ask / - / - / @fill+set" && !t.g.hits[2] && t.g.alt[2] === true, "L4 saying nothing about who writes doesn't count: after four lines she writes it herself"); }
 { const a = run("4.anika", ["It has to be in your handwriting, but I can hold a bag."]); ok(a.said === "self" && bits(a.g.hits) === "0010", "L4 Anika picks up the pen"); }
 { const a = run("4.anika", ["Sure, what is it?"]); ok(a.said === "agree" && a.g.wrote === true, "L4 Anika gives her address when the canvasser agrees"); }
 
@@ -151,7 +153,8 @@ ok(run("5.hank", ["Yes, it's a new state tax on digital ad sales."]).said === "s
 { const b = run("5.ben", ["No, I'm paid.", "Would you like to sign?", "Sign here."]); ok(b.said === "paid / yes+@hint / -" && b.g.from === false, "L5 Ben: the ask can come in a second piece"); }
 { const b = run("5.ben", ["Yes, I'm a volunteer."]); ok(b.said === "-" && b.t.end && b.g.untrue === "volunteer", "L5 Ben: saying you're a volunteer ends the try for the correction"); }
 { const p = run("5.pat", ["Yes, it's a new state tax on digital ad sales. It's printed right here. Want to sign?", "No problem. Thanks for stopping."]); ok(p.said === "no1+no2 / thanks" && p.g.straight && p.g.shows && p.g.ask && p.g.let, "L5 Pat: straight, shown, asked once and let go"); }
-{ const p = run("5.pat", ["Yes, it's a new state tax.", "Want to sign?", "Okay, thank you."]); ok(p.said === "wait / no1+no2 / thanks" && p.g.ask === true, "L5 Pat asks what you want when no ask follows the answer"); }
+{ const p = run("5.pat", ["Yes, it's a new state tax.", "Want to sign?", "Okay, thank you."]); ok(p.said === "- / no1+no2 / thanks" && p.g.ask === true, "L5 Pat listens to an answer that is still coming"); }
+{ const p = run("5.pat", ["Yes, it's a new state tax on digital ad sales. It's printed right here in the summary."]); ok(p.said === "wait" && !p.t.end, "L5 Pat asks what you want when the answer and the page come with no ask"); }
 { /* extra: an argument after a no */
   const p = run("5.pat", ["Yes, it's a new state tax. It's printed right here. Want to sign?", "But don't you care about libraries?"]);
   ok(p.said === "no1+no2 / argue" && p.g.let === false && p.g.argued === true, "L5 extra: an argument after a no gets 'Like I said, no thanks.'");
@@ -172,6 +175,59 @@ ok(SIGG.pauseMs("Hi there") === 2800 && SIGG.pauseMs("Hi there longer library ho
 { const t = SIGG.talk("3.tanya", ST); let n = 0; for (let i = 0; i < 9 && !t.end; i += 1) { t.hear("It funds longer hours."); n += 1; } ok(n <= 4, "a try is over after four of the canvasser's lines at most"); }
 for (const n of [1, 2, 3, 4, 5]) ok(SIG_LESSONS[n].parts.length === 4 && SIG_LESSONS[n].parts.every((p) => p.name && p.done && p.missed && p.tip) && SIG_LESSONS[n].steps.reduce((a, s) => a + s.secs, 0) === 300, `lesson ${n} has four parts with done, missed and tip lines, and 300 designed seconds`);
 ok([SIG_LESSONS[3].parts[0], SIG_LESSONS[3].parts[1], SIG_LESSONS[4].parts[2], SIG_LESSONS[5].parts[0]].every((p) => / (?:is|are) a must\. One more time\.$/.test(p.must)) && !SIG_LESSONS[1].parts.some((p) => p.must) && !SIG_LESSONS[2].parts.some((p) => p.must), "the musts are lesson 3's parts 1 and 2, lesson 4's part 3 and lesson 5's part 1");
+
+/* ---------------- Nov 18, after the outside review of lessons 1, 3, 4 and 5: a try said one sentence at a time, a goodbye,
+   something untrue in any lesson, and passersby who answer what was said ---------------- */
+const WHY = "Only registered voters count, and the county checks every line.";
+{ const m = run("1.marisol", ["Are you registered to vote", "in LA County?", WHY]); ok(m.said === "ask / - / yes" && bits(m.g.hits) === "1111", "L1 the county said after the question still names the county, and she waits for the why"); }
+{ const m = run("1.marisol", [WHY, "Are you registered to vote in LA County?"]); ok(m.said === "- / yes" && bits(m.g.hits) === "1111", "L1 the why said first, then the question: scored together, and she doesn't ask why"); }
+{ const m = run("1.marisol", ["Are you registered to vote in LA County? " + WHY]); ok(m.said === "yes" && m.t.end && bits(m.g.hits) === "1111", "L1 the question and the why in one breath"); }
+{ const m = run("1.marisol", ["Are you registered to vote in LA County?", "It's the rule."]); ok(m.said === "ask / other" && bits(m.g.hits) === "1100", "L1 the question's own \"registered\" doesn't count as the reason"); }
+{ const m = run("1.marisol", ["Are you registered to vote?", "Only registered voters in LA County count on this sheet, and the county checks every line."]); ok(bits(m.g.hits) === "1011", "L1 the county inside the reason doesn't name the county in the question"); }
+{ const m = run("1.marisol", ["Hi, I'm a volunteer. Are you registered to vote in LA County?", "Only registered voters count, the county checks every line, and it's free, there's no tax."]); ok(m.g.untrue === "volunteer" && /volunteer/.test(m.g.untrueSaid), "L1 \"I'm a volunteer\" never passes"); }
+{ const m = run("1.marisol", ["Are you registered to vote in LA County?", "Only registered voters count and it keeps libraries from closing."]); ok(m.g.untrue === "closing", "L1 \"it keeps libraries from closing\" never passes"); }
+{ const m = run("1.marisol", ["Are you registered to vote in LA County?", WHY]); ok(m.g.untrue === null && m.g.promise === false, "L1 a clean answer has nothing untrue in it"); }
+{ const m = run("1.marisol", ["Never mind, bye!"]); ok(m.said === "-" && m.t.end, "L1 a goodbye ends it"); }
+{ const m = run("1.marisol", ["Hi there!", "Um, hello."]); ok(m.said === "- / -" && m.t.end, "L1 no question in two lines: she walks on, and doesn't answer a question nobody asked"); }
+
+{ const m = run("3.marisol", [OPENER, PAID, TWO, DBL, ASK]); ok(m.said === "reg / - / - / dbl / yes" && bits(m.g.hits) === "1111" && m.g.from === true, "L3 the ask said one sentence at a time: she listens, and all four parts count"); }
+{ const m = run("3.marisol", [OPENER + " " + [PAID, TWO, DBL, ASK].join(" ")]); ok(m.said === "reg+dbl+yes" && bits(m.g.hits) === "1111" && m.g.from === true, "L3 the opener and the whole ask in one breath"); }
+{ const m = run("3.marisol", [OPENER, "I'm paid to gather signatures, and here are the top funders.", "It funds longer evening and weekend hours at branch libraries, and it's paid for by a new state tax on digital ad sales."]); ok(m.said === "reg / - / -" && !m.t.end, "L3 three lines in, with the ask still to come: the stop isn't over"); }
+{ const m = run("3.marisol", [OPENER, "How's your day going?", "Um, so."]); ok(m.said === "reg / - / wait" && !m.t.end, "L3 small talk gets a beat before she asks what you need"); }
+{ const m = run("3.marisol", [OPENER, "Oh, never mind. Thanks anyway, bye!"]); ok(m.said === "reg / -" && m.t.end, "L3 a goodbye ends Marisol's stop with no question tacked on"); }
+{ const m = run("3.marisol", ["Hi there! Longer library hours."]); ok(m.said === "-" && !m.t.end, "L3 Marisol doesn't say she's registered before she is asked"); }
+{ const m = run("3.marisol", [OPENER, [PAID, TWO, DBL].join(" "), "You have to sign."]); ok(m.said === "reg / dbl / yes" && bits(m.g.hits) === "1110" && m.g.vague[3] === true, "L3 told she has to sign: she answers that, and the part isn't called \"didn't ask\""); }
+{ const m = run("3.marisol", [OPENER, [TWO, DBL, ASK, "By the way, I'm paid to gather signatures, and here are the top funders."].join(" ")]); ok(bits(m.g.hits) === "0111" && m.g.vague[0] === true, "L3 the paid line after the ask: the must is missed, and not as \"didn't say you're paid\""); }
+{ const m = run("3.marisol", [OPENER, [TWO, DBL, ASK].join(" ")]); ok(bits(m.g.hits) === "0111" && m.g.vague[0] === false, "L3 no paid line at all is \"didn't say you're paid\""); }
+{ const t = run("3.tanya", ["Never mind. Have a good day, bye!"]); ok(t.said === "-" && t.t.end, "L3 a goodbye ends Tanya's stop"); }
+{ const t = run("3.tanya", ["It's for longer library hours. You have to sign."]); ok(t.said === "yes" && t.t.end, "L3 Tanya, told she has to sign, doesn't ask what you need"); }
+{ const t = run("3.tanya", ["It's free, it won't cost you a thing. Will you sign?"]); ok(t.g.untrue === "cost" && /free|cost/.test(t.g.untrueSaid), "L3 the untrue words are kept for the card"); }
+{ const l = run("3.luis", ["Hi, how are you?", "Bye."]); ok(l.said === "- / signed", "L3 Luis waits a beat, then says what he thinks"); }
+
+const LINE = "Print your name here, then sign, then the address where you're registered to vote.";
+{ const t = run("4.tanya", [DBL, "Print your name here.", "Then the address where you're registered to vote.", "It has to be in your handwriting. I can hold your bag.", "The signature's still blank. Could you sign right here?"]);
+  ok(t.said === "nodbl+ask / - / - / self+@fill+set / oops+@sign+there" && bits(t.g.hits) === "1111" && t.g.from === true, "L4 the line said one sentence at a time: all four parts count and the must is kept"); }
+{ const t = run("4.tanya", [LINE, DBL]); ok(t.said === "ask / nodbl" && !t.t.end, "L4 the double question asked after the walk-through still gets its answer"); }
+{ const t = run("4.tanya", [WALK, "It has to be in your handwriting.", LINE]); ok(t.said === "nodbl+ask / self+@fill+set / good+@glowSig" && bits(t.g.hits) === "1110", "L4 saying the walk-through again names no gap"); }
+{ const t = run("4.tanya", [WALK, "It has to be in your handwriting.", "You still need to sign right here."]); ok(bits(t.g.hits) === "1111", "L4 naming the empty box counts"); }
+{ const t = run("4.tanya", [WALK, "Hmm.", "Uh.", "Okay."]); ok(t.said === "nodbl+ask / - / - / @fillOther+set" && t.g.hits[2] === false, "L4 \"Okay.\" to her ask is agreeing to write it"); }
+{ const t = run("4.tanya", [WALK, "Hmm.", "Uh.", "Well.", "It has to be in your handwriting, by the way.", "Could you sign right here?"]); ok(t.said === "nodbl+ask / - / - / @fill+set / - / oops+@sign+there" && t.g.hits[2] === true, "L4 said late that it has to be her writing, after she wrote it herself: it counts"); }
+{ const t = run("4.tanya", ["I'm a volunteer. " + WALK, "It has to be in your handwriting.", "Could you sign right here?"]); ok(t.g.untrue === "volunteer" && bits(t.g.hits) === "1111", "L4 \"I'm a volunteer\" never passes, whatever the score"); }
+{ const t = run("4.tanya", ["Never mind then, bye!"]); ok(t.said === "-" && t.t.end, "L4 a goodbye ends Tanya's stop"); }
+{ const t = run("4.tanya", [WALK, "Never mind then, bye!"]); ok(t.said === "nodbl+ask / -" && t.t.end && t.g.vague[3] === true, "L4 a goodbye before she writes: no line about an empty box she never left"); }
+{ const a = run("4.anika", ["Never mind, have a nice day!"]); ok(a.said === "-" && a.t.end, "L4 a goodbye ends Anika's stop"); }
+
+{ const b = run("5.ben", ["No, I'm paid to gather signatures.", "It's printed right here.", "Want to sign?", LINE]); ok(b.said === "paid / - / yes+@hint / -" && b.g.straight && b.g.shows && b.g.ask && b.g.from, "L5 Ben: the answer, the page and the ask one at a time"); }
+{ const b = run("5.ben", ["I'm just here for the libraries.", "Want to sign?"]); ok(b.said === "again / yes+@hint" && !b.g.straight, "L5 Ben asks his question once more after a dodge"); }
+{ const b = run("5.ben", ["Never mind, bye!"]); ok(b.said === "-" && b.t.end, "L5 a goodbye ends Ben's stop"); }
+{ const b = run("5.ben", ["Yes, I'm a volunteer.", "Want to sign?", LINE], Object.assign({}, ST, { again: true })); ok(b.said === "- / yes+@hint / -" && b.g.untrue === "volunteer" && /volunteer/.test(b.g.untrueSaid), "L5 on the one more try, something untrue doesn't cut the try short. It still can't pass"); }
+{ const p = run("5.pat", ["Yes, it's a new state tax on digital ad sales. It's printed right here. Want to sign?", "Okay."]); ok(p.g.let === true, "L5 Pat: \"Okay.\" lets the no go"); }
+{ const p = run("5.pat", ["Yes, it's a new state tax on digital ad sales. It's printed right here. Want to sign?", "Hmm."]), s = SIGG.score5(run("5.ben", ["No, I'm paid. Want to sign?", LINE]).g, p.g); ok(s.hits[3] === false && s.vague[3] === true, "L5 a no that wasn't argued with isn't called an argument"); }
+{ const p = run("5.pat", ["Yes, it's a new state tax on digital ad sales. It's printed right here. Want to sign?", "But don't you care about libraries?"]), s = SIGG.score5(run("5.ben", ["No, I'm paid. Want to sign?", LINE]).g, p.g); ok(s.hits[3] === false && s.vague[3] === false, "L5 an argument after a no is called one"); }
+{ const p = run("5.pat", ["Well, it's mostly about keeping libraries open later.", "Yes, it's a new state tax. Want to sign?"]); ok(p.said === "again / no1+no2", "L5 Pat asks her question once more after a dodge"); }
+{ const p = run("5.pat", ["No, there's no tax."]); ok(p.t.end && p.g.untrue === "tax" && /no tax|no/.test(p.g.untrueSaid), "L5 \"No, there's no tax\" stops the try, with the words kept for the card"); }
+{ const h = run("5.hank", ["No, there's no tax."]); ok(h.g.untrue === "tax", "L5 the 1st try card can say what wasn't true"); }
+ok(SIGG.bye("Have a good one!") && SIGG.bye("ok bye") && !SIGG.bye("Will you sign to put it on the ballot?") && !SIGG.bye("Thanks for stopping."), "a goodbye is a goodbye");
 
 console.log(`sig-grade: ${pass} pass, ${fail} fail`);
 process.exit(fail ? 1 : 0);

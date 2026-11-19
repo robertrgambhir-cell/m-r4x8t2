@@ -40,14 +40,14 @@ VIEW.sort = function (st) {
 /* say it: the question to Marisol, then why you ask. This is lesson 1's scored part. */
 VIEW.say = function (st) {
   var sub = S.sub;
-  if (sub === 0) return vReady(st, st.coach, function () { go(S.step, 1); });
-  if (sub === 90) { var s0 = S.score; vReady(st, null, function () { go(S.step, 1); }, '<div class="callout must">' + q(SH.promise) + " One more time." + '</div>'); tag("r"); return; }
+  if (sub === 0) return vReady(st, st.coach, function () { S.retried = false; go(S.step, 1); });
+  if (sub === 90) { vReady(st, null, function () { go(S.step, 1); }, fixBlock(S.score, true), "r", true); return; }
   if (sub === 2) return vFeedback(st, S.score, nextStep, nextLabel(), "c", '<div class="tip" style="background:var(--green-soft)">' + q(st.oneWay) + '</div>');
   talk({ st: st, key: "1.marisol", who: st.who, replies: Object.assign({ ask: st.ask }, st.replies), walk: true, note: st.note, hint: st.hint, hintAfter: "ask", tag: "b",
     onEnd: function (T) {
       var g = T.grade(); g.musts = [];
-      if (g.promise && !S.retried) { S.retried = true; S.score = g; return go(S.step, 90); }
-      S.score = S.retried ? better(S.score && !S.score.promise ? S.score : null, g) : g; go(S.step, 2);
+      if ((g.promise || g.untrue) && !S.retried) { S.retried = true; S.score = g; return go(S.step, 90); } /* a promise or something untrue: one more try */
+      S.score = g; go(S.step, 2); /* the one more try is the one that stands: a promise or an untrue line can't be averaged away */
     } });
 };
 /* one whole stop: watch Lena do the job once, then say the two lines that are the law */
@@ -65,6 +65,12 @@ VIEW.stop = function (st) {
   show(kick(st) + '<div class="panel" id="panel">' + sceneTwo("lena", st.who, "") + '</div><div class="sayq"><small>' + q(st.sayLead) + '</small>“' + q(line) + '”</div><div class="coach" id="coach" style="min-height:0"></div>' + micHtml() + '<div id="ft"></div>', "bc"[k]);
   var finish = function (text) {
     if (SIGG.misheard(text)) { micState("idle", "<b>" + q(SH.misheard) + "</b>"); return; }
+    /* "Say each one once": the line has to be the line. Something untrue gets "Said something that isn't true." and the line
+       stays up. Other words get "I missed that. Try once more." twice, then the lesson moves on so nobody is stuck here. */
+    var g = SIGG.grade3(text, ST), said = k === 0 ? g.paid || /\bpaid\b/.test(SIGG.norm(text)) : g.hours && g.tax;
+    if (SIGG.untrueOf(text)) { micState("idle", "<b>" + q(SH.untrue) + "</b>"); return; }
+    T.n += 1;
+    if (!said && T.n < 3) { micState("idle", "<b>" + q(SH.misheard) + "</b>"); return; }
     M.used = true; micState("wait", "");
     if (k + 1 < st.say.length) return go(S.step, sub + 1);
     $("#coach").innerHTML = q(st.done.text);
@@ -117,8 +123,19 @@ VIEW.decl = function (st) {
 /* the first-shift card: one page, sent when lesson 1 ends */
 function vCard() {
   var C = DATA.card;
-  $("#top").innerHTML = ""; $("#tag").textContent = "Sig card";
+  $("#top").innerHTML = ""; $("#top").style.display = "none"; $("#tag").textContent = "Sig card"; /* the card has no lesson bar, so the rules get its room */
   $("#scr").innerHTML = '<span class="drive"><b>' + esc(ST.drive.name) + '</b><small>' + esc(ST.drive.measure) + ' · petition drive</small></span><h1 class="lg">' + q(C.title) + '</h1><ol class="rules">' + C.rules.map(function (x) { return '<li><b>' + q(x[0]) + '</b> ' + q(x[1]) + '</li>'; }).join("") + '</ol>';
+  /* the card is one page: all eight rules show with no scrolling. The type is as large as fits, and what room is left goes between the rules. */
+  var fit = function () {
+    var r = $(".rules"); if (!r) return; var li = r.children, f = 18, i;
+    for (i = 0; i < li.length; i += 1) li[i].style.marginBottom = "0";
+    r.style.fontSize = f + "px";
+    while (f > 10.5 && r.scrollHeight > r.clientHeight + 0.5) { f -= 0.25; r.style.fontSize = f + "px"; }
+    var used = 0; for (i = 0; i < li.length; i += 1) used += li[i].getBoundingClientRect().height;
+    var gap = Math.max(0, Math.min(16, Math.floor((r.clientHeight - used - 1) / (li.length - 1))));
+    for (i = 0; i < li.length - 1; i += 1) li[i].style.marginBottom = gap + "px";
+  };
+  fit(); window.addEventListener("resize", fit); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
 }
 
 /* ---------------- start ---------------- */
