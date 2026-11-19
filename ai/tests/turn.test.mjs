@@ -108,6 +108,9 @@ r = await worker.fetch(new Request("https://w.example/scenario/social"), env0);
   const lena = lines.find((x) => x.who === "lena"), t = N.indexOf(lena.say);
   r = await g("s=sig&k=" + t + "&voice=" + SIG_VOICES.lena); ok(r.status === 200 && voiceCalls[voiceCalls.length - 1].speaker === SIG_VOICES.lena && /registered to vote in L\.A\. County\?$/.test(voiceCalls[voiceCalls.length - 1].text), "Lena's opener is read in her own voice, with the county said the way a voice says it");
   r = await g("s=sig&k=" + N.length); ok(r.status === 404, "no signature line past the end");
+  /* 165-16: the recording tool can ask for another take of a line; it is still that line in that voice */
+  r = await g("s=sig&k=" + t + "&voice=" + SIG_VOICES.lena + "&take=2"); ok(r.status === 200 && voiceCalls[voiceCalls.length - 1].speaker === SIG_VOICES.lena && voiceCalls[voiceCalls.length - 1].text === N[t], "another take of a line is the same line in the same voice");
+  r = await g("s=sig&k=0&take=99"); ok(r.status === 200 && voiceCalls[voiceCalls.length - 1].text === N[0], "a take past nine is still the line");
   r = await g("s=constructor&k=0"); ok(r.status === 404, "only a real lesson id is read");
   r = await g("s=sig2&k=0"); ok(r.status === 404, "the old lesson 2 list is gone");
   ok(N.length > 100 && N.every((x) => typeof x === "string" && x.length > 1 && x.length < 400 && !/[{}\u2014]/.test(x)) && lines.every((x) => N.includes(x.say)), "every signature line is filled, short and has no em dash");

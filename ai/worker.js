@@ -34,7 +34,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "174-11"; /* shows on /health, so a deploy can be confirmed (since 174-6 it holds main's 165-15, the signature course's narration) */
+const BUILD = "174-12"; /* shows on /health, so a deploy can be confirmed (174-12 holds main's 165-16, the signature course's narration with its takes) */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -857,7 +857,10 @@ async function narrate(env, c, url, h, ip) {
   const scen = url.searchParams.get("s") || "", k = Number(url.searchParams.get("k")), s = SCENARIOS[scen] || (Object.prototype.hasOwnProperty.call(SIG_NARRATION, scen) ? SIG_NARRATION[scen] : null); /* 165-14: the signature course's lines are narration too */
   if (!s || !Array.isArray(s.narration) || !Number.isInteger(k) || k < 0 || k >= s.narration.length) throw new HttpError(404, "not_found");
   const v = url.searchParams.get("voice") || "", speaker = VOICES.includes(v) ? v : NARRATOR, text = s.narration[k];
-  const key = new Request("https://narrate.warmup/" + scen + "/" + k + "/" + speaker + "/" + encodeURIComponent(text).length + "/" + (await signLine(env, "narrate", text, k)));
+  /* 165-16: the voice says the same line at a different pace each time it is asked, so the recording tool can ask for
+     another take (take=1 to 9) and keep the calmest one. Each take is cached on its own; no take means the first. */
+  const take = Math.min(9, Math.max(0, parseInt(url.searchParams.get("take"), 10) || 0));
+  const key = new Request("https://narrate.warmup/" + scen + "/" + k + "/" + speaker + "/" + encodeURIComponent(text).length + "/" + (await signLine(env, "narrate", text, k)) + (take ? "/take" + take : ""));
   const cache = typeof caches !== "undefined" && caches.default ? caches.default : null;
   if (cache) { const hit = await cache.match(key); if (hit) return new Response(hit.body, { status: 200, headers: { "content-type": "audio/mpeg", "cache-control": "public, max-age=86400", "x-cache": "hit", ...h } }); }
   await checkRate(env, ip, "narrate", c.voterPerHour);

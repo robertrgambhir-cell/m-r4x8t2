@@ -1,4 +1,228 @@
 {
+ "49f1fabc946c": {
+  "file": "49f1fabc946c.mp3",
+  "who": "coach",
+  "voice": "orpheus",
+  "dur": 5.98,
+  "bytes": 36093,
+  "text": "Welcome. You're about to gather signatures to put the Neighborhood Libraries Act on the ballot. First, a guess."
+ },
+ "8c45cf795d10": {
+  "file": "8c45cf795d10.mp3",
+  "who": "coach",
+  "voice": "orpheus",
+  "dur": 4.58,
+  "bytes": 27741,
+  "text": "About 25%. Today you learn which ones count, and how to bring that number down."
+ },
+ "6fbdbbbb6cb6": {
+  "file": "6fbdbbbb6cb6.mp3",
+  "who": "coach",
+  "voice": "orpheus",
+  "dur": 5.66,
+  "bytes": 34221,
+  "text": "Who decides? The county elections office. It pulls up the voter's record and checks four things."
+ },
+ "110328b41f39": {
+  "file": "110328b41f39.mp3",
+  "who": "coach",
+  "voice": "orpheus",
+  "dur": 2.28,
+  "bytes": 13917,
+  "text": "1. Is this person registered to vote?"
+ },
+ "b477b8324a68": {
+  "file": "b477b8324a68.mp3",
+  "who": "coach",
+  "voice": "orpheus",
+  "dur": 0.82,
+  "bytes": 5133,
+  "text": "2. In this county?"
+ },
+ "dc08408aa550": {
+  "file": "dc08408aa550.mp3",
+  "who": "coach",
+  "voice": "orpheus",
+  "dur": 1.87,
+  "bytes": 11469,
+  "text": "3. At the address they wrote?"
+ },
+ "60dd883b0b13": {
+  "file": "60dd883b0b13.mp3",
+  "who": "coach",
+  "voice": "orpheus",
+  "dur": 2.4,
+  "bytes": 14637,
+  "text": "4. Does the signature look like theirs?"
+ },
+ "e92ed9dcdb6f": {
+  "file": "e92ed9dcdb6f.mp3",
+  "who": "coach",
+  "voice": "orpheus",
+  "dur": 8.98,
+  "bytes": 54093,
+  "text": "Four yeses and it counts. One no and it's thrown out. Only the county decides, so never promise anyone their signature will count."
+ },
+ "1c6d18cbe1d9": {
+  "file": "1c6d18cbe1d9.mp3",
+  "who": "coach",
+  "voice": "orpheus",
+  "dur": 3.98,
+  "bytes": 24141,
+  "text": "Now you're the county. Six people signed at Westside Market today. Sort each one."
+ },
+ "fa81a7e65d39": {
+  "file": "fa81a7e65d39.mp3",
+  "who": "coach",
+  "voice": "orpheus",
+  "dur": 5.35,
+  "bytes": 32349,
+  "text": "Look at the four you threw out. Not one was about handwriting. All four were about who signed."
+ },
+ "a5d3e7358fce": {
+  "file": "a5d3e7358fce.mp3",
+  "who": "coach",
+  "voice": "orpheus",
+  "dur": 5.83,
+  "bytes": 35229,
+  "text": "Back to Luis, who signed twice. The county checks a sample, about 3 lines in every 100."
+ },
+ "433bb3e04ea2": {
+  "file": "433bb3e04ea2.mp3",
+  "who": "coach",
+  "voice": "orpheus",
+  "dur": 14.06,
+  "bytes": 84621,
+  "text": "About 1,000. One double in the sample tells the county the stack holds many more. In L.A. County in 2026, 26 doubles in one sample cost a drive about 28,000 signatures."
+ },
+ "076b26f0b3ae": {
+  "file": "076b26f0b3ae.mp3",
+  "who": "coach",
+  "voice": "orpheus",
+  "dur": 7.46,
+  "bytes": 45021,
+  "text": "Ben. Signatures that count are the score. Libraries for All checks your signatures. Your bonus is paid on the ones that count."
+ },
+ "fb6b6bc9cafb": {
+  "file": "fb6b6bc9cafb.mp3",
+  "who": "coach",
+  "voice": "orpheus",
+  "dur": 6.89,
+  "bytes": 41565,
+  "text": "Here's the question that screens out the most bad lines. Marisol is walking up. Ask her if she's registered to vote in L.A. County."
+ },
+ "c606ca52f409": {
+  "file": "c606ca52f409.mp3",
+  "who": "marisol",
+  "voice": "thalia",
+  "dur": 2.11,
+  "bytes": 12909,
+  "text": "I am. Why do you ask?"
+ },
+ "0f994082a0f4": {
+  "file": "0f994082a0f4.mp3",
+  "who": "marisol",
+  "voice": "thalia",
+  "dur": 2.28,
+  "bytes": 13917,
+  "text": "Makes sense. I vote every time."
+ },
+ "3d901e2a68c6": {
+  "file": "3d901e2a68c6.mp3",
+  "who": "marisol",
+  "voice": "thalia",
+  "dur": 1.15,
+  "bytes": 7149,
+  "text": "Oh, okay."
+ },
+ "11de0acb4e6e": {
+  "file": "11de0acb4e6e.mp3",
+  "who": "coach",
+  "voice": "orpheus",
+  "dur": 2.04,
+  "bytes": 12477,
+  "text": "Now watch Lena do the whole job once."
+ },
+ "78588576fb7e": {
+  "file": "78588576fb7e.mp3",
+  "who": "lena",
+  "voice": "asteria",
+  "dur": 5.42,
+  "bytes": 32781,
+  "text": "Hi there! Longer library hours. Are you registered to vote in L.A. County?"
+ },
+ "19081a3759bf": {
+  "file": "19081a3759bf.mp3",
+  "who": "ines",
+  "voice": "helena",
+  "dur": 0.74,
+  "bytes": 4701,
+  "text": "I am."
+ },
+ "cf2029f624bf": {
+  "file": "cf2029f624bf.mp3",
+  "who": "lena",
+  "voice": "asteria",
+  "dur": 13.7,
+  "bytes": 82461,
+  "text": "I'm paid to gather signatures, and here are this month's top funders. It funds longer evening and weekend hours at branch libraries, paid for by a new state tax on digital ad sales. Have you signed this one already?"
+ },
+ "8b1f95e8384a": {
+  "file": "8b1f95e8384a.mp3",
+  "who": "ines",
+  "voice": "helena",
+  "dur": 0.5,
+  "bytes": 3261,
+  "text": "No."
+ },
+ "9adfffd83a21": {
+  "file": "9adfffd83a21.mp3",
+  "who": "lena",
+  "voice": "asteria",
+  "dur": 3.5,
+  "bytes": 21261,
+  "text": "Then here's the petition. Will you sign to put it on the ballot?"
+ },
+ "941cc58e2c02": {
+  "file": "941cc58e2c02.mp3",
+  "who": "ines",
+  "voice": "helena",
+  "dur": 0.55,
+  "bytes": 3549,
+  "text": "Sure."
+ },
+ "c0b302eaf512": {
+  "file": "c0b302eaf512.mp3",
+  "who": "lena",
+  "voice": "asteria",
+  "dur": 4.7,
+  "bytes": 28461,
+  "text": "Print your name, sign, then the address where you're registered to vote."
+ },
+ "99bac60899b5": {
+  "file": "99bac60899b5.mp3",
+  "who": "lena",
+  "voice": "asteria",
+  "dur": 1.78,
+  "bytes": 10893,
+  "text": "All set. Thank you!"
+ },
+ "59d729608118": {
+  "file": "59d729608118.mp3",
+  "who": "coach",
+  "voice": "orpheus",
+  "dur": 4.78,
+  "bytes": 28893,
+  "text": "That's the job. Two of her lines are the law. Say each one once."
+ },
+ "5be7e077d5be": {
+  "file": "5be7e077d5be.mp3",
+  "who": "coach",
+  "voice": "orpheus",
+  "dur": 1.9,
+  "bytes": 11613,
+  "text": "Good. Those two go with you today."
+ },
  "d1e04eb096ec": {
   "file": "d1e04eb096ec.mp3",
   "who": "coach",
@@ -38,14 +262,6 @@
   "dur": 2.54,
   "bytes": 15501,
   "text": "Now listen to Lena. She does this all day."
- },
- "78588576fb7e": {
-  "file": "78588576fb7e.mp3",
-  "who": "lena",
-  "voice": "asteria",
-  "dur": 5.42,
-  "bytes": 32781,
-  "text": "Hi there! Longer library hours. Are you registered to vote in L.A. County?"
  },
  "e89085be8a91": {
   "file": "e89085be8a91.mp3",
@@ -195,9 +411,10 @@
   "file": "9e38c66b5c71.mp3",
   "who": "kayla",
   "voice": "luna",
-  "dur": 1.18,
-  "bytes": 7293,
-  "text": "Oh. I'm not registered."
+  "dur": 1.87,
+  "bytes": 11469,
+  "text": "Oh. I'm not registered.",
+  "take": 3
  },
  "efa66a895367": {
   "file": "efa66a895367.mp3",
@@ -222,222 +439,6 @@
   "dur": 1.39,
   "bytes": 8589,
   "text": "Sorry, what's this for?"
- },
- "49f1fabc946c": {
-  "file": "49f1fabc946c.mp3",
-  "who": "coach",
-  "voice": "orpheus",
-  "dur": 5.98,
-  "bytes": 36093,
-  "text": "Welcome. You're about to gather signatures to put the Neighborhood Libraries Act on the ballot. First, a guess."
- },
- "8c45cf795d10": {
-  "file": "8c45cf795d10.mp3",
-  "who": "coach",
-  "voice": "orpheus",
-  "dur": 4.58,
-  "bytes": 27741,
-  "text": "About 25%. Today you learn which ones count, and how to bring that number down."
- },
- "6fbdbbbb6cb6": {
-  "file": "6fbdbbbb6cb6.mp3",
-  "who": "coach",
-  "voice": "orpheus",
-  "dur": 5.66,
-  "bytes": 34221,
-  "text": "Who decides? The county elections office. It pulls up the voter's record and checks four things."
- },
- "110328b41f39": {
-  "file": "110328b41f39.mp3",
-  "who": "coach",
-  "voice": "orpheus",
-  "dur": 2.28,
-  "bytes": 13917,
-  "text": "1. Is this person registered to vote?"
- },
- "b477b8324a68": {
-  "file": "b477b8324a68.mp3",
-  "who": "coach",
-  "voice": "orpheus",
-  "dur": 0.82,
-  "bytes": 5133,
-  "text": "2. In this county?"
- },
- "dc08408aa550": {
-  "file": "dc08408aa550.mp3",
-  "who": "coach",
-  "voice": "orpheus",
-  "dur": 1.87,
-  "bytes": 11469,
-  "text": "3. At the address they wrote?"
- },
- "60dd883b0b13": {
-  "file": "60dd883b0b13.mp3",
-  "who": "coach",
-  "voice": "orpheus",
-  "dur": 2.4,
-  "bytes": 14637,
-  "text": "4. Does the signature look like theirs?"
- },
- "e92ed9dcdb6f": {
-  "file": "e92ed9dcdb6f.mp3",
-  "who": "coach",
-  "voice": "orpheus",
-  "dur": 8.98,
-  "bytes": 54093,
-  "text": "Four yeses and it counts. One no and it's thrown out. Only the county decides, so never promise anyone their signature will count."
- },
- "1c6d18cbe1d9": {
-  "file": "1c6d18cbe1d9.mp3",
-  "who": "coach",
-  "voice": "orpheus",
-  "dur": 3.98,
-  "bytes": 24141,
-  "text": "Now you're the county. Six people signed at Westside Market today. Sort each one."
- },
- "fa81a7e65d39": {
-  "file": "fa81a7e65d39.mp3",
-  "who": "coach",
-  "voice": "orpheus",
-  "dur": 5.35,
-  "bytes": 32349,
-  "text": "Look at the four you threw out. Not one was about handwriting. All four were about who signed."
- },
- "a5d3e7358fce": {
-  "file": "a5d3e7358fce.mp3",
-  "who": "coach",
-  "voice": "orpheus",
-  "dur": 5.83,
-  "bytes": 35229,
-  "text": "Back to Luis, who signed twice. The county checks a sample, about 3 lines in every 100."
- },
- "433bb3e04ea2": {
-  "file": "433bb3e04ea2.mp3",
-  "who": "coach",
-  "voice": "orpheus",
-  "dur": 14.06,
-  "bytes": 84621,
-  "text": "About 1,000. One double in the sample tells the county the stack holds many more. In L.A. County in 2026, 26 doubles in one sample cost a drive about 28,000 signatures."
- },
- "076b26f0b3ae": {
-  "file": "076b26f0b3ae.mp3",
-  "who": "coach",
-  "voice": "orpheus",
-  "dur": 7.46,
-  "bytes": 45021,
-  "text": "Ben. Signatures that count are the score. Libraries for All checks your signatures. Your bonus is paid on the ones that count."
- },
- "fb6b6bc9cafb": {
-  "file": "fb6b6bc9cafb.mp3",
-  "who": "coach",
-  "voice": "orpheus",
-  "dur": 6.89,
-  "bytes": 41565,
-  "text": "Here's the question that screens out the most bad lines. Marisol is walking up. Ask her if she's registered to vote in L.A. County."
- },
- "c606ca52f409": {
-  "file": "c606ca52f409.mp3",
-  "who": "marisol",
-  "voice": "thalia",
-  "dur": 2.11,
-  "bytes": 12909,
-  "text": "I am. Why do you ask?"
- },
- "0f994082a0f4": {
-  "file": "0f994082a0f4.mp3",
-  "who": "marisol",
-  "voice": "thalia",
-  "dur": 2.28,
-  "bytes": 13917,
-  "text": "Makes sense. I vote every time."
- },
- "3d901e2a68c6": {
-  "file": "3d901e2a68c6.mp3",
-  "who": "marisol",
-  "voice": "thalia",
-  "dur": 1.15,
-  "bytes": 7149,
-  "text": "Oh, okay."
- },
- "11de0acb4e6e": {
-  "file": "11de0acb4e6e.mp3",
-  "who": "coach",
-  "voice": "orpheus",
-  "dur": 2.04,
-  "bytes": 12477,
-  "text": "Now watch Lena do the whole job once."
- },
- "19081a3759bf": {
-  "file": "19081a3759bf.mp3",
-  "who": "ines",
-  "voice": "helena",
-  "dur": 0.74,
-  "bytes": 4701,
-  "text": "I am."
- },
- "cf2029f624bf": {
-  "file": "cf2029f624bf.mp3",
-  "who": "lena",
-  "voice": "asteria",
-  "dur": 13.7,
-  "bytes": 82461,
-  "text": "I'm paid to gather signatures, and here are this month's top funders. It funds longer evening and weekend hours at branch libraries, paid for by a new state tax on digital ad sales. Have you signed this one already?"
- },
- "8b1f95e8384a": {
-  "file": "8b1f95e8384a.mp3",
-  "who": "ines",
-  "voice": "helena",
-  "dur": 0.5,
-  "bytes": 3261,
-  "text": "No."
- },
- "9adfffd83a21": {
-  "file": "9adfffd83a21.mp3",
-  "who": "lena",
-  "voice": "asteria",
-  "dur": 3.5,
-  "bytes": 21261,
-  "text": "Then here's the petition. Will you sign to put it on the ballot?"
- },
- "941cc58e2c02": {
-  "file": "941cc58e2c02.mp3",
-  "who": "ines",
-  "voice": "helena",
-  "dur": 0.55,
-  "bytes": 3549,
-  "text": "Sure."
- },
- "c0b302eaf512": {
-  "file": "c0b302eaf512.mp3",
-  "who": "lena",
-  "voice": "asteria",
-  "dur": 4.7,
-  "bytes": 28461,
-  "text": "Print your name, sign, then the address where you're registered to vote."
- },
- "99bac60899b5": {
-  "file": "99bac60899b5.mp3",
-  "who": "lena",
-  "voice": "asteria",
-  "dur": 1.78,
-  "bytes": 10893,
-  "text": "All set. Thank you!"
- },
- "59d729608118": {
-  "file": "59d729608118.mp3",
-  "who": "coach",
-  "voice": "orpheus",
-  "dur": 4.78,
-  "bytes": 28893,
-  "text": "That's the job. Two of her lines are the law. Say each one once."
- },
- "5be7e077d5be": {
-  "file": "5be7e077d5be.mp3",
-  "who": "coach",
-  "voice": "orpheus",
-  "dur": 1.9,
-  "bytes": 11613,
-  "text": "Good. Those two go with you today."
  },
  "4e13a85f28b9": {
   "file": "4e13a85f28b9.mp3",
@@ -467,17 +468,27 @@
   "file": "25feb5e2350f.mp3",
   "who": "tanya",
   "voice": "andromeda",
-  "dur": 1.44,
-  "bytes": 8877,
-  "text": "So, do you need something from me?"
+  "dur": 1.75,
+  "bytes": 10749,
+  "text": "So, do you need something from me?",
+  "take": 2
+ },
+ "592b01e22c13": {
+  "file": "592b01e22c13.mp3",
+  "who": "tanya",
+  "voice": "andromeda",
+  "dur": 1.49,
+  "bytes": 9165,
+  "text": "No, I haven't signed it."
  },
  "11ce2c8be9e7": {
   "file": "11ce2c8be9e7.mp3",
   "who": "coach",
   "voice": "orpheus",
-  "dur": 1.25,
-  "bytes": 7725,
-  "text": "Listen to Lena with Bob."
+  "dur": 1.44,
+  "bytes": 8877,
+  "text": "Listen to Lena with Bob.",
+  "take": 2
  },
  "613b2faa0b12": {
   "file": "613b2faa0b12.mp3",
@@ -563,9 +574,10 @@
   "file": "7a01cab1dc28.mp3",
   "who": "coach",
   "voice": "orpheus",
-  "dur": 6.6,
-  "bytes": 39837,
-  "text": "B. It says what the measure does and how it's paid for. Nothing in the measure says libraries are closing. And nobody can promise what a tax will cost someone."
+  "dur": 9.07,
+  "bytes": 54669,
+  "text": "B. It says what the measure does and how it's paid for. Nothing in the measure says libraries are closing. And nobody can promise what a tax will cost someone.",
+  "take": 2
  },
  "7c3d444de769": {
   "file": "7c3d444de769.mp3",
@@ -627,9 +639,10 @@
   "file": "68a4ec3189b6.mp3",
   "who": "soojin",
   "voice": "athena",
-  "dur": 1.46,
-  "bytes": 9021,
-  "text": "Are you with the library, dear?"
+  "dur": 1.68,
+  "bytes": 10317,
+  "text": "Are you with the library, dear?",
+  "take": 2
  },
  "3e9d54b142c5": {
   "file": "3e9d54b142c5.mp3",
@@ -803,9 +816,10 @@
   "file": "7912fea79ad7.mp3",
   "who": "coach",
   "voice": "orpheus",
-  "dur": 2.18,
-  "bytes": 13341,
-  "text": "Two. She asked for the address where he's registered to vote."
+  "dur": 3.12,
+  "bytes": 18957,
+  "text": "Two. She asked for the address where he's registered to vote.",
+  "take": 1
  },
  "910252d64d7c": {
   "file": "910252d64d7c.mp3",
@@ -871,29 +885,23 @@
   "bytes": 45741,
   "text": "Tanya is registered in L.A. County and ready to sign. Before the pen moves, ask the question from lesson 3. Then walk her through the line."
  },
- "592b01e22c13": {
-  "file": "592b01e22c13.mp3",
-  "who": "tanya",
-  "voice": "andromeda",
-  "dur": 1.49,
-  "bytes": 9165,
-  "text": "No, I haven't signed it."
- },
  "bbbbaabeced8": {
   "file": "bbbbaabeced8.mp3",
   "who": "tanya",
   "voice": "andromeda",
-  "dur": 3.02,
-  "bytes": 18381,
-  "text": "Can you fill in the address for me, though? I've got my hands full with this one."
+  "dur": 3.86,
+  "bytes": 23421,
+  "text": "Can you fill in the address for me, though? I've got my hands full with this one.",
+  "take": 3
  },
  "daf79f53d5f9": {
   "file": "daf79f53d5f9.mp3",
   "who": "tanya",
   "voice": "andromeda",
-  "dur": 1.01,
-  "bytes": 6285,
-  "text": "Okay. Hang on, sweetie."
+  "dur": 1.03,
+  "bytes": 6429,
+  "text": "Okay. Hang on, sweetie.",
+  "take": 3
  },
  "d668eceb0fca": {
   "file": "d668eceb0fca.mp3",
@@ -1171,33 +1179,37 @@
   "file": "0628d3023235.mp3",
   "who": "pat",
   "voice": "harmonia",
-  "dur": 2.21,
-  "bytes": 13485,
-  "text": "Before I sign anything. Is this a new tax?"
+  "dur": 2.74,
+  "bytes": 16653,
+  "text": "Before I sign anything. Is this a new tax?",
+  "take": 1
  },
  "b0cdf636f88f": {
   "file": "b0cdf636f88f.mp3",
   "who": "pat",
   "voice": "harmonia",
-  "dur": 1.15,
-  "bytes": 7149,
-  "text": "So what do you want me to do?"
+  "dur": 1.27,
+  "bytes": 7869,
+  "text": "So what do you want me to do?",
+  "take": 1
  },
  "e53c8eb120fc": {
   "file": "e53c8eb120fc.mp3",
   "who": "pat",
   "voice": "harmonia",
-  "dur": 1.3,
-  "bytes": 8013,
-  "text": "I appreciate the straight answer."
+  "dur": 1.44,
+  "bytes": 8877,
+  "text": "I appreciate the straight answer.",
+  "take": 1
  },
  "14712f557a28": {
   "file": "14712f557a28.mp3",
   "who": "pat",
   "voice": "harmonia",
-  "dur": 1.8,
-  "bytes": 11037,
-  "text": "I don't sign anything with a new tax in it."
+  "dur": 1.94,
+  "bytes": 11901,
+  "text": "I don't sign anything with a new tax in it.",
+  "take": 3
  },
  "af9c4dd20641": {
   "file": "af9c4dd20641.mp3",

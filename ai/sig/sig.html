@@ -192,9 +192,9 @@ button.box { cursor: pointer; } .box.right { box-shadow: inset 0 0 0 2.5px var(-
 .sc p { margin: 0; font: 600 calc(16.5 * var(--u))/1.36 "Figtree"; text-wrap: pretty; }
 .count { flex: none; margin: 10px 0 0; font: 700 calc(13 * var(--u))/1 "Figtree"; color: var(--muted); }
 .faces { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; } .faces div { text-align: center; font: 700 calc(12.5 * var(--u))/1.2 "Figtree"; color: var(--muted); } .faces svg { width: 100%; aspect-ratio: 1; border-radius: 50%; background: var(--soft); display: block; margin-bottom: 5px; }
-.labels { position: absolute; left: 8px; right: 8px; bottom: 8px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; z-index: 3; } /* the course line, along the bottom */
+.labels { position: absolute; left: 8px; right: 8px; bottom: 8px; display: flex; gap: 5px; z-index: 3; } /* the course line, along the bottom, each label on one line */
 .panel.lab .capts { bottom: calc(50 * var(--u)); }
-.labels span { display: grid; place-items: center; text-align: center; padding: 6px 2px; min-height: calc(34 * var(--u)); border-radius: 9px; background: rgba(255,255,255,.9); font: 800 calc(10.5 * var(--u))/1.15 "Figtree"; color: #A69E92; transition: background .3s, color .3s; }
+.labels span { flex: 1 1 auto; display: grid; place-items: center; text-align: center; white-space: nowrap; padding: 6px 4px; min-height: calc(34 * var(--u)); border-radius: 9px; background: rgba(255,255,255,.9); font: 800 calc(10.5 * var(--u))/1.15 "Figtree"; color: #A69E92; transition: background .3s, color .3s; }
 .labels span.on { background: var(--green); color: #fff; }
 .sayq { margin: 14px 0 0; padding: 16px 18px; border-radius: 18px; background: var(--soft); font: 500 calc(20 * var(--u))/1.36 "Newsreader", Georgia, serif; text-wrap: pretty; }
 .sayq small { display: block; font: 800 calc(11 * var(--u))/1 "Figtree"; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
@@ -232,6 +232,7 @@ button.box { cursor: pointer; } .box.right { box-shadow: inset 0 0 0 2.5px var(-
   html, body { background: #E9E4DA; }
   #app { inset: auto; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 400px; height: min(calc(100vh - 36px), 860px); max-width: none; background: #fff; border-radius: 44px; box-shadow: 0 0 0 11px #262320, 0 26px 60px rgba(38,35,32,.3); overflow: hidden; padding-top: 24px; padding-bottom: 18px; }
   .ft { margin-bottom: -18px; }
+  .tag { right: 32px; bottom: 5px; } /* clear of the frame's round corner and of the button above it */
 }
 @media (min-height: 780px) { :root { --u: 1.07px; } }
 @media (min-height: 880px) { :root { --u: 1.14px; } }

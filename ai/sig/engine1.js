@@ -3,7 +3,7 @@ var ST = DATA.st, SH = DATA.shared, ME = DATA.measure, CAST = DATA.cast;
 var qs = new URLSearchParams(location.search);
 var LN = qs.get("l") === "card" ? 0 : Math.max(1, Math.min(5, parseInt(qs.get("l"), 10) || 2));
 var L = DATA.lessons[LN] || null;
-var FAST = qs.has("fast"); /* tests: no sound, no waiting */
+var FAST = qs.has("fast"), HOLD = Math.max(10, parseInt(qs.get("fast"), 10) || 10); /* tests: no sound, no waiting. fast=300 holds each spoken line 300 ms so a test sees every caption */
 var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 var $ = function (s) { return document.querySelector(s); };
 var esc = function (t) { return String(t == null ? "" : t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
@@ -53,7 +53,7 @@ function level() { if (!AN) return 0; var d = new Uint8Array(AN.fftSize); AN.get
 /* say one line of the script: its recorded clip (the phone's own voice only if the clip can't be had), with the speaker's mouth moving */
 function sayLine(line, r) {
   if (!line) return Promise.resolve(true);
-  if (FAST) return wait(10).then(function () { return r === RUN; });
+  if (FAST) return new Promise(function (ok) { setTimeout(function () { ok(r === RUN); }, HOLD); });
   return clipBuf(line.clip).then(function (buf) {
     if (r !== RUN) return false;
     lip(line.who);
