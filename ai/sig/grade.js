@@ -91,7 +91,10 @@ var SIGG = (function () {
     var t = norm(text), ws = words(t), g = greetLen(ws), q = question(t, st), lre = labelRe(st);
     var tm = TIME_RE.exec(t), timeAt = tm ? tm.index : -1;
     var libAny = new RegExp("\\b" + LIB + "\\b").test(t) || /\bbranch(?:es)?\b(?: [a-z']+){0,3}? (?:hours?|open)\b/.test(t) || (lre ? lre.test(t) : false);
-    var closing = CLOSING.some(function (r) { return r.test(t); }), cost = COST.test(t.replace(/\bfeel free\b/g, " ")), untrue = closing ? "closing" : cost ? "cost" : null;
+    var ta = t.replace(/\bfeel free\b/g, " "), um = null;
+    CLOSING.some(function (r) { var m = r.exec(t); if (m) um = m[0]; return !!m; });
+    var closing = !!um, cm = closing ? null : COST.exec(ta), cost = !!cm, untrue = closing ? "closing" : cost ? "cost" : null;
+    if (cm) um = cm[0];
     var promise = PROMISE_RE.test(t);
     /* the explanation: every word that isn't the greeting, the registered question or a filler */
     var explWords = 0, at = 0, seen = 0;
@@ -106,7 +109,7 @@ var SIGG = (function () {
     var hits = [g > 0, libAny && !untrue && !long, !!(q && q.county), timeAt < 0];
     return {
       hits: hits, n: hits.filter(Boolean).length, text: String(text || "").trim(), norm: t,
-      greet: g > 0, topic: libAny, long: long, explWords: explWords, untrue: untrue, promise: promise,
+      greet: g > 0, topic: libAny, long: long, explWords: explWords, untrue: untrue, untrueSaid: um, promise: promise,
       regAsked: !!q, regAt: q ? q.at : -1, county: !!(q && q.county), timeAt: timeAt, timeSaid: tm ? tm[0] : "",
       /* what the passerby hears first, a request for time or the registered question */
       first: timeAt >= 0 && (!q || timeAt < q.at) ? "time" : q ? "reg" : "none",
@@ -118,7 +121,7 @@ var SIGG = (function () {
   /* lesson 1's rule comes back with a passerby who isn't registered: thank her and let her go. Telling her she can
      register counts; "sign anyway" or offering the board doesn't. */
   var PUSH = /\bsign(?: it| this| that| here)?(?: right)? (?:any ?ways?|regardless|though|still)\b|\bstill sign\b|\b(?:go ahead and|just|you can|you could|can still|could still|should still|should|want to) sign\b|\bsign (?:here|right here|this|it|for me|real quick)\b|\bhere(?:'s| is) (?:the|my|a|your) (?:board|petition|pen|clipboard|sheet)\b|\btake (?:the|this|my|a) (?:pen|board|clipboard|petition)\b|\b(?:doesn't|doesnt|does not|don't|dont) matter\b|\b(?:don't|dont|do not) (?:have|need) to be registered\b|\bregistered or not\b/;
-  var COURTESY = /\bthank|\bno problem\b|\bno worries\b|\bnot a problem\b|\bthat's (?:ok|okay|fine|all right|alright|cool)\b|\bok(?:ay)?\b|\ball good\b|\bno sweat\b|\bgot it\b|\ball right\b|\balright\b|\bhave a (?:good|great|nice|wonderful|lovely)\b|\bhave a good one\b|\btake care\b|\b(?:good)?bye\b|\bsee you\b|\bregist/;
+  var COURTESY = /\bthank|\bno problem\b|\bno worries\b|\bnot a problem\b|\bthat's (?:ok|okay|fine|all right|alright|cool)\b|\bok(?:ay)?\b|\ball good\b|\bno sweat\b|\bgot it\b|\ball right\b|\balright\b|\bhave a (?:good|great|nice|wonderful|lovely)\b|\bhave a good one\b|\btake care\b|\b(?:good)?bye\b|\bsee you\b/;
   function letGo(text) {
     var t = norm(text);
     if (!real(t).length) return false;
@@ -136,8 +139,9 @@ var SIGG = (function () {
   /* ---------------- shared ---------------- */
   /* speech the recognizer didn't really catch isn't a try. An opener needs more than one stray word; anywhere else one
      real word ("Yes.") is an answer. */
+  var HES = /^(?:um+|uh+|uhm+|er+|erm+|hmm+|mm+|ah+)$/;
   function misheard(text, opener) {
-    var r = real(norm(text));
+    var r = words(norm(text)).filter(function (w) { return !HES.test(w); });
     if (!r.length) return true;
     if (opener && r.length === 1 && GREET1.indexOf(r[0]) < 0 && !/^librar/.test(r[0])) return true;
     return false;
@@ -244,18 +248,42 @@ var SIGG = (function () {
         hear: function () { if (P.length === 1) return out(["ask"]); var g = grade1(P[0], join(1), st); return out([g.why ? "yes" : "other"], true); },
         grade: function () { return grade1(P[0] || "", join(1), st); },
       },
-      /* lesson 2: Ben answers what he hears; "Uh, yeah, I'm registered" only answers the registered question */
+      /* lesson 2. A passerby answers what was actually said (playbook A4), with only the script's lines:
+         - asked if they're registered: they answer that, whatever else is missing;
+         - told what it's for and asked nothing: they slow, look over and wait, once ("@look"). They were just told what it's
+           for, so they don't ask, and nobody asked a question, so they don't answer one;
+         - told nothing: they ask what this is, once. */
       "2.ben": {
-        hear: function () { var g = grade(join(), st); if (g.first === "time") return out(["time"], true); if (g.regAsked) return out(["stop"], true); if (!S.asked) { S.asked = true; return out(["other"]); } return out([], true); },
-        grade: function () { return grade(join(), st); },
+        hear: function () {
+          var g = grade(join(), st);
+          if (g.first === "time") return out(["time"], true);
+          if (g.regAsked) return out(["stop"], true);
+          if (S.asked || S.looked) return out(["@go"], true);
+          if (g.topic) { S.looked = true; return out(["@look"]); }
+          S.asked = true; return out(["other"]);
+        },
+        grade: function () { var g = grade(join(), st); g.quote = join(); return g; },
       },
-      "2.stop": { /* Soo-jin and Luis stop for an opener with three or more parts that asks the question */
-        hear: function () { var g = grade(join(), st); if (g.regAsked && g.n >= 3) return out(["stop"], true); if (!S.asked) { S.asked = true; return out(["other"]); } return out([], true); },
-        grade: function () { return grade(join(), st); },
+      "2.stop": { /* Soo-jin and Luis. Asked with no word on what it's for, they answer and then ask: "Yes, I am, dear." "Sorry, what's this for?" */
+        hear: function () {
+          var g = grade(join(), st);
+          if (S.said.indexOf("stop") >= 0) return out([], true);
+          if (g.regAsked && (g.topic || S.asked || S.looked)) return out(["stop"], true);
+          if (g.regAsked) { S.asked = true; return out(["stop", "other"]); }
+          if (S.asked || S.looked) return out(["@go"], true);
+          if (g.topic) { S.looked = true; return out(["@look"]); }
+          S.asked = true; return out(["other"]);
+        },
+        grade: function () { var g = grade(join(), st); g.quote = join(); return g; },
       },
-      "2.kayla": { /* she isn't registered: the opener is the first piece, what the canvasser says next is lesson 1 coming back */
-        hear: function () { if (P.length === 1) return out(["not"]); return out(["bye"], true); },
-        grade: function () { var g = grade(P[0] || "", st); g.from = P.length > 1 && letGo(join(1)); return g; },
+      "2.kayla": { /* she isn't registered, and says so once she's asked. What the canvasser says next is lesson 1 coming back. */
+        hear: function () {
+          if (S.phase === 1) return out(["bye"], true);
+          if (grade(join(), st).regAsked) { S.phase = 1; S.mark = P.length; return out(["not"]); }
+          if (!S.looked) { S.looked = true; return out(["@look"]); }
+          return out(["@go"], true);
+        },
+        grade: function () { var n = S.phase === 1 ? S.mark : P.length, g = grade(join(0, n), st); g.quote = join(0, n); g.asked = S.phase === 1; g.from = S.phase === 1 && P.length > S.mark && letGo(join(S.mark)); return g; },
       },
       /* lesson 3 */
       "3.tanya": {
