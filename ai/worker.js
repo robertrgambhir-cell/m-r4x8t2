@@ -34,7 +34,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "174-6"; /* shows on /health, so a deploy can be confirmed (174-6 holds main's 165-15, the signature course's narration) */
+const BUILD = "174-7"; /* shows on /health, so a deploy can be confirmed (since 174-6 it holds main's 165-15, the signature course's narration) */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -178,8 +178,12 @@ const INSULT = /\b(idiot|stupid|moron|loser|dumbass|dumb|pathetic|shut up|piece 
    "It was a stupid war". Two passes at a narrower word list (174-2, 174-4) were each shown by an independent review to
    miss real threats and still close the door on ordinary sentences: a word list cannot tell "a cut like that would kill
    her" from a threat. So on an issue door the check no longer decides alone:
-   - PLAIN: "I" threatening the voter with violence in plain words ("I'm gonna kill you") ends the door, whatever the model
-     says, as on every door.
+   - PLAIN: words with no ordinary reading at a door end it, whatever the model says, as on every door (main's note above
+     says why the server makes sure: the model does not always comply). That is "I" threatening the voter with violence
+     ("I'm gonna kill you"), and the shapes of the project's own red-team lines (tests/redteam.mjs): "or we'll remember
+     this house", "someone should shoot him", "I'll report you to immigration", "or I'll burn your house down", "You're
+     hot.", "Hey gorgeous,", "What are you wearing under that?", and a second insult aimed at the voter ("You're an
+     idiot." then "Idiot.").
    - SUSPECT: any other line the checks above would end (read with a phone's curly apostrophes made plain). The voter is
      told that the line tripped the check and to judge it at the door (voterPrompt): a real threat, come-on or insult gets
      "that's not okay" and a goodbye, an ordinary sentence gets its normal answer. The server does not force the end.
@@ -189,7 +193,17 @@ const INSULT = /\b(idiot|stupid|moron|loser|dumbass|dumb|pathetic|shut up|piece 
 const ISSUE_SHEETS = new WeakSet(Object.values(ISSUE_SCENARIOS));
 export const isIssue = (s) => !!s && typeof s === "object" && ISSUE_SHEETS.has(s);
 const straight = (t) => String(t || "").replace(/[‘’ʼ]/g, "'").replace(/[“”]/g, '"');
-const THREAT_PLAIN = /\b(?:i'?ll|i will|i'?m (?:going to|gonna)|i am (?:going to|gonna))(?: (?:really|just|totally|definitely|seriously|fucking|freaking))* (?:kill|hurt|stab|murder|strangle) you\b/i;
+const I_WILL = "(?:i'?ll|i will|i'?m (?:going to|gonna)|i am (?:going to|gonna))", NOT_A_THING = "(?!'| (?:a|an|the|that|this|some|my|our|your|over|one)\\b)";
+const THREAT_PLAIN = [
+  new RegExp("(?<!\\b(?:like|if|think|thinks|say|said|saying|mean|means|worry|afraid|scared) )\\b" + I_WILL + "(?: (?:really|just|totally|definitely|seriously|fucking|freaking))* (?:kill|hurt|stab|murder|strangle) you\\b", "i"), /* not "it's not like I'm going to hurt you" */
+  /\bor (?:we'?ll|i'?ll) remember (?:this|your) (?:house|place|door|face)\b/i, /* red-team T1; without "or" it is a canvasser noting the house */
+  new RegExp("\\b(?:(?:someone|somebody) should (?:shoot|kill|hurt)|(?:they|people|i|we) should shoot) (?:(?:you|him|them)\\b" + NOT_A_THING + "|her(?=\\s*(?:[.,!?]|$)))", "i"), /* T2; "should shoot him an email" and "should kill her bill" are things */
+  new RegExp("\\b(?:" + I_WILL + "|we'll|we will|i can|i could) report you to (?:immigration|ice|the police|the cops)\\b", "i"), /* T4 */
+  new RegExp("\\bor i'?ll(?: (?:really|just|fucking|freaking))* (?:kill|hurt|stab|shoot|burn|smash|wreck|torch|trash) (?:you\\b" + NOT_A_THING + "|your (?:house|home|place|car|door|windows?|family|kids?|husband|wife|dog|face|tires?)\\b)", "i"),
+  new RegExp("\\bor we'?ll(?: (?:really|just|fucking|freaking))* (?:kill|stab|shoot|burn|smash|wreck|torch|trash) (?:you\\b" + NOT_A_THING + "|your (?:house|home|place|car|door|windows?|family|kids?|husband|wife|dog|face|tires?)\\b)", "i"),
+];
+const SEXUAL_PLAIN = /\b(?:(?<!\b(?:when|if|while|once|whenever|unless|because|so|and|until|that|hope|sure|think|thinks|says?|said)\s)you'?re (?:so )?(?:hot|cute|sexy|gorgeous|beautiful)(?=\s*(?:[.,!?]|$))|hey,? (?:gorgeous|sexy|babe|baby|hottie|beautiful)(?=\s*(?:[,.!?]|$)| you\b)|what are you wearing(?: under\b|\s*[?.!]*\s*$)|give me your number,? (?:gorgeous|babe|beautiful)\b)/i; /* H1, H2, H3, H5 */
+const INSULT_AIMED = /(?:^|[.!?,;:]\s*)you(?:'?re| are)(?: (?:a|an|such a|such an|so|really|just|being|a fucking|fucking))? (?:idiot|moron|loser|dumbass|bitch|asshole|jerk|clown|stupid|dumb|pathetic)\b|\byou (?:idiot|moron|loser|dumbass|bitch|asshole)\b|(?:^|[.!?]\s+)(?:idiot|moron|loser|dumbass|bitch|asshole)[.!?]*\s*$/gi; /* R3: said to her face ("You're an idiot.", "Idiot."), not "nobody thinks you're stupid" */
 /* the three checks above on the learner's lines; `said` reads a turn's text */
 function verdict(turns, said) {
   const you = turns.filter((t) => t.who === "you");
@@ -203,8 +217,12 @@ function verdict(turns, said) {
 /* what ends the door by the server's own hand */
 export function conduct(turns, s) {
   if (!isIssue(s)) return verdict(turns, (t) => t.text);
-  const you = turns.filter((t) => t.who === "you");
-  return you.length && THREAT_PLAIN.test(straight(you[you.length - 1].text)) ? "a threat" : "";
+  const you = turns.filter((t) => t.who === "you").map((t) => straight(t.text)), last = you.length ? you[you.length - 1] : "";
+  if (THREAT_PLAIN.some((re) => re.test(last))) return "a threat";
+  if (SEXUAL_PLAIN.test(last)) return "a sexual comment";
+  const aimed = (x) => (x.match(INSULT_AIMED) || []).length;
+  if (aimed(last) && you.reduce((a, x) => a + aimed(x), 0) >= 2) return "a second insult";
+  return "";
 }
 /* 174-5: on an issue door, what the checks above would have ended and the server leaves to the voter to judge */
 export function suspect(turns, s) {

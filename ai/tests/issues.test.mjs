@@ -45,9 +45,9 @@ ok(ISSUE_SCENARIOS.oil === ISSUE_SCENARIOS_V2.oil, "the server uses the voter sh
   let m4 = ""; try { checkSheet("oil", five); } catch (e) { m4 = e.message; }
   ok(/four/.test(m4), "the card must be the four parts: " + m4); }
 
-/* 174-5: on an issue door the conduct check does not decide alone. "I" threatening the voter in plain words ends the
-   door by the server's own hand. Any other line main's wording would end is a suspect line: the voter is told it tripped
-   the check and judges it; nothing is forced. So an ordinary sentence cannot close an issue door by a word list, and no
+/* 174-5 and 174-7: on an issue door the conduct check does not decide alone. Words with no ordinary reading at a door end
+   it by the server's own hand: "I" threatening the voter, and the shapes of the project's own red-team lines. Any other
+   line main's wording would end is a suspect line: the voter is told it tripped the check and judges it; nothing is forced. So an ordinary sentence cannot close an issue door by a word list, and no
    line that ends Kevin's door goes unjudged on Sarah's. Every other door keeps its checks as they were. The sentences
    are an independent review's (tests/issue-lines.mjs), each tried as typed, as speech recognition writes it (lowercase,
    no punctuation, no apostrophes) and with a phone's curly apostrophes. */
@@ -72,11 +72,25 @@ ok(ISSUE_SCENARIOS.oil === ISSUE_SCENARIOS_V2.oil, "the server uses the voter sh
     for (const sh of [SA, L]) { const c = conduct(t, sh), q = suspect(t, sh); if (c) plain += 1; else if (q !== k) missed.push(v.join(" / ")); } }
   ok(ends > 800 && missed.length === 0, `every line that ends Kevin's door is ended or judged on an issue door (${ends} forms): ` + missed.slice(0, 3).join(" | "));
   ok(plain > 0, "and the plain ones are ended by the server (" + plain + " checks)");
-  for (const line of ["I'll hurt you.", "I'm going to hurt you.", "I'm gonna fucking kill you.", "I am gonna hurt you.", "I will kill you.", "I’ll kill you.", "I’m going to hurt you.", "ill hurt you", "im gonna kill you", "I'm going to stab you."])
+  for (const line of ["I'll hurt you.", "I'm going to hurt you.", "I'm gonna fucking kill you.", "I am gonna hurt you.", "I will kill you.", "I’ll kill you.", "I’m going to hurt you.", "ill hurt you", "im gonna kill you", "I'm going to stab you.", "Vote for Maya or I'll burn your house down.", "Sign it or we'll smash your windows.", "Someone should shoot him.", "Somebody should hurt you."])
     ok(conduct(T([line]), SA) === "a threat" && conduct(T([line]), L) === "a threat" && suspect(T([line]), SA) === "", "a plain threat ends an issue door whatever the model says: " + line);
-  for (const [line, what] of [["Vote for her or else.", "a threat"], ["If you don't, you'll regret it.", "a threat"], ["Someone should shoot Jack Dufner.", "a threat"], ["Vote for Maya or I'll beat you up.", "a threat"], ["I know where you live.", "a threat"], ["Are you single?", "a sexual comment"], ["Mind if I come in for a bit?", "a sexual comment"], ["You’re gorgeous.", "a sexual comment"]])
+  /* the project's own red-team lines (tests/redteam.mjs): the nine that Kevin's door ends by the server check */
+  const RED = [[["Hi, I'm Dana with Maya Kaur.", "Whatever. You're an idiot.", "Did you hear me? Idiot."], "a second insult"], [["Hey gorgeous, you single?"], "a sexual comment"], [["You're cute. Can I come in for a bit?"], "a sexual comment"], [["Hi, I'm with Maya.", "Before that, what's your number? You're hot."], "a sexual comment"], [["Hi, I'm with Maya. What are you wearing under that?"], "a sexual comment"],
+    [["Vote for Maya Kaur or we'll remember this house."], "a threat"], [["Hi, I'm with Maya Kaur.", "If her opponent wins, someone should shoot him."], "a threat"], [["If you don't vote for her, I'll report you to immigration."], "a threat"]];
+  for (const [lines, what] of RED) ok(conduct(T(lines), K) === what && conduct(T(lines), SA) === what && conduct(T(lines), L) === what, "a red-team line ends an issue door by the server's own hand, as it ends Kevin's: " + lines[lines.length - 1]);
+  ok(conduct(T(["I know where you live now. I'll be back tonight."]), K) === "a threat" && conduct(T(["I know where you live now. I'll be back tonight."]), SA) === "" && suspect(T(["I know where you live now. I'll be back tonight."]), SA) === "a threat", "the ninth is judged: a neighbor with a form to drop off says the same words");
+  /* the plain set's near misses: said to no one, about a thing, or to reassure */
+  for (const line of ["I'll remember this house, it's the one with the wreath.", "We'll remember your door for the follow-up visit.", "It's not like I'm going to hurt you.", "They should shoot him an email about it.", "Congress should kill her bill before it passes.", "Landlords can't report you to immigration for applying.", "I can text it, or I'll shoot you the link tonight.", "The heat pump cools the house when you're hot.", "Hey, beautiful afternoon, isn't it?", "What are you wearing to stay warm in there?"])
+    ok(conduct(T([line]), SA) === "" && conduct(T([line, line]), L) === "", "not ended by the server: " + line);
+  for (const two of [["I'm not saying you're dumb, a lot of people believe that.", "Nobody thinks you're stupid for asking."], ["Sorry, I'm such an idiot, I lost my place.", "Okay, I'll shut up now. Can Maya count on your vote?"], ["Can I ask you a dumb question? Do you rent or own?", "No, you're not stupid, it is confusing."]])
+    ok(conduct(T(two), SA) === "" && conduct(T(two), L) === "", "not a second insult to her face: " + two.join(" / "));
+  for (const two of [["You're stupid.", "You're pathetic."], ["You're an idiot.", "You're a moron."], ["God, you're dumb.", "You idiot."]]) ok(conduct(T(two), SA) === "a second insult", "said to her face twice, the server ends it: " + two.join(" / "));
+  for (const [line, what] of [["Vote for her or else.", "a threat"], ["If you don't, you'll regret it.", "a threat"], ["Someone should shoot Jack Dufner.", "a threat"], ["Vote for Maya or I'll beat you up.", "a threat"], ["I know where you live.", "a threat"], ["Are you single?", "a sexual comment"], ["Mind if I come in for a bit?", "a sexual comment"], ["You’re so cute when you’re worried.", "a sexual comment"]])
     ok(conduct(T([line]), SA) === "" && suspect(T([line]), SA) === what && suspect(T([line]), L) === what, "judged by the voter, with the note: " + line);
-  ok(suspect(T(["Don't be stupid.", "Don't be dumb."]), SA) === "a second insult" && suspect(T(["You're stupid."]), SA) === "", "a second insult is judged; a first one is not counted yet");
+  ok(suspect(T(["Don't be stupid.", "Don't be dumb."]), SA) === "a second insult" && suspect(T(["You're stupid."]), SA) === "" && conduct(T(["You're stupid."]), SA) === "", "a second insult in other words is judged; a first one is not counted yet");
+  /* the server's own hand is never harsher on an issue door than main's wording, except for three verbs main's list lacks */
+  { let harsher = []; for (const lines of [...ORDINARY.map((x) => [x]), ...THREATS.map((x) => [x]), ...COMEONS.map((x) => [x]), ...INSULT_PAIRS]) if (conduct(T(lines), SA) && !conduct(T(lines), K) && !/\b(stab|murder|strangle)\b/i.test(lines.join(" "))) harsher.push(lines.join(" / "));
+    ok(harsher.length === 0, "nothing ends Sarah's door by the server's hand that would not end Kevin's (stab, murder and strangle aside): " + harsher.slice(0, 3).join(" | ")); }
   /* every other door: exactly as it was, and never a note */
   let other = 0; for (const line of [...ORDINARY, ...THREATS, ...COMEONS]) for (const sh of [K, SO, SCENARIOS.bri_health]) { if (suspect(T([line]), sh) !== "") other += 1; if (conduct(T([line]), sh) !== conduct(T([line]))) other += 1; }
   ok(other === 0, "the intro doors keep their checks exactly as they were, and are never told to judge");
