@@ -68,7 +68,8 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.12; }
 .ph .v { opacity: 0; transition: opacity .45s ease; }
 .ph.warm .v-warm, .ph.turned .v-turned, .ph.sheet .v-sheet { opacity: 1; }
 .ph.p.walk .bobber { animation: walkph .62s ease-in-out infinite; } @keyframes walkph { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-.ph.two.p.off-l { transform: translateX(-18px); opacity: 0; } .ph.two.p.off-r { transform: none; opacity: 1; } /* a two-person scene fades in as the passerby arrives, and stays when they go */
+.ph.p.off-l { transform: translateX(-18px); opacity: 0; } .ph.two.p.off-r { transform: none; opacity: 1; } /* a painting fades in as the passerby arrives (no slide, so no empty strip shows beside it); a two-person scene stays when they go */
+.ph.one.p.off-r { transform: translateX(18px); opacity: 0; }
 /* a painting can't move its lips, so the person talking gets a soft pulsing mark beside their name */
 .ph.talking ~ .who::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); margin-right: 7px; vertical-align: 1px; animation: talkdot 1s ease-in-out infinite; }
 @keyframes talkdot { 50% { transform: scale(.55); opacity: .55; } }
@@ -77,7 +78,7 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.12; }
    There the panel stops growing at the picture's own height (--cap, with a little ground under the shoes), and the room that
    is left goes to the words (fillUp). The storefront with nobody in it first draws up to a quarter larger, cropped at its
    sides, so it fills a tall panel */
-.panel.cap:has(> .ph.two), .panel.cap:has(> .ph.shop) { --cap: 148cqw; max-height: var(--cap); margin-bottom: auto; } /* the paintings are 896 by 1216: at the cap, a little of each side is cropped and no pavement band shows */
+.panel.cap:has(> .ph.two), .panel.cap:has(> .ph.shop), .panel.cap:has(> .ph.one) { --cap: 148cqw; max-height: var(--cap); margin-bottom: auto; } /* the paintings are 896 by 1216: at the cap, a little of each side is cropped and no pavement band shows */
 #scr.fitting > .panel.cap { flex: 0 0 auto; height: var(--cap); margin-bottom: 0; }
 .panel.cap ~ .foot { margin-top: auto; padding-top: 12px; } /* any room still left sits half under the picture and half over the button */
 #scr.fitting > .panel.cap ~ .foot { margin-top: 0; }

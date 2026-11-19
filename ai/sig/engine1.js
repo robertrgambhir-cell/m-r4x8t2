@@ -183,7 +183,7 @@ function frameOf(el) {
   var cx = fs.length ? (x0 + x1) / 2 : 0.5, cy = fs.length ? (y0 + y1) / 2 : 0.3, ft = el.parentElement && el.parentElement.classList.contains("ft") ? el.parentElement : null;
   var ty = el.classList.contains("two") ? 0.3 : ft && ft.querySelector(".dock.haspet") ? 0.2 : 0.27; /* with the petition docked on the call, the face sits higher */
   /* when the picture has no room to move the face up to its place, it is drawn up to a quarter larger so it can */
-  var s = s0; if (cy * m.h * s0 > H * ty + 1) s = Math.min(s0 * 1.25, Math.max(s0, (H - H * ty) / ((1 - cy) * m.h)));
+  var s = s0; if (!el.classList.contains("two") && cy * m.h * s0 > H * ty + 1) s = Math.min(s0 * 1.25, Math.max(s0, (H - H * ty) / ((1 - cy) * m.h))); /* never a two-person scene: it would cut someone at the edge */
   var rw = m.w * s, rh = m.h * s;
   return { m: m, fs: fs, rw: rw, rh: rh, ox: Math.min(0, Math.max(W - rw, W * 0.5 - cx * rw)), oy: Math.min(0, Math.max(H - rh, H * ty - cy * rh)) };
 }

@@ -352,7 +352,8 @@ VIEW.try2 = function (st) {
 function vReady(st, coach, onReady, extra, sub, result) {
   var r = RUN;
   top(result ? { result: true } : {});
-  show(kick(st) + '<div class="panel cap">' + sceneStore() + '</div>' + (extra || "") + (coach ? '<div class="coach q3">' + q(coach.text) + '</div>' : "") + (L.headsUp ? '<div class="callout">' + q(L.headsUp) + '</div>' : "") + foot(btn(SH.ready, "go")), sub || "a");
+  var up = st.who || (st.people && st.people[0] && st.people[0].who), named = up && coach && CAST[up] && coach.text.indexOf(CAST[up].name) >= 0 && IMG[up]; /* "Marisol is walking up." shows Marisol */
+  show(kick(st) + (named ? '<div class="panel cap" data-who="' + up + '">' + sceneOne(up, "") + '<div class="who">' + whoTag(up) + '</div></div>' : '<div class="panel cap">' + sceneStore() + '</div>') + (extra || "") + (coach ? '<div class="coach q3">' + q(coach.text) + '</div>' : "") + (L.headsUp ? '<div class="callout">' + q(L.headsUp) + '</div>' : "") + foot(btn(SH.ready, "go")), sub || "a");
   $("#go").onclick = function () { audio(); onReady(); };
   if (coach) sayLine(coach, r);
 }

@@ -14,8 +14,9 @@ in `wdpfxqlsvp/sig/img/`. Documents (petition lines, sheets, tallies, the county
   passed as reference images (input_image_0..2) to every scene they appear in, with a written description of each person.
 - **Versions:** each portrait has a smiling version (warm), Kayla has one with an earbud out (turned), and the two scenes
   where the canvasser shows the top funders sheet have a sheet version. They are edits of the base painting.
+- **After an outside review (11:00 AM PT):** Hank was repainted at 71, Kayla with both earbuds in a hand (no third one), Marisol with a blank badge, Ben's scene in his own sweater, and every two-person scene painted from a storefront reference with the sign cropped off and the table's words painted out, so a frame never cuts a word in half.
 - **Files in `sig-pictures/`:** `cast.py` (the style line and every person's description), `gen.py` (calls the lab, retries,
-  rejects cut-off pictures), `all-jobs.json` and `variant-jobs.json` (every prompt, size and seed), `picks.json` (which
+  rejects cut-off pictures), `all-jobs.json` (every prompt, size, seed and reference), `picks.json` (which
   candidate became which picture), `faces.py` and `faces-final.json` (face boxes: OpenCV for portraits, by hand for the
   two-person scenes) and `process.py` (crops, the close-up strips, the small squares and `img/manifest.json`).
 - **On the page:** `engine1.js` reads the manifest (DATA.img). `place()` frames each picture so the face sits near the

@@ -7,6 +7,10 @@
    longer on a second ask). --pace finds the clips that came out fast (over 5.4 syllables a second, in lines of 6 syllables
    or more), asks for up to three more takes of each (take=1 to 9 on the server) and keeps the one nearest 4.4 syllables a
    second, the coach's usual pace. The manifest records which take a clip is.
+   Nov 19, 2026 (Robert: "too AI-y" and "a tiny bit less fast"; playbook rule 68): a voice written "el:<voice id>:<speed>" in
+   SIG_VOICES is an ElevenLabs voice, recorded through the AI server's key-locked lab (/lab/eleven; the lab key comes from
+   LAB_KEY or the build sandbox's key file, never the repo). ElevenLabs takes a seed, so take N is seed N. Its pace target is
+   about 10% slower than the old voice's: 4.0 syllables a second, takes over 4.8 re-asked.
    Usage: node ai/tools/sig-audio.mjs [--force] [--first=2] [--pace]   (from the repo root; WARMUP_AI_URL overrides the server) */
 import fs from "node:fs";
 import path from "node:path";
@@ -20,7 +24,10 @@ const AI = process.env.WARMUP_AI_URL || "https://warmup-ai.robertrgambhir.worker
 const force = process.argv.includes("--force");
 const first = Number((process.argv.find((a) => a.startsWith("--first=")) || "").slice(8)) || 0;
 const pace = process.argv.includes("--pace");
-const TARGET = 4.4, FAST = 5.4, CALM = [3.4, 5.2], MIN_SYL = 6, MORE_TAKES = 3;
+let TARGET = 4.4, FAST = 5.4, CALM = [3.4, 5.2]; const MIN_SYL = 6, MORE_TAKES = 3;
+const EL_MODEL = process.env.EL_MODEL || "eleven_multilingual_v2";
+const LAB = process.env.LAB_KEY || (fs.existsSync("/home/claude/work/lab/key") ? fs.readFileSync("/home/claude/work/lab/key", "utf8").trim() : "");
+const isEl = (voice) => /^el:/.test(voice);
 /* a rough count of the syllables a voice says, good enough to compare two takes of one line */
 const NUMS = { "1000": 3, "28000": 5, "2026": 5, "26": 3, "100": 3, "88": 3, "12": 1, "10": 1, "7": 2, "3": 1, "8": 1, "1": 1, "2": 1 };
 export const syllables = (text) => String(text).split(/[\s-]+/).reduce((n, word) => {
@@ -42,10 +49,18 @@ let man = fs.existsSync(mf) ? JSON.parse(fs.readFileSync(mf, "utf8")) : {};
 if (Object.values(man).some((x) => !x.file || !/^[0-9a-f]{12}\.mp3$/.test(x.file))) man = {}; /* an older manifest, keyed by line */
 const N = SIG_NARRATION.sig.narration;
 /* one take of one line from the voice server, trimmed and leveled, written to `full` */
+/* one take from ElevenLabs, through the lab: "el:<voice id>:<speed>" */
+function elFetch(voice, take, say) {
+  const [, id, spd] = voice.split(":");
+  const body = { text: say, model_id: EL_MODEL, voice_settings: { stability: 0.5, similarity_boost: 0.8, style: 0.1, use_speaker_boost: true, speed: Number(spd || 1) } };
+  if (take) body.seed = take;
+  return fetch(`${AI}/lab/eleven?path=` + encodeURIComponent(`/v1/text-to-speech/${id}?output_format=mp3_44100_128`), { method: "POST", headers: { "x-lab-key": LAB, "content-type": "application/json", accept: "audio/mpeg" }, body: JSON.stringify(body) });
+}
 async function record(k, voice, take, full, say) {
   let r = null;
   for (let tryN = 0; tryN < 40 && !(r && r.ok); tryN += 1) {
-    r = await fetch(`${AI}/narrate?s=sig&k=${k}&voice=${voice}${take ? "&take=" + take : ""}`).catch(() => null);
+    r = await (isEl(voice) ? elFetch(voice, take, say) : fetch(`${AI}/narrate?s=sig&k=${k}&voice=${voice}${take ? "&take=" + take : ""}`)).catch(() => null);
+    if (r && r.ok && isEl(voice) && !/audio/.test(r.headers.get("content-type") || "")) { const msg = await r.text(); throw new Error("ElevenLabs didn't send a sound: " + msg.slice(0, 300)); }
     if (r && r.ok) break;
     const st = r ? r.status : 0;
     if (st === 404) throw new Error("the server doesn't know this line yet (is the new build live?): " + say);
@@ -63,6 +78,7 @@ async function record(k, voice, take, full, say) {
   return { dur: Math.round(dur * 100) / 100, bytes: fs.statSync(full).size };
 }
 const all = sigVoiceLines().sort((a, b) => (a.n === first ? 0 : 1) - (b.n === first ? 0 : 1));
+if (all.some((L) => isEl(L.voice))) { TARGET = 4.0; FAST = 4.8; CALM = [3.4, 4.6]; if (!LAB) throw new Error("ElevenLabs voices need the lab key (LAB_KEY)"); }
 const next = {}; let made = 0;
 for (const L of all) {
   const h = clipKey(L.voice, L.say), file = h + ".mp3", full = path.join(OUT, file);
