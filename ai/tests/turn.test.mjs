@@ -73,10 +73,18 @@ ok(r.status === 400 && (await r.json()).error === "bad_signature", "a voter line
 r = await post({ scenario: "oil", turns: [{ who: "them", text: O }, { who: "you", text: "Hi" }] }, "https://evil.example");
 ok(r.status === 403, "another site is refused");
 
-/* a threat takes the careful path and still ends */
-r = await post({ scenario: "oil", turns: [{ who: "them", text: O }, { who: "you", text: "Vote for her or else." }] });
+/* a threat takes the careful path and still ends (174-5: on an issue door that is a plain threat; "or else" is left to the voter to judge, streamed like any line) */
+r = await post({ scenario: "oil", turns: [{ who: "them", text: O }, { who: "you", text: "I'm going to hurt you." }] });
 f = await frames(r);
 ok(f.find((x) => x.t === 1 && x.j.t === "done").j.end === true && !calls[calls.length - 1].stream, "a threat ends it through the /voter path");
+{ const was = modelText; modelText = "skeptical|What's that supposed to mean?";
+  r = await post({ scenario: "oil", turns: [{ who: "them", text: O }, { who: "you", text: "Vote for her or else." }] });
+  f = await frames(r); modelText = was; }
+ok(f.find((x) => x.t === 1 && x.j.t === "done").j.end === false && calls[calls.length - 1].stream === true && /An automatic check flagged the volunteer's last line as possibly a threat/.test(JSON.stringify(calls[calls.length - 1].system)), "on an issue door a line the check trips on is streamed with a note, and nothing is forced");
+{ const KO = SCENARIOS.kevin_intro.voter.opening.say;
+  r = await post({ scenario: "kevin_intro", turns: [{ who: "them", text: KO }, { who: "you", text: "Vote for her or else." }] });
+  f = await frames(r);
+  ok(f.find((x) => x.t === 1 && x.j.t === "done").j.end === true && !calls[calls.length - 1].stream && !/An automatic check/.test(JSON.stringify(calls[calls.length - 1].system)), "on Kevin's door the same line ends it through the /voter path, as before"); }
 
 /* no raw audio from the service: MP3 instead */
 voiceMode = "no-pcm"; modelText = "neutral|Alright.";

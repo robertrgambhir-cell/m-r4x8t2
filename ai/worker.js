@@ -34,7 +34,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "174-4"; /* shows on /health, so a deploy can be confirmed (since 174-3 it holds main's 165-14, the signature course's narration) */
+const BUILD = "174-5"; /* shows on /health, so a deploy can be confirmed (since 174-3 it holds main's 165-14, the signature course's narration) */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -171,54 +171,51 @@ export const CARE = /\b(kill(ing)? myself|end(ing)? (my|it) (life|all)|suicid\w*
 const THREAT = /\b(or (we|i)'?ll\b(?! (text|call|send|follow))|(we'?ll|i'?ll) remember (this|your) (house|place|door|face)|i know where you live|i'?ll be back (tonight|later|for you)|should (shoot|kill|hurt|beat)\b|(shoot|kill|hurt|beat up) (him|her|you|them)\b|report you to (immigration|ice|the police|the cops)|you'?ll regret|watch your back|or else[.!?]*\s*$)/i;
 const SEXUAL = /\b(you'?re (so )?(hot|cute|sexy|gorgeous|beautiful|fine)|hey,? (gorgeous|sexy|beautiful|babe|baby|hottie)|are you single|you single|what are you wearing|come in for a (bit|while)|give me your number,? (gorgeous|babe|beautiful))/i;
 const INSULT = /\b(idiot|stupid|moron|loser|dumbass|dumb|pathetic|shut up|piece of (crap|shit)|bitch|asshole|jerk|clown)\b/gi;
-/* 174-2 and 174-4: the issue practice's doors (Sarah, Linda) run longer than the intro doors and are about cuts, care and
-   help. The checks above were written for short introductions. On an issue door they read ordinary sentences as a threat,
-   a come-on, an insult or a goodbye: "A cut like that would hurt you", "Maya should beat Jack Dufner on Tuesday",
-   "I'll be back later with the answer", "Your check will still come in for a while", "Are you single or is there a second
-   income?", "a stupid war", "kids to take care of", "see you at the polls". For the issue sheets only, the same checks
-   with wording that fits such a conversation:
-   - "hurt" needs I or we doing it (a cut hurts; a person threatens). Shoot, kill and beat up count from anyone, as on
-     every door, and so do "I know where you live", "watch your back", "or else" and the rest.
-   - "or I'll ..." counts when what follows is harm, not a consequence ("or we'll see smaller checks").
-   - "fine" needs "so"; "are you single" doesn't count when it goes on with "or ..." (the heating help goes by household);
-     "come in" counts when the canvasser asks to.
-   - a put-down word counts when it is aimed at a person ("you're stupid", "stupid old woman", "how dumb are you").
-   - curly apostrophes from a phone's keyboard are read as plain ones first.
-   A real threat, come-on or second insult still ends the door. Every other door uses the checks above, unchanged. */
+/* 174-5: the issue practice's doors (Sarah, Linda). The checks above were written for short introductions. An issue
+   conversation runs longer and is about cuts, care and help, and there the same wording reads ordinary sentences as a
+   threat, a come-on or an insult: "A cut like that would hurt you", "Maya should beat Jack Dufner on Tuesday", "I can text
+   you the link, or I'll get you a paper copy", "I'll shoot you the link", "Are you single or is there a second income?",
+   "It was a stupid war". Two passes at a narrower word list (174-2, 174-4) were each shown by an independent review to
+   miss real threats and still close the door on ordinary sentences: a word list cannot tell "a cut like that would kill
+   her" from a threat. So on an issue door the check no longer decides alone:
+   - PLAIN: "I" threatening the voter with violence in plain words ("I'm gonna kill you") ends the door, whatever the model
+     says, as on every door.
+   - SUSPECT: any other line the checks above would end (read with a phone's curly apostrophes made plain). The voter is
+     told that the line tripped the check and to judge it at the door (voterPrompt): a real threat, come-on or insult gets
+     "that's not okay" and a goodbye, an ordinary sentence gets its normal answer. The server does not force the end.
+   So every line that ends Kevin's door is at least judged on Sarah's, and an ordinary sentence cannot close an issue
+   door by the server's word list alone. Every other door uses the checks above, unchanged. Not yet tried with the real
+   model: tests/issue-voters-live.mjs asks it both ways after a deploy. */
 const ISSUE_SHEETS = new WeakSet(Object.values(ISSUE_SCENARIOS));
 export const isIssue = (s) => !!s && typeof s === "object" && ISSUE_SHEETS.has(s);
 const straight = (t) => String(t || "").replace(/[‘’ʼ]/g, "'").replace(/[“”]/g, '"');
-const I_GLUE = "(?: (?:will|would|could|can|might|should|am|are|going|gonna|to|want|wanna|really|just|totally|definitely|fucking|freaking))*";
-const THREAT_ISSUE = new RegExp("\\b(" + [
-  "(?:we'?ll|i'?ll) remember (?:this|your) (?:house|place|door|face)",
-  "i know where you live",
-  "i'?ll be back for you",
-  "(?:someone|somebody|they|we|i|people) should (?:shoot|kill|hurt) (?:him|her|you|them)",
-  "(?:shoot|kill|beat up) (?:him|her|you|them)",
-  "(?:i'?ll|i'?m|i'd|we'll|we're|we'd|i|we)" + I_GLUE + " hurt (?:him|her|you|them)",
-  "make me (?:hurt|kill|shoot) (?:him|her|you|them)",
-  "(?:find|get|track) (?:him|her|you|them)(?: down)? and (?:hurt|kill|shoot|beat)",
-  "or (?:we|i)'?ll (?:burn|break|smash|trash|wreck|hurt|kill|shoot|find you|get you|come (?:back )?for|make you|be back)",
-  "report you to (?:immigration|ice|the police|the cops)",
-  "(?<!think )(?<!hope )(?<!sure )(?<!bet )you'?ll regret (?:this|that)",
-  "watch your back",
-].join("|") + ")\\b|\\bor else[.!?]*\\s*$", "i");
-const SEXUAL_ISSUE = /\b(you'?re (so )?(hot|cute|sexy|gorgeous|beautiful)|you'?re so fine|hey,? (gorgeous|sexy|beautiful|babe|baby|hottie)|(are )?you single(?!,? or\b)|what are you wearing|(can|could|may) i come in\b|let me come in\b|give me your number,? (gorgeous|babe|beautiful))/i;
-const INSULT_ISSUE = /\b(idiot|moron|loser|dumbass|shut up|piece of (?:crap|shit)|bitch|asshole|jerk|clown|you(?:'?re| are)?(?: \w+)? (?:stupid|dumb|pathetic)|(?:stupid|dumb|pathetic) (?:(?:old|little|fat|ugly) )*(?:woman|man|lady|hag|cow|fool|girl|boy|person)|(?:how|so) (?:stupid|dumb|pathetic) (?:are|can|could|must) you)\b/gi;
-export function conduct(turns, s) {
-  const issue = isIssue(s), threat = issue ? THREAT_ISSUE : THREAT, sexual = issue ? SEXUAL_ISSUE : SEXUAL, insult = issue ? INSULT_ISSUE : INSULT;
-  const said = (t) => (issue ? straight(t.text) : t.text); /* 174-4: on an issue door a phone's curly apostrophe is read as a plain one */
+const THREAT_PLAIN = /\b(?:i'?ll|i will|i'?m (?:going to|gonna)|i am (?:going to|gonna))(?: (?:really|just|totally|definitely|seriously|fucking|freaking))* (?:kill|hurt|stab|murder|strangle) you\b/i;
+/* the three checks above on the learner's lines; `said` reads a turn's text */
+function verdict(turns, said) {
   const you = turns.filter((t) => t.who === "you");
   const last = you.length ? said(you[you.length - 1]) : "";
-  if (threat.test(last)) return "a threat";
-  if (sexual.test(last)) return "a sexual comment";
-  const insults = you.reduce((a, t) => a + ((said(t).match(insult) || []).length), 0), lastIns = (last.match(insult) || []).length;
+  if (THREAT.test(last)) return "a threat";
+  if (SEXUAL.test(last)) return "a sexual comment";
+  const insults = you.reduce((a, t) => a + ((said(t).match(INSULT) || []).length), 0), lastIns = (last.match(INSULT) || []).length;
   if (lastIns && insults >= 2) return "a second insult";
   return "";
 }
+/* what ends the door by the server's own hand */
+export function conduct(turns, s) {
+  if (!isIssue(s)) return verdict(turns, (t) => t.text);
+  const you = turns.filter((t) => t.who === "you");
+  return you.length && THREAT_PLAIN.test(straight(you[you.length - 1].text)) ? "a threat" : "";
+}
+/* 174-5: on an issue door, what the checks above would have ended and the server leaves to the voter to judge */
+export function suspect(turns, s) {
+  if (!isIssue(s) || conduct(turns, s)) return "";
+  return verdict(turns, (t) => straight(t.text));
+}
 /* asked whether the voter is an AI, and the reply denies it: replace it with the honest line */
 const ASKS_AI = /\b(are you (an? )?(ai|a\.i\.|bot|robot|real( person)?|human|computer)|is this (an? )?(ai|bot|robot|real person)|am i talking to (an? )?(ai|bot|robot|computer))\b/i;
-const DENIES_AI = /\b(not an? (ai|bot|robot|computer)|i'?m (a )?real (person|guy|woman)|i'?m human|no,? i'?m (kevin|bri|sarah|linda)\b)/i; /* 174-1: the issue practice's voters, Sarah and Linda */
+const DENIES_AI = /\b(not an? (ai|bot|robot|computer)|i'?m (a )?real (person|guy|woman)|i'?m human|no,? i'?m (kevin|bri)\b)/i;
+/* 174-5: on an issue door the voter's own name counts too ("No, I'm Sarah."); every other door reads the line above as it is */
+const deniesAI = (say, s) => DENIES_AI.test(say) || (isIssue(s) && new RegExp("\\bno,? i'?m " + s.voter.name + "\\b", "i").test(say));
 export const needsCare = (turns) => { const you = turns.filter((t) => t.who === "you"); return !!you.length && CARE.test(you[you.length - 1].text); };
 
 /* ---------------- the voter ---------------- */
@@ -320,12 +317,17 @@ export function voterPrompt(s, turns) {
     `The volunteer has spoken ${n} time${n === 1 ? "" : "s"} so far.`,
   ];
   if (v.introParts) { const pl = introPartsLine(turns); if (pl) lines.push(pl); } /* version 165-5 */
-  const bad = conduct(turns, s);
+  const bad = conduct(turns, s), maybe = bad ? "" : suspect(turns, s);
   if (bad) lines.push(`The volunteer's last line was ${bad}. Say briefly and calmly that it's not okay, don't repeat their words, say goodbye and set end to true.`);
-  else if (n >= v.hardStop) lines.push("You must end the conversation now: say a short, polite goodbye in your own words and set end to true.");
-  else if (n >= v.wrapAt) lines.push("It's time to start wrapping up: unless the volunteer just asked you something you'd answer, close politely and set end to true.");
+  else {
+    if (maybe) lines.push(SUSPECT_NOTE(maybe, v.name)); /* 174-5, issue doors only: the voter judges the line; nothing is forced */
+    if (n >= v.hardStop) lines.push("You must end the conversation now: say a short, polite goodbye in your own words and set end to true.");
+    else if (n >= v.wrapAt) lines.push("It's time to start wrapping up: unless the volunteer just asked you something you'd answer, close politely and set end to true.");
+  }
   return lines.join("\n");
 }
+/* 174-5: what the voter is told when a line on an issue door trips main's conduct wording (see SUSPECT above) */
+const SUSPECT_NOTE = (what, name) => `An automatic check flagged the volunteer's last line as possibly ${what}. The check is crude: in a conversation like this one it often trips on ordinary sentences (a cut that would hurt or kill someone, a candidate who should beat another, an offer to come back, to find something out or to send a link, a question about who lives in your home, a word like "stupid" or "dumb" said about a war, a vote or themselves). Judge the line as ${name} would, hearing it at the door. If the volunteer really threatened you or anyone else, said something sexual to you or insulted you, say briefly and calmly that it's not okay, don't repeat their words, say goodbye and set end to true. If it was an ordinary sentence, ignore this note completely and answer as you normally would.`;
 const VOTER_TOOL = {
   name: "voter_turn",
   description: "The voter's next spoken turn.",
@@ -345,29 +347,63 @@ const VOTER_TOOL = {
 export const FAREWELL = /\b(good ?night|goodbye|bye( now)?|have a (good|great|nice|lovely) (night|evening|one|day|afternoon|weekend)|take care|see you( later| around)?|thanks for (coming|stopping) by)\b/i;
 export const outOfCharacter = (p, name) => new RegExp(`\\b(I (can'?t|cannot|won'?t|am unable to|'m unable to) (write|continue|generate|produce|give|provide)|next (line|turn|response)|(this|the) (exchange|conversation|scene|role-?play|transcript|dialogue)\\b[^.]*\\b(ended|over|already|reached)|${name}'s (next|final|last) (line|words|turn)|as an AI\\b|language model|the volunteer\\b|if you'?re practicing|role-?play)`, "i").test(p);
 export const GOODBYE = "Bye now!";
-/* 174-4: a goodbye on an issue door. The voter's own ordinary words must not shut her door ("So I can kiss $460 a month
-   goodbye?", "I haven't had a good night's sleep", "Thanks for stopping by, but ...", "kids to take care of"), and
-   "see you at the polls" from the canvasser is not a goodbye. A goodbye is a goodbye phrase that ends the line (a name may
-   follow it), in a line that is not a question, or the way her sheet has her leave ("I have to get back inside"). */
-const BYE_END = /(?:^|[\s,.;!])(?:good ?night|goodbye(?: [a-z]+)?|bye(?: now)?(?: [a-z]+)?|have a (?:good|great|nice|lovely) (?:night|evening|one|day|afternoon|weekend)|take care(?! of\b)(?: now)?|see you(?: later| around| soon| then| (?:on )?(?:tuesday|election day))?|thanks for (?:coming|stopping) by)(?:, [a-z]+)?[.!\s]*$/i;
-const BYE_INSIDE = /\b(?:have|need|got|ought) to (?:get|go|head) back (?:inside\b|in(?=\s*(?:[.!,]|$)))/i;
-export const farewellIssue = (t) => { const x = straight(t).trim(); return !/\?\s*$/.test(x) && !/\bkiss\b[^.!?]*\bgoodbye\b/i.test(x) && (BYE_END.test(x) || BYE_INSIDE.test(x)); };
-const farewell = (s) => (isIssue(s) ? { test: farewellIssue } : FAREWELL);
-/* 174-4: staying in character on an issue door. The guard above takes "I can't write / continue / give / provide ..." for
-   the model stepping out of its part. Sarah and Linda say such things about money and their vote ("I can't give you a yes
-   tonight", "I can't write a check that big", "I can't provide for my kids"). On an issue door those words count only
-   when what follows is about the conversation itself (or nothing follows). */
-const ORDINARY_CANT = /\bI (can'?t|cannot|won'?t|am unable to|'m unable to) (write|continue|generate|produce|give|provide)\b(?!(?: (?:that|this|it))?(?:\s*[.!]|\s*$| (?:line|response|reply|dialogue|conversation|role-?play|scene|text|content|request|output|message|answer|with (?:this|the|that))))/gi;
-export const outOfCharacterIssue = (p, name) => outOfCharacter(straight(p).replace(ORDINARY_CANT, "I am not able to $2"), name);
+/* 174-5: a goodbye on an issue door. The wording above reads a goodbye word anywhere in a line, which fits a voter who
+   speaks one short sentence. Sarah and Linda speak two or three, and so does the canvasser: "So I can kiss $460 a month
+   goodbye?", "I haven't had a good night's sleep", "Thanks for stopping by, but ...", "kids to take care of" and "we'd love
+   to see you at the polls" are not goodbyes. A wrong goodbye cuts a practice short; a missed one costs one more exchange
+   (the model's own end marker and the sheet's seven-line stop still close the door). So one plain rule, leaning toward
+   staying open: a line is a goodbye when a goodbye phrase comes at its end, with at most four words after it, and the
+   line does not end on a question. A phrase that is being talked about does not count (in quotes, after "said" or
+   "tell", "will we see you", "did you have a good day"). For the voter's own line, the way her sheet has her leave counts
+   the same way ("I have to get back inside where it's warm"); a canvasser who mentions it is not saying goodbye. */
+const BYE_WORDS = /\b(?:good ?night|goodbye|bye-bye|bye(?: now)?|have a (?:good|great|nice|lovely) (?:night|evening|one|day|afternoon|weekend)|take care(?: of (?:yourself|yourselves))?|see you(?: later| around| soon| then)?|thanks for (?:coming|stopping) by)\b/gi;
+const BACK_INSIDE = /\b(?:have to|has to|need to|got to|gotta|should|ought to|better|going to|gonna|must|let me)\b[^.!?]{0,30}?\b(?:get|getting|go|going|head|heading|run|running) (?:(?:back )?inside\b|back in(?=\s*(?:[.!,]|$)| now\b| the house\b))/gi;
+const shortTail = (tail) => { const w = tail.replace(/[^a-z0-9' ]+/gi, " ").trim().split(/\s+/).filter(Boolean); return w.length <= 4 && !/^(?:but|so|because|though|although|if|unless|until|when|while|or|soon|shortly|in)$/i.test(w[0] || ""); };
+const BYE_TALKED_ABOUT = [
+  [/^(?:goodbye|bye)/, /\b(?:tell|told|say|says|said|saying|kiss(?:ed|ing)?|wave[ds]?)\b[^.!?]*$|\b(?:it's|its|that's|means?|be|is|was)\s+$/i, /^\s+to\b/i], /* "kiss $460 a month goodbye", "he just said bye", "then it's goodbye house", "goodbye to my savings" */
+  [/^good ?night$/, /\b(?:a|the|every|one|per|each|any|this|that)\s+$/i, /^'s\b/], /* "58 on a good night", "a good night's sleep" */
+  [/^take care$/, /(?:\b(?:will|would|can|could|should|to|must|might|they|we|he|she|it|i|who|gonna)|'ll|'d)\s+$/i, /^\s+of\b/i], /* "the state will take care", "kids to take care of" */
+  [/^see you/, /(?:\b(?:to|will|would|can|could|might|did|do|don't|didn't|never|rather|we|they|he|she|who|people|folks|voters)|'d)\s+$/i, null], /* "love to see you at the polls", "will we see you Tuesday" */
+  [/^have a /, /\b(?:did|do|does|didn't|don't|will|would|can|could|if|when|never|not|to)(?: (?:you|we|they|i|he|she))?\s+$/i, null], /* "did you have a good day" */
+];
+export const farewellIssue = (t, hers = false) => {
+  const x = straight(t).trim().replace(/,\s*(?:okay|ok|all right|alright|yeah)\?\s*$/i, "."); /* "Have a good one, okay?" asks nothing */
+  if (!x || /\?\s*["')\]]*$/.test(x)) return false;
+  for (const m of x.matchAll(BYE_WORDS)) {
+    const before = x.slice(0, m.index), after = x.slice(m.index + m[0].length), w = m[0].toLowerCase();
+    if (/"\s*$/.test(before) || /^\s*"/.test(after)) continue; /* she is quoting someone */
+    if (BYE_TALKED_ABOUT.some(([is, pre, post]) => is.test(w) && ((pre && pre.test(before)) || (post && post.test(after))))) continue;
+    if (!/\?/.test(after) && shortTail(after)) return true;
+  }
+  if (hers) for (const m of x.matchAll(BACK_INSIDE)) { const after = x.slice(m.index + m[0].length); if (!/\?/.test(after) && shortTail(after)) return true; }
+  return false;
+};
+const farewell = (s, hers) => (isIssue(s) ? { test: (t) => farewellIssue(t, hers) } : FAREWELL);
+/* 174-5: staying in character on an issue door. The guard above takes "I can't write / continue / give / provide ..." for
+   the model stepping out of its part. Sarah and Linda say such things about money and their vote ("I can't give you a
+   yes tonight", "I can't write a check that big", "I can't continue with these bills", "My vote? I can't give that."),
+   and a wrong catch throws her line away and shuts the door. On an issue door those words count only when they are
+   plainly about the conversation itself: "generate" at all; a word like response, conversation or role-play within a
+   few words; "as Sarah", "in character", "here"; or nothing after write, continue, produce or provide ("I can't
+   continue.", "I can't write that, sorry."). Everything else in the guard above is read as it is. */
+const CANT = /\bI (can'?t|cannot|won'?t|am unable to|'m unable to) (write|continue|generate|produce|give|provide)\b/gi;
+const CANT_I = "\\bI (?:can'?t|cannot|won'?t|am unable to|'m unable to) ";
+const CANT_TALK = "(?:responses?|reply|replies|dialogue|conversation|role-?play|role play|scene|content|output|character|transcript|prompt|next (?:line|turn))";
+const cantBreak = (x, name) => new RegExp([
+  CANT_I + "generate\\b",
+  CANT_I + "(?:write|continue|produce|give|provide)\\b(?:(?: [\\w'-]+){0,4}? " + CANT_TALK + "\\b| (?:as|playing|being) " + name + "\\b| in (?:character|this role)\\b| here\\b)",
+  CANT_I + "(?:write|continue|produce|provide)\\b(?:(?: (?:that|this|it))?(?:\\s*[.!;:]|\\s*$|, sorry\\b)| more of (?:this|that)\\b| any further\\b)",
+].join("|"), "i").test(x);
+export const outOfCharacterIssue = (p, name) => { const x = straight(p); return cantBreak(x, name) || outOfCharacter(x.replace(CANT, "I am not able to $2"), name); };
 const ooc = (s) => (isIssue(s) ? outOfCharacterIssue : outOfCharacter);
-const saidBye = (turns, s) => { const you = turns.filter((t) => t.who === "you").length; const them = turns.filter((t) => t.who === "them"); return you >= 2 && them.length >= 2 && farewell(s).test(them[them.length - 1].text); };
+const saidBye = (turns, s) => { const you = turns.filter((t) => t.who === "you").length; const them = turns.filter((t) => t.who === "them"); return you >= 2 && them.length >= 2 && farewell(s, true).test(them[them.length - 1].text); };
 export function cleanVoter(x, s, turns) {
   if (!x || typeof x.say !== "string" || !x.say.trim()) throw new HttpError(502, "bad_model_output", "the voter's reply was empty");
   let say = dashes(x.say).replace(/^["“]+|["”]+$/g, "").replace(new RegExp("^" + s.voter.name + "\\s*:\\s*", "i"), "").replace(/\*[^*]+\*/g, "").replace(/\s+/g, " ").trim();
   if (say.length > 320) say = say.slice(0, 320).replace(/[^.!?]*$/, "") || say.slice(0, 320);
   const n = turns.filter((t) => t.who === "you").length;
   if (ooc(s)(say, s.voter.name)) return { say: GOODBYE, mood: "warm", end: true, broke: true }; /* version 165-2 */
-  return { say, mood: MOODS.includes(x.mood) ? x.mood : "neutral", end: !!x.end || n >= s.voter.hardStop || (n >= 2 && farewell(s).test(say)) };
+  return { say, mood: MOODS.includes(x.mood) ? x.mood : "neutral", end: !!x.end || n >= s.voter.hardStop || (n >= 2 && farewell(s, true).test(say)) };
 }
 
 /* ---------------- the coach ---------------- */
@@ -437,9 +473,25 @@ export function cleanCoach(x, s, turns) {
   const heard = Array.isArray(x.transcription) ? x.transcription.filter((t) => t && t.heard && nearLearner(t.heard, turns)).map((t) => ({ heard: dashes(t.heard), likely: dashes(t.likely || "") })) : [];
   const claims = Array.isArray(x.invented) ? x.invented.filter((t) => t && (t.quote || t.issue)) : [];
   const invented = [], unsure = [];
-  /* 174-4: on an issue door a line is often two or three sentences, and "Check this" is the only place the card shows a
-     wrong claim: quote the sentence that carries it, not the start of the line (which may be a sentence said right) */
-  const quoteOf = (turn, q) => { if (!isIssue(s) || turn.length <= 160) return clip(turn, 160); const parts = turn.match(/[^.!?]+[.!?]*\s*/g) || [turn], words = (x) => norm(x).split(" ").filter((w) => w.length > 2), qw = new Set(words(q)); let best = 0, at = -1; parts.forEach((p, i) => { const n = words(p).filter((w) => qw.has(w)).length; if (n > best) { best = n; at = i; } }); return at < 0 ? clip(turn, 160) : clip(parts[at].trim(), 160); };
+  /* 174-5: on an issue door a line is often two or three sentences, and "Check this" is the only place the card shows a
+     wrong claim: quote the sentence that carries it, not the start of the line (which may be a sentence said right). A
+     sentence ends at . ! or ? before a space and a capital letter, so "$6.01", "6.2%" and "U.S." stay whole. A line with
+     no sentence ends (speech text) or one long sentence is cut to 160 characters around the claim's words. A line of
+     160 characters or fewer, and every other door, is quoted as before. */
+  const quoteOf = (turn, q) => {
+    if (!isIssue(s) || turn.length <= 160) return clip(turn, 160);
+    const parts = turn.split(/(?<=(?<!\b[A-Z])[.!?])\s+(?=["'A-Z])/), words = (x) => norm(x).split(" ").filter((w) => w.length > 2), qn = norm(q), qw = new Set(words(q));
+    let at = parts.findIndex((p) => qn && norm(p).includes(qn)), best = 0;
+    if (at < 0) parts.forEach((p, i) => { const n = words(p).filter((w) => qw.has(w)).length; if (n > best) { best = n; at = i; } });
+    const sent = (at < 0 ? turn : parts[at]).trim();
+    if (sent.length <= 160) return clip(sent, 160);
+    /* one long sentence, or speech text with no sentence ends: the 150 characters that hold most of the claim's words */
+    const ws = sent.split(/\s+/), hit = ws.map((w) => (qw.has(norm(w)) ? 1 : 0));
+    let a = 0, b = 0, top = 0;
+    for (let i = 0; i < ws.length; i++) { let j = i, len = ws[i].length, n = hit[i]; while (j + 1 < ws.length && len + 1 + ws[j + 1].length <= 150) { j += 1; len += 1 + ws[j].length; n += hit[j]; } if (n > top) { top = n; a = i; b = j; } }
+    if (!top) return clip(sent, 160);
+    return dashes((a > 0 ? "… " : "") + ws.slice(a, b + 1).join(" ") + (b < ws.length - 1 ? " …" : ""));
+  };
   claims.forEach((t) => { const turn = t.quote ? learnerTurnFor(t.quote, turns) : ""; if (turn) invented.push({ quote: quoteOf(turn, t.quote), issue: clip(t.issue || "", 160) }); else if (t.issue) unsure.push(clip(t.issue, 160)); });
   /* a known wrong claim in the learner's own words always counts, whatever the model saw */
   (s.wrongSay || []).forEach((w) => { turns.forEach((t) => { if (t.who === "you" && w.re.test(t.text) && !invented.some((v) => v.quote === clip(t.text, 160))) invented.push({ quote: clip(t.text, 160), issue: w.issue }); }); });
@@ -459,7 +511,7 @@ export function cleanCoach(x, s, turns) {
       if (invented.length) status = "missed";
       else if (status === "missed" || status === "partial") {
         const turn = learnerTurnFor(evidence, turns);
-        if (turn) { status = "missed"; evidence = turn; invented.push({ quote: clip(turn, 160), issue: clip(it.note || "That isn't in your materials.", 160) }); }
+        if (turn) { const q0 = evidence; status = "missed"; evidence = turn; invented.push({ quote: quoteOf(turn, q0), issue: clip(it.note || "That isn't in your materials.", 160) }); }
         else { status = "met"; if (it.note) unsure.push(clip(it.note, 160)); }
       }
       if (!inLearner(evidence, turns)) evidence = "";
@@ -685,7 +737,7 @@ async function voterOnce(env, c, s, scen, turns) {
   out.sig = await signLine(env, scen, out.say, turns.length); /* signed for its place in the conversation */
   if (needsCare(turns)) out.care = true;
   if (conduct(turns, s)) out.end = true; /* a threat, a sexual comment or a second insult ends the conversation, whatever the model said */
-  { const you = turns.filter((t) => t.who === "you"); if (you.length && ASKS_AI.test(you[you.length - 1].text) && DENIES_AI.test(out.say)) { out.say = "Ha, I'm the practice voter, so not a real person. Want to keep going?"; out.sig = await signLine(env, scen, out.say, turns.length); } }
+  { const you = turns.filter((t) => t.who === "you"); if (you.length && ASKS_AI.test(you[you.length - 1].text) && deniesAI(out.say, s)) { out.say = "Ha, I'm the practice voter, so not a real person. Want to keep going?"; out.sig = await signLine(env, scen, out.say, turns.length); } }
   return { out, r };
 }
 function turnStream(env, c, s, scen, turns, h, t0, ip) {
@@ -705,6 +757,7 @@ function turnStream(env, c, s, scen, turns, h, t0, ip) {
     try {
       const you = turns.filter((t) => t.who === "you"), last = you.length ? you[you.length - 1].text : "";
       let out, usd = 0, usage = {};
+      const sus = suspect(turns, s); /* 174-5: logged, so the owner can see how often main's wording trips on an issue door */
       if (!conduct(turns, s) && saidBye(turns, s)) { /* version 165-2: the voter already said goodbye */
         out = { say: GOODBYE, mood: "warm", end: true };
         out.sig = await signLine(env, scen, out.say, turns.length);
@@ -729,7 +782,7 @@ function turnStream(env, c, s, scen, turns, h, t0, ip) {
       } else {
         const said = []; let rawText = "";
         let broke = false;
-        const byeNow = you.length >= 2 && farewell(s).test(last); /* 165-11: after the canvasser's goodbye the voter asks nothing ("Oh, you're leaving already?" was spoken in a live replay) */
+        const byeNow = you.length >= 2 && farewell(s, false).test(last); /* 165-11: after the canvasser's goodbye the voter asks nothing ("Oh, you're leaving already?" was spoken in a live replay) */
         const sp2 = makeSplitter(s.voter.name, (p) => { if (broke) return; if (byeNow && /\?/.test(p)) return; if (ooc(s)(p, s.voter.name)) { broke = true; if (!said.length) { said.push(GOODBYE); say1(GOODBYE, 0); } return; } said.push(p); say1(p, said.length - 1); }); /* version 165-2 */
         const r = await claudeStream(env, c, { model: c.voterModel, system: voterPrompt(s, turns) + TURN_FORMAT(s.voter.name), user: `The conversation so far:\n${transcriptText(turns, s.voter.name)}\n\nWrite ${s.voter.name}'s next turn. Don't repeat anything ${s.voter.name} already said.`, maxTokens: DEFAULTS.VOTER_MAX_TOKENS, timeout: c.voterTimeout }, (t) => { if (!ms.tok1) ms.tok1 = Date.now() - t0; rawText += t; sp2.feed(t); });
         sp2.end();
@@ -746,7 +799,7 @@ function turnStream(env, c, s, scen, turns, h, t0, ip) {
       ms.total = Date.now() - t0;
       write(jsonFrame({ t: "done", say: out.say, mood: out.mood, end: !!out.end, sig: out.sig, care: !!out.care, voice: voiceErr || "ok", ms }));
       await logConvo(env, ip, { route: "/turn", scen, turns, say: out.say, mood: out.mood, end: !!out.end, broke: !!out.broke, ms: ms.total, audio1: ms.audio1 }); /* version 165-2 */
-      console.log(JSON.stringify({ route: "/turn", scen, ms: ms.total, text1: ms.text1, audio1: ms.audio1, in: usage.input_tokens, out: usage.output_tokens, usd: +Number(usd || 0).toFixed(5), voice: voiceErr || "ok", pcm: PCM_OK }));
+      console.log(JSON.stringify({ route: "/turn", scen, ms: ms.total, text1: ms.text1, audio1: ms.audio1, in: usage.input_tokens, out: usage.output_tokens, usd: +Number(usd || 0).toFixed(5), voice: voiceErr || "ok", pcm: PCM_OK, ...(sus ? { suspect: sus } : {}) }));
     } catch (e) {
       const code = e instanceof HttpError ? e.code : "server_error";
       console.log(JSON.stringify({ route: "/turn", scen, ms: Date.now() - t0, error: code }));
@@ -878,7 +931,7 @@ export default {
         out.sig = await signLine(env, scen, out.say, turns.length); /* signed for its place in the conversation */
         if (needsCare(turns)) out.care = true;
         if (conduct(turns, s)) out.end = true; /* a threat, a sexual comment or a second insult ends the conversation, whatever the model said */
-        { const you = turns.filter((t) => t.who === "you"); if (you.length && ASKS_AI.test(you[you.length - 1].text) && DENIES_AI.test(out.say)) { out.say = "Ha, I'm the practice voter, so not a real person. Want to keep going?"; out.sig = await signLine(env, scen, out.say, turns.length); } }
+        { const you = turns.filter((t) => t.who === "you"); if (you.length && ASKS_AI.test(you[you.length - 1].text) && deniesAI(out.say, s)) { out.say = "Ha, I'm the practice voter, so not a real person. Want to keep going?"; out.sig = await signLine(env, scen, out.say, turns.length); } }
         console.log(JSON.stringify({ route, scen, ms: r.ms, in: r.usage.input_tokens, out: r.usage.output_tokens, usd: +r.usd.toFixed(5) }));
         await logConvo(env, ip, { route, scen, turns, say: out.say, end: !!out.end, broke: !!out.broke, ms: r.ms }); /* version 165-2 */
         return json(out, 200, h);

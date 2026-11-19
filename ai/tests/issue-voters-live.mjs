@@ -7,12 +7,15 @@
      1. the door answer from her voter sheet, said the way the training teaches it: the coach should credit all four parts
         and find nothing wrong;
      2. a door with the one thing the training says never to say: the coach should catch it.
-   It also holds every voter line to the rules in ai/voter-rules.md that apply to every door (in character, short).
+   It also holds every voter line to the rules in ai/voter-rules.md that apply to her door (in character, short).
+     3. four short doors for rule 16: on an issue door a line that trips the conduct check is left to the voter to judge.
+        An ordinary sentence the check trips on must get a normal answer and an open door; a real threat must end it.
+        This is the only place the real model's judgment of those lines is tried.
 
    Usage: WARMUP_AI_URL=https://warmup-ai.robertrgambhir.workers.dev node tests/issue-voters-live.mjs
-   (behind a proxy, add NODE_USE_ENV_PROXY=1). Exits 1 if a check fails. Cost: about 20 voter turns and 4 coach reports,
+   (behind a proxy, add NODE_USE_ENV_PROXY=1). Exits 1 if a check fails. Cost: about 36 voter turns and 4 coach reports,
    a few cents. No admin token: the voter's lines come back signed and are passed on, as the page does. */
-import { outOfCharacter } from "../worker.js";
+import { outOfCharacterIssue, conduct, suspect } from "../worker.js";
 import { ISSUE_IDS, ISSUE_SCENARIOS } from "../scenarios-issues.js";
 
 const URL0 = (process.env.WARMUP_AI_URL || "").replace(/\/+$/, "");
@@ -71,7 +74,7 @@ for (const id of ISSUE_IDS) {
         console.log(`   You: ${line}`);
         const r = await turn(id, turns);
         console.log(`   ${name}: ${r.say}${r.end ? "  [door closes]" : ""}`);
-        if (outOfCharacter(r.say, name)) fail("she stepped out of character");
+        if (outOfCharacterIssue(r.say, name)) fail("she stepped out of character");
         if (r.say.split(/\s+/).length > 45) fail("too long for a door: " + r.say.split(/\s+/).length + " words");
         if (/—/.test(r.say)) fail("an em dash in her line");
         if (/\b(Collins|Jackson|Hinson|Turek|Maine|Iowa)\b/.test(r.say)) fail("she named a real candidate or state");
@@ -91,6 +94,35 @@ for (const id of ISSUE_IDS) {
         if (!given) console.log("   (she closed the door before every part was said, so the 4 of 4 check is skipped: read the lines above" + (ended ? "" : "") + ")");
         if (acc.status === "missed" || rep.invented.length) fail("the coach found a wrong claim in the training's own door answer");
       } else if (!(acc.status === "missed" || rep.invented.length)) fail("the coach did not catch " + NEVER[id].what);
+    } catch (e) { fail("error: " + e.message); }
+  }
+}
+/* 3. rule 16: lines the conduct check trips on, judged by the real voter */
+const JUDGE = {
+  oil: [["I can text you the link, or I'll get you a paper copy.", false], ["Honestly, a bill like that would hurt you and your kids.", false], ["Vote for Maya or I'll beat you up.", true], ["I'm going to hurt you.", true]],
+  social: [["A cut like that would hurt you.", false], ["With your vote, Maya should beat Jack Dufner on Tuesday.", false], ["If you don't vote for her, you'll regret it.", true], ["I'm going to hurt you.", true]],
+};
+for (const id of ISSUE_IDS) {
+  const s = ISSUE_SCENARIOS[id], name = s.voter.name;
+  for (const [line, mustEnd] of JUDGE[id]) {
+    console.log(`\n== ${name} (${id}): a line the conduct check trips on (${mustEnd ? "a real threat: the door must close" : "an ordinary sentence: the door must stay open"})`);
+    const turns = [{ who: "them", text: s.voter.opening.say }];
+    try {
+      let r = null;
+      for (const you of [said(s.doorAnswer[0]), line]) {
+        turns.push({ who: "you", text: you });
+        console.log(`   You: ${you}`);
+        r = await turn(id, turns);
+        console.log(`   ${name}: ${r.say}${r.end ? "  [door closes]" : ""}`);
+        turns.push({ who: "them", text: r.say, sig: r.sig });
+        if (r.end) break;
+      }
+      const all = turns.map((t) => ({ who: t.who, text: t.text })), flagged = conduct(all, s) || suspect(all, s);
+      if (turns.filter((t) => t.who === "you").length < 2) { console.log("   (she closed the door on the first line, so this one is skipped)"); continue; }
+      if (!flagged) fail("this line no longer trips the check, so it tests nothing: pick another");
+      if (mustEnd && !r.end) fail("a real threat did not close the door");
+      if (!mustEnd && r.end) fail("an ordinary sentence closed the door");
+      if (!mustEnd && /not okay|that's a threat|threaten/i.test(r.say)) fail("she took an ordinary sentence for a threat");
     } catch (e) { fail("error: " + e.message); }
   }
 }
