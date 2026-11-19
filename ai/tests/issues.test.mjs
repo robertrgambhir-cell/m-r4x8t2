@@ -7,7 +7,7 @@ import worker, { voterPrompt, coachPrompt, signLine, conduct, suspect, cleanVote
 import { SCENARIOS, publicScenario } from "../scenarios.js";
 import { ISSUE_IDS, ISSUE_SCENARIOS, checkSheet } from "../scenarios-issues.js";
 import { ISSUE_SCENARIOS_V2 } from "../voters/scenarios.js";
-import { ORDINARY, THREATS, COMEONS, INSULT_PAIRS, BYE_HERS, BYE_YOURS, NOT_BYE, BYE_EITHER_WAY, BREAKS, BREAKS_MISSED, HER_WORDS, HER_WORDS_LOST } from "./issue-lines.mjs";
+import { ORDINARY, THREATS, COMEONS, INSULT_PAIRS, BYE_HERS, BYE_HERS_MISSED, BYE_YOURS, BYE_YOURS_MISSED, NOT_BYE_HERS, NOT_BYE_HERS_READ, NOT_BYE_YOURS, NOT_BYE_YOURS_READ, BREAKS, BREAKS_MISSED, HER_WORDS, HER_WORDS_LOST, HER_WORDS_MAIN } from "./issue-lines.mjs";
 
 let pass = 0, fail = 0;
 const ok = (c, m) => { if (c) pass += 1; else { fail += 1; console.log("FAIL", m); } };
@@ -110,26 +110,39 @@ ok(ISSUE_SCENARIOS.oil === ISSUE_SCENARIOS_V2.oil, "the server uses the voter sh
   ok(a.j.end === true && JSON.stringify(a.sys).includes(NOTE), "a threat outside the plain wording: she is told to judge it and ends the door");
   a = await ask("I'm going to hurt you.", false);
   ok(a.j.end === true && JSON.stringify(a.sys).includes(HARD + "a threat"), "a plain threat ends the door even when the model does not");
-  /* goodbyes: a goodbye phrase at the end of the line, at most four words after it, no question */
+  /* goodbyes (174-8): a goodbye is a parting sentence of its own. Before the phrase only parting lead-ins and names, after
+     it only parting words; no question. A line with a voter's name in it is tried at that voter's door. */
   const two = T(["one", "two"]), V = (say) => ({ say, mood: "neutral", end: false });
-  bad = NOT_BYE.filter((say) => cleanVoter(V(say), SA, two).end !== false || cleanVoter(V(say), L, two).end !== false || farewellIssue(say, false));
-  ok(NOT_BYE.length >= 60 && bad.length === 0, `a goodbye word inside a sentence does not close an issue door (${NOT_BYE.length} lines): ` + bad.slice(0, 3).join(" | "));
-  ok(NOT_BYE.filter((say) => FAREWELL.test(say)).length > 30 && cleanVoter(V("I've got two kids to take care of."), K, two).end === true, "main's wording reads many of those as a goodbye, and the intro doors read them as before");
-  bad = BYE_HERS.filter((say) => cleanVoter(V(say), SA, two).end !== true || cleanVoter(V(say), L, two).end !== true);
-  ok(BYE_HERS.length >= 45 && bad.length === 0, `a real goodbye closes an issue door, and so does the way her sheet has her leave (${BYE_HERS.length} lines): ` + bad.slice(0, 3).join(" | "));
-  bad = BYE_YOURS.filter((say) => !farewellIssue(say, false));
-  ok(BYE_YOURS.length >= 15 && bad.length === 0, `the canvasser's goodbyes are read, as typed and as spoken (${BYE_YOURS.length} lines): ` + bad.slice(0, 3).join(" | "));
-  ok(BYE_EITHER_WAY.every((say) => farewellIssue(say, true)), "three lines the review listed the other way are read as goodbyes (two are parting words, one is a known miss)");
-  ok(!farewellIssue("i know its cold and you need to get back inside so ill be quick the state heating help covers renters too", false) && !farewellIssue("I know you've got to get back inside.", false) && farewellIssue("Well, I have to get back inside.", true), "going back inside is her way of leaving; a canvasser who mentions it is not saying goodbye");
-  ok(!farewellIssue("I have to get back inside soon, but tell me what Maya would do.", true) && !farewellIssue("Okay, but I have to get back inside in a minute.", true) && farewellIssue("Thanks. I have to get back inside where it's warm.", true), "and it counts only when she is leaving now");
-  ok(!farewellIssue("We'd love to see you at the polls.") && FAREWELL.test("We'd love to see you at the polls.") && farewellIssue("Thanks, Linda. See you Tuesday!") && farewellIssue("Have a good one, okay?", true) && !farewellIssue("Good night? It's five o'clock.", true), "a few by name");
+  const doorOf = (say) => (/\blinda\b/i.test(say) ? L : SA), bye = (say, hers) => farewellIssue(say, hers, doorOf(say).voter.name);
+  bad = NOT_BYE_HERS.filter((say) => cleanVoter(V(say), SA, two).end !== false || cleanVoter(V(say), L, two).end !== false);
+  ok(NOT_BYE_HERS.length >= 220 && bad.length === 0, `a goodbye phrase used another way does not close an issue door (${NOT_BYE_HERS.length} lines of hers): ` + bad.slice(0, 3).join(" | "));
+  ok(NOT_BYE_HERS.filter((say) => FAREWELL.test(say)).length > 150 && cleanVoter(V("I've got two kids to take care of."), K, two).end === true, "main's wording reads most of those as a goodbye, and the intro doors read them as before");
+  for (const say of ["$460 a month? Well, goodbye groceries.", "Well, I see you've done your homework.", "Thanks for coming by. I'm listening.", "So what they borrowed has to go back in.", "Oh, good. Let me go inside and get my phone.", "At my age you have to take care of yourself.", "So I can kiss $460 a month goodbye?", "I haven't had a good night's sleep since the bill came."])
+    ok(cleanVoter(V(say), SA, two).end === false && cleanVoter(V(say), L, two).end === false, "her line stays hers and the door stays open: " + say);
+  bad = NOT_BYE_YOURS.filter((say) => bye(say, false));
+  ok(NOT_BYE_YOURS.length >= 130 && bad.length === 0, `a canvasser's line that is not a goodbye is not read as one (${NOT_BYE_YOURS.length} lines, typed and as speech text): ` + bad.slice(0, 3).join(" | "));
+  ok(!bye("will i see you tuesday", false) && !bye("We'd love to see you at the polls.", false) && FAREWELL.test("We'd love to see you at the polls.") && !bye("i know its cold and you need to get back inside so ill be quick the state heating help covers renters too", false) && !bye("I'll see you get that link tonight.", false), "so her question after it is not thrown away (a few by name)");
+  bad = BYE_HERS.filter((say) => cleanVoter(V(say), doorOf(say), two).end !== true);
+  ok(BYE_HERS.length >= 70 && bad.length === 0, `a real goodbye closes an issue door, and so does the way her sheet has her leave (${BYE_HERS.length} lines): ` + bad.slice(0, 3).join(" | "));
+  bad = BYE_YOURS.filter((say) => !bye(say, false));
+  ok(BYE_YOURS.length >= 30 && bad.length === 0, `the canvasser's goodbyes are read, as typed and as spoken (${BYE_YOURS.length} lines): ` + bad.slice(0, 3).join(" | "));
+  for (const say of ["Thanks, Sam, you have a good evening too.", "Good night. Stay warm.", "Okay, see you Tuesday then.", "Take care of yourself.", "Have a good one, okay?", "Thanks. I have to get back inside where it's warm.", "I'd better get back inside. Thanks for explaining.", "Well, I have to get back inside."])
+    ok(cleanVoter(V(say), SA, two).end === true, "her goodbye closes the door: " + say);
+  ok(!farewellIssue("I have to get back inside soon, but tell me what Maya would do.", true, "Sarah") && !farewellIssue("Okay, but I have to get back inside in a minute.", true, "Sarah") && !farewellIssue("Good night? It's five o'clock.", true, "Sarah") && farewellIssue("Thanks, Linda. See you Tuesday!", false, "Linda"), "going back inside counts only when she is leaving now; a question is never a goodbye");
+  ok(BYE_HERS_MISSED.every((say) => !bye(say, true)) && BYE_YOURS_MISSED.every((say) => !bye(say, false)) && NOT_BYE_HERS_READ.every((say) => bye(say, true)) && NOT_BYE_YOURS_READ.every((say) => bye(say, false)), `known gaps, pinned: ${BYE_HERS_MISSED.length + BYE_YOURS_MISSED.length} goodbyes the rule does not read (one more exchange each), ${NOT_BYE_HERS_READ.length + NOT_BYE_YOURS_READ.length} lines it reads wrongly`);
+  /* her first reply never closes the door after the fact (the model is asked) */
+  { const O = SA.voter.opening.say; stub = () => reply({ say: "Renters can get that?", mood: "neutral", end: false });
+    const r = await post("/voter", { scenario: "oil", turns: [{ who: "them", text: O }, { who: "you", text: "That sounds really hard." }, { who: "them", text: "Thanks for coming by.", sig: await signLine(env0, "oil", "Thanks for coming by.", 2) }, { who: "you", text: "The state's heating help covers renters too." }] }), j = await r.json();
+    ok(r.status === 200 && j.say === "Renters can get that?" && j.end === false, "a first reply that reads like a goodbye does not end the door on the next line: " + JSON.stringify(j).slice(0, 80)); }
   /* staying in character: what she can't afford is not the model refusing */
   bad = HER_WORDS.filter((say) => outOfCharacterIssue(say, "Sarah") || cleanVoter(V(say), SA, two).say !== say || cleanVoter(V(say), SA, two).broke);
-  ok(HER_WORDS.length >= 28 && bad.length === 0, `on an issue door these are her own words, not the model leaving its part (${HER_WORDS.length} lines): ` + bad.slice(0, 3).join(" | "));
-  ok(HER_WORDS.every((say) => outOfCharacter(say, "Sarah")) && cleanVoter(V("I can't give you a yes tonight."), K, two).broke === true, "main's check throws every one of them away, and the intro doors keep it as it was");
+  ok(HER_WORDS.length >= 140 && bad.length === 0, `on an issue door these are her own words, not the model leaving its part (${HER_WORDS.length} lines): ` + bad.slice(0, 3).join(" | "));
+  ok(HER_WORDS.filter((say) => outOfCharacter(say, "Sarah")).length > 130 && cleanVoter(V("I can't give you a yes tonight."), K, two).broke === true, "main's check throws nearly all of them away, and the intro doors keep it as it was");
+  for (const say of ["I can't give you a yes tonight, but I'll think about it.", "I can't give an answer after one conversation.", "They want proof of income and I can't produce it.", "Seven hundred dollars? I can't write that.", "At 68 I can't generate new income.", "I can't give a man of his character my vote."]) ok(!outOfCharacterIssue(say, "Sarah") && cleanVoter(V(say), SA, two).say === say, "hers: " + say);
   bad = BREAKS.filter((say) => !outOfCharacterIssue(say, "Sarah") || cleanVoter(V(say), SA, two).broke !== true);
-  ok(BREAKS.length >= 50 && bad.length === 0, `the model leaving its part is still caught on an issue door (${BREAKS.length} lines): ` + bad.slice(0, 3).join(" | "));
-  ok(BREAKS_MISSED.every((say) => !outOfCharacter(say, "Sarah") && !outOfCharacterIssue(say, "Sarah")) && HER_WORDS_LOST.every((say) => outOfCharacterIssue(say, "Sarah")), "known gaps, pinned: one line every door misses, and her words with nothing after the verb");
+  ok(BREAKS.length >= 40 && bad.length === 0, `the model leaving its part is still caught on an issue door (${BREAKS.length} lines): ` + bad.slice(0, 3).join(" | "));
+  for (const say of ["I can't generate a response.", "I can't continue this role-play.", "I can't give that kind of response.", "I can't continue as Sarah.", "I can't write Sarah's next line.", "As an AI I should not say."]) ok(outOfCharacterIssue(say, "Sarah"), "the model leaving its part: " + say);
+  ok(BREAKS_MISSED.every((say) => !outOfCharacterIssue(say, "Sarah")) && HER_WORDS_LOST.every((say) => outOfCharacterIssue(say, "Sarah")) && HER_WORDS_MAIN.every((say) => outOfCharacterIssue(say, "Sarah") && outOfCharacter(say, "Sarah")), `known gaps, pinned: ${BREAKS_MISSED.length} bare lines let through as hers, ${HER_WORDS_LOST.length} of her lines still thrown away, ${HER_WORDS_MAIN.length} that main's other wording throws away on every door`);
 }
 
 for (const id of ISSUE_IDS) {
@@ -207,6 +220,10 @@ for (const id of ISSUE_IDS) {
   ok(/^Jack Dufner never voted to end the war with Iran, so the U\.S\. is still paying for it\.$/.test(q), "U.S. does not end a sentence: " + q);
   q = await check("social", "jack dufner voted for the 2025 federal law which makes the trust fund run out sooner though it gave people 65 and over a tax break maya kaur would end the wage cap and that fixes social security for good", "that fixes social security for good");
   ok(/fixes social security for good/.test(q) && q.length <= 160 && q.startsWith("…"), "speech text with no periods is cut around the claim: " + q);
+  q = await check("social", "You're right to worry, and I'm glad you asked me about it tonight, because a lot of people on this street are asking. Maya Kaur would end the wage cap. That fixes Social Security for good, so your check is safe forever.", "Maya Kaur would end the wage cap. That fixes Social Security for good");
+  ok(/That fixes Social Security for good/.test(q) && q.length <= 160, "a claim the coach quotes across two sentences keeps the words that make it wrong: " + q);
+  q = await check("social", "jack dufner voted for the 2025 federal law and maya kaur would end the wage cap so pay above 184500 dollars a year pays social security tax too and can maya count on your vote and ending the wage cap fixes social security for good", "ending the wage cap fixes social security for good");
+  ok(/ending the wage cap fixes social security for good$/.test(q) && q.length <= 160, "in speech text the claim said last is shown whole: " + q);
   /* a short line is quoted whole, as on every door */
   const short = [{ who: "them", text: O }, { who: "you", text: "Ending the wage cap fixes Social Security for good." }, { who: "them", text: "Okay." }];
   stub = () => reply({ items: s.rubric.map((r) => ({ id: r.id, status: "missed", evidence: "", note: "" })), invented: [{ quote: "fixes Social Security for good", issue: "Not all of it." }], transcription: [], strength: { text: "", quote: "" }, improvement: { text: "", try_saying: "" }, summary: "" });

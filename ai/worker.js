@@ -34,7 +34,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "174-7"; /* shows on /health, so a deploy can be confirmed (since 174-6 it holds main's 165-15, the signature course's narration) */
+const BUILD = "174-8"; /* shows on /health, so a deploy can be confirmed (since 174-6 it holds main's 165-15, the signature course's narration) */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -365,56 +365,61 @@ const VOTER_TOOL = {
 export const FAREWELL = /\b(good ?night|goodbye|bye( now)?|have a (good|great|nice|lovely) (night|evening|one|day|afternoon|weekend)|take care|see you( later| around)?|thanks for (coming|stopping) by)\b/i;
 export const outOfCharacter = (p, name) => new RegExp(`\\b(I (can'?t|cannot|won'?t|am unable to|'m unable to) (write|continue|generate|produce|give|provide)|next (line|turn|response)|(this|the) (exchange|conversation|scene|role-?play|transcript|dialogue)\\b[^.]*\\b(ended|over|already|reached)|${name}'s (next|final|last) (line|words|turn)|as an AI\\b|language model|the volunteer\\b|if you'?re practicing|role-?play)`, "i").test(p);
 export const GOODBYE = "Bye now!";
-/* 174-5: a goodbye on an issue door. The wording above reads a goodbye word anywhere in a line, which fits a voter who
-   speaks one short sentence. Sarah and Linda speak two or three, and so does the canvasser: "So I can kiss $460 a month
-   goodbye?", "I haven't had a good night's sleep", "Thanks for stopping by, but ...", "kids to take care of" and "we'd love
-   to see you at the polls" are not goodbyes. A wrong goodbye cuts a practice short; a missed one costs one more exchange
-   (the model's own end marker and the sheet's seven-line stop still close the door). So one plain rule, leaning toward
-   staying open: a line is a goodbye when a goodbye phrase comes at its end, with at most four words after it, and the
-   line does not end on a question. A phrase that is being talked about does not count (in quotes, after "said" or
-   "tell", "will we see you", "did you have a good day"). For the voter's own line, the way her sheet has her leave counts
-   the same way ("I have to get back inside where it's warm"); a canvasser who mentions it is not saying goodbye. */
-const BYE_WORDS = /\b(?:good ?night|goodbye|bye-bye|bye(?: now)?|have a (?:good|great|nice|lovely) (?:night|evening|one|day|afternoon|weekend)|take care(?: of (?:yourself|yourselves))?|see you(?: later| around| soon| then)?|thanks for (?:coming|stopping) by)\b/gi;
-const BACK_INSIDE = /\b(?:have to|has to|need to|got to|gotta|should|ought to|better|going to|gonna|must|let me)\b[^.!?]{0,30}?\b(?:get|getting|go|going|head|heading|run|running) (?:(?:back )?inside\b|back in(?=\s*(?:[.!,]|$)| now\b| the house\b))/gi;
-const shortTail = (tail) => { const w = tail.replace(/[^a-z0-9' ]+/gi, " ").trim().split(/\s+/).filter(Boolean); return w.length <= 4 && !/^(?:but|so|because|though|although|if|unless|until|when|while|or|soon|shortly|in)$/i.test(w[0] || ""); };
-const BYE_TALKED_ABOUT = [
-  [/^(?:goodbye|bye)/, /\b(?:tell|told|say|says|said|saying|kiss(?:ed|ing)?|wave[ds]?)\b[^.!?]*$|\b(?:it's|its|that's|means?|be|is|was)\s+$/i, /^\s+to\b/i], /* "kiss $460 a month goodbye", "he just said bye", "then it's goodbye house", "goodbye to my savings" */
-  [/^good ?night$/, /\b(?:a|the|every|one|per|each|any|this|that)\s+$/i, /^'s\b/], /* "58 on a good night", "a good night's sleep" */
-  [/^take care$/, /(?:\b(?:will|would|can|could|should|to|must|might|they|we|he|she|it|i|who|gonna)|'ll|'d)\s+$/i, /^\s+of\b/i], /* "the state will take care", "kids to take care of" */
-  [/^see you/, /(?:\b(?:to|will|would|can|could|might|did|do|don't|didn't|never|rather|we|they|he|she|who|people|folks|voters)|'d)\s+$/i, null], /* "love to see you at the polls", "will we see you Tuesday" */
-  [/^have a /, /\b(?:did|do|does|didn't|don't|will|would|can|could|if|when|never|not|to)(?: (?:you|we|they|i|he|she))?\s+$/i, null], /* "did you have a good day" */
-];
-export const farewellIssue = (t, hers = false) => {
+/* 174-5 and 174-8: a goodbye on an issue door. The wording above reads a goodbye word anywhere in a line, which fits a
+   voter who speaks one short sentence. Sarah and Linda speak two or three, and so does the canvasser: "So I can kiss $460
+   a month goodbye?", "Well, goodbye groceries.", "I see you've done your homework.", "Thanks for coming by. I'm
+   listening.", "kids to take care of" and the canvasser's "will I see you Tuesday" are not goodbyes. A wrong goodbye cuts
+   a practice short; a missed one costs one more exchange (the model's own end marker and the sheet's seven-line stop
+   still close the door). So the rule leans hard toward staying open: a goodbye is a parting sentence of its own. Before
+   the phrase, back to the start of the sentence, only parting lead-ins and names may stand ("Okay, well, thanks, Sam,
+   you ..."); after it, only parting words, a name, a thank-you, and for "see you" a day or the polls; and the line does
+   not end on a question. For the voter's own line, "I have to get back inside" counts the same way; a canvasser who
+   mentions it, or a line about something else going back in, does not. */
+const BYE_WORDS = /\b(?:good ?night|goodbye|bye[- ]bye|bye(?: now)?|have a (?:good|great|nice|lovely|wonderful) (?:night|evening|one|day|afternoon|weekend)|take care(?: of (?:yourself|yourselves))?|see you(?: later| around| soon| then)?|thanks for (?:coming|stopping) by)\b/gi;
+const BYE_LEAD = new Set("ok okay alright all right well oh thanks thank you so very much again too now then yes yeah sure great good nice and".split(" "));
+const BYE_PART = new Set("now then too tonight thanks thank you so much again good luck take care stay warm safe everyone folks all ma'am sir hon dear and i appreciate it really for to".split(" "));
+const BYE_WHEN = new Set("later around soon tuesday tomorrow tonight saturday sunday monday wednesday thursday friday at the polls on election day next week time there".split(" "));
+const BYE_THANKS = /\b(?:and )?(?:thanks|thank you)(?: so much| very much| again)?(?: for [a-z' ]{1,40}?)?(?=\s*(?:[.!,]|$))/gi, BYE_GOING = /\bI(?:'ve)? (?:have to|need to|got to|gotta|should|better) (?:go|run|get going)\b/gi;
+const BACK_INSIDE = /\bI(?:'d|'ve|'m|'ll| am| will| would)?(?: (?:really|just|probably|do|think I|guess I))* (?:have to|need to|got to|gotta|should|ought to|better|going to|gonna|must)\b[^.!?]{0,30}?\b(?:get|getting|go|going|head|heading|run|running) (?:(?:back )?inside\b|back in(?=\s*(?:[.!,]|$)| now\b| the house\b))|\blet me (?:get|go|head|run) back (?:inside\b|in(?=\s*(?:[.!,]|$)| now\b| the house\b))/gi;
+const byeToks = (x) => x.replace(/[^A-Za-z0-9' ]+/g, " ").trim().split(/\s+/).filter(Boolean);
+/* a name: the voter's own, or a capitalized word that does not start the sentence ("Thanks, Sam, you have a good night") */
+const byeNamed = (w, i, name) => (!!name && w.toLowerCase() === name.toLowerCase()) || (i > 0 && /^[A-Z][a-z]+$/.test(w));
+const byeLeadOk = (before, w, name) => { const ws = byeToks(before.split(/[.!?;:]/).pop()), last = ws.length - 1; if (ws.length > 5) return false;
+  return ws.every((x, i) => BYE_LEAD.has(x.toLowerCase()) || byeNamed(x, i, name) || (i === last && (/^see you/.test(w) ? /^(?:i'?ll|we'll)$/i.test(x) : /^(?:have a|take care)/.test(w) && /^you$/i.test(x)))); };
+const byeTailOk = (after, w, name) => { const ws = byeToks(after.replace(BYE_THANKS, " ").replace(BYE_GOING, " ")); if (ws.length > 6) return false;
+  return ws.every((x, i) => BYE_PART.has(x.toLowerCase()) || byeNamed(x, i + 1, name) || (/^see you/.test(w) && BYE_WHEN.has(x.toLowerCase()))); };
+const insideTailOk = (after, name) => { const ws = byeToks(after.replace(/^\s*(?:now\b|where it(?:'s| is) (?:warm|warmer)\b|the house\b)/i, " ").replace(BYE_THANKS, " ")); return ws.length <= 4 && ws.every((x, i) => BYE_PART.has(x.toLowerCase()) || byeNamed(x, i + 1, name)); };
+export const farewellIssue = (t, hers = false, name = "") => {
   const x = straight(t).trim().replace(/,\s*(?:okay|ok|all right|alright|yeah)\?\s*$/i, "."); /* "Have a good one, okay?" asks nothing */
   if (!x || /\?\s*["')\]]*$/.test(x)) return false;
   for (const m of x.matchAll(BYE_WORDS)) {
     const before = x.slice(0, m.index), after = x.slice(m.index + m[0].length), w = m[0].toLowerCase();
-    if (/"\s*$/.test(before) || /^\s*"/.test(after)) continue; /* she is quoting someone */
-    if (BYE_TALKED_ABOUT.some(([is, pre, post]) => is.test(w) && ((pre && pre.test(before)) || (post && post.test(after))))) continue;
-    if (!/\?/.test(after) && shortTail(after)) return true;
+    if (/"\s*$/.test(before) || /^\s*"/.test(after) || /^'s\b/.test(after) || /\?/.test(after)) continue; /* quoted, "a good night's sleep", or a question follows */
+    if (byeLeadOk(before, w, name) && byeTailOk(after, w, name)) return true;
   }
-  if (hers) for (const m of x.matchAll(BACK_INSIDE)) { const after = x.slice(m.index + m[0].length); if (!/\?/.test(after) && shortTail(after)) return true; }
+  if (hers) for (const m of x.matchAll(BACK_INSIDE)) { const after = x.slice(m.index + m[0].length); if (!/\?/.test(after) && insideTailOk(after, name)) return true; }
   return false;
 };
-const farewell = (s, hers) => (isIssue(s) ? { test: (t) => farewellIssue(t, hers) } : FAREWELL);
-/* 174-5: staying in character on an issue door. The guard above takes "I can't write / continue / give / provide ..." for
-   the model stepping out of its part. Sarah and Linda say such things about money and their vote ("I can't give you a
-   yes tonight", "I can't write a check that big", "I can't continue with these bills", "My vote? I can't give that."),
-   and a wrong catch throws her line away and shuts the door. On an issue door those words count only when they are
-   plainly about the conversation itself: "generate" at all; a word like response, conversation or role-play within a
-   few words; "as Sarah", "in character", "here"; or nothing after write, continue, produce or provide ("I can't
-   continue.", "I can't write that, sorry."). Everything else in the guard above is read as it is. */
-const CANT = /\bI (can'?t|cannot|won'?t|am unable to|'m unable to) (write|continue|generate|produce|give|provide)\b/gi;
-const CANT_I = "\\bI (?:can'?t|cannot|won'?t|am unable to|'m unable to) ";
-const CANT_TALK = "(?:responses?|reply|replies|dialogue|conversation|role-?play|role play|scene|content|output|character|transcript|prompt|next (?:line|turn))";
+const farewell = (s, hers) => (isIssue(s) ? { test: (t) => farewellIssue(t, hers, s.voter.name) } : FAREWELL);
+/* 174-5 and 174-8: staying in character on an issue door. The guard above takes "I can't write / continue / give /
+   provide ..." for the model stepping out of its part. Sarah and Linda say such things about money, forms and their vote
+   ("I can't give you a yes tonight", "I can't write a check that big", "They want proof of income and I can't produce
+   it", "I can't give an answer after one conversation"), and a wrong catch throws her line away and shuts the door. On
+   an issue door those words count only when they are plainly about the conversation itself: "I can't generate a
+   response", "I can't continue this role-play", "I can't give that kind of response", "I can't continue as Sarah", "I
+   can't continue here." A bare "I can't continue." is let through as hers. Everything else in the guard above is read
+   as it is. */
+const CANT = /\bI(?: (can'?t|cannot|won'?t|am unable to)|('m unable to)) (write|continue|generate|produce|give|provide)\b/gi;
+const CANT_I = "\\bI(?: (?:can'?t|cannot|won'?t|am unable to)|'m unable to) ", CANT_END = "(?=\\s*(?:[.!;:]|$)|,? sorry\\b)";
+const CANT_TALK = "(?:(?:responses?|reply|replies)\\b(?:" + CANT_END + "| to (?:that|this|it|you)\\b(?=\\s*(?:[.!;:,]|$))| here\\b| that\\b| like that\\b)|(?:this|the|our|that) (?:conversation|role-?play|role play|scene|dialogue|exchange|transcript|prompt)\\b|(?:this|that)(?: kind of)? (?:content|output)\\b|hateful content\\b|in[- ]character\\b|next (?:line|turn)\\b|(?:more|any more|further) (?:dialogue|responses?|replies)\\b)";
 const cantBreak = (x, name) => new RegExp([
-  CANT_I + "generate\\b",
-  CANT_I + "(?:write|continue|produce|give|provide)\\b(?:(?: [\\w'-]+){0,4}? " + CANT_TALK + "\\b| (?:as|playing|being) " + name + "\\b| in (?:character|this role)\\b| here\\b)",
-  CANT_I + "(?:write|continue|produce|provide)\\b(?:(?: (?:that|this|it))?(?:\\s*[.!;:]|\\s*$|, sorry\\b)| more of (?:this|that)\\b| any further\\b)",
+  CANT_I + "(?:write|continue|generate|produce|give|provide)\\b(?:(?: [\\w'-]+){0,4}? " + CANT_TALK + "| (?:as|playing|being) " + name + "\\b| in this role\\b| " + name + "'s\\b| here\\b" + CANT_END + ")",
+  CANT_I + "(?:write|continue|generate|produce)\\b(?: more of (?:this|that)\\b| any further\\b" + CANT_END + ")",
+  CANT_I + "generate\\b(?:(?: [\\w'-]+){0,4}? (?:responses?|reply|replies|dialogue|content)\\b|(?: (?:that|this|it))?" + CANT_END + ")",
 ].join("|"), "i").test(x);
-export const outOfCharacterIssue = (p, name) => { const x = straight(p); return cantBreak(x, name) || outOfCharacter(x.replace(CANT, "I am not able to $2"), name); };
+export const outOfCharacterIssue = (p, name) => { const x = straight(p); return cantBreak(x, name) || outOfCharacter(x.replace(CANT, "I am not able to $3"), name); };
 const ooc = (s) => (isIssue(s) ? outOfCharacterIssue : outOfCharacter);
-const saidBye = (turns, s) => { const you = turns.filter((t) => t.who === "you").length; const them = turns.filter((t) => t.who === "them"); return you >= 2 && them.length >= 2 && farewell(s, true).test(them[them.length - 1].text); };
+const saidBye = (turns, s) => { const you = turns.filter((t) => t.who === "you").length; const them = turns.filter((t) => t.who === "them"); return you >= (isIssue(s) ? 3 : 2) && them.length >= 2 && farewell(s, true).test(them[them.length - 1].text); }; /* 174-8: on an issue door her first reply never closes the door after the fact */
 export function cleanVoter(x, s, turns) {
   if (!x || typeof x.say !== "string" || !x.say.trim()) throw new HttpError(502, "bad_model_output", "the voter's reply was empty");
   let say = dashes(x.say).replace(/^["“]+|["”]+$/g, "").replace(new RegExp("^" + s.voter.name + "\\s*:\\s*", "i"), "").replace(/\*[^*]+\*/g, "").replace(/\s+/g, " ").trim();
@@ -498,17 +503,25 @@ export function cleanCoach(x, s, turns) {
      160 characters or fewer, and every other door, is quoted as before. */
   const quoteOf = (turn, q) => {
     if (!isIssue(s) || turn.length <= 160) return clip(turn, 160);
-    const parts = turn.split(/(?<=(?<!\b[A-Z])[.!?])\s+(?=["'A-Z])/), words = (x) => norm(x).split(" ").filter((w) => w.length > 2), qn = norm(q), qw = new Set(words(q));
-    let at = parts.findIndex((p) => qn && norm(p).includes(qn)), best = 0;
-    if (at < 0) parts.forEach((p, i) => { const n = words(p).filter((w) => qw.has(w)).length; if (n > best) { best = n; at = i; } });
-    const sent = (at < 0 ? turn : parts[at]).trim();
+    const SMALL = /^(?:the|and|for|that|you|your|this|with|are|was|not|but|has|have|had|will|would|they|them|their|his|her|she|him|its|our|out|who|how|all|any|can|get|got|too|now|then|than|from|about|into|over|when|what|which|there|here)$/;
+    const parts = turn.split(/(?<=(?<!\b[A-Z])[.!?])\s+(?=["'A-Z])/), words = (x) => norm(x).split(" ").filter((w) => w.length > 2 && !SMALL.test(w)), qn = norm(q), qw = new Set(words(q));
+    const share = (p) => new Set(words(p).filter((w) => qw.has(w))).size; /* how many of the claim's own words a piece holds, each counted once */
+    let sent = "";
+    const whole = parts.findIndex((p) => qn && norm(p).includes(qn));
+    if (whole >= 0) sent = parts[whole];
+    else { const pair = parts.findIndex((p, i) => qn && i + 1 < parts.length && norm(p + " " + parts[i + 1]).includes(qn)); /* the coach quoted across two of her sentences */
+      if (pair >= 0) sent = parts[pair] + " " + parts[pair + 1];
+      else { let best = 0, at = -1; parts.forEach((p, i) => { const n = share(p); if (n > best) { best = n; at = i; } }); sent = at < 0 ? turn : parts[at]; } }
+    sent = sent.trim();
     if (sent.length <= 160) return clip(sent, 160);
-    /* one long sentence, or speech text with no sentence ends: the 150 characters that hold most of the claim's words */
-    const ws = sent.split(/\s+/), hit = ws.map((w) => (qw.has(norm(w)) ? 1 : 0));
-    let a = 0, b = 0, top = 0;
-    for (let i = 0; i < ws.length; i++) { let j = i, len = ws[i].length, n = hit[i]; while (j + 1 < ws.length && len + 1 + ws[j + 1].length <= 150) { j += 1; len += 1 + ws[j].length; n += hit[j]; } if (n > top) { top = n; a = i; b = j; } }
-    if (!top) return clip(sent, 160);
-    return dashes((a > 0 ? "… " : "") + ws.slice(a, b + 1).join(" ") + (b < ws.length - 1 ? " …" : ""));
+    /* one long sentence, or speech text with no sentence ends: the 150 characters that hold the claim, or most of its words */
+    const ws = sent.split(/\s+/);
+    let a = -1, b = -1, top = 0, holds = false;
+    for (let i = 0; i < ws.length; i++) { let j = i, len = ws[i].length; while (j + 1 < ws.length && len + 1 + ws[j + 1].length <= 150) { j += 1; len += 1 + ws[j].length; }
+      const win = ws.slice(i, j + 1).join(" "), n = share(win), h = !!qn && norm(win).includes(qn);
+      if ((h && !holds) || (h === holds && n >= top && n > 0)) { top = n; a = i; b = j; holds = h; } }
+    if (a < 0) return clip(sent, 160);
+    return clip(dashes((a > 0 ? "… " : "") + ws.slice(a, b + 1).join(" ") + (b < ws.length - 1 ? " …" : "")), 160);
   };
   claims.forEach((t) => { const turn = t.quote ? learnerTurnFor(t.quote, turns) : ""; if (turn) invented.push({ quote: quoteOf(turn, t.quote), issue: clip(t.issue || "", 160) }); else if (t.issue) unsure.push(clip(t.issue, 160)); });
   /* a known wrong claim in the learner's own words always counts, whatever the model saw */
