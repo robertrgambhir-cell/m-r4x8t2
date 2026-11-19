@@ -34,7 +34,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "165-16"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "165-17"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -752,6 +752,46 @@ async function readLog(env, url, h) {
 }
 export { logConvo, readLog };
 
+/* ---------------- Nov 19, 2026: the build lab (version 165-17) ----------------
+   For making a course's fixed pictures and voices ahead of time, never for a lesson at run time. Only someone holding
+   the lab key can use it (the key's SHA-256 is below; the key itself is never in the repo), so nothing here is open to
+   the public. GET /lab/models?task=...&search=... lists the Workers AI models. POST /lab/run takes {model, input} as JSON;
+   POST /lab/form?model=... passes a multipart form through to a model that takes one (reference pictures). The answer is
+   the model's own bytes: a picture or a sound when it made one, otherwise its JSON. /lab/eleven?path=/v1/... passes a
+   request through to ElevenLabs. Robert approved the lab on Nov 19, 9:58 AM PT. */
+const LAB_KEY_SHA = "db9bde0846bde8b6e25cac74a1e039b8de6a742f10e49f1b740027d3a4c94c24";
+async function lab(env, req, url, route, h) {
+  if ((await sha256hex(req.headers.get("x-lab-key") || "")) !== LAB_KEY_SHA) throw new HttpError(404, "not_found");
+  const ai = env.AI || env.API;
+  if (!ai) throw new HttpError(503, "no_ai");
+  const kind = (b) => (b[0] === 0x89 && b[1] === 0x50 ? "image/png" : b[0] === 0xff && b[1] === 0xd8 ? "image/jpeg" : b[0] === 0x52 && b[1] === 0x49 && b[8] === 0x57 ? (b[9] === 0x45 ? "image/webp" : "audio/wav") : b[0] === 0x49 && b[1] === 0x44 ? "audio/mpeg" : b[0] === 0xff && (b[1] & 0xe0) === 0xe0 ? "audio/mpeg" : "application/octet-stream");
+  const bytes = async (out) => {
+    if (out instanceof ReadableStream) { const parts = [], rd = out.getReader(); for (;;) { const { done, value } = await rd.read(); if (done) break; parts.push(toU8(value)); } const n = parts.reduce((a, p) => a + p.length, 0), all = new Uint8Array(n); let o = 0; for (const p of parts) { all.set(p, o); o += p.length; } return all; }
+    if (out instanceof ArrayBuffer || ArrayBuffer.isView(out)) return toU8(out);
+    for (const k of ["image", "audio"]) { if (out && typeof out[k] === "string") return Uint8Array.from(atob(out[k]), (ch) => ch.charCodeAt(0)); if (out && out[k] instanceof ReadableStream) return bytes(out[k]); }
+    return null;
+  };
+  const send = async (out) => { const b = await bytes(out); return b ? new Response(b, { status: 200, headers: { ...h, "content-type": kind(b), "cache-control": "no-store" } }) : json(out, 200, { ...h, "cache-control": "no-store" }); };
+  const run = async (model, input) => { try { return await ai.run(model, input); } catch (e) { return { error: String((e && e.message) || e).slice(0, 2000) }; } };
+  if (route === "/lab/models" && req.method === "GET") {
+    if (typeof ai.models !== "function") return json({ error: "no models() on this binding" }, 200, h);
+    const q = {}; for (const k of ["task", "search", "author"]) if (url.searchParams.get(k)) q[k] = url.searchParams.get(k);
+    q.per_page = 100;
+    try { return json(await ai.models(q), 200, { ...h, "cache-control": "no-store" }); } catch (e) { return json({ error: String((e && e.message) || e).slice(0, 2000) }, 200, h); }
+  }
+  if (route === "/lab/run" && req.method === "POST") { const b = await req.json(); return send(await run(String(b.model), b.input || {})); }
+  if (route === "/lab/form" && req.method === "POST") return send(await run(String(url.searchParams.get("model")), { multipart: { body: req.body, contentType: req.headers.get("content-type") } }));
+  /* ElevenLabs, once Robert adds its key as the secret ELEVENLABS_API_KEY: the lab passes a request through to its API */
+  if (route === "/lab/eleven") {
+    if (!env.ELEVENLABS_API_KEY) return json({ error: "no ElevenLabs key on the server yet" }, 200, h);
+    const path = String(url.searchParams.get("path") || "");
+    if (!/^\/v[12]\/[A-Za-z0-9_\-\/?=&.%]+$/.test(path)) throw new HttpError(400, "bad_path");
+    const r = await fetch("https://api.elevenlabs.io" + path, { method: req.method, headers: { "xi-api-key": env.ELEVENLABS_API_KEY, "content-type": req.headers.get("content-type") || "application/json", accept: req.headers.get("accept") || "*/*" }, body: req.method === "GET" ? undefined : await req.arrayBuffer() });
+    return new Response(r.body, { status: r.status, headers: { ...h, "content-type": r.headers.get("content-type") || "application/octet-stream", "cache-control": "no-store" } });
+  }
+  throw new HttpError(404, "not_found");
+}
+
 export default {
   async fetch(req, env) {
     const c = cfg(env), origin = req.headers.get("origin") || "", h = cors(origin, c), url = new URL(req.url);
@@ -775,6 +815,7 @@ export default {
         catch (e) { if (e instanceof LearnerError) { console.log(JSON.stringify({ route, ms: Date.now() - t0, error: e.code })); return json({ error: e.code, message: e.message }, e.status, h); } throw e; }
       }
       if (route === "/log" && req.method === "GET") return await readLog(env, url, h); /* version 165-2 */
+      if (route.startsWith("/lab/")) return await lab(env, req, url, route, h);
       if (route === "/narrate" && req.method === "GET") return await narrate(env, c, url, h, req.headers.get("cf-connecting-ip") || "local");
       if (req.method !== "POST" || (route !== "/voter" && route !== "/coach" && route !== "/speak" && route !== "/turn" && route !== "/tidy")) throw new HttpError(404, "not_found");
       if (!c.origins.includes(origin)) throw new HttpError(403, "origin", "This page isn't allowed to use the practice AI.");
