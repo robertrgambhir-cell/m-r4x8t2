@@ -158,11 +158,11 @@ function store(o) {
 /* one passerby, close up: the practice voters' picture (face in the top third, the captions over the chest) */
 function sceneOne(who, cls) { return '<svg class="close" viewBox="62 84 196 236" preserveAspectRatio="xMidYMin slice" role="img" aria-label="' + esc(CAST[who].full || CAST[who].name) + ' outside Westside Market">' + store({ signY: 84, doorX: 218, signX: 132, noText: true }) + person(who, cls, 0) + '</svg>'; }
 /* a canvasser and a passerby, for the parts you watch */
-function sceneTwo(by, who, cls) { return '<svg class="fitw" viewBox="8 70 304 780" role="img" aria-label="' + esc(CAST[by].name + " and " + (CAST[who].full || CAST[who].name)) + ' outside Westside Market">' + store({ signY: 70, doorX: 250, signX: 160, table: 22 }) + person(by, "", -74) + person(who, cls, 76) + '</svg>'; }
+function sceneTwo(by, who, cls) { return '<svg class="fitw two" viewBox="8 70 304 780" role="img" aria-label="' + esc(CAST[by].name + " and " + (CAST[who].full || CAST[who].name)) + ' outside Westside Market">' + store({ signY: 70, doorX: 250, signX: 160 }) + person(by, "", -74) + person(who, cls, 76) + '</svg>'; }
 /* the storefront with nobody in it yet, for the beat before a try */
-function sceneStore() { return '<svg class="fitw" viewBox="0 36 320 820" role="img" aria-label="Westside Market, with your table out front">' + store({ signY: 52, doorX: 196, win: 28, table: 34 }) + '</svg>'; }
+function sceneStore() { return '<svg class="fitw shop" viewBox="0 36 320 820" role="img" aria-label="Westside Market, with your table out front">' + store({ signY: 52, doorX: 196, win: 28, table: 34 }) + '</svg>'; }
 /* the same person as a small picture on a card: head and shoulders, centered */
-function sceneFace(who) { return '<svg class="close" viewBox="40 96 240 112" preserveAspectRatio="xMidYMid slice" role="img" aria-label="' + esc(CAST[who].full || CAST[who].name) + '">' + store({ signY: 58, doorX: 236, noText: true }) + person(who, "", 0) + '</svg>'; }
+function sceneFace(who) { return '<svg class="close" viewBox="40 92 240 116" preserveAspectRatio="xMidYMid meet" style="overflow:visible" role="img" aria-label="' + esc(CAST[who].full || CAST[who].name) + '">' + store({ signY: 58, doorX: 236, noText: true }) + person(who, "", 0) + '</svg>'; }
 function face(who) { return '<svg viewBox="116 100 88 88" aria-hidden="true">' + figure(LOOKS[who]) + '</svg>'; }
 /* where to stand: four small pictures, drawn so the choice reads without words */
 function mini(x, y, c, o) { /* a small standing or seated canvasser, drawn facing right unless flipped */

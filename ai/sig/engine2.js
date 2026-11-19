@@ -11,6 +11,7 @@ function top(o) {
   var segs = S.step < 0 ? "" : L.steps.map(function (s, i) { return '<button class="' + (S.done[i] ? "full" : "") + (i === S.step ? " cur" : "") + '" data-seg="' + i + '" aria-label="' + esc(s.name) + '"></button>'; }).join("");
   /* a result (a card after a try, the feedback, the lesson end) has no way back: back works on every screen that isn't home or a result */
   $("#top").innerHTML = (S.step < 0 ? "" : o.result ? '<span class="x" aria-hidden="true"></span>' : '<button class="x" id="close" aria-label="Back">' + ICON.back + '</button>') + '<div class="bar">' + segs + '</div>' + (o.pp ? '<button class="pp" id="pp" aria-label="Pause">' + ICON.pause + '</button>' : "");
+  $("#top").style.display = S.step < 0 ? "none" : "";
   if ($("#close")) $("#close").onclick = back;
   if ($("#pp")) $("#pp").onclick = function () { PAUSED = !PAUSED; if (AC) { PAUSED ? AC.suspend() : AC.resume(); } $("#pp").innerHTML = PAUSED ? ICON.play : ICON.pause; $("#pp").setAttribute("aria-label", PAUSED ? "Play" : "Pause"); };
   [].forEach.call(document.querySelectorAll(".bar button"), function (b) { var i = +b.getAttribute("data-seg"); if (o.result || !S.seen[i] || i >= S.step) { b.disabled = true; return; } b.onclick = function () { go(i, 0); }; });
@@ -50,33 +51,38 @@ var btn = function (label, id, cls) { return '<button class="btn' + (cls ? " " +
 var row = function (cls, text, small) { return '<li class="' + cls + '"><span class="ck">' + (cls === "fix" ? ICON.dot : ICON.ok) + '</span><span>' + (small ? '<small>' + q(small) + '</small>' : "") + q(text) + '</span></li>'; };
 var why = function (right, text, plain) { return '<div class="why' + (plain ? " plain" : "") + '"><span class="dot' + (right ? "" : " no") + '">' + (right ? ICON.ok : ICON.dot) + '</span><span>' + q(text) + '</span></div>'; };
 var whoTag = function (who) { var c = CAST[who]; return esc((c.full || c.name) + (c.age ? ", " + c.age : "")); };
-function show(html, sub) { $("#scr").innerHTML = html; tag(sub); fillUp(); fitHw(); }
+function show(html, sub) { $("#scr").innerHTML = html; tag(sub); fillUp(); fitPic(); fitHw(); }
 /* fill: a screen with room to spare grows its words and pictures together, up to FILL_MAX times their size, until the room is
    used (playbook A50: content scaled to fill the screen, no blank bands). The main button keeps its size. A screen whose
    picture already takes the spare room is left alone. The measuring is done with the blocks packed at the sizes they would
    like (#scr.fitting in the styles), and it runs again whenever a screen's words change, the window changes or the fonts land. */
-var FILL_MAX = 1.4, FILL_PIC = 1.2, fillWatch = null; /* with a picture on the card the words grow less, and the picture takes what is left */
+var FILL_MAX = 1.4, fillWatch = null;
 function fillUp() {
   var scr = $("#scr"); if (!scr) return;
   scr.style.removeProperty("--k");
   if (!fillWatch && window.MutationObserver) {
-    var pend = false, later = function () { if (pend) return; pend = true; requestAnimationFrame(function () { pend = false; fillUp(); fitHw(); }); };
+    var pend = false, later = function () { if (pend) return; pend = true; requestAnimationFrame(function () { pend = false; fillUp(); fitPic(); fitHw(); }); };
     fillWatch = new MutationObserver(function (ms) { for (var i = 0; i < ms.length; i += 1) { var x = ms[i].target; if (x.nodeType !== 1) x = x.parentElement; if (x && !x.closest("svg, .capts, .mic, .dock, .pet, .ft")) return later(); } });
     fillWatch.observe(scr, { childList: true, subtree: true });
     window.addEventListener("resize", later);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(later);
   }
-  var f = scr.querySelector(":scope > .fill"); if (!f) return;
-  var shown = function (e) { return e.getClientRects().length > 0; };
-  if ([].some.call(scr.querySelectorAll(":scope > .panel:not(.short), :scope > .ft, :scope > .fill > .panel:not(.short), .checks4, .opts.tallies, .quad, #pw.psheet, .picpet, .pics"), shown)) return;
+  var f = scr.querySelector(":scope > .fill");
+  var shown = function (e) { return e.getClientRects().length > 0; }, capped = function (e) { return getComputedStyle(e).maxHeight !== "none"; };
+  /* a picture or a set of tiles that takes the spare room: the words keep their size. A wide picture stops growing at its own
+     height (it never shows empty pavement), so past that point the words grow instead */
+  var pics = [].filter.call(scr.querySelectorAll(":scope > .panel, :scope > .fill > .panel"), shown), caps = pics.filter(capped);
+  if (pics.length > caps.length) return;
+  if ([].some.call(scr.querySelectorAll(":scope > .ft, .checks4, .opts.tallies, .opts.tall, .quad, #pw.psheet, .picpet, .pics"), shown)) return;
+  if (!f && !caps.length) return;
   /* layout positions, never painted ones: a line that is still sliding in must not read as running off the screen */
   var room = scr.clientHeight, end = function (c) { return c.offsetTop + c.offsetHeight; };
   var need = function (k) { scr.style.setProperty("--k", k.toFixed(3)); var m = 0; [].forEach.call(scr.children, function (c) { var cs = getComputedStyle(c); if (!shown(c) || cs.position === "absolute") return; var b = end(c) + (parseFloat(cs.marginBottom) || 0); if (b > m) m = b; }); return m; };
   scr.classList.add("fitting");
-  var lo = 1, hi = [].some.call(f.querySelectorAll(":scope > .panel.short"), shown) ? FILL_PIC : FILL_MAX;
+  var lo = 1, hi = FILL_MAX;
   if (need(1) <= room - 16) { if (need(hi) <= room) lo = hi; else for (var i = 0; i < 7; i += 1) { var mid = (lo + hi) / 2; if (need(mid) <= room) lo = mid; else hi = mid; } }
   scr.classList.remove("fitting");
-  var over = function () { var kids = [].filter.call(f.children, shown), a = kids[0], z = kids[kids.length - 1], last = [].filter.call(scr.children, function (c) { return shown(c) && getComputedStyle(c).position !== "absolute"; }).pop();
+  var over = function () { var kids = f ? [].filter.call(f.children, shown) : [], a = kids[0], z = kids[kids.length - 1], last = [].filter.call(scr.children, function (c) { return shown(c) && getComputedStyle(c).position !== "absolute"; }).pop();
     return (a && a.offsetTop < f.offsetTop - 1) || (z && end(z) > end(f) + 1) || (last && end(last) > room + 1); };
   for (lo = Math.floor(lo * 100) / 100; lo > 1.005; lo -= 0.03) { scr.style.setProperty("--k", lo.toFixed(3)); if (!over()) return; }
   scr.style.removeProperty("--k");
@@ -192,7 +198,7 @@ function vCover() {
   S.step = -1; top({});
   show('<span class="drive" role="img" aria-label="Libraries for All, the Neighborhood Libraries Act petition drive"><b>' + esc(ST.drive.name) + '</b><small>' + esc(ST.drive.measure) + ' · petition drive</small></span>' +
     '<div class="kick" style="margin-top:18px">Lesson ' + LN + ' of 5</div><h1 class="lg">' + q(L.title) + '</h1><div class="meta"><span>5 minutes</span></div>' +
-    '<div class="panel">' + coverPic() + '</div>' +
+    '<div class="panel cap">' + coverPic() + '</div>' +
     (saved().must && saved().must[LN] ? mustNote(LN, saved().must).replace(' style="color:var(--red)"', "") : "") + foot(btn(L.start || SH.start, "start")), "");
   $("#start").onclick = function () { audio(); go(0, 0); };
   /* the lesson's voices load while the cover is read */
@@ -210,7 +216,7 @@ function vTry1Card(st) {
   var h = n === 4 ? SH.try1.all : n === 0 ? SH.try1.none : SH.try1.some.replace("{n}", n).replace("{m}", 4 - n);
   top({ result: true });
   var fx = t.g && (t.g.untrue || t.g.promise); /* the card then shows the untrue words itself, so "You said" would say them twice */
-  show(kick(st) + '<h1>' + q(h) + '</h1><div class="fill"><div class="panel short">' + sceneFace(st.who) + '<div class="who">' + whoTag(st.who) + '</div></div>' + (fx ? "" : saidBlock(t.said)) +
+  show(kick(st) + '<h1>' + q(h) + '</h1><div class="fill"><div class="panel short" data-who="' + st.who + '">' + sceneFace(st.who) + '<div class="who">' + whoTag(st.who) + '</div></div>' + (fx ? "" : saidBlock(t.said)) +
     '<ul class="rows">' + L.parts.map(function (p, i) { return t.hits[i] ? row("on", p.done) : row("off", p.name, SH.try1.watch); }).join("") + '</ul>' +
     (t.g && (t.g.untrue || t.g.promise) ? fixBlock(t.g, false) : "") + '</div>' + foot(btn(nextLabel(), "go")), "b");
   expr(st.who, n >= 3 ? "warm" : "neutral");
@@ -262,7 +268,7 @@ async function playScenes(st, by) {
 /* once the answer is on screen the picture gives it room; a sliver of a picture is no picture, so then it goes */
 function shrinkPic() { var f = $(".fill"), pg = $(".fill > .panel.grow"); if (!f || !pg) return; f.classList.add("answered"); requestAnimationFrame(function () { if (pg.getBoundingClientRect().height < 76) { pg.style.display = "none"; fillUp(); } else fitPic(); }); }
 /* a person's picture that takes the room that is left: in a short strip the face is framed whole, in a tall one the person is */
-function fitPic() { var pg = $(".fill > .panel.grow[data-who]"); if (!pg) return; var h = pg.getBoundingClientRect().height, close = h < 150, who = pg.getAttribute("data-who"); if (pg.getAttribute("data-close") === String(close)) return; pg.setAttribute("data-close", String(close)); var s = pg.querySelector("svg"); if (s) s.outerHTML = close ? sceneFace(who) : sceneOne(who, ""); }
+function fitPic() { var pg = $(".fill > .panel[data-who]"); if (!pg) return; var h = pg.getBoundingClientRect().height, close = h < 150, who = pg.getAttribute("data-who"); if (pg.getAttribute("data-close") === String(close)) return; pg.setAttribute("data-close", String(close)); var s = pg.querySelector("svg"); if (s) s.outerHTML = close ? sceneFace(who) : sceneOne(who, ""); }
 /* taps: the question, the options, and the coach's line that opens with the right answer */
 VIEW.taps = function (st) {
   var r = RUN, k = S.sub, Q = st.qs[k], last = k === st.qs.length - 1, lt = "ABC";
@@ -286,7 +292,7 @@ VIEW.taps = function (st) {
       var guess = /^Guess\b/.test(st.name); /* a guess isn't a test: the pick is kept plain, and the answer turns green */
       [].forEach.call(box.children, function (x, j) { x.classList.add(j === Q.right ? "right" : j === i ? (guess ? "picked" : "wrong") : "faded"); x.disabled = true; });
       var c = $("#coach"); if (c) c.remove();
-      $("#why").innerHTML = why(i === Q.right || guess, Q.after.text);
+      $("#why").innerHTML = why(i === Q.right, Q.after.text);
       shrinkPic();
       $("#ft").innerHTML = foot(btn(last ? nextLabel() : "Next: question " + (k + 2) + " of " + st.qs.length, "go")) + (Q.sources ? '<button class="link" id="src">' + q(SH.sources) + '</button>' : "");
       $("#go").onclick = function () { last ? nextStep() : go(S.step, k + 1); };
@@ -341,7 +347,7 @@ VIEW.try2 = function (st) {
 function vReady(st, coach, onReady, extra, sub, result) {
   var r = RUN;
   top(result ? { result: true } : {});
-  show(kick(st) + '<div class="panel">' + sceneStore() + '</div>' + (extra || "") + (coach ? '<div class="coach q3">' + q(coach.text) + '</div>' : "") + (L.headsUp ? '<div class="callout">' + q(L.headsUp) + '</div>' : "") + foot(btn(SH.ready, "go")), sub || "a");
+  show(kick(st) + '<div class="panel cap">' + sceneStore() + '</div>' + (extra || "") + (coach ? '<div class="coach q3">' + q(coach.text) + '</div>' : "") + (L.headsUp ? '<div class="callout">' + q(L.headsUp) + '</div>' : "") + foot(btn(SH.ready, "go")), sub || "a");
   $("#go").onclick = function () { audio(); onReady(); };
   if (coach) sayLine(coach, r);
 }
@@ -350,13 +356,13 @@ function vChecks(st, k, sub) {
   var P = st.people[k], g = S.people[k] || { hits: [false, false, false, false] }, nextP = st.people[k + 1];
   var voidTry = LN === 2 && (g.untrue || g.promise), redo = voidTry && !(S.redo = S.redo || {})[k];
   if (LN === 3) g.musts = SIGG.mustsMissed(3, g.hits);
-  var again = LN === 3 && k === 0 && !S.retried && (g.untrue || g.promise || g.musts.length), up = redo ? P : again ? null : nextP;
+  var again = LN === 3 && k === 0 && !S.retried && (g.untrue || g.promise || g.musts.length), up = redo || again ? null : nextP;
   /* lesson 3: what gives one more try (a must, something untrue, a promise) is said on this card, so one Ready starts it */
   var oneMore = !again ? "" : g.untrue || g.promise ? fixBlock(g, true) : '<div class="callout must"><b class="cl" style="margin:0">' + q(L.parts[g.musts[0]].must) + '</b></div>';
   top({ result: true });
   /* with the untrue words and the true ones on the card there is no room for the big picture: her face and name stay, small */
   var small = again && (g.untrue || g.promise);
-  show(kick(st) + '<div class="fill">' + (small ? '<div class="nextp" style="margin:0">' + face(P.who) + '<span>' + whoTag(P.who) + '</span></div>' : '<div class="panel short">' + sceneFace(P.who) + '<div class="who">' + whoTag(P.who) + '</div>' + (st.people.length > 2 ? '<div class="who r">' + (k + 1) + " of " + st.people.length + '</div>' : "") + '</div>') + (again ? "" : saidBlock(g.quote)) +
+  show(kick(st) + '<div class="fill">' + (small ? '<div class="nextp" style="margin:0">' + face(P.who) + '<span>' + whoTag(P.who) + '</span></div>' : '<div class="panel short" data-who="' + P.who + '">' + sceneFace(P.who) + '<div class="who">' + whoTag(P.who) + '</div>' + (st.people.length > 2 ? '<div class="who r">' + (k + 1) + " of " + st.people.length + '</div>' : "") + '</div>') + (again ? "" : saidBlock(g.quote)) +
     '<ul class="rows">' + L.parts.map(function (p, i) { return g.hits[i] ? row("on", p.done) : fixRow(p, g, i); }).join("") + '</ul>' +
     (voidTry ? fixBlock(g, redo) : "") + oneMore + (again && L.headsUp ? '<div class="callout">' + q(L.headsUp) + '</div>' : "") + (!again && P.from && g.from ? '<div class="from">' + ICON.ok + '<span>' + q(P.from) + '</span></div>' : "") + '</div>' +
     (up ? '<div class="nextp">' + face(up.who) + '<span>' + whoTag(up.who) + '</span></div>' : "") + foot(btn(redo || again || nextP ? SH.ready : nextLabel(), "go")), sub);
@@ -417,7 +423,7 @@ function vFeedback(st, s, onNext, label, sub, extra) {
   var still = (s.untrue && !(LN === 5 || LN === 2)) || (s.promise && LN !== 2) ? fixBlock(s, false) : "";
   top({ result: true });
   show(kick(LN === 1 ? st : "Feedback") + '<h1 class="scoreh">' + n + ' of 4</h1><div class="fill">' +
-    (who && !(still && extra) ? '<div class="panel short">' + sceneFace(who) + '<div class="who">' + whoTag(who) + '</div></div>' : "") + (LN === 2 ? saidBlock(s.quote) : "") +
+    (who && !(still && extra) ? '<div class="panel short" data-who="' + who + '">' + sceneFace(who) + '<div class="who">' + whoTag(who) + '</div></div>' : "") + (LN === 2 ? saidBlock(s.quote) : "") +
     (done.length ? '<div><div class="lbl">' + q(SH.blocks[0]) + '</div><ul class="rows">' + done.join("") + '</ul></div>' : "") +
     (fix.length ? '<div><div class="lbl">' + q(SH.blocks[1]) + '</div><ul class="rows">' + fix.join("") + '</ul></div>' : "") +
     (still ? '<div>' + still + '</div>' : '<div><div class="lbl">' + q(SH.blocks[2]) + '</div><div class="tip">' + q(t < 0 ? L.tipAll : L.parts[t].tip) + '</div></div>') +
@@ -434,7 +440,7 @@ function vLessonEnd(st) {
   show('<div class="fill"><div class="ringrow">' + (finish ? ring(5, 5, st.finish ? 4 : 5) : ring(LN, 5, LN - 1)) + '<div><h1 style="margin:0">' + q(SH.end.done.replace("{n}", LN)) + '</h1>' + (left && !finish ? '<div class="togo">' + q(SH.end.togo.replace("{m}", left)) + '</div>' : "") + '</div></div>' +
     '<div class="panel grow end">' + coverPic() + '</div>' + /* the lesson's picture takes the room the words leave */
     (finish ? '<div><h1 class="lg" style="margin:0">' + q(anyOpen ? SH.ready5wait : SH.ready5) + '</h1><p class="course">' + q(SH.course) + '</p></div>'
-      : '<div class="nx"><div class="lbl" style="margin:0">' + q(SH.end.whats) + '</div><p>' + q(SH.end.lead) + '</p><ol>' + SH.titles.map(function (t, i) { return i < LN ? "" : '<li class="' + (i === LN ? "lit" : "") + '"><i>' + (i + 1) + '</i><span>' + q(t) + '</span>' + (i === LN ? '<em>' + q(SH.end.tomorrow) + '</em>' : "") + '</li>'; }).join("") + '</ol></div>') +
+      : '<div class="nx"><div class="lbl" style="margin:0">' + q(SH.end.whats) + '</div><p>' + q(SH.end.lead) + '</p><ol>' + SH.titles.map(function (t, i) { return i < LN ? "" : '<li class="' + (i === LN ? "lit" : "") + '"><i>' + (i + 1) + '</i><span>' + q(t) + (i === LN ? ' <em>' + q(SH.end.tomorrow) + '</em>' : "") + '</span></li>'; }).join("") + '</ol></div>') +
     '<div>' + (open || (finish && anyOpen) ? mustNote(open ? LN : other, musts) : "") + '<p class="shift">' + q(L.nextShift) + '</p>' + (L.endExtra ? '<p class="shift sm">' + q(L.endExtra) + '</p>' : "") + '</div></div>' +
     (finish && anyOpen ? foot(btn(other === LN ? SH.next.try2 : "Next: lesson " + other + "’s 2nd try", "prac")) + '<button class="link" id="go">' + q(SH.done) + '</button>' : foot(btn(SH.done, "go"))), LN === 1 ? "" : "b");
   var ep = $(".fill > .panel.end"); if (ep && ep.getBoundingClientRect().height < 104) { ep.style.display = "none"; fillUp(); } /* a sliver of a picture is no picture */
