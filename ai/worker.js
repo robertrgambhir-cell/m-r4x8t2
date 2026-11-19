@@ -34,7 +34,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "174-10"; /* shows on /health, so a deploy can be confirmed (since 174-6 it holds main's 165-15, the signature course's narration) */
+const BUILD = "174-11"; /* shows on /health, so a deploy can be confirmed (since 174-6 it holds main's 165-15, the signature course's narration) */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -197,15 +197,15 @@ const straight = (t) => String(t || "").replace(/[‘’ʼ]/g, "'").replace(/[�
 const I_WILL = "(?:i'?ll|i will|i'?m (?:going to|gonna)|i am (?:going to|gonna))";
 /* a plain line is a complete thought: the words end the sentence (a comma is not an end, and a question is not a threat),
    and nothing earlier in the sentence hedges them ("I'm worried I'll hurt you", "it's not like I'm going to hurt you") */
-const END = "(?=\\s*(?:[.!](?!\\.)|$))", NO_HEDGE = "(?<!\\b(?:like|though|think|thinks|say|says|said|saying|tell|tells|told|mean|means|worry|worried|afraid|scared|rule|if i|if we|in case)\\b[^.!?]*)";
+const END = "(?=\\s*(?:[.!](?!\\.)|$))", NO_HEDGE = "(?<!\\b(?:like|though|think|thinks|say|says|said|saying|tell|tells|told|mean|means|message|sounds?|wonder|promise|worry|worried|afraid|scared|rule|if i|if we|in case)\\b[^.!?]*)(?<!\\b(?:if|that|whether|and) )";
 const YOUR_THING = "your (?:house|home|place|car|door|windows?|family|kids?|husband|wife|dog|face|tires?)(?: down)?";
 const THREAT_PLAIN = [
   new RegExp(NO_HEDGE + "\\b" + I_WILL + "(?: (?:really|just|totally|definitely|seriously|fucking|freaking))* (?:kill|hurt|stab|murder|strangle) you" + END, "i"),
   new RegExp("\\bor (?:we'll|i'll) remember (?:this|your) (?:house|place|door|face)" + END, "i"), /* red-team T1; without "or", or going on, it is a canvasser noting the house */
   new RegExp("\\b(?:(?:someone|somebody) should (?:shoot|kill|hurt)|(?:they|people|i|we) should shoot) (?:you|him|her)" + END, "i"), /* T2; "should shoot him an email", "should kill her bill" and "somebody should kill them" (the cuts) go on or are judged */
   new RegExp("(?<!\\b(?:not|never|can't|cannot|won't|wouldn't|couldn't|like)\\b[^.!?]*)\\b(?:" + I_WILL + "|we'll|we will|i can|i could) report you to (?:immigration|ice|the police|the cops)" + END, "i"), /* T4; "it's not like I'll report you to immigration" reassures */
-  new RegExp("\\bor i'?ll(?: (?:really|just|fucking|freaking))* (?:kill|hurt|stab|shoot|burn|smash|wreck|torch|trash) (?:you|" + YOUR_THING + ")" + END, "i"),
-  new RegExp("\\bor we'll(?: (?:really|just|fucking|freaking))* (?:kill|stab|shoot|burn|smash|wreck|torch|trash) (?:you|" + YOUR_THING + ")" + END, "i"),
+  new RegExp(NO_HEDGE + "\\bor i'?ll(?: (?:really|just|fucking|freaking))* (?:kill|hurt|stab|shoot|burn|smash|wreck|torch|trash) (?:you|" + YOUR_THING + ")" + END, "i"),
+  new RegExp(NO_HEDGE + "\\bor we'll(?: (?:really|just|fucking|freaking))* (?:kill|stab|shoot|burn|smash|wreck|torch|trash) (?:you|" + YOUR_THING + ")" + END, "i"),
 ];
 /* H1, H2, H3, H5: "You're hot." as a sentence of its own, "Hey gorgeous," to her face, "What are you wearing under that?" */
 const SEXUAL_PLAIN = /(?<=^\s*|[.!?]\s*)you'?re (?:so )?(?:hot|cute|sexy|gorgeous|beautiful)(?=\s*(?:[.!?]|$))|\bhey,? (?:gorgeous|sexy|babe|baby|hottie|beautiful)(?=\s*(?:[.!?]|$)|,? you\b)|\bwhat are you wearing under\b|\bgive me your number,? (?:gorgeous|babe|beautiful)(?=\s*(?:[.!?]|$))/i;
@@ -435,7 +435,8 @@ export function cleanVoter(x, s, turns) {
   if (say.length > 320) say = say.slice(0, 320).replace(/[^.!?]*$/, "") || say.slice(0, 320);
   const n = turns.filter((t) => t.who === "you").length;
   if (ooc(s)(say, s.voter.name)) return { say: GOODBYE, mood: "warm", end: true, broke: true }; /* version 165-2 */
-  return { say, mood: MOODS.includes(x.mood) ? x.mood : "neutral", end: !!x.end || n >= s.voter.hardStop || (n >= 2 && farewell(s, true).test(say)) };
+  /* 174-11: after a line she was told to judge (rule 16), her goodbye closes the door at once, on the first line too */
+  return { say, mood: MOODS.includes(x.mood) ? x.mood : "neutral", end: !!x.end || n >= s.voter.hardStop || ((n >= 2 || !!suspect(turns, s)) && farewell(s, true).test(say)) };
 }
 
 /* ---------------- the coach ---------------- */

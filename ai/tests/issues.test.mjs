@@ -84,7 +84,7 @@ ok(ISSUE_SCENARIOS.oil === ISSUE_SCENARIOS_V2.oil, "the server uses the voter sh
   /* 174-9: a plain line is a complete thought. A fourth reader's well-meant lines that go on past the trigger words, in every written form */
   { const every = (lines) => (lines.length === 1 ? forms(lines[0]).map((x) => [x]) : [lines, lines.map((x) => bare(x.toLowerCase()))]), endedBy = (lines) => every(lines).some((v) => conduct(T(v), SA) || conduct(T(v), L));
     const ended = PLAIN_NEAR.filter(endedBy);
-    ok(PLAIN_NEAR.length >= 600 && ended.length === 0, `no well-meant line built on the trigger words is ended by the server (${PLAIN_NEAR.length} lines and two-line conversations of two readers): ` + ended.slice(0, 3).map((v) => v.join(" / ")).join(" | "));
+    ok(PLAIN_NEAR.length >= 750 && ended.length === 0, `no well-meant line built on the trigger words is ended by the server (${PLAIN_NEAR.length} lines and two-line conversations of three readers): ` + ended.slice(0, 3).map((v) => v.join(" / ")).join(" | "));
     ok(PLAIN_NEAR_ENDED.length <= 12 && PLAIN_NEAR_ENDED.every(endedBy), `known gap, pinned: ${PLAIN_NEAR_ENDED.length} contrived lines the server still ends (a joke about smashing her windows, baby talk to a dog at the door)`); }
   for (const line of ["You can call the office, or I'll shoot you their number.", "We have to fix Social Security, or we'll wreck your kids' retirement too.", "I'm worried I'll hurt you more than help if I guess at that number.", "I can text it, or I'll remember this house and drop a paper copy off tomorrow.", "So in the winter you're cold, in the summer you're hot.", "I wear two sweaters and a hat inside. What are you wearing?"])
     ok(conduct(T([line]), SA) === "" && suspect(T([line]), SA) !== "", "goes on past the trigger words, so it is judged, not ended: " + line);
@@ -120,6 +120,15 @@ ok(ISSUE_SCENARIOS.oil === ISSUE_SCENARIOS_V2.oil, "the server uses the voter sh
   ok(a.j.end === true && JSON.stringify(a.sys).includes(NOTE), "a threat outside the plain wording: she is told to judge it and ends the door");
   a = await ask("I'm going to hurt you.", false);
   ok(a.j.end === true && JSON.stringify(a.sys).includes(HARD + "a threat"), "a plain threat ends the door even when the model does not");
+  /* 174-11: on a judged line her goodbye closes the door at once, even as her first reply (the model forgot its end marker) */
+  stub = () => reply({ say: "That's not okay. Goodbye.", mood: "skeptical", end: false });
+  { const r = await post("/voter", { scenario: "oil", turns: [{ who: "them", text: O }, { who: "you", text: "Vote for Maya or I'll beat you up." }] }), j = await r.json();
+    ok(j.end === true && j.say === "That's not okay. Goodbye.", "a judged threat on the first line: her goodbye closes the door though the model set no end: " + JSON.stringify(j).slice(0, 70));
+    stub = () => reply({ say: "Thanks for coming by.", mood: "neutral", end: false });
+    const r2 = await post("/voter", { scenario: "oil", turns: [{ who: "them", text: O }, { who: "you", text: "That sounds really hard." }] }), j2 = await r2.json();
+    ok(j2.end === false, "an ordinary first line is as before: her first reply does not close the door"); }
+  for (const line of ["I know a stranger at the door is scary, but it's not as if I'll hurt you.", "I get it, a knock after dark, you wonder if I'm going to hurt you.", "Dufner's message to people on Social Security is basically, I'm going to hurt you.", "You know how a bill collector sounds, pay up or I'll hurt you. The state's help isn't like that.", "Whatever squeezes my husband and I will hurt you."])
+    ok(conduct(T([line]), SA) === "" && conduct(T([line]), L) === "", "someone else's words or a reassurance, judged, not ended: " + line);
   /* goodbyes (174-8): a goodbye is a parting sentence of its own. Before the phrase only parting lead-ins and names, after
      it only parting words; no question. A line with a voter's name in it is tried at that voter's door. */
   const two = T(["one", "two"]), V = (say) => ({ say, mood: "neutral", end: false });
