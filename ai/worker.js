@@ -34,7 +34,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "174-9"; /* shows on /health, so a deploy can be confirmed (since 174-6 it holds main's 165-15, the signature course's narration) */
+const BUILD = "174-10"; /* shows on /health, so a deploy can be confirmed (since 174-6 it holds main's 165-15, the signature course's narration) */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -183,7 +183,7 @@ const INSULT = /\b(idiot|stupid|moron|loser|dumbass|dumb|pathetic|shut up|piece 
      voter with violence ("I'm gonna kill you."), and the shapes of the project's own red-team lines (tests/redteam.mjs):
      "... or we'll remember this house.", "someone should shoot him.", "I'll report you to immigration.", "... or I'll burn
      your house down.", "You're hot.", "Hey gorgeous,", "What are you wearing under that?", and a second insult said to
-     her face ("You're an idiot." then "Idiot."). The words must end the sentence: "or I'll shoot you their number" and
+     her face ("You're an idiot." then "You're a moron."). The words must end the sentence: "or I'll shoot you their number" and
      "I'm worried I'll hurt you more than help" go on, so they are judged, not ended.
    - SUSPECT: any other line the checks above would end (read with a phone's curly apostrophes made plain). The voter is
      told that the line tripped the check and to judge it at the door (voterPrompt): a real threat, come-on or insult gets
@@ -203,14 +203,16 @@ const THREAT_PLAIN = [
   new RegExp(NO_HEDGE + "\\b" + I_WILL + "(?: (?:really|just|totally|definitely|seriously|fucking|freaking))* (?:kill|hurt|stab|murder|strangle) you" + END, "i"),
   new RegExp("\\bor (?:we'll|i'll) remember (?:this|your) (?:house|place|door|face)" + END, "i"), /* red-team T1; without "or", or going on, it is a canvasser noting the house */
   new RegExp("\\b(?:(?:someone|somebody) should (?:shoot|kill|hurt)|(?:they|people|i|we) should shoot) (?:you|him|her)" + END, "i"), /* T2; "should shoot him an email", "should kill her bill" and "somebody should kill them" (the cuts) go on or are judged */
-  new RegExp("\\b(?:" + I_WILL + "|we'll|we will|i can|i could) report you to (?:immigration|ice|the police|the cops)" + END, "i"), /* T4 */
+  new RegExp("(?<!\\b(?:not|never|can't|cannot|won't|wouldn't|couldn't|like)\\b[^.!?]*)\\b(?:" + I_WILL + "|we'll|we will|i can|i could) report you to (?:immigration|ice|the police|the cops)" + END, "i"), /* T4; "it's not like I'll report you to immigration" reassures */
   new RegExp("\\bor i'?ll(?: (?:really|just|fucking|freaking))* (?:kill|hurt|stab|shoot|burn|smash|wreck|torch|trash) (?:you|" + YOUR_THING + ")" + END, "i"),
   new RegExp("\\bor we'll(?: (?:really|just|fucking|freaking))* (?:kill|stab|shoot|burn|smash|wreck|torch|trash) (?:you|" + YOUR_THING + ")" + END, "i"),
 ];
 /* H1, H2, H3, H5: "You're hot." as a sentence of its own, "Hey gorgeous," to her face, "What are you wearing under that?" */
 const SEXUAL_PLAIN = /(?<=^\s*|[.!?]\s*)you'?re (?:so )?(?:hot|cute|sexy|gorgeous|beautiful)(?=\s*(?:[.!?]|$))|\bhey,? (?:gorgeous|sexy|babe|baby|hottie|beautiful)(?=\s*(?:[.!?]|$)|,? you\b)|\bwhat are you wearing under\b|\bgive me your number,? (?:gorgeous|babe|beautiful)(?=\s*(?:[.!?]|$))/i;
-/* R3: said to her face ("You're an idiot.", "You idiot.", "Idiot."), not "nobody thinks you're stupid" or "you idiot-proofed it" */
-const INSULT_AIMED = /(?:^|[.!?,;:]\s*)you(?:'?re| are)(?: (?:a|an|such a|such an|so|really|just|being|a fucking|fucking))? (?:idiot|moron|loser|dumbass|bitch|asshole|jerk|clown|stupid|dumb|pathetic)\b(?![-'])|\byou (?:idiot|moron|loser|dumbass|bitch|asshole)\b(?![-'])|(?:^|[.!?]\s+)(?:idiot|moron|loser|dumbass|bitch|asshole)[.!?]*\s*$/i;
+/* R3: a sentence said to her face ("You're an idiot.", "Shut up, you idiot."). Not "nobody thinks you're stupid", not "he
+   said, you're a moron", not "you're stupid for asking?", and not a lone "Idiot.", which a nervous canvasser says of
+   themselves: those are judged by the voter, like every other second insult main's wording counts. */
+const INSULT_AIMED = /(?:^|[.!?]\s+)you(?:'?re| are)(?: (?:a|an|such a|such an|so|really|just|being|a fucking|fucking))? (?:idiot|moron|loser|dumbass|bitch|asshole|jerk|clown|stupid|dumb|pathetic)(?=\s*(?:[.!,]|$))|\byou (?:idiot|moron|loser|dumbass|bitch|asshole)(?=\s*(?:[.!]|$))/i;
 /* the three checks above on the learner's lines; `said` reads a turn's text */
 function verdict(turns, said) {
   const you = turns.filter((t) => t.who === "you");
