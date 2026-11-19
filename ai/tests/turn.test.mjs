@@ -101,17 +101,18 @@ r = await worker.fetch(new Request("https://w.example/scenario/oh_bills"), env0)
 r = await worker.fetch(new Request("https://w.example/scenario/tx_vouchers"), env0); ok(r.status === 404, "the Nov 6 school vouchers scenario is gone from the server");
 r = await worker.fetch(new Request("https://w.example/scenario/social"), env0);
 { const j = await r.json(); ok(r.status === 200 && j.voter.name === "Linda" && j.rubric.filter((x) => x.card).length === 4 && !JSON.stringify(j).includes("approvedFacts"), "the page can read Linda's card rows and nothing of the prompt: " + JSON.stringify(j).slice(0, 120)); }
-/* 165-14: the signature course's lines (ai/sig/content.js) are read the same way, each person in their own voice */
+/* 165-14 and 165-15: the signature course's lines (ai/sig/content.js) are read the same way, each person in their own voice */
 {
-  const N = SIG_NARRATION.sig2.narration, lines = sigVoiceLines().filter((x) => !x.same);
-  r = await g("s=sig2&k=0"); ok(r.status === 200 && r.headers.get("content-type") === "audio/mpeg" && voiceCalls[voiceCalls.length - 1].text === N[0] && voiceCalls[voiceCalls.length - 1].speaker === "orpheus", "a signature lesson's coach line is read in the narrator's voice");
-  const t = lines.findIndex((x) => x.who === "tasha");
-  r = await g("s=sig2&k=" + t + "&voice=" + SIG_VOICES.tasha); ok(r.status === 200 && voiceCalls[voiceCalls.length - 1].speaker === SIG_VOICES.tasha && /registered to vote in L\.A\. County\?$/.test(voiceCalls[voiceCalls.length - 1].text), "Tasha's opener is read in her own voice, with the county said the way a voice says it");
-  r = await g("s=sig2&k=" + N.length); ok(r.status === 404, "no signature line past the end");
+  const N = SIG_NARRATION.sig.narration, lines = sigVoiceLines();
+  r = await g("s=sig&k=0"); ok(r.status === 200 && r.headers.get("content-type") === "audio/mpeg" && voiceCalls[voiceCalls.length - 1].text === N[0] && voiceCalls[voiceCalls.length - 1].speaker === "orpheus", "a signature lesson's coach line is read in the narrator's voice");
+  const lena = lines.find((x) => x.who === "lena"), t = N.indexOf(lena.say);
+  r = await g("s=sig&k=" + t + "&voice=" + SIG_VOICES.lena); ok(r.status === 200 && voiceCalls[voiceCalls.length - 1].speaker === SIG_VOICES.lena && /registered to vote in L\.A\. County\?$/.test(voiceCalls[voiceCalls.length - 1].text), "Lena's opener is read in her own voice, with the county said the way a voice says it");
+  r = await g("s=sig&k=" + N.length); ok(r.status === 404, "no signature line past the end");
   r = await g("s=constructor&k=0"); ok(r.status === 404, "only a real lesson id is read");
-  ok(N.length === lines.length && N.every((x) => typeof x === "string" && x.length > 3 && x.length < 400 && !/[{}\u2014]/.test(x)), "every signature line is filled, short and has no em dash");
-  ok(lines.every((x) => SIG_VOICES[x.who] && x.voice === SIG_VOICES[x.who]), "every line has a speaker");
-  ok(N.filter((x) => x.includes(SIG_SETTINGS.countySay)).length >= 3 && !N.some((x) => x.includes("LA County")), "the county comes from the firm settings");
+  r = await g("s=sig2&k=0"); ok(r.status === 404, "the old lesson 2 list is gone");
+  ok(N.length > 100 && N.every((x) => typeof x === "string" && x.length > 1 && x.length < 400 && !/[{}\u2014]/.test(x)) && lines.every((x) => N.includes(x.say)), "every signature line is filled, short and has no em dash");
+  ok(lines.every((x) => SIG_VOICES[x.who] && x.voice === SIG_VOICES[x.who]) && new Set(Object.values(SIG_VOICES)).size === Object.keys(SIG_VOICES).length, "every line has a speaker, and no two people share a voice");
+  ok(N.filter((x) => x.includes(SIG_SETTINGS.countySay)).length >= 5 && !N.some((x) => x.includes("LA County")), "the county comes from the firm settings");
 }
 /* version 165: Sofia's 1st intro streams like Kevin's 2nd, graded on the same items, and lesson 1's doors stop at four lines */
 {
