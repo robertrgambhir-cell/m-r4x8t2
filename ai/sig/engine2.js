@@ -194,7 +194,7 @@ VIEW.hear = function (st) {
 /* plays a watched scene: who speaks, what happens on screen, then the coach's ticks */
 async function playScenes(st, by) {
   var r = RUN, fill = {};
-  function setScene(sc) { var p = $("#panel"); p.innerHTML = sceneTwo(by, sc.who, sc.stopped ? "" : "off-l walk") + '<div class="capts" id="capts"></div>' + (st.labels ? '<div class="labels" id="labels">' + st.labels.map(function (l) { return '<span>' + q(l) + '</span>'; }).join("") + '</div>' : ""); }
+  function setScene(sc) { var p = $("#panel"); if (st.labels) p.classList.add("lab"); p.innerHTML = sceneTwo(by, sc.who, sc.stopped ? "" : "off-l walk") + '<div class="capts" id="capts"></div>' + (st.labels ? '<div class="labels" id="labels">' + st.labels.map(function (l) { return '<span>' + q(l) + '</span>'; }).join("") + '</div>' : ""); }
   function redraw(o) { var p = $("#pet"); if (p) p.outerHTML = pet(fill, o || {}); fitHw(); }
   setScene(st.scenes[0]);
   if (st.coach) { cap("Coach", st.coach.text, "them"); if (!(await sayLine(st.coach, r))) return false; }
@@ -318,7 +318,7 @@ function vChecks(st, k, sub) {
 function scoreNow(st) {
   var P = S.people, s;
   if (LN === 2) { var list = P.filter(Boolean); s = SIGG.score2(list); var b = list[s.pick] || {}; s.quote = b.quote; s.who = P.indexOf(b) >= 0 ? st.people[P.indexOf(b)].who : null; }
-  else if (LN === 5) s = SIGG.score5(P[0], P[1] || null);
+  else if (LN === 5) { s = SIGG.score5(P[0], P[1] || null); s.who = st.people[P[1] ? 1 : 0].who; }
   else if (LN === 3) { s = P[0]; s.from2 = P[0].from; s.from1 = !!(P[1] && P[1].from); s.who = st.people[0].who; }
   else { s = P[0]; s.who = st.people[0].who; }
   s.musts = SIGG.mustsMissed(LN, s.hits);
