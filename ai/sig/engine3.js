@@ -3,7 +3,7 @@
 VIEW.cards = function (st) {
   var r = RUN + 0;
   top({ pp: true });
-  show(kick(st) + '<div class="coach q3" id="coach">' + q(st.coach.text) + '</div><div class="fill"><div class="record"><div class="rec-h"><span>Voter record</span><span>County elections office</span></div><div class="stack" id="stack">' + st.cards.map(function (c) { var m = c.text.match(/^(\d)\. (.*)$/); return '<div class="cardq"><i>' + m[1] + '</i><span>' + q(m[2]) + '</span></div>'; }).join("") + '</div></div></div>' + foot(btn(nextLabel(), "go", "ghost")), "");
+  show(kick(st) + '<div class="coach q3" id="coach">' + q(st.coach.text) + '</div><div class="checks4" id="stack">' + st.cards.map(function (c, i) { var m = c.text.match(/^(\d)\. (.*)$/); return '<div class="cardq">' + CHECK_PICS[i] + '<span><i>' + m[1] + '</i>' + q(m[2]) + '</span></div>'; }).join("") + '</div>' + foot(btn(nextLabel(), "go", "ghost")), "");
   $("#go").onclick = nextStep;
   (async function () {
     if (!(await sayLine(st.coach, r))) return;
@@ -19,19 +19,21 @@ VIEW.sort = function (st) {
   top({});
   if (k >= n) {
     var out = st.cards.filter(function (c) { return c.right === 1; });
-    show(kick(st) + '<div class="fill"><div class="faces">' + out.map(function (c) { return '<div>' + face(c.face) + esc(CAST[c.face].name) + '</div>'; }).join("") + '</div><div class="coach q3" style="font-size:calc(19 * var(--u))">' + q(st.after.text) + '</div></div>' + foot(btn(nextLabel(), "go")), "g");
+    show(kick(st) + '<div class="fill"><div class="quad">' + out.map(function (c) { return '<div class="panel">' + sceneOne(c.face, "") + '<div class="who">' + esc(CAST[c.face].name) + '</div></div>'; }).join("") + '</div><div class="coach q3" style="font-size:calc(19 * var(--u))">' + q(st.after.text) + '</div></div>' + foot(btn(nextLabel(), "go")), "g");
     $("#go").onclick = nextStep; sayLine(st.after, r); return;
   }
   var C = st.cards[k];
-  show(kick(st) + (k === 0 ? '<div class="coach" id="coach">' + q(st.coach.text) + '</div>' : "") + '<div class="count">' + (k + 1) + " of " + n + '</div><div class="fill"><div class="panel short">' + sceneFace(C.face) + '</div><p class="sctext">' + q(C.text) + '</p>' +
+  show(kick(st) + (k === 0 ? '<div class="coach" id="coach">' + q(st.coach.text) + '</div>' : "") + '<div class="count">' + (k + 1) + " of " + n + '</div><div class="fill"><div class="panel grow" data-who="' + C.face + '">' + sceneOne(C.face, "") + '<div class="who">' + whoTag(C.face) + '</div></div><p class="sctext">' + q(C.text) + '</p>' +
     '<div class="opts row" id="opts">' + st.buttons.map(function (b, i) { return '<button class="opt" data-i="' + i + '"><span style="flex:1">' + q(b) + '</span></button>'; }).join("") + '</div><div id="why"></div></div><div id="ft"></div>', "abcdef"[k]);
   if (k === 0) sayLine(st.coach, r);
+  fitPic();
   [].forEach.call(document.querySelectorAll("#opts button"), function (b) {
     b.onclick = function () {
       var i = +b.getAttribute("data-i"), box = $("#opts"); if (box.classList.contains("done")) return; box.classList.add("done"); stopSound();
       [].forEach.call(box.children, function (x, j) { x.classList.add(j === C.right ? "right" : j === i ? "wrong" : "faded"); x.disabled = true; });
       var c = $("#coach"); if (c) c.remove();
       $("#why").innerHTML = why(i === C.right, C.why, true);
+      shrinkPic();
       $("#ft").innerHTML = foot(btn(k + 1 < n ? "Next line" : "Next: the four you threw out", "go"));
       $("#go").onclick = function () { go(S.step, k + 1); };
     };
@@ -82,13 +84,13 @@ VIEW.stop = function (st) {
 VIEW.lines = function (st) {
   var r = RUN + 0, k = S.sub, X = st.lines[k], last = k === st.lines.length - 1;
   top({});
-  show(kick(st) + (k === 0 ? '<div class="coach q3" id="coach">' + q(st.coach.text) + '</div>' : "") + '<div class="count">Line ' + X.tag + '</div><div id="pw">' + pet(X.fill, { tap: true, big: true, note: X.note }) + '</div>' +
+  show(kick(st) + (k === 0 ? '<div class="coach q3" id="coach">' + q(st.coach.text) + '</div>' : "") + '<div class="count">Line ' + X.tag + '</div><div id="pw" class="psheet">' + pet(X.fill, { tap: true, big: true, note: X.note, sheet: true }) + '</div>' +
     '<div class="fill"><div class="opts" id="opts"><button class="opt" id="okb"><span style="flex:1;text-align:center">' + q(st.ok) + '</span></button></div><div id="why"></div></div><div id="ft"></div>', "abcd"[k]);
   if (k === 0) sayLine(st.coach, r);
   var done = false, pick = function (key) {
     if (done) return; done = true; stopSound();
     var marks = {}; if (X.right !== "ok") marks[X.right] = "right"; if (key !== X.right && key !== "ok") marks[key] = "wrong";
-    $("#pw").innerHTML = pet(X.fill, { big: true, note: X.note, marks: marks }); fitHw();
+    $("#pw").innerHTML = pet(X.fill, { big: true, note: X.note, marks: marks, sheet: true }); fitHw();
     $("#okb").classList.add(X.right === "ok" ? "right" : key === "ok" ? "wrong" : "faded"); $("#okb").disabled = true; $("#opts").classList.add("done");
     var c = $("#coach"); if (c) c.remove();
     $("#why").innerHTML = why(key === X.right, X.why, true);
@@ -101,8 +103,8 @@ VIEW.lines = function (st) {
 VIEW.decl = function (st) {
   var r = RUN + 0, sel = [];
   top({});
-  show(kick(st) + '<div class="coach q3" id="coach">' + q(st.coach.text) + '</div><h1 style="font-size:calc(19 * var(--u))">' + q(st.ask) + '</h1><div class="opts" id="opts">' +
-    st.cards.map(function (c, i) { return '<button class="decl" data-i="' + i + '"><span class="lt" style="flex:none;width:24px;height:24px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font:800 12px/1 Figtree;color:var(--muted)">' + (i + 1) + '</span><span>' + q(c) + '</span></button>'; }).join("") + '</div><div class="fill"><div id="why"></div></div><div id="ft"></div>', "");
+  show(kick(st) + '<div class="coach q3" id="coach">' + q(st.coach.text) + '</div><h1 style="font-size:calc(19 * var(--u))">' + q(st.ask) + '</h1><div class="opts decls" id="opts">' +
+    st.cards.map(function (c, i) { return '<button class="decl" data-i="' + i + '">' + declPic(["own", "blank", "other"][i]) + '<span>' + q(c) + '</span></button>'; }).join("") + '</div><div class="fill"><div id="why"></div></div><div id="ft"></div>', "");
   sayLine(st.coach, r);
   [].forEach.call(document.querySelectorAll(".decl"), function (b) {
     b.onclick = function () {

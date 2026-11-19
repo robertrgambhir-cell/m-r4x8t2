@@ -18,7 +18,7 @@
   --ink: #262320; --muted: #6F685F; --soft: #F3F0EA; --line: #E6E0D6; --bg: #FFFFFF;
   --green: #35B57C; --green-d: #22895A; --green-soft: #E6F5EC; --drive: #5A3E99; --drive-soft: #EFEAF8;
   --red: #C2412D; --red-soft: #FBE8E4; --warm: #E08A1A; --warm-soft: #FDF1DC; --pen: #1F3F8F;
-  --u: 1px; color-scheme: light;
+  --u0: 1px; --u: var(--u0); color-scheme: light;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: "Figtree", system-ui, -apple-system, sans-serif; }
@@ -35,7 +35,15 @@ button { font: inherit; color: inherit; }
 .bar button::after { content: ""; position: absolute; left: 0; right: 0; top: 10px; height: 6px; border-radius: 3px; background: var(--line); }
 .bar button.full::after { background: var(--green); }
 .bar button.cur::after { box-shadow: 0 0 0 2px var(--ink); } /* where you are: an outline, never a partly filled bar */
-#scr { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; container-type: inline-size; }
+#scr { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; container-type: inline-size; --u: calc(var(--u0) * var(--k, 1)); }
+/* fill: a screen with room to spare grows its words and pictures together (--k, set by fillUp in the engine) until the room is
+   used, so no blank band is left. The main button keeps its size, so its words stay on one line. */
+#scr > #ft, #scr > .foot, #scr > .link { --u: var(--u0); }
+/* while fillUp measures, the blocks sit packed at the sizes they would like: nothing stretched, nothing squeezed */
+#scr.fitting > .fill, #scr.fitting > .opts.decls { flex: 0 0 auto; justify-content: flex-start; }
+#scr.fitting > *, #scr.fitting > .fill > * { flex-shrink: 0; }
+#scr.fitting .opts.tall { flex: 0 0 auto; height: calc(380 * var(--u)); }
+#scr.fitting .faces.big { flex: 0 0 auto; height: calc(2 * min(132 * var(--u), 50cqw - 30px) + 60px); }
 .tag { position: absolute; right: 8px; bottom: calc(env(safe-area-inset-bottom, 0px) + 2px); font: 600 9px/1 "Figtree"; color: #A69E92; letter-spacing: 0.04em; pointer-events: none; z-index: 30; }
 .tag.onpic { background: rgba(255,255,255,.82); color: #6F685F; border-radius: 4px; padding: 2px 4px; }
 .kick { flex: none; margin: 10px 0 0; font: 800 calc(12 * var(--u))/1 "Figtree"; letter-spacing: .07em; text-transform: uppercase; color: var(--green-d); }
@@ -45,7 +53,8 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.12; }
 .grow { flex: 1; min-height: 0; }
 .fill { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-evenly; padding-top: 12px; }
 .fill > :first-child { margin-top: 0; }
-.fill > .panel.short { flex: 0 1 30%; height: auto; min-height: 84px; } /* the small picture gives way first when a card is full */
+.fill > #why:empty { display: none; } /* an answer that isn't on screen yet takes no room */
+.fill > .panel.short { flex: 1 1 calc(190 * var(--u)); height: auto; min-height: 84px; } /* and it takes any room the card has left over */ /* the small picture gives way first when a card is full */
 /* the picture */
 .panel { flex: 1; min-height: 0; margin-top: 12px; background: var(--soft); border-radius: 20px; overflow: hidden; position: relative; }
 .panel.short { flex: 0 0 auto; height: 30%; min-height: 150px; }
@@ -112,9 +121,9 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.12; }
 .opt.faded { opacity: .5; }
 .opt.picked { box-shadow: inset 0 0 0 2px #A69E92, 0 4px 0 var(--line); } /* a guess that wasn't the number: kept plain, never marked wrong */
 .opts.done .opt { pointer-events: none; }
-.pics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; flex: 1; min-height: 42cqw; max-height: min(70cqw, 360px); }
+.pics { display: grid; grid-template-columns: 1fr; grid-auto-rows: 1fr; gap: 10px; margin-top: 14px; flex: 1; min-height: 56cqw; } /* A over B, each as wide as the screen: the two pictures take the room that is left, and each scene is drawn as large as its tile allows */
 .pic { border: 0; padding: 0; border-radius: 18px; background: #EFE7D8; box-shadow: inset 0 0 0 2px var(--line), 0 4px 0 var(--line); position: relative; overflow: hidden; cursor: pointer; }
-.pic svg { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: auto; display: block; } /* the picture keeps its full width; a taller tile shows more wall */
+.pic svg { position: absolute; left: 0; right: 0; bottom: 0; top: 12%; width: 100%; height: 88%; display: block; } /* the scene sits under the awning, so no head is ever behind it */
 .pic::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 12%; background: #2F5D50; z-index: 1; }
 .pic .lt { position: absolute; left: 8px; top: 8px; width: 26px; height: 26px; border-radius: 50%; background: #fff; display: grid; place-items: center; font: 800 13px/1 "Figtree"; z-index: 2; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
 .pic.right { box-shadow: inset 0 0 0 3px var(--green), 0 4px 0 var(--green-d); } .pic.right .lt { background: var(--green); color: #fff; }
@@ -164,7 +173,7 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.12; }
 .typed { flex: 1; display: flex; gap: 8px; } .typed input { flex: 1; min-width: 0; border: 2px solid var(--line); border-radius: 14px; padding: 12px 12px; font: 500 16px/1.2 "Figtree"; } .typed button { flex: none; }
 /* the practice petition */
 .pet { flex: none; margin-top: 10px; border-radius: 12px; background: #FFFEFA; box-shadow: inset 0 0 0 1.5px #D9D2C4, 0 2px 0 #E6E0D6; padding: 8px 10px 9px; position: relative; overflow: hidden; }
-.pet-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.pet-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; --u: var(--u0); } /* the heading and the stamp keep their size on a screen that grows, so the name and the stamp always share one row */
 .pet-t { flex: 1; min-width: 0; } .pet-t > span { display: block; white-space: nowrap; font: 800 calc(10 * var(--u))/1.2 "Figtree"; letter-spacing: .05em; text-transform: uppercase; color: #5B554D; }
 .pet-s { margin-top: 3px; font: 500 calc(9.5 * var(--u))/1.25 "Figtree"; color: #7A7268; }
 .stamp { flex: none; margin: 1px 3px 0 0; transform: rotate(3deg); border: 1.5px solid var(--red); color: var(--red); border-radius: 4px; padding: 3px 5px; font: 800 calc(8.5 * var(--u))/1.15 "Figtree"; letter-spacing: .05em; text-align: center; white-space: nowrap; background: rgba(255,254,250,.9); } /* both lines always show: it sits in the heading, beside the measure's name */
@@ -189,6 +198,38 @@ button.box { cursor: pointer; } .box.right { box-shadow: inset 0 0 0 2.5px var(-
 .cardq + .cardq { box-shadow: inset 0 1.5px 0 #EDE7DB; }
 .cardq i { flex: none; width: calc(30 * var(--u)); height: calc(30 * var(--u)); border-radius: 50%; display: grid; place-items: center; background: var(--soft); color: #B8B0A3; font: 800 calc(14 * var(--u))/1 "Figtree"; font-style: normal; transition: background .35s ease, color .35s ease; }
 .cardq.on { color: var(--ink); } .cardq.on i { background: var(--green); color: #fff; }
+/* tap screens: the picture takes the room that is left, so nothing sits in a blank band */
+svg.close .kid { display: none; } /* a close-up of Tanya leaves her daughter out: a caption would cover the girl's face, and a short picture would cut it in half */
+.fill > .panel.grow { flex: 1 1 0; min-height: calc(92 * var(--u)); margin-top: 0; }
+.fill.answered > .panel.grow { min-height: 0; }
+.fill > .panel.grow.end { min-height: 0; margin: 12px 0 2px; } /* the lesson's picture on its last screen */
+.panel.grow.paper { background: #EFE7D8; }
+.picpet { flex: 1 0 auto; display: flex; flex-direction: column; } .picpet .pet { margin-top: 0; flex: 1 0 auto; } /* the line on a sheet: the next empty lines run on under it for as far as the screen has room */
+.opts.tallies { flex: 1 1 0; min-height: calc(170 * var(--u)); align-items: stretch; }
+.opts.tallies .opt { flex: 1; min-width: 0; flex-direction: column; align-items: center; justify-content: flex-start; gap: 8px; padding: 12px 10px 14px; }
+.opts.tallies .tn { flex: none; font: 600 calc(25 * var(--u))/1 "Newsreader", Georgia, serif; }
+.opts.tallies svg { flex: 1 1 0; min-height: 0; width: 100%; }
+/* how the county checks: four cards, each with its own small picture */
+.checks4 { flex: 1; min-height: 0; margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: 10px; }
+.checks4 .cardq, .checks4 .cardq + .cardq { flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 8px; padding: calc(14 * var(--u)) 14px; border-radius: 18px; background: #FFFEFA; box-shadow: inset 0 0 0 1.5px #D9D2C4, 0 3px 0 #E6E0D6; font: 700 calc(16.5 * var(--u))/1.22 "Figtree"; text-wrap: balance; }
+.checks4 .cardq svg { flex: 1 1 0; min-height: 0; width: auto; max-width: 100%; max-height: calc(104 * var(--u)); aspect-ratio: 1; color: #CFC8BC; transition: color .35s ease; }
+.checks4 .cardq.on svg { color: var(--green-d); }
+.checks4 .cardq span { display: block; } .checks4 .cardq i { margin-bottom: 7px; }
+/* the four thrown out: four portraits that share the room that is left */
+.quad { flex: 1 1 0; min-height: calc(200 * var(--u)); display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 10px; }
+.quad .panel { margin: 0; min-height: 0; }
+/* check four lines: the practice petition is a sheet. The line being checked is on top, and the next empty lines run on under
+   it for as far as the screen has room, so the sheet takes the spare room and the answer sits right under it */
+#pw.psheet { flex: 1 0 auto; display: flex; flex-direction: column; }
+#pw.psheet .pet { flex: 1 0 auto; }
+#pw.psheet + .fill { flex: 0 0 auto; }
+.pet-more { height: 0; overflow: visible; pointer-events: none; opacity: .55; }
+.pet-more .pet-r:nth-child(odd) { margin-top: calc(16 * var(--u)); }
+.faces.big { flex: 1 1 0; min-height: 0; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px 18px; margin-top: 0; }
+.faces.big div { min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: calc(15.5 * var(--u)); }
+.faces.big svg { flex: 0 1 auto; width: auto; height: calc(100% - 26px); max-height: min(calc(132 * var(--u)), calc(50cqw - 30px)); aspect-ratio: 1; } /* a face is never wider than its column */
+.decl { align-items: center; } .decl .dpic { flex: none; width: calc(80 * var(--u)); height: auto; }
+.opts.decls { flex: 1 1 auto; justify-content: space-evenly; } .opts.decls + .fill { flex: 0 0 auto; } /* the three declarations take the room; the answer takes what it needs */
 .sctext { margin: 12px 2px 0; font: 600 calc(17 * var(--u))/1.38 "Figtree"; text-wrap: pretty; }
 .sc { margin-top: 14px; border-radius: 20px; background: var(--soft); padding: 16px; display: flex; gap: 14px; align-items: flex-start; }
 .sc svg { flex: none; width: calc(72 * var(--u)); height: calc(72 * var(--u)); border-radius: 50%; background: #E4DDD0; }
@@ -237,9 +278,9 @@ button.box { cursor: pointer; } .box.right { box-shadow: inset 0 0 0 2.5px var(-
   .ft { margin-bottom: -18px; }
   .tag { right: 32px; bottom: 5px; } /* clear of the frame's round corner and of the button above it */
 }
-@media (min-height: 780px) { :root { --u: 1.07px; } }
-@media (min-height: 880px) { :root { --u: 1.14px; } }
-@media (max-height: 700px) { :root { --u: .94px; }
+@media (min-height: 780px) { :root { --u0: 1.07px; } }
+@media (min-height: 880px) { :root { --u0: 1.14px; } }
+@media (max-height: 700px) { :root { --u0: .94px; }
 }
 /* Hear it done with the petition under the picture, on a short phone or in the laptop frame: the picture gets the room, so a
    three-line caption still sits under the chins */
@@ -248,12 +289,12 @@ button.box { cursor: pointer; } .box.right { box-shadow: inset 0 0 0 2.5px var(-
   .panel + .pet .pet-s { display: none; } .panel + .pet { margin-top: 7px; padding-top: 6px; padding-bottom: 7px; } .panel + .pet ~ .rows { gap: calc(4 * var(--u)); margin-top: 5px; } .panel + .pet ~ .lbl { margin-top: 8px; } }
 /* a laptop window shorter than a small phone: the store sign gives its room to the faces, and captions sit a little tighter */
 @media (min-width: 700px) and (max-height: 700px) { .panel:has(+ .pet) > svg.fitw { transform: translateY(-9.5%); } .panel:has(+ .pet) .capt { font-size: calc(14 * var(--u)); } .capt { padding: 6px 11px 7px; line-height: 1.22; } .capt b { margin-bottom: 2px; } .capts { gap: 4px; } }
-@media (max-height: 640px) { :root { --u: .88px; } }
-@media (max-height: 560px) { :root { --u: .8px; } }
+@media (max-height: 640px) { :root { --u0: .88px; } }
+@media (max-height: 560px) { :root { --u0: .8px; } }
 /* in the laptop frame the lesson has 36 px less height than the window, so each step comes 36 px sooner */
-@media (min-width: 700px) and (max-height: 736px) { :root { --u: .94px; } }
-@media (min-width: 700px) and (max-height: 690px) { :root { --u: .84px; } }
-@media (min-width: 700px) and (max-height: 620px) { :root { --u: .78px; } }
+@media (min-width: 700px) and (max-height: 736px) { :root { --u0: .94px; } }
+@media (min-width: 700px) and (max-height: 690px) { :root { --u0: .84px; } }
+@media (min-width: 700px) and (max-height: 620px) { :root { --u0: .78px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
 </style>
 </head>

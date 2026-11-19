@@ -50,7 +50,37 @@ var btn = function (label, id, cls) { return '<button class="btn' + (cls ? " " +
 var row = function (cls, text, small) { return '<li class="' + cls + '"><span class="ck">' + (cls === "fix" ? ICON.dot : ICON.ok) + '</span><span>' + (small ? '<small>' + q(small) + '</small>' : "") + q(text) + '</span></li>'; };
 var why = function (right, text, plain) { return '<div class="why' + (plain ? " plain" : "") + '"><span class="dot' + (right ? "" : " no") + '">' + (right ? ICON.ok : ICON.dot) + '</span><span>' + q(text) + '</span></div>'; };
 var whoTag = function (who) { var c = CAST[who]; return esc((c.full || c.name) + (c.age ? ", " + c.age : "")); };
-function show(html, sub) { $("#scr").innerHTML = html; tag(sub); fitHw(); }
+function show(html, sub) { $("#scr").innerHTML = html; tag(sub); fillUp(); fitHw(); }
+/* fill: a screen with room to spare grows its words and pictures together, up to FILL_MAX times their size, until the room is
+   used (playbook A50: content scaled to fill the screen, no blank bands). The main button keeps its size. A screen whose
+   picture already takes the spare room is left alone. The measuring is done with the blocks packed at the sizes they would
+   like (#scr.fitting in the styles), and it runs again whenever a screen's words change, the window changes or the fonts land. */
+var FILL_MAX = 1.4, FILL_PIC = 1.2, fillWatch = null; /* with a picture on the card the words grow less, and the picture takes what is left */
+function fillUp() {
+  var scr = $("#scr"); if (!scr) return;
+  scr.style.removeProperty("--k");
+  if (!fillWatch && window.MutationObserver) {
+    var pend = false, later = function () { if (pend) return; pend = true; requestAnimationFrame(function () { pend = false; fillUp(); fitHw(); }); };
+    fillWatch = new MutationObserver(function (ms) { for (var i = 0; i < ms.length; i += 1) { var x = ms[i].target; if (x.nodeType !== 1) x = x.parentElement; if (x && !x.closest("svg, .capts, .mic, .dock, .pet, .ft")) return later(); } });
+    fillWatch.observe(scr, { childList: true, subtree: true });
+    window.addEventListener("resize", later);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(later);
+  }
+  var f = scr.querySelector(":scope > .fill"); if (!f) return;
+  var shown = function (e) { return e.getClientRects().length > 0; };
+  if ([].some.call(scr.querySelectorAll(":scope > .panel:not(.short), :scope > .ft, :scope > .fill > .panel:not(.short), .checks4, .opts.tallies, .quad, #pw.psheet, .picpet, .pics"), shown)) return;
+  /* layout positions, never painted ones: a line that is still sliding in must not read as running off the screen */
+  var room = scr.clientHeight, end = function (c) { return c.offsetTop + c.offsetHeight; };
+  var need = function (k) { scr.style.setProperty("--k", k.toFixed(3)); var m = 0; [].forEach.call(scr.children, function (c) { var cs = getComputedStyle(c); if (!shown(c) || cs.position === "absolute") return; var b = end(c) + (parseFloat(cs.marginBottom) || 0); if (b > m) m = b; }); return m; };
+  scr.classList.add("fitting");
+  var lo = 1, hi = [].some.call(f.querySelectorAll(":scope > .panel.short"), shown) ? FILL_PIC : FILL_MAX;
+  if (need(1) <= room - 16) { if (need(hi) <= room) lo = hi; else for (var i = 0; i < 7; i += 1) { var mid = (lo + hi) / 2; if (need(mid) <= room) lo = mid; else hi = mid; } }
+  scr.classList.remove("fitting");
+  var over = function () { var kids = [].filter.call(f.children, shown), a = kids[0], z = kids[kids.length - 1], last = [].filter.call(scr.children, function (c) { return shown(c) && getComputedStyle(c).position !== "absolute"; }).pop();
+    return (a && a.offsetTop < f.offsetTop - 1) || (z && end(z) > end(f) + 1) || (last && end(last) > room + 1); };
+  for (lo = Math.floor(lo * 100) / 100; lo > 1.005; lo -= 0.03) { scr.style.setProperty("--k", lo.toFixed(3)); if (!over()) return; }
+  scr.style.removeProperty("--k");
+}
 function cap(who, text, cls) { var c = $("#capts"); if (!c) return null; var el = c.querySelector(".capt." + (cls || "them").split(" ")[0]); if (!el) el = document.createElement("div"); if (c.lastChild !== el) c.appendChild(el); el.className = "capt " + (cls || "them"); el.innerHTML = (who ? "<b>" + esc(who) + "</b>" : "") + q(text); return el; }
 function nameOf(who) { return who === "coach" ? "Coach" : who === "you" ? "You" : CAST[who].name; }
 function act(who, a) {
@@ -63,7 +93,7 @@ function act(who, a) {
 function enter(who) { var p = $("#p-" + who); if (p) { p.classList.remove("off-l"); } return wait(FAST ? 0 : 850); }
 function sources() {
   var sh = document.createElement("div"), was = $("#tag").textContent; sh.className = "sheet";
-  sh.innerHTML = '<div role="dialog" aria-label="Sources"><h2>Sources</h2><ul>' + (L.sources || []).map(function (g) { return '<li>' + q(g[0]) + ': ' + g[1].map(function (s) { return '<a href="' + esc(s[1]) + '" target="_blank" rel="noopener">' + q(s[0]) + '</a>'; }).join(", ") + (g[2] ? ", " + q(g[2]) : "") + '</li>'; }).join("") + '</ul><p class="fine">The coach and the passersby are AI voices. The Neighborhood Libraries Act, Libraries for All and every person here are made up for practice.</p><button class="btn ghost" id="shx">Close</button></div>';
+  sh.innerHTML = '<div role="dialog" aria-label="Sources"><h2>Sources</h2><ul>' + (L.sources || []).map(function (g) { var link = function (n, u) { return '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + q(n) + '</a>'; }; return '<li>' + q(g[0]) + ': ' + (typeof g[1] === "string" ? g[1].split(/(\{[^|}]+\|[^}]+\})/).map(function (x) { var m = x.match(/^\{([^|}]+)\|([^}]+)\}$/); return m ? link(m[1], m[2]) : q(x); }).join("") : g[1].map(function (s) { return link(s[0], s[1]); }).join(", ") + (g[2] ? ", " + q(g[2]) : "")) + '</li>'; }).join("") + '</ul><p class="fine">The coach and the passersby are AI voices. The Neighborhood Libraries Act, Libraries for All and every person here are made up for practice.</p><button class="btn ghost" id="shx">Close</button></div>';
   $("#app").appendChild(sh); $("#tag").textContent = was + "s"; $("#tag").className = "tag onpic";
   sh.addEventListener("click", function (e) { if (e.target === sh || e.target.id === "shx") { sh.remove(); $("#tag").textContent = was; $("#tag").className = "tag"; } });
 }
@@ -157,11 +187,12 @@ function talk(cfg) {
 
 /* ---------------- the views ---------------- */
 var VIEW = {};
+function coverPic() { return sceneTwo("lena", LN === 1 ? "ines" : LN === 2 ? "ben" : LN === 3 ? "tanya" : LN === 4 ? "anika" : "hank", ""); } /* the lesson's picture: on its cover and on its last screen */
 function vCover() {
   S.step = -1; top({});
   show('<span class="drive" role="img" aria-label="Libraries for All, the Neighborhood Libraries Act petition drive"><b>' + esc(ST.drive.name) + '</b><small>' + esc(ST.drive.measure) + ' · petition drive</small></span>' +
     '<div class="kick" style="margin-top:18px">Lesson ' + LN + ' of 5</div><h1 class="lg">' + q(L.title) + '</h1><div class="meta"><span>5 minutes</span></div>' +
-    '<div class="panel">' + sceneTwo("lena", LN === 1 ? "ines" : LN === 2 ? "ben" : LN === 3 ? "tanya" : LN === 4 ? "anika" : "hank", "") + '</div>' +
+    '<div class="panel">' + coverPic() + '</div>' +
     (saved().must && saved().must[LN] ? mustNote(LN, saved().must).replace(' style="color:var(--red)"', "") : "") + foot(btn(L.start || SH.start, "start")), "");
   $("#start").onclick = function () { audio(); go(0, 0); };
   /* the lesson's voices load while the cover is read */
@@ -228,15 +259,27 @@ async function playScenes(st, by) {
   return true;
 }
 
+/* once the answer is on screen the picture gives it room; a sliver of a picture is no picture, so then it goes */
+function shrinkPic() { var f = $(".fill"), pg = $(".fill > .panel.grow"); if (!f || !pg) return; f.classList.add("answered"); requestAnimationFrame(function () { if (pg.getBoundingClientRect().height < 76) { pg.style.display = "none"; fillUp(); } else fitPic(); }); }
+/* a person's picture that takes the room that is left: in a short strip the face is framed whole, in a tall one the person is */
+function fitPic() { var pg = $(".fill > .panel.grow[data-who]"); if (!pg) return; var h = pg.getBoundingClientRect().height, close = h < 150, who = pg.getAttribute("data-who"); if (pg.getAttribute("data-close") === String(close)) return; pg.setAttribute("data-close", String(close)); var s = pg.querySelector("svg"); if (s) s.outerHTML = close ? sceneFace(who) : sceneOne(who, ""); }
 /* taps: the question, the options, and the coach's line that opens with the right answer */
 VIEW.taps = function (st) {
   var r = RUN, k = S.sub, Q = st.qs[k], last = k === st.qs.length - 1, lt = "ABC";
-  var opts = Q.pics
+  /* what the question is about, above the options: a person, the sheet it describes or the line it's about. It takes the room that is left. */
+  var pic = !Q.pic ? "" : Q.pic.who ? '<div class="panel grow" data-who="' + Q.pic.who + '">' + sceneOne(Q.pic.who, "") + '<div class="who">' + whoTag(Q.pic.who) + '</div></div>'
+    : Q.pic.two ? '<div class="panel grow">' + sceneTwo(Q.pic.two[0], Q.pic.two[1], "") + '</div>'
+    : Q.pic.sheet ? '<div class="panel grow paper">' + sceneSheet(Q.pic.sheet, Q.pic.day) + '</div>'
+    : Q.pic.line ? '<div class="picpet">' + pet(Q.pic.line, { top: false, glow: Q.pic.glow, sheet: true }) + '</div>' : "";
+  var opts = Q.tally
+    ? '<div class="opts row tallies" id="opts">' + Q.opts.map(function (o, i) { return '<button class="opt" data-i="' + i + '"><span class="tn">' + q(o) + '</span>' + tally(Q.tally[i][0], Q.tally[i][1], o + ": " + Q.tally[i][0] + " signatures, " + Q.tally[i][1] + " count") + '</button>'; }).join("") + '</div>'
+    : Q.pics
     ? '<div class="pics" id="opts">' + Q.pics.map(function (p, i) { return '<button class="pic" data-i="' + i + '" aria-label="' + lt[i] + ". " + esc(Q.alt[i]) + '"><span class="lt">' + lt[i] + '</span>' + PICS[p]() + '</button>'; }).join("") + '</div>'
     : '<div class="opts' + (Q.row && Q.opts.length > 2 ? " tall" : Q.row ? " row" : "") + '" id="opts">' + Q.opts.map(function (o, i) { return '<button class="opt' + (Q.quote ? " qt" : "") + '" data-i="' + i + '">' + (Q.row ? "" : '<span class="lt">' + lt[i] + '</span>') + '<span>' + (Q.quote ? "“" + q(o) + "”" : q(o)) + '</span></button>'; }).join("") + '</div>';
   top({});
-  show(kick(st) + (k === 0 && st.coach ? '<div class="coach" id="coach">' + q(st.coach.text) + '</div>' : "") + '<h1>' + q(Q.ask) + '</h1><div class="fill">' + opts + '<div id="why"></div></div><div id="ft"></div>', st.qs.length > 1 ? "abcd"[k] : "");
+  show(kick(st) + (k === 0 && st.coach ? '<div class="coach" id="coach">' + q(st.coach.text) + '</div>' : "") + '<h1>' + q(Q.ask) + '</h1><div class="fill">' + pic + opts + '<div id="why"></div></div><div id="ft"></div>', st.qs.length > 1 ? "abcd"[k] : "");
   if (k === 0 && st.coach) sayLine(st.coach, r);
+  fitPic();
   [].forEach.call(document.querySelectorAll("#opts button"), function (b) {
     b.onclick = function () {
       var i = +b.getAttribute("data-i"), box = $("#opts"); if (box.classList.contains("done")) return; box.classList.add("done"); stopSound();
@@ -244,6 +287,7 @@ VIEW.taps = function (st) {
       [].forEach.call(box.children, function (x, j) { x.classList.add(j === Q.right ? "right" : j === i ? (guess ? "picked" : "wrong") : "faded"); x.disabled = true; });
       var c = $("#coach"); if (c) c.remove();
       $("#why").innerHTML = why(i === Q.right || guess, Q.after.text);
+      shrinkPic();
       $("#ft").innerHTML = foot(btn(last ? nextLabel() : "Next: question " + (k + 2) + " of " + st.qs.length, "go")) + (Q.sources ? '<button class="link" id="src">' + q(SH.sources) + '</button>' : "");
       $("#go").onclick = function () { last ? nextStep() : go(S.step, k + 1); };
       if ($("#src")) $("#src").onclick = sources;
@@ -388,10 +432,12 @@ function vLessonEnd(st) {
   var finish = st.finish || (PRACTICE && saved().fin), other = +Object.keys(musts)[0] || 0; /* a practice round reached from lesson 5's end finishes like lesson 5 */
   S.done[S.step] = true; top({ result: true });
   show('<div class="fill"><div class="ringrow">' + (finish ? ring(5, 5, st.finish ? 4 : 5) : ring(LN, 5, LN - 1)) + '<div><h1 style="margin:0">' + q(SH.end.done.replace("{n}", LN)) + '</h1>' + (left && !finish ? '<div class="togo">' + q(SH.end.togo.replace("{m}", left)) + '</div>' : "") + '</div></div>' +
+    '<div class="panel grow end">' + coverPic() + '</div>' + /* the lesson's picture takes the room the words leave */
     (finish ? '<div><h1 class="lg" style="margin:0">' + q(anyOpen ? SH.ready5wait : SH.ready5) + '</h1><p class="course">' + q(SH.course) + '</p></div>'
       : '<div class="nx"><div class="lbl" style="margin:0">' + q(SH.end.whats) + '</div><p>' + q(SH.end.lead) + '</p><ol>' + SH.titles.map(function (t, i) { return i < LN ? "" : '<li class="' + (i === LN ? "lit" : "") + '"><i>' + (i + 1) + '</i><span>' + q(t) + '</span>' + (i === LN ? '<em>' + q(SH.end.tomorrow) + '</em>' : "") + '</li>'; }).join("") + '</ol></div>') +
     '<div>' + (open || (finish && anyOpen) ? mustNote(open ? LN : other, musts) : "") + '<p class="shift">' + q(L.nextShift) + '</p>' + (L.endExtra ? '<p class="shift sm">' + q(L.endExtra) + '</p>' : "") + '</div></div>' +
     (finish && anyOpen ? foot(btn(other === LN ? SH.next.try2 : "Next: lesson " + other + "’s 2nd try", "prac")) + '<button class="link" id="go">' + q(SH.done) + '</button>' : foot(btn(SH.done, "go"))), LN === 1 ? "" : "b");
+  var ep = $(".fill > .panel.end"); if (ep && ep.getBoundingClientRect().height < 104) { ep.style.display = "none"; fillUp(); } /* a sliver of a picture is no picture */
   $("#go").onclick = function () { go(-1); };
   if ($("#prac")) $("#prac").onclick = function () { if (other === LN) { S.retried = false; go(prevIndex(), 0); } else location.href = "?l=" + other + "&practice&at=" + (try2At(other) + 1) + ".0"; };
   requestAnimationFrame(function () { setTimeout(function () { var a = $(".ring-arc"); if (a) a.setAttribute("stroke-dashoffset", a.getAttribute("data-to")); }, 250); });

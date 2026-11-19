@@ -138,7 +138,7 @@ function props(p) {
   if (p.prop === "tote") o += '<path d="M113 196 L108 256 M126 193 L131 256" fill="none" stroke="#C9B48A" stroke-width="5" stroke-linecap="round"/><rect x="96" y="252" width="48" height="64" rx="5" fill="#D9C79E"/><path d="M104 268 H136" stroke="#C9B48A" stroke-width="3" stroke-linecap="round"/>';
   if (p.prop === "buds") o += '<g class="buds"><circle cx="134" cy="147" r="3.4" fill="#fff"/><path d="M134 150 V158" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><g class="prop bud-r"><circle cx="186" cy="147" r="3.4" fill="#fff"/><path d="M186 150 V158" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></g></g>';
   if (p.prop === "apron") o += '<path d="M141 192 L147 216 M179 192 L173 216" stroke="#2F3A44" stroke-width="4" stroke-linecap="round"/><path d="M142 214 H178 L184 372 H136 Z" fill="#2F3A44"/><rect x="151" y="238" width="18" height="14" rx="2" fill="none" stroke="#4A5661" stroke-width="2"/>';
-  if (p.prop === "cart") o += '<g><rect x="88" y="270" width="144" height="9" rx="4.5" fill="#9AA3AD"/><path d="M96 279 V420 M224 279 V420 M128 279 V420 M160 279 V420 M192 279 V420 M92 348 H228 M92 420 H228" stroke="#B7BFC7" stroke-width="3" fill="none"/><circle cx="104" cy="448" r="11" fill="#5B6B6A"/><circle cx="216" cy="448" r="11" fill="#5B6B6A"/><circle cx="116" cy="252" r="15" fill="#8A5A3F"/><path d="M101 250 C101 236 131 236 131 250 C126 243 106 243 101 250 Z" fill="#1E1714"/><circle cx="111" cy="254" r="1.8" fill="#1C1A24"/><circle cx="121" cy="254" r="1.8" fill="#1C1A24"/><path d="M112 260 Q116 263 120 260" stroke="#45261F" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="103" cy="238" r="5" fill="#E0A23C"/></g>';
+  if (p.prop === "cart") o += '<g><rect x="88" y="270" width="144" height="9" rx="4.5" fill="#9AA3AD"/><path d="M96 279 V420 M224 279 V420 M128 279 V420 M160 279 V420 M192 279 V420 M92 348 H228 M92 420 H228" stroke="#B7BFC7" stroke-width="3" fill="none"/><circle cx="104" cy="448" r="11" fill="#5B6B6A"/><circle cx="216" cy="448" r="11" fill="#5B6B6A"/><g class="kid"><circle cx="116" cy="252" r="15" fill="#8A5A3F"/><path d="M101 250 C101 236 131 236 131 250 C126 243 106 243 101 250 Z" fill="#1E1714"/><circle cx="111" cy="254" r="1.8" fill="#1C1A24"/><circle cx="121" cy="254" r="1.8" fill="#1C1A24"/><path d="M112 260 Q116 263 120 260" stroke="#45261F" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="103" cy="238" r="5" fill="#E0A23C"/></g></g>';
   if (p.prop === "stroller") o += '<g><path d="M170 300 Q170 262 214 262" fill="none" stroke="#2A2A2E" stroke-width="6" stroke-linecap="round"/><path d="M176 400 V290 Q176 276 196 276 H240 V400 Z" fill="#5B6B8A"/><circle cx="186" cy="436" r="13" fill="none" stroke="#2A2A2E" stroke-width="5"/><circle cx="232" cy="436" r="13" fill="none" stroke="#2A2A2E" stroke-width="5"/><path d="M186 400 V424 M232 400 V424" stroke="#2A2A2E" stroke-width="4"/><path d="M176 296 Q178 270 212 272 L214 296 Z" fill="#46546E"/></g>';
   if (p.prop === "bags") o += '<g><rect x="78" y="244" width="40" height="80" rx="3" fill="#C9A27A"/><path d="M86 244 Q98 222 110 244" fill="none" stroke="#A9855F" stroke-width="3"/><rect x="202" y="244" width="40" height="80" rx="3" fill="#C9A27A"/><path d="M210 244 Q222 222 234 244" fill="none" stroke="#A9855F" stroke-width="3"/><path d="M84 256 H112 M208 256 H236" stroke="#B8926A" stroke-width="2"/></g>';
   return o;
@@ -156,13 +156,13 @@ function store(o) {
     (o.table != null ? '<g transform="translate(' + o.table + ' ' + ((o.ground || 340) - 340) + ')"><rect x="-10" y="262" width="118" height="10" rx="3" fill="#B08A5E"/><rect x="-4" y="272" width="106" height="84" fill="#5A3E99"/><text x="49" y="304" text-anchor="middle" font-family="Figtree, sans-serif" font-weight="800" font-size="10" letter-spacing="1" fill="#fff">LIBRARIES</text><text x="49" y="318" text-anchor="middle" font-family="Figtree, sans-serif" font-weight="800" font-size="10" letter-spacing="1" fill="#fff">FOR ALL</text><rect x="6" y="246" width="30" height="16" rx="2" fill="#8A6A45" transform="rotate(-8 21 254)"/><rect x="56" y="250" width="34" height="12" rx="2" fill="#FFFEFA" stroke="#C9C1B3"/></g>' : "");
 }
 /* one passerby, close up: the practice voters' picture (face in the top third, the captions over the chest) */
-function sceneOne(who, cls) { return '<svg viewBox="62 84 196 236" preserveAspectRatio="xMidYMin slice" role="img" aria-label="' + esc(CAST[who].full || CAST[who].name) + ' outside Westside Market">' + store({ signY: 84, doorX: 218, signX: 132, noText: true }) + person(who, cls, 0) + '</svg>'; }
+function sceneOne(who, cls) { return '<svg class="close" viewBox="62 84 196 236" preserveAspectRatio="xMidYMin slice" role="img" aria-label="' + esc(CAST[who].full || CAST[who].name) + ' outside Westside Market">' + store({ signY: 84, doorX: 218, signX: 132, noText: true }) + person(who, cls, 0) + '</svg>'; }
 /* a canvasser and a passerby, for the parts you watch */
 function sceneTwo(by, who, cls) { return '<svg class="fitw" viewBox="8 70 304 780" role="img" aria-label="' + esc(CAST[by].name + " and " + (CAST[who].full || CAST[who].name)) + ' outside Westside Market">' + store({ signY: 70, doorX: 250, signX: 160, table: 22 }) + person(by, "", -74) + person(who, cls, 76) + '</svg>'; }
 /* the storefront with nobody in it yet, for the beat before a try */
 function sceneStore() { return '<svg class="fitw" viewBox="0 36 320 820" role="img" aria-label="Westside Market, with your table out front">' + store({ signY: 52, doorX: 196, win: 28, table: 34 }) + '</svg>'; }
 /* the same person as a small picture on a card: head and shoulders, centered */
-function sceneFace(who) { return '<svg viewBox="40 96 240 112" preserveAspectRatio="xMidYMid slice" role="img" aria-label="' + esc(CAST[who].full || CAST[who].name) + '">' + store({ signY: 58, doorX: 236, noText: true }) + person(who, "", 0) + '</svg>'; }
+function sceneFace(who) { return '<svg class="close" viewBox="40 96 240 112" preserveAspectRatio="xMidYMid slice" role="img" aria-label="' + esc(CAST[who].full || CAST[who].name) + '">' + store({ signY: 58, doorX: 236, noText: true }) + person(who, "", 0) + '</svg>'; }
 function face(who) { return '<svg viewBox="116 100 88 88" aria-hidden="true">' + figure(LOOKS[who]) + '</svg>'; }
 /* where to stand: four small pictures, drawn so the choice reads without words */
 function mini(x, y, c, o) { /* a small standing or seated canvasser, drawn facing right unless flipped */
@@ -177,7 +177,8 @@ function walker(x, y, c, flip, still) { /* a passerby seen from the side, in str
   return '<g transform="translate(' + x + ' ' + y + ') scale(' + (flip ? -1 : 1) + ' 1)">' + (still ? '<path d="M-3 28 L-3 54 M3 28 L3 54" stroke="#5B554D" stroke-width="6" stroke-linecap="round"/>' : '<path d="M-2 28 L-10 54 M2 28 L11 53" stroke="#5B554D" stroke-width="6" stroke-linecap="round"/>') +
     '<rect x="-10" y="-1" width="20" height="34" rx="9" fill="' + c + '"/>' + (still ? "" : '<path d="M0 8 L9 20" stroke="' + c + '" stroke-width="5" stroke-linecap="round" opacity=".75"/>') + '<circle cx="1.5" cy="-11" r="9.5" fill="#D9B38F"/><path d="M-8 -12 a9.5 9.5 0 0 1 16 -5 Q2 -14 -8 -12 Z" fill="#4A3A2E"/></g>';
 }
-var MINI_BG = '<svg viewBox="0 24 160 166"><rect y="24" width="160" height="166" fill="#EFE7D8"/><rect y="150" width="160" height="40" fill="#DDD5C6"/>';
+/* the scene (160 by 130) always shows whole, as large as its tile allows and standing on the tile's bottom edge; the wall and the pavement run on beyond it, so a wide tile or a tall one is never blank */
+var MINI_BG = '<svg viewBox="0 60 160 130" preserveAspectRatio="xMidYMax meet" style="overflow:visible"><rect x="-700" y="-900" width="1560" height="1050" fill="#EFE7D8"/><rect x="-700" y="150" width="1560" height="40" fill="#DDD5C6"/>';
 var MINI_TABLE = function (x, y) { return '<rect x="' + x + '" y="' + y + '" width="66" height="8" rx="3" fill="#B08A5E"/><rect x="' + (x + 5) + '" y="' + (y + 8) + '" width="56" height="' + (150 - y - 2) + '" fill="#5A3E99"/>'; };
 var MINI_DOOR = function (x) { return '<rect x="' + x + '" y="46" width="60" height="104" fill="#D7E4E6" stroke="#5B6B6A" stroke-width="5"/><path d="M' + (x + 30) + ' 46 V150" stroke="#5B6B6A" stroke-width="3"/>'; };
 var PICS = {
@@ -191,6 +192,45 @@ var PICS = {
   side: function () { return MINI_BG + MINI_DOOR(84) + mini(34, 100, "#5A3E99", { board: true }) + walker(114, 100, "#C2603F") + walker(78, 122, "#7A9A6B") + '</svg>'; },
 };
 /* handwriting always fits its box: the writing shrinks, it is never clipped */
+/* ---- pictures for the tap screens: each shows what its question is about, with no words of its own ---- */
+/* a top funders sheet and today's date. The sheet carries its real header and gray bars where the funders would be: the app never invents funders. */
+function sceneSheet(month, day) {
+  var valid = ME.fundersValid + " " + month, bars = [92, 108, 124, 140].map(function (y, i) { return '<rect x="52" y="' + y + '" width="' + [112, 96, 104, 78][i] + '" height="8" rx="4" fill="#DDD6CA"/>'; }).join("");
+  return '<svg viewBox="0 0 320 196" preserveAspectRatio="xMidYMid meet" role="img" aria-label="A top funders sheet that says ' + esc(valid) + ', next to a calendar page for ' + esc(day.join(" ")) + '">' +
+    '<g transform="rotate(-3 110 98)"><rect x="36" y="20" width="148" height="156" rx="7" fill="#FFFEFA" stroke="#D9D2C4" stroke-width="2"/>' +
+    '<text x="110" y="46" text-anchor="middle" font-family="Figtree, sans-serif" font-weight="800" font-size="10.5" letter-spacing=".4" fill="#262320">' + esc(ME.fundersHead) + '</text>' +
+    '<rect x="50" y="56" width="120" height="24" rx="5" fill="#FCEFD9" stroke="#E08A1A" stroke-width="1.6"/><text x="110" y="72" text-anchor="middle" font-family="Figtree, sans-serif" font-weight="700" font-size="10.5" fill="#262320">' + esc(valid) + '</text>' + bars + '</g>' +
+    '<g><rect x="212" y="46" width="84" height="100" rx="11" fill="#fff" stroke="#D9D2C4" stroke-width="2"/><path d="M212 57 a11 11 0 0 1 11 -11 h62 a11 11 0 0 1 11 11 v19 h-84 z" fill="#C4472F"/>' +
+    '<text x="254" y="68" text-anchor="middle" font-family="Figtree, sans-serif" font-weight="800" font-size="11" letter-spacing="1" fill="#fff">' + esc(day[0].toUpperCase()) + '</text>' +
+    '<text x="254" y="128" text-anchor="middle" font-family="Newsreader, Georgia, serif" font-weight="600" font-size="46" fill="#262320">' + esc(day[1]) + '</text></g></svg>';
+}
+/* one canvasser's sheet for an hour: every line gathered, top to bottom, with a green check on each one that counts and a gray stroke through each one thrown out */
+function tally(n, good, label) {
+  var h = 14 + n * 15, out = "";
+  for (var i = 0; i < n; i += 1) {
+    var y = 14 + i * 15, ok = i < good;
+    out += '<path d="M12 ' + (y + 4) + ' c5 -9 9 -8 9 -1 c0 6 5 -7 9 -2 c3 4 5 -4 9 -1 c4 3 6 -6 11 -1 c3 3 5 -3 8 -1" fill="none" stroke="' + (ok ? "#2A3F8F" : "#B9B1A4") + '" stroke-width="1.6" stroke-linecap="round"/>' +
+      (ok ? '<circle cx="78" cy="' + (y + 1) + '" r="5.6" fill="#35B57C"/><path d="M75.200 ' + (y + 1) + ' l2 2.2 l3.800 -4.300" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>'
+        : '<path d="M9 ' + (y + 1) + ' h54" stroke="#8E867A" stroke-width="1.4" stroke-linecap="round"/>');
+  }
+  return '<svg viewBox="0 0 92 ' + h + '" preserveAspectRatio="xMidYMin meet" role="img" aria-label="' + esc(label) + '"><rect x="1" y="1" width="90" height="' + (h - 2) + '" rx="7" fill="#FFFEFA" stroke="#D9D2C4" stroke-width="1.5"/>' + out + '</svg>';
+}
+/* the canvasser's own declaration at the foot of a sheet, three ways: filled in and signed in one hand, left blank, or filled in by somebody else and then signed */
+function declPic(kind) {
+  var pen = "#2A3F8F", lines = [16, 30, 44].map(function (y) { return '<path d="M10 ' + y + ' h76" stroke="#D9D2C4" stroke-width="1.4"/>'; }).join("") + '<path d="M10 60 h46 M64 60 h22" stroke="#D9D2C4" stroke-width="1.4"/>';
+  var hand = function (y, w) { return '<path d="M12 ' + (y - 2) + ' c4 -8 7 -7 7 -1 c0 5 4 -6 8 -2 c3 3 4 -4 8 -1 c3 3 5 -5 9 -1 c3 3 5 -3 8 -1' + (w > 52 ? ' c3 2 5 -4 8 -1 c3 3 4 -3 8 -1' : "") + '" fill="none" stroke="' + pen + '" stroke-width="1.5" stroke-linecap="round"/>'; };
+  var block = function (y, n) { var s = ""; for (var i = 0; i < n; i += 1) s += '<rect x="' + (12 + i * 6.4) + '" y="' + (y - 8) + '" width="4" height="6.5" rx=".8" fill="#262320"/>'; return s; };
+  var sig = '<path d="M12 57 c5 -10 9 -9 8 -1 c-1 6 6 -7 10 -3 c3 4 5 -5 9 -1 c3 3 5 -2 8 -1" fill="none" stroke="' + pen + '" stroke-width="1.6" stroke-linecap="round"/>', date = '<path d="M66 57 c2 -5 4 -5 5 0 c1 -5 3 -5 4 0 m4 -5 l-3 6" fill="none" stroke="' + pen + '" stroke-width="1.4" stroke-linecap="round"/>';
+  var body = kind === "own" ? hand(16, 60) + hand(30, 50) + hand(44, 60) + sig + date : kind === "other" ? block(16, 9) + block(30, 11) + block(44, 7) + sig : "";
+  return '<svg class="dpic" viewBox="0 0 96 70" aria-hidden="true"><rect x="1" y="1" width="94" height="68" rx="7" fill="#FFFEFA" stroke="#D9D2C4" stroke-width="1.5"/>' + lines + body + '</svg>';
+}
+/* how the county checks, as four small pictures: on the voter rolls, in this county, at this address, in this hand */
+var CHECK_PICS = [
+  '<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="14" width="48" height="36" rx="6" fill="#fff" stroke="currentColor" stroke-width="3"/><circle cx="22" cy="28" r="5" fill="currentColor"/><path d="M14 42 c2 -7 14 -7 16 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M36 26 h14 M36 34 h14 M36 42 h9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>',
+  '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M10 20 l12 -6 l14 5 l16 -7 v34 l-16 7 l-14 -5 l-12 6 z" fill="#fff" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M32 22 c-5 0 -8 3.5 -8 8 c0 6 8 13 8 13 s8 -7 8 -13 c0 -4.500 -3 -8 -8 -8 z" fill="currentColor"/><circle cx="32" cy="30" r="3" fill="#fff"/></svg>',
+  '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M10 30 l22 -18 l22 18" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 28 v24 h32 v-24" fill="#fff" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><rect x="27" y="36" width="10" height="16" rx="1.5" fill="currentColor"/></svg>',
+  '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M8 50 h48" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M10 40 c6 -26 13 -24 11 -4 c-1 12 9 -16 15 -6 c4 7 7 -9 12 -2 c3 5 5 -2 8 -1" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+];
 function fitHw() { [].forEach.call(document.querySelectorAll(".box .hw"), function (h) { var n = 0; h.style.fontSize = ""; while (h.scrollWidth > h.clientWidth + 1 && n < 12) { n += 1; h.style.fontSize = (parseFloat(getComputedStyle(h).fontSize) - 1) + "px"; } }); }
 /* the practice petition's line. fill: { name, sig, addr, city, zip, other: [boxes in someone else's writing] }; o: { tap, glow: [], marks: {}, top } */
 var SIGN = '<svg viewBox="0 0 120 26" aria-label="signed"><path d="M4 18 C10 2 16 2 15 14 C14 24 22 6 27 12 C31 17 33 8 38 12 C42 16 44 9 50 13 C56 17 58 4 64 12 C70 20 76 8 84 13 C92 18 100 10 116 9" fill="none" stroke="#1F3F8F" stroke-width="2.2" stroke-linecap="round"/></svg>';
@@ -203,5 +243,7 @@ function pet(fill, o) {
     return o.tap ? '<button class="' + cls + '" data-box="' + k + '" style="flex:' + flex + '" aria-label="' + esc(B[k]) + '">' + inner + '</button>' : '<div class="' + cls + '" data-box="' + k + '" style="flex:' + flex + '">' + inner + '</div>';
   };
   return '<div class="pet' + (o.big ? " big" : "") + '" id="pet"><div class="pet-h"><div class="pet-t"><span>' + esc(ME.name) + '</span>' + (o.top === false ? "" : '<div class="pet-s">' + esc(ME.summary) + '</div>') + '</div><div class="stamp">' + esc(ME.stamp).replace(". ", ".<br>") + '</div></div>' + /* the stamp sits in the heading, so no box can cover it */
-    '<div class="pet-r">' + box("name", 1) + box("sig", 1) + '</div><div class="pet-r">' + box("addr", 1.7) + box("city", 1.05) + box("zip", .62) + '</div>' + (o.note ? '<div class="pn">' + q(o.note) + '</div>' : "") + '</div>';
+    '<div class="pet-r">' + box("name", 1) + box("sig", 1) + '</div><div class="pet-r">' + box("addr", 1.7) + box("city", 1.05) + box("zip", .62) + '</div>' + (o.note ? '<div class="pn">' + q(o.note) + '</div>' : "") +
+    /* a sheet: the next lines, still empty, run on under this one for as far as the screen has room (they take no room of their own) */
+    (o.sheet ? '<div class="pet-more" aria-hidden="true">' + [1, 2, 3, 4, 5].map(function () { return '<div class="pet-r"><div class="box" style="flex:1"></div><div class="box" style="flex:1"></div></div><div class="pet-r"><div class="box" style="flex:1.7"></div><div class="box" style="flex:1.05"></div><div class="box" style="flex:.62"></div></div>'; }).join("") + '</div>' : "") + '</div>';
 }
