@@ -248,9 +248,13 @@ def patch(path):
     swap('  if (S.drill && ["main", "door", "score", "warmtip"].includes(S.screen)) return 8;',
          '  if (S.drill && ["main", "door", "score", "warmtip"].includes(S.screen)) return S.drill.kind === "aiissue" ? 7 : 8; /* version 174: the practice after an issue training is part of the issues stop */')
     swap('async function knock() {\n  const d = DOORS[doorKey()];\n',
-         'async function knock() {\n  const d = DOORS[doorKey()], issueDoor = !!(S.drill && S.drill.kind === "aiissue"); /* version 174 */\n')
+         'async function knock() {\n  const d = DOORS[doorKey()], issueDoor = !!(S.drill && S.drill.kind === "aiissue"), conv0 = S.convo; /* version 174: conv0 is the conversation this knock belongs to */\n')
+    swap('if (!S.convo || S.screen !== "door") return; S.convo.wai = WAI.full(d); /* version 156 */',
+         'if (!S.convo || S.screen !== "door") return; if (issueDoor && S.convo !== conv0) return; /* version 174 */ S.convo.wai = WAI.full(d); /* version 156 */')
     swap('    await wait(900);\n    await voterSays(d.first.say, d.first.expr, d);\n',
-         '    await wait(900);\n    if (issueDoor && (S.screen !== "door" || !S.convo)) return; /* version 174: the canvasser left an issue door before she spoke */\n    await voterSays(d.first.say, d.first.expr, d);\n')
+         '    await wait(900);\n    if (issueDoor && (S.screen !== "door" || S.convo !== conv0)) return; /* version 174: the canvasser left that issue door before she spoke (and may have opened it again) */\n    await voterSays(d.first.say, d.first.expr, d);\n')
+    swap('    addNote(d.arrive || "Your move.");\n  }\n  if (S.screen !== "door") return;\n  S.convo.busy = false;\n  setComposer(true);\n}',
+         '    addNote(d.arrive || "Your move.");\n  }\n  if (S.screen !== "door") return;\n  if (issueDoor && S.convo !== conv0) return; /* version 174 */\n  S.convo.busy = false;\n  setComposer(true);\n}')
 
     # 4c. on main's Version 173 lines (the card that opens while the coach reads): an issue practice whose grade comes back
     # after the canvasser has left the card is not a lesson's result. Main saves a late grade so a lesson still counts; for
@@ -262,6 +266,8 @@ def patch(path):
   const conv = S.convo, t1 = S.try1, drill0 = S.drill; /* leaving the door for the card ends 1st intro mode, so remember it; version 174: and the drill */''')
     swap('''    if (WAI.full(d)) back = gradingScreen(d); /* version 173 */''',
          '''    if (WAI.full(d)) { back = gradingScreen(d); ph = S.last; } /* version 173; version 174: ph is this conversation\u2019s own waiting card */''')
+    swap('''catch (e) { if (WAI.full(d)) { try { result = await aiGradeConvo(d); } catch (e2) { result = Object.assign(result, { coachErr: true }); } } else aiFail(e); }''',
+         '''catch (e) { if (drill0 && drill0.kind === "aiissue" && S.drill !== drill0) { /* version 174: the canvasser left this issue practice: no retry with another conversation\u2019s lines, no message on another screen */ } else if (WAI.full(d)) { try { result = await aiGradeConvo(d); } catch (e2) { result = Object.assign(result, { coachErr: true }); } } else aiFail(e); }''')
     swap('''  if (!back && !here) return;
   if (t1) {''',
          '''  if (!back && !here) return;
@@ -276,19 +282,38 @@ def patch(path):
          '''{ tag: S.drill ? "Practice" : "Feedback", noBack: true, stage: !!gd, footer: S.drill && S.drill.kind === "aiissue" ? `<button class="link center" data-act="coach-back">Done for now</button>` : "" }); /* version 174: an issue practice\u2019s waiting card has a way out */
   }
   const L = S.last,''')
-    # a goodbye still playing from an issue practice the canvasser has already left must not end the next one (leave
-    # during her goodbye, tap Try this conversation again: the old goodbye used to shut the new door with no score)
+    # a goodbye still playing from an issue practice the canvasser has already left must not end the next door, of any kind
+    # (leave during her goodbye and tap Try this conversation again, a lesson's door or the Practice tab's Knock: the old
+    # goodbye used to shut the new door, with no score or with a 0 of 4 on a lesson). The same for her door's own shutting
+    # timer, her knock, and a failed turn. Each guard asks one thing: was this an issue practice, and is its conversation
+    # still the one on screen? A canvassing door's own replies run exactly as on main.
     swap('''async function voterReply(d, scripted, typing) {
   let r = scripted;
   const full = WAI.full(d);''',
          '''async function voterReply(d, scripted, typing) {
   let r = scripted;
-  const full = WAI.full(d), conv0 = S.convo; /* version 174: conv0 is the conversation this reply belongs to */''')
+  const full = WAI.full(d), conv0 = S.convo, issue0 = !!(S.drill && S.drill.kind === "aiissue"); /* version 174: the conversation this reply belongs to, and whether it is an issue practice */''')
+    swap('''if (S.screen === "door" && S.convo && !(e && e.code === "aborted")) WAI.voterFailed(d, e, scripted); return; }''',
+         '''if (S.screen === "door" && S.convo && !(issue0 && S.convo !== conv0) && !(e && e.code === "aborted")) WAI.voterFailed(d, e, scripted); return; }''')
     swap('''    if (!o || S.screen !== "door") return;
     const yt = S.convo.turns.filter((x) => x.who === "you").length;''',
          '''    if (!o || S.screen !== "door") return;
-    if (S.drill && S.drill.kind === "aiissue" && S.convo !== conv0) return; /* version 174: that was an issue practice the canvasser already left */
+    if (issue0 && S.convo !== conv0) return; /* version 174: that was an issue practice the canvasser already left; the door open now, of any kind, is not its to end */
     const yt = S.convo.turns.filter((x) => x.who === "you").length;''')
+    swap('''async function endConvo(d) {
+  S.convo.ended = true;''',
+         '''async function endConvo(d) {
+  const conv0 = S.convo, issue0 = !!(S.drill && S.drill.kind === "aiissue"); /* version 174 */
+  S.convo.ended = true;''')
+    swap('''  await wait(1300);
+  if (S.screen !== "door") return;
+  finishConvo(d);
+}''',
+         '''  await wait(1300);
+  if (S.screen !== "door") return;
+  if (issue0 && S.convo !== conv0) return; /* version 174: the issue practice whose door was shutting is gone; the door open now is another conversation */
+  finishConvo(d);
+}''')
 
     # 5. opening the trainings and hearing from them
     resub(r'case "issues-open": (P1\.ev\("issue_open", \{\}\); )?issuesOpen\(\); break;',

@@ -3,7 +3,8 @@
    Practice the conversation opens the door practice with the training's voter (Sarah or Linda), shut, with Knock; the
    conversation is spoken, the coach scores the four parts of the door answer; Try this conversation again and Done for
    now work; close closes. Also: the practice AI not answering, messages from anywhere but the training, the Practice tab,
-   the links (?issues, ?convo) and the old issue addresses.
+   the links (?issues, ?convo), the old issue addresses, and what a practice the canvasser has left may still do (F6 to
+   F11: nothing, to any door or screen that is open next).
    The AI is the real worker.js with a canned model (ai/tests/mock-server.mjs): this is plumbing, not model quality.
    Usage: (mock-server.mjs running on a copy of the site whose pages point at 127.0.0.1:8799)
    NODE_PATH=$(npm root -g) node ai/tests/test174.cjs /abs/site-root [page=wdpfxqlsvp/app.html] [outdir] [w h] */
@@ -376,7 +377,7 @@ const FAKE_SR = () => {
      conversation again once more. The old goodbye used to shut the new door with "no score". */
   p = await open(PAGE + '?convo=oil');
   ok(await waitThem(p, 1, 12000), "F7: Sarah's door opens");
-  { const talkAll = async (stopAtBye) => { for (let k = 0; k < T.oil.say.length; k += 1) { await speakLine(p, T.oil.say[k]); await waitFor(p, (n) => document.querySelectorAll('#thread .bub.you').length >= n, 9000, k + 1); if (k < T.oil.say.length - 1) await waitThem(p, k + 2, 12000); } if (stopAtBye) await waitThem(p, T.oil.say.length + 1, 12000); };
+  { const talkAll = async (stopAtBye, from = 0) => { for (let k = from; k < T.oil.say.length; k += 1) { await speakLine(p, T.oil.say[k]); await waitFor(p, (n) => document.querySelectorAll('#thread .bub.you').length >= n, 9000, k + 1); if (k < T.oil.say.length - 1) await waitThem(p, k + 2, 12000); } if (stopAtBye) await waitThem(p, T.oil.say.length + 1, 12000); };
     await talkAll(false);
     ok(await cardFilled(p, 30000), 'F7: the first try is scored');
     await p.click('[data-act="door-again"]');
@@ -389,7 +390,114 @@ const FAKE_SR = () => {
     await p.waitForTimeout(4500); /* the second door's goodbye has finished playing by now */
     ok(await p.evaluate(() => __T.S.screen === 'door' && __T.S.convo === window.__c3 && !__T.S.convo.ended && !__T.S.convo.finishing), 'F7: the old goodbye does nothing to the new conversation: ' + await p.evaluate(() => JSON.stringify({ screen: __T.S.screen, same: __T.S.convo === window.__c3, ended: !!(__T.S.convo && __T.S.convo.ended) })));
     await speakLine(p, T.oil.say[0]);
-    ok(await waitThem(p, 2, 12000), 'F7: and the new conversation goes on'); }
+    ok(await waitThem(p, 2, 12000), 'F7: and the new conversation goes on');
+
+    /* F8 to F11 were found by the fifth independent reader: what an issue practice leaves running when the canvasser leaves
+       it (her goodbye, her door's shutting timer, her knock, a failed grade) must do nothing to the door or the screen that
+       is open next. The taps are timed inside the page, so a busy test machine cannot move them. Each of the four fails on
+       the pages from before the fix.
+
+       F8. the 1.3 s an issue door takes to shut after her goodbye belongs to that door only. Finish the third door's
+       conversation, then tap back and Try this conversation again while the door is shutting: the old timer used to shut
+       the new door with a false "no score" card. */
+    await talkAll(false, 1);
+    const taps8 = await p.evaluate(() => new Promise((res) => {
+      const t0 = Date.now();
+      const tick = () => {
+        const c = __T.S.convo;
+        if (__T.S.screen === 'door' && c && c.ended) { /* her goodbye has finished: the door is shutting */
+          setTimeout(() => {
+            const b0 = document.querySelector('header [data-act="back"]'); if (!b0) { res('no back arrow on ' + __T.S.screen); return; }
+            b0.click();
+            setTimeout(() => { const again = document.querySelector('[data-act="door-again"]'); if (!again) { res('no retry button on ' + __T.S.screen); return; } again.click(); window.__c4 = __T.S.convo; res('ok'); }, 400);
+          }, 150);
+          return;
+        }
+        if (Date.now() - t0 > 30000) { res('her goodbye never finished (' + __T.S.screen + ')'); return; }
+        setTimeout(tick, 20);
+      };
+      tick();
+    }));
+    ok(taps8 === 'ok', 'F8: back and Try this conversation again while the door is shutting: ' + taps8);
+    await p.waitForTimeout(4000); /* the old door's 1.3 s are long over */
+    const d8 = await p.evaluate(() => ({ screen: __T.S.screen, same: __T.S.convo === window.__c4, ended: !!(__T.S.convo && __T.S.convo.ended), finishing: !!(__T.S.convo && __T.S.convo.finishing), bubbles: document.querySelectorAll('#thread .bub.them').length }));
+    ok(d8.screen === 'door' && d8.same && !d8.ended && !d8.finishing && d8.bubbles === 1, "F8: the old door's timer does not shut the new door: " + JSON.stringify(d8));
+    if (d8.screen === 'door') { await speakLine(p, T.oil.say[0]); ok(await waitThem(p, 2, 12000), 'F8: and the new conversation goes on'); } else ok(false, 'F8: and the new conversation goes on (no door is open)');
+
+    /* F9. a knock still on its way from a door the canvasser left must not land on the next one. From the card: Try this
+       conversation again, back before Sarah has said her first line, and Try this conversation again once more. She used
+       to say her first line twice, and the door then stopped answering. */
+    if (await p.evaluate(() => __T.S.screen === 'door')) await p.click('header [data-act="back"]');
+    ok(await waitFor(p, () => __T.S.screen === 'score' && !!document.querySelector('[data-act="door-again"]'), 3000), 'F9: back from the door returns to the card');
+    await p.waitForTimeout(400);
+    const taps9 = await p.evaluate(() => new Promise((res) => {
+      const first = document.querySelector('[data-act="door-again"]'); if (!first) { res('no retry button on ' + __T.S.screen); return; }
+      first.click(); /* this door knocks by itself 0.38 s from now */
+      setTimeout(() => {
+        const b0 = document.querySelector('header [data-act="back"]'); if (!b0) { res('no back arrow on ' + __T.S.screen); return; }
+        b0.click();
+        setTimeout(() => { const again = document.querySelector('[data-act="door-again"]'); if (!again) { res('no retry button on ' + __T.S.screen); return; } again.click(); window.__c5 = __T.S.convo; res('ok'); }, 150);
+      }, 450);
+    }));
+    ok(taps9 === 'ok', 'F9: Try this conversation again, back after the knock, Try this conversation again: ' + taps9);
+    await p.waitForTimeout(4500);
+    const d9 = await p.evaluate(() => ({ screen: __T.S.screen, same: __T.S.convo === window.__c5, bubbles: document.querySelectorAll('#thread .bub.them').length, turns: ((__T.S.convo && __T.S.convo.turns) || []).filter((x) => x.who === 'them').length, busy: !!(__T.S.convo && __T.S.convo.busy), ended: !!(__T.S.convo && __T.S.convo.ended) }));
+    ok(d9.screen === 'door' && d9.same && d9.bubbles === 1 && d9.turns === 1 && !d9.busy && !d9.ended, 'F9: the door that is open now knocked once and Sarah says her first line once: ' + JSON.stringify(d9));
+    if (d9.screen === 'door') { await speakLine(p, T.oil.say[0]); ok(await waitThem(p, d9.bubbles + 1, 12000) && !(await p.$('[data-act="wai-retry"]')), 'F9: and she answers the canvasser (the door has not stopped answering)'); } else ok(false, 'F9: and she answers the canvasser (no door is open)'); }
+  await p.close();
+
+  /* F10. Sarah's goodbye still playing must not touch a door of ANOTHER kind either. From the Practice tab: her
+     conversation, back while she is saying goodbye, then the tab's own Knock, a canvassing practice door. Her goodbye used
+     to shut that door with a 0 of 4 card and count it as a practice door knocked. */
+  p = await open(PAGE + '?learn&ready&v=174m');
+  await p.evaluate(() => { __T.S.briefsDoneIds = { oil: Date.now() }; __T.go('coach'); }); await p.waitForTimeout(400);
+  ok(!!(await p.$('[data-act="wai-issue"][data-arg="oil"]')) && !!(await p.$('[data-act="knock-start"]')), "F10: the Practice tab has Sarah's conversation and its own Knock");
+  { const saved10 = () => p.evaluate(() => JSON.stringify([__T.S.done5, __T.S.best5, __T.S.doneAt, __T.S.sessions, __T.S.first5, __T.S.doorsN || 0, __T.S.practDays || [], __T.S.p1Retakes || {}]));
+    const before10 = await saved10();
+    await p.click('[data-act="wai-issue"][data-arg="oil"]');
+    ok(await waitThem(p, 1, 12000), "F10: Sarah's door opens");
+    for (let k = 0; k < T.oil.say.length; k += 1) { await speakLine(p, T.oil.say[k]); await waitFor(p, (n) => document.querySelectorAll('#thread .bub.you').length >= n, 9000, k + 1); if (k < T.oil.say.length - 1) await waitThem(p, k + 2, 12000); }
+    await waitThem(p, T.oil.say.length + 1, 12000); /* her goodbye has started (its words are on screen) and its sound is still playing */
+    const taps10 = await p.evaluate(() => new Promise((res) => {
+      const b0 = document.querySelector('header [data-act="back"]'); if (!b0) { res('no back arrow on ' + __T.S.screen); return; }
+      b0.click();
+      const mid = __T.S.screen;
+      setTimeout(() => { const k0 = document.querySelector('[data-act="knock-start"]'); if (!k0) { res('no Knock on ' + __T.S.screen); return; } k0.click(); window.__c10 = __T.S.convo; res(mid + ' > ' + __T.S.screen + ' ' + (__T.S.drill ? __T.S.drill.kind : 'no drill')); }, 250);
+    }));
+    ok(taps10 === 'coach > door knock', 'F10: back during her goodbye returns to the Practice tab, and Knock opens a canvassing practice door: ' + taps10);
+    await p.waitForTimeout(4500); /* Sarah's goodbye, and the 1.3 s her door would take to shut, are over by now */
+    const d10 = await p.evaluate(() => ({ screen: __T.S.screen, kind: __T.S.drill ? __T.S.drill.kind : null, same: __T.S.convo === window.__c10, ended: !!(__T.S.convo && __T.S.convo.ended), finishing: !!(__T.S.convo && __T.S.convo.finishing), bubbles: document.querySelectorAll('#thread .bub.them').length, last: __T.S.last ? (__T.S.last.who || 'a card') : null }));
+    ok(d10.screen === 'door' && d10.kind === 'knock' && d10.same && !d10.ended && !d10.finishing && d10.bubbles === 1 && d10.last === null, "F10: Sarah's goodbye does nothing to the canvassing door (open, its own voter's first line, no card): " + JSON.stringify(d10));
+    ok((await saved10()) === before10, 'F10: and nothing is saved for it (no lesson result, no practice door counted)'); }
+  await p.close();
+
+  /* F11. the grade of an issue practice the canvasser has left FAILS later (here the server's own "timeout", after Done
+     for now). Nobody is waiting for it: no message on the screen that is open now, and the conversation is not sent to the
+     coach a second time. */
+  p = await open(PAGE + '?unlock&v=174n');
+  { let gate11 = null, coach11 = 0;
+    await p.route(AI + '/coach', async (route) => {
+      coach11 += 1;
+      if (coach11 === 1) { await new Promise((r) => { gate11 = r; }); await route.fulfill({ status: 504, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify({ error: 'timeout' }) }); return; }
+      await route.continue();
+    });
+    const last11 = await p.evaluate(() => JSON.stringify(__T.S.last || null));
+    await p.evaluate(() => __T.WAI.startIssue('oil', { back: 'library' }));
+    ok(await waitThem(p, 1, 12000), "F11: Sarah's door opens");
+    for (let k = 0; k < T.oil.say.length; k += 1) { await speakLine(p, T.oil.say[k]); await waitFor(p, (n) => document.querySelectorAll('#thread .bub.you').length >= n, 9000, k + 1); if (k < T.oil.say.length - 1) await waitThem(p, k + 2, 12000); }
+    ok(await waitFor(p, () => __T.S.screen === 'score' && !!__T.S.last && __T.S.last.grading === true, 30000), 'F11: the card is open and the coach is still reading');
+    for (let k = 0; k < 50 && !gate11; k += 1) await p.waitForTimeout(100);
+    ok(coach11 === 1 && !!gate11, 'F11: one request is with the coach: ' + coach11);
+    await p.click('footer [data-act="coach-back"]'); /* Done for now, on the waiting card */
+    ok(await waitFor(p, () => __T.S.screen === 'library' && !__T.S.drill, 3000), 'F11: Done for now goes back to Learn');
+    await p.waitForTimeout(600);
+    if (gate11) gate11(); /* the coach's answer arrives now, and it is a failure */
+    let toast11 = '';
+    for (let k = 0; k < 45 && !toast11; k += 1) { toast11 = await p.evaluate(() => { const x = document.getElementById('toast'); return x && !x.hidden ? x.textContent : ''; }); await p.waitForTimeout(100); }
+    ok(toast11 === '', 'F11: no message appears on Learn about a coach nobody is waiting for: ' + toast11);
+    ok(coach11 === 1, 'F11: and the conversation is not sent to the coach a second time: ' + coach11 + ' requests');
+    ok(await p.evaluate(() => __T.S.screen === 'library' && !__T.S.drill) && (await p.evaluate(() => JSON.stringify(__T.S.last || null))) === last11, 'F11: the canvasser is still on Learn and no card is left behind');
+    await p.unroute(AI + '/coach'); }
   await p.close();
 
   ok(errs.length === 0, 'no page errors: ' + errs.join(' | '));

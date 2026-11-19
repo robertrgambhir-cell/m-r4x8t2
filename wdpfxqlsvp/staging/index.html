@@ -9651,8 +9651,8 @@ function setComposer(on) {
   if (!say || !say.value.trim()) trayClose();
 }
 async function knock() {
-  const d = DOORS[doorKey()], issueDoor = !!(S.drill && S.drill.kind === "aiissue"); /* version 174 */
-  if (S.convo.knocking) return; S.convo.knocking = true; if (WAI.scenFor()) await WAI.settle(); /* only AI doors wait for the check, at most 4 s */ if (!S.convo || S.screen !== "door") return; S.convo.wai = WAI.full(d); /* version 156 */
+  const d = DOORS[doorKey()], issueDoor = !!(S.drill && S.drill.kind === "aiissue"), conv0 = S.convo; /* version 174: conv0 is the conversation this knock belongs to */
+  if (S.convo.knocking) return; S.convo.knocking = true; if (WAI.scenFor()) await WAI.settle(); /* only AI doors wait for the check, at most 4 s */ if (!S.convo || S.screen !== "door") return; if (issueDoor && S.convo !== conv0) return; /* version 174 */ S.convo.wai = WAI.full(d); /* version 156 */
   S.convo.knocked = true;
   const fr0 = $("#screen .frame.door-stage"), h0 = fr0 ? fr0.getBoundingClientRect().height : 0; /* version 87: where the intro's door sat */
   if (S.track === "gotv" && !S.drill) render(); /* version 54: from the door intro into the conversation */
@@ -9670,7 +9670,7 @@ async function knock() {
     shake.classList.remove("knock");
     svg.classList.remove("shut");
     await wait(900);
-    if (issueDoor && (S.screen !== "door" || !S.convo)) return; /* version 174: the canvasser left an issue door before she spoke */
+    if (issueDoor && (S.screen !== "door" || S.convo !== conv0)) return; /* version 174: the canvasser left that issue door before she spoke (and may have opened it again) */
     await voterSays(d.first.say, d.first.expr, d);
   } else {
     svg.classList.remove("away");
@@ -9678,6 +9678,7 @@ async function knock() {
     addNote(d.arrive || "Your move.");
   }
   if (S.screen !== "door") return;
+  if (issueDoor && S.convo !== conv0) return; /* version 174 */
   S.convo.busy = false;
   setComposer(true);
 }
@@ -9726,12 +9727,12 @@ async function sendTurn() {
 /* version 156: the voter's answer, split out of sendTurn so WAI.retry can ask again for the same turn */
 async function voterReply(d, scripted, typing) {
   let r = scripted;
-  const full = WAI.full(d), conv0 = S.convo; /* version 174: conv0 is the conversation this reply belongs to */
+  const full = WAI.full(d), conv0 = S.convo, issue0 = !!(S.drill && S.drill.kind === "aiissue"); /* version 174: the conversation this reply belongs to, and whether it is an issue practice */
   if (S.convo.mode === "live" && full) { /* version 165: the streamed voter */
     let o = null;
-    try { o = await WAI.liveTurn(d, typing); } catch (e) { if (typing && typing.parentNode) typing.remove(); if (S.screen === "door" && S.convo && !(e && e.code === "aborted")) WAI.voterFailed(d, e, scripted); return; }
+    try { o = await WAI.liveTurn(d, typing); } catch (e) { if (typing && typing.parentNode) typing.remove(); if (S.screen === "door" && S.convo && !(issue0 && S.convo !== conv0) && !(e && e.code === "aborted")) WAI.voterFailed(d, e, scripted); return; }
     if (!o || S.screen !== "door") return;
-    if (S.drill && S.drill.kind === "aiissue" && S.convo !== conv0) return; /* version 174: that was an issue practice the canvasser already left */
+    if (issue0 && S.convo !== conv0) return; /* version 174: that was an issue practice the canvasser already left; the door open now, of any kind, is not its to end */
     const yt = S.convo.turns.filter((x) => x.who === "you").length;
     if (o.end || yt >= (shortDoor() ? 4 : 10)) { await endConvo(d); return; } /* lesson 1: four of your lines at most (Robert, Nov 15) */
     S.convo.busy = false;
@@ -9776,12 +9777,14 @@ function gradingScreen(d) {
   return "score";
 }
 async function endConvo(d) {
+  const conv0 = S.convo, issue0 = !!(S.drill && S.drill.kind === "aiissue"); /* version 174 */
   S.convo.ended = true;
   setComposer(false);
   const svg = $("#screen .voter.main");
   if (svg) svg.classList.add(d.scene === "door" ? "shut" : "gone");
   await wait(1300);
   if (S.screen !== "door") return;
+  if (issue0 && S.convo !== conv0) return; /* version 174: the issue practice whose door was shutting is gone; the door open now is another conversation */
   finishConvo(d);
 }
 async function finishConvo(d) {
@@ -9795,7 +9798,7 @@ async function finishConvo(d) {
   if (S.convo.mode === "live" && (WAI.full(d) || aiOn()) && S.convo.turns.some((x) => x.who === "you")) {
     if (WAI.full(d)) { back = gradingScreen(d); ph = S.last; } /* version 173; version 174: ph is this conversation’s own waiting card */
     const note = back ? null : addNote("Scoring your conversation\u2026");
-    try { result = await (conv.gradeP || aiGradeConvo(d)); } catch (e) { if (WAI.full(d)) { try { result = await aiGradeConvo(d); } catch (e2) { result = Object.assign(result, { coachErr: true }); } } else aiFail(e); } /* version 156: one quiet retry, then an honest label */
+    try { result = await (conv.gradeP || aiGradeConvo(d)); } catch (e) { if (drill0 && drill0.kind === "aiissue" && S.drill !== drill0) { /* version 174: the canvasser left this issue practice: no retry with another conversation’s lines, no message on another screen */ } else if (WAI.full(d)) { try { result = await aiGradeConvo(d); } catch (e2) { result = Object.assign(result, { coachErr: true }); } } else aiFail(e); } /* version 156: one quiet retry, then an honest label */
     if (note) note.remove();
   }
   const here = back ? S.screen === back && S.convo === conv : S.screen === "door"; /* version 173: a grade that lands after they left is still saved */
