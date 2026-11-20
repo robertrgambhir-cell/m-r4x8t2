@@ -296,7 +296,7 @@ ok(run("2.ben", ["Come on, just sign it."]).said === "fPush" && run("2.luis", ["
   ["ben", "soojin", "kayla", "luis"].forEach((w) => { const P = w === "ben" ? SIG_LESSONS[2].steps[0] : SIG_LESSONS[2].steps[5].people.find((x) => x.who === w); ok(P.replies.busy && P.replies.busy.text === "Oh, sorry, I'm busy. Have a good day." && P.replies.busy.act === "go", "v6: " + w + " has the brush-off"); });
   ok(SIG_LESSONS[2].steps[1].scenes[1].lines[1].text === "No, I'm not.", "v6: Dwayne answers like a person");
   [1, 2, 3, 4, 5].forEach((n) => { const L = SIG_LESSONS[n]; ok(L.phases.length === 4 && L.steps.every((s) => s.ph >= 0 && s.ph <= 3) && L.steps.every((s, i) => i === 0 || s.ph >= L.steps[i - 1].ph), "v6: lesson " + n + " has four named steps, in order"); });
-  ok(SIG_LESSONS[2].phases.join("|") === "Your 1st try|Hear it done|Catch the mistake|Your 2nd try" && SIG_LESSONS[1].phases.join("|") === "How it counts|Sort and guess|Say it|Watch it done", "v6: the four names");
+  ok(SIG_LESSONS[2].phases.join("|") === "Your 1st try|Hear it done|Catch the mistake|Your 2nd try" && SIG_LESSONS[1].phases.join("|") === "How it counts|Sort and guess|Say it|A whole stop", "v6: the four names");
 }
 
 console.log(`sig-grade: ${pass} pass, ${fail} fail`);

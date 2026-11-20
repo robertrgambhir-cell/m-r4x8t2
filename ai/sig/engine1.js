@@ -5,6 +5,7 @@ var LN = qs.get("l") === "card" ? 0 : Math.max(1, Math.min(5, parseInt(qs.get("l
 var L = DATA.lessons[LN] || null;
 var PRACTICE = qs.has("practice"); /* a practice round on one lesson's must, opened from lesson 5's last screen */
 var WALKTEST = qs.has("walk"); /* tests: lesson 2's passersby walk past even in fast mode, eight times as fast */
+var BEATTEST = qs.has("beat"); /* tests: the Part N of 4 screens show even in fast mode */
 var FAST = qs.has("fast"), HOLD = Math.max(10, parseInt(qs.get("fast"), 10) || 10); /* tests: no sound, no waiting. fast=300 holds each spoken line 300 ms so a test sees every caption */
 var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 var $ = function (s) { return document.querySelector(s); };

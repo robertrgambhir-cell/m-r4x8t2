@@ -65,9 +65,11 @@ export const SIG_MEASURE = {
 export const SIG_SHARED = {
   start: "Start your 1st try",
   next: { hear: "Next: hear it done", spot: "Next: catch the mistake", try2: "Next: your 2nd try" },
+  /* the frame every Warmup course shares, the door-knocking lessons' (Robert's pick, Nov 20, 11:53 AM): the talk button, and Part N of 4 */
+  talk: "Tap to talk", talkClick: "Click to talk", micDone: "I’m done", listening: "Listening. Say it your way.", partOf: "Part {n} of 4",
   done: "Done for today",
   ready: "Start your 2nd try",
-  try1: { some: "You've got {n} of 4. Watch for the other {m}.", one: "You've got 3 of 4. Watch for the last one.", none: "You tried it first. That's the hard part. Watch for all four.", all: "You got all four. The taps come next, then your 2nd try.", walked: "He kept walking. Start your opener as he walks up.", watch: "Watch for" },
+  try1: { some: "You've got {n} of 4. Watch for the other {m}.", one: "You've got 3 of 4. Watch for the last one.", none: "You tried it first. That's the hard part. Watch for all four.", all: "You got all four. A few quick questions come next, then your 2nd try.", walked: "He kept walking. Start your opener as he walks up.", watch: "Watch for" },
   listen: "Listen for four things:",
   blocks: ["What you did right", "What to fix", "My tip"],
   end: { done: "Lesson {n} done.", togo: "{m} to go.", whats: "What's next", lead: "{LEAD} texts you one lesson a day. Each takes 5 minutes.", tomorrow: "Tomorrow" },
@@ -460,14 +462,16 @@ export const SIG_LESSONS = { 1: L1, 2: L2, 3: L3, 4: L4, 5: L5 };
    Warmup lesson shares, and every screen between Hear it done and the 2nd try (the taps, Rico) sits in Catch the mistake. Lesson 1
    has its own steps, so it gets its own four. of: the step each screen belongs to, in order. */
 export const SIG_FOUR = ["Your 1st try", "Hear it done", "Catch the mistake", "Your 2nd try"];
+/* the line under each step's name on its Part N of 4 screen, as the door-knocking lessons have (curriculum version 7) */
+const FOUR_LINES = ["Now you talk. Say what you’d say first.", "Listen to Lena, a trained canvasser.", "Spot what a new canvasser gets wrong.", "Now put it all together."];
 const PHASES = {
-  1: { names: ["How it counts", "Sort and guess", "Say it", "Watch it done"], of: [0, 0, 1, 1, 1, 2, 3, 3] },
-  2: { names: SIG_FOUR, of: [0, 1, 2, 2, 2, 3, 3] },
-  3: { names: SIG_FOUR, of: [0, 1, 2, 2, 3, 3] },
-  4: { names: SIG_FOUR, of: [0, 1, 2, 2, 2, 3, 3] },
-  5: { names: SIG_FOUR, of: [0, 1, 2, 2, 3, 3] },
+  1: { names: ["How it counts", "Sort and guess", "Say it", "A whole stop"], lines: ["See how the county checks a signature.", "Sort signed petition lines, then make a few guesses.", "Now you talk. Ask the question in your own words.", "Watch Lena do a whole stop, then say two of her lines."], of: [0, 0, 1, 1, 1, 2, 3, 3] },
+  2: { names: SIG_FOUR, lines: FOUR_LINES, of: [0, 1, 2, 2, 2, 3, 3] },
+  3: { names: SIG_FOUR, lines: FOUR_LINES, of: [0, 1, 2, 2, 3, 3] },
+  4: { names: SIG_FOUR, lines: FOUR_LINES, of: [0, 1, 2, 2, 2, 3, 3] },
+  5: { names: SIG_FOUR, lines: FOUR_LINES, of: [0, 1, 2, 2, 3, 3] },
 };
-Object.keys(PHASES).forEach((n) => { const L = SIG_LESSONS[n], P = PHASES[n]; if (P.of.length !== L.steps.length) throw new Error("lesson " + n + ": a step with no place among the four"); L.phases = P.names; L.four = P.names === SIG_FOUR; L.steps.forEach((st, i) => { st.ph = P.of[i]; }); });
+Object.keys(PHASES).forEach((n) => { const L = SIG_LESSONS[n], P = PHASES[n]; if (P.of.length !== L.steps.length) throw new Error("lesson " + n + ": a step with no place among the four"); L.phases = P.names; L.beats = P.lines; L.four = P.names === SIG_FOUR; L.steps.forEach((st, i) => { st.ph = P.of[i]; }); });
 /* what the coach says over a card that gives one more try (the scoring contract): the untrue card, a promise and each must */
 export const SIG_SAY = { untrue: c("That part isn't true. Here's the true sentence. Try it once more."), promise: c("Only the county decides. Leave out the promise and try it once more.") };
 [L3, L4, L5].forEach((L) => L.parts.forEach((p) => { if (p.must) p.mustSay = c(p.must); }));

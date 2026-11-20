@@ -7,6 +7,8 @@ function save(o) { try { localStorage.setItem(KEY, JSON.stringify(Object.assign(
 function tag(sub) { var t = $("#tag"); t.textContent = LN ? "Sig " + LN + "." + (S.step + 1) + (sub || "") : "Sig card"; t.className = "tag" + ($("#scr .ft") ? " onpic" : ""); }
 /* the four steps at the top, by name (Robert, Nov 20, 8:23 AM; playbook rule 56): one segment for each, filling as its screens are
    done, with the step you're in named in green. Tapping a step goes back to its first screen once you've been there. */
+/* the drive's name on top of every screen, as the door-knocking lessons carry their campaign's (Robert's pick, Nov 20, 11:53 AM) */
+function driveMark() { return '<span class="drive" role="img" aria-label="' + esc(ST.drive.name + ", " + ST.drive.measure + " petition drive") + '"><b>' + esc(ST.drive.name) + '</b><small>' + esc(ST.drive.measure) + ' · petition drive</small></span>'; }
 function top(o) {
   o = o || {};
   var cur = S.step >= 0 && L.steps[S.step] ? L.steps[S.step].ph : -1;
@@ -14,10 +16,11 @@ function top(o) {
     var idx = []; L.steps.forEach(function (s, i) { if (s.ph === k) idx.push(i); });
     var done = function (i) { return S.done[i] || (S.perfect1 && i < S.step && (L.steps[i].kind === "hear" || L.steps[i].kind === "spot")); }; /* a step the 1st try let you skip counts as done */
     var f = idx.length ? Math.round(100 * idx.filter(done).length / idx.length) : 0, to = idx.filter(function (i) { return S.seen[i]; })[0];
+    if (k === cur && f < 30) f = 30; /* you're in it: a little green, as the door-knocking lessons' bar shows it */
     return '<button class="' + (f === 100 ? "full" : "") + (k === cur ? " cur" : "") + '" data-seg="' + (to == null ? idx[0] : to) + '" aria-label="' + esc(nm) + (k === cur ? ", where you are" : "") + '"><i><b style="width:' + f + '%"></b></i><span>' + esc(nm) + '</span></button>';
   }).join("");
   /* a result (a card after a try, the feedback, the lesson end) has no way back: back works on every screen that isn't home or a result */
-  $("#top").innerHTML = S.step < 0 ? "" : '<div class="row">' + (o.result ? '<span class="x" aria-hidden="true"></span>' : '<button class="x" id="close" aria-label="Back">' + ICON.back + '</button>') + (o.pp ? '<button class="pp" id="pp" aria-label="Pause">' + ICON.pause + '</button>' : "") + '</div><div class="bar">' + segs + '</div>';
+  $("#top").innerHTML = S.step < 0 || o.beat ? "" : '<div class="row">' + (o.result ? '<span class="x" aria-hidden="true"></span>' : '<button class="x" id="close" aria-label="Back">' + ICON.back + '</button>') + driveMark() + '<span class="sp"></span>' + (o.pp ? '<button class="pp" id="pp" aria-label="Pause">' + ICON.pause + '</button>' : "") + '</div><div class="bar">' + segs + '</div>';
   $("#top").style.display = S.step < 0 ? "none" : "";
   if ($("#close")) $("#close").onclick = back;
   if ($("#pp")) $("#pp").onclick = function () { PAUSED = !PAUSED; if (AC) { PAUSED ? AC.suspend() : AC.resume(); } $("#pp").innerHTML = PAUSED ? ICON.play : ICON.pause; $("#pp").setAttribute("aria-label", PAUSED ? "Play" : "Pause"); };
@@ -26,6 +29,7 @@ function top(o) {
 function noPause() { var p = $("#pp"); if (p) p.remove(); } /* nothing is playing, so there is nothing to pause */
 function micAbort() { if (M.rec) { try { M.rec.abort(); } catch (e) {} M.rec = null; } M.busy = false; }
 function go(step, sub) {
+  var prev = S.step;
   RUN += 1; stopSound(); micAbort(); PAUSED = false; if (AC && AC.state === "suspended") AC.resume();
   var sh = $(".sheet"); if (sh) sh.remove();
   var now = performance.now(); if (TM.at >= 0) TM.ms[TM.at] = (TM.ms[TM.at] || 0) + now - TM.t0; TM.at = step; TM.t0 = now;
@@ -33,7 +37,26 @@ function go(step, sub) {
   S.step = step; S.sub = sub || 0;
   if (step < 0) { S.seen = {}; S.done = {}; S.try1 = null; S.perfect1 = false; S.people = []; S.score = null; S.retried = false; S.mustOpen = []; return vCover(); }
   S.seen[step] = true;
-  VIEW[L.steps[step].kind](L.steps[step]);
+  var st = L.steps[step], from = L.steps[prev];
+  if (!S.sub && L.phases && (!FAST || BEATTEST) && (prev < 0 || (step > prev && from && from.ph !== st.ph))) {
+    if (st.kind === "try2" || st.kind === "say") S.partOver = st.ph; /* its first screen waits for a tap: Part N of 4 shows over it, as in the door-knocking lessons */
+    else return vBeat(st.ph, function () { VIEW[st.kind](st); });
+  }
+  VIEW[st.kind](st);
+}
+/* Part N of 4, as in the door-knocking lessons: the step's name and one line, a moment before its first screen. A tap skips it.
+   The ring fills a fifth more for each step; the last fifth is the lesson done. */
+function beatHtml(k, over) {
+  var s = 104, w = s * 0.162, rad = (s - w) / 2, c = 2 * Math.PI * rad, from = (c * (1 - k / 5)).toFixed(1), to = (c * (1 - (k + 1) / 5)).toFixed(1);
+  return '<div class="beat' + (over ? " over" : "") + '" id="beat" role="status"><div class="beat-ring" aria-hidden="true"><svg viewBox="0 0 ' + s + ' ' + s + '"><circle cx="' + s / 2 + '" cy="' + s / 2 + '" r="' + rad.toFixed(1) + '" fill="none" stroke="var(--track)" stroke-width="' + w.toFixed(1) + '"/><circle class="beat-arc" cx="' + s / 2 + '" cy="' + s / 2 + '" r="' + rad.toFixed(1) + '" fill="none" stroke="var(--green)" stroke-width="' + w.toFixed(1) + '" stroke-linecap="round" stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + to + '" style="--from:' + from + ';--to:' + to + '"/></svg></div>' +
+    '<p class="beat-k">' + q(SH.partOf.replace("{n}", k + 1)) + '</p><b class="beat-name">' + q(L.phases[k]) + '</b><p>' + q(L.beats[k]) + '</p></div>';
+}
+function vBeat(k, then) {
+  var r = RUN;
+  top({ beat: true });
+  show(beatHtml(k, false), "p");
+  var done = false, next = function () { if (done || r !== RUN) return; done = true; then(); };
+  $("#beat").onclick = next; setTimeout(next, FAST ? 250 : 2400);
 }
 /* back: the question before this one, or the start of this step, or the end of the step before it. Going back clears the answer. */
 function back() {
@@ -49,7 +72,7 @@ function nextIndex() { var i = S.step + 1; if (S.perfect1) while (L.steps[i] && 
 function nextLabel() {
   var s = L.steps[nextIndex()], c = L.steps[S.step]; if (!s) return SH.done;
   /* a new step of the four gets its standard button; inside one, the button names the next screen (Robert, Nov 20: "Next: where to stand" read as a fifth step) */
-  if (L.phases && c && s.ph !== c.ph && !(S.perfect1 && L.steps.some(function (x) { return x.ph === s.ph && (x.kind === "hear" || x.kind === "spot"); }))) { var nm = L.phases[s.ph]; return "Next: " + nm.charAt(0).toLowerCase() + nm.slice(1); } /* "Next: hear it done"; a 1st try with all four skips Rico, so then the button names the screen that does come next */
+  if (L.phases && c && s.ph !== c.ph) { var nm = L.phases[s.ph]; return "Next: " + nm.charAt(0).toLowerCase() + nm.slice(1); } /* "Next: hear it done": a button into a new step names the step (rule 56) */
   if (s.btn) return s.btn;
   return "Next: " + (s.short || s.name.charAt(0).toLowerCase() + s.name.slice(1)); /* a short name is written as it's said: "Rico's opener" */
 }
@@ -144,7 +167,9 @@ function sayFix(g, mustPart) {
 
 /* ---------------- talking with a passerby ---------------- */
 /* cfg: { st, key, who, coach, set, opens, replies, walk, line, fill, hint, hintAfter, opener, tag, onEnd(T) } */
-function micHtml() { return '<div class="mic" id="microw"><button class="micb wait" id="mic" aria-label="Tap to talk">' + ICON.mic + '</button><div class="mict" id="mict"></div></div>'; }
+function talkLabel() { return TOUCH ? SH.talk : SH.talkClick; }
+var TOUCH = !!(window.matchMedia && matchMedia("(pointer: coarse)").matches) || "ontouchstart" in window;
+function micHtml() { return '<div class="mic" id="microw"><div class="mict" id="mict"></div><button class="micb wait" id="mic" aria-label="' + esc(talkLabel()) + '"><span class="md" aria-hidden="true">' + ICON.mic + '</span><span class="ml" id="micl">' + q(talkLabel()) + '</span></button></div>'; }
 /* a browser that can't listen: the box appears only after the mic is tapped */
 function typedOn(onSend) {
   var m = $("#microw"); if (!m || $("#typed")) return;
@@ -152,7 +177,17 @@ function typedOn(onSend) {
   $("#typed").onsubmit = function (e) { e.preventDefault(); var v = $("#say").value.trim(); if (!v) return; $("#say").value = ""; onSend(v); };
   if (!FAST) $("#say").focus();
 }
-function micState(k, html) { var b = $("#mic"), t = $("#mict"); if (b) { b.className = "micb" + (k === "idle" ? " pulse" : k === "on" ? " on" : " wait"); b.innerHTML = k === "on" ? ICON.stop : ICON.mic; } if (t) t.innerHTML = html != null ? html : k === "idle" ? "<b>Tap to talk.</b>" : k === "on" ? '<b>Listening.</b> Pause when you’re done.' : ""; var f = $("#typed"); if (f) { f.style.opacity = k === "wait" ? .5 : 1; $("#say").disabled = k === "wait"; } }
+function micState(k, html) {
+  var b = $("#mic"), t = $("#mict"), l = $("#micl"), lab = k === "on" ? SH.micDone : talkLabel();
+  if (b) { b.className = "micb" + (k === "idle" ? " pulse" : k === "on" ? " on" : " wait"); b.setAttribute("aria-label", lab); }
+  if (l) l.textContent = lab;
+  /* while it listens, your bubble on the picture says so until your words come in; a screen without the picture says it over the button */
+  var ph = $("#capts .capt.you.lis"); if (ph && k !== "on") ph.remove();
+  if (k === "on" && html == null && $("#capts")) { if (!$("#capts .capt.you.live")) cap("You", SH.listening, "you live lis"); html = ""; }
+  var cs = $("#capts"), nt = cs && cs.querySelector(".capt.note.mic");
+  if (cs && html) { if (!nt) { nt = document.createElement("div"); cs.appendChild(nt); } nt.className = "capt note mic"; nt.innerHTML = html; html = ""; } /* on the call, a note sits on the picture, so the card never jumps */
+  else if (nt) nt.remove();
+  if (t) t.innerHTML = html != null ? html : k === "on" ? "<b>" + q(SH.listening) + "</b>" : ""; var f = $("#typed"); if (f) { f.style.opacity = k === "wait" ? .5 : 1; $("#say").disabled = k === "wait"; } }
 function micErr(c) { return c === "denied" ? "<b>The microphone is off for this site.</b> Allow it in your browser’s settings, then tap to try again." : c === "busy" ? "<b>Another app is using the microphone.</b> Close it, then tap to try again." : "<b>Something stopped the microphone.</b> Tap to try again."; }
 /* Lesson 2's passersby keep walking (Robert, Nov 20, 8:23 AM; playbook B3): "this person is walking, and they keep walking." They walk
    up in view while the coach talks, then keep walking once you can talk. They slow while you talk, and every line you say is heard
@@ -235,7 +270,7 @@ function talk(cfg) {
       return; }
     cap("You", tidy(text).replace(/'/g, "’"), "you"); M.busy = true;
     var res = T.hear(text);
-    micState("wait", res.say.some(function (k) { return k.charAt(0) !== "@"; }) ? "<b>" + esc(SH.answering[CAST[who].g === "f" ? "f" : "m"]) + "</b>" : "");
+    micState("wait", ""); /* their answer shows on the picture as they say it */
     replies(res.say).then(function () { if (r !== RUN) return; if (res.end) { micState("wait", ""); wait(650).then(function () { if (r === RUN) { if (W) W.end(); cfg.onEnd(T); } }); } else your(false); });
   }
   /* the brush-off: "Oh, sorry, I'm busy. Have a good day." and on they go. Then the card, as after any try. */
@@ -267,7 +302,7 @@ function talk(cfg) {
   }
   show(kick(cfg.st) + (cfg.set ? '<p class="sub">' + q(cfg.set) + '</p>' : "") +
     '<div class="ft" id="panel">' + sceneOne(who, cfg.walk ? "off walk" : "", cfg.pic) + whoDiv(who) +
-    '<div class="dock' + (cfg.line ? " haspet" : "") + '"><div class="capts" id="capts"></div>' + (cfg.line ? pet(fill, petOpts) : "") + micHtml() + '</div></div>', cfg.tag);
+    '<div class="dock' + (cfg.line ? " haspet" : "") + '"><div class="capts" id="capts"></div>' + (cfg.line ? pet(fill, petOpts) : "") + '</div></div>' + micHtml(), cfg.tag);
   top({});
   $("#mic").onclick = function (e) { e.stopPropagation(); if (!SR) { typedOn(function (v) { if (M.busy) return; M.used = true; heard(v); }); if (W) W.liven(); return; } if (M.rec) { M.rec.stop(); return; } if (M.busy) return; start(false); };
   $("#panel").onclick = function (e) { if (e.target.closest && e.target.closest(".dock")) return; if (!M.rec) stopSound(); };
@@ -461,6 +496,14 @@ function vReady(st, coach, onReady, extra, sub, result, label) {
   var up = st.who || (st.people && st.people[0] && st.people[0].who), upPic = st.pic || (st.people && st.people[0] && st.people[0].pic), named = up && coach && CAST[up] && IMG[up]; /* the coach's line is about who comes next, so the picture shows them (with no name tag) */
   show(kick(st) + (named ? '<div class="panel cap" data-who="' + up + '">' + sceneOne(up, "", upPic) + whoDiv(up) + '</div>' : '<div class="panel cap">' + sceneStore() + '</div>') + (extra || "") + (coach ? '<div class="coach q3">' + q(coach.text) + '</div>' : "") + (L.headsUp ? '<div class="callout">' + q(L.headsUp) + '</div>' : "") + foot(btn(label || st.ready || SH.ready, "go")), sub || "a");
   $("#go").onclick = function () { audio(); onReady(); };
+  var part = S.partOver; S.partOver = null;
+  if (part != null) { /* Part N of 4 over the screen for a moment, with the button in view under it; then the coach */
+    var g = $("#go"), sc = $("#scr"); sc.insertAdjacentHTML("beforeend", beatHtml(part, true));
+    var bt = $("#beat"), gr = g.getBoundingClientRect(), sr = sc.getBoundingClientRect(); bt.style.bottom = Math.max(0, sr.bottom - gr.top + 12) + "px";
+    var gone = false, off = function () { if (gone || r !== RUN) return; gone = true; bt.remove(); if (coach) sayLine(coach, r); };
+    bt.onclick = off; setTimeout(off, FAST ? 250 : 2400);
+    return;
+  }
   if (coach) sayLine(coach, r);
 }
 /* after one passerby: who it was, what you said, that try's four checks, and who is next */

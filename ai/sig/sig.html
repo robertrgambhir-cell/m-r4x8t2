@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#FFFFFF">
+<meta name="theme-color" content="#FCF8F2">
 <title>Warmup · Signature course</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,10 +13,13 @@
 <style>
 /* Warmup signature course (Nov 18, 2026): five five-minute lessons for paid canvassers who gather ballot initiative signatures.
    Source: ai/sig/sig.html, built by ai/tools/build-sig.mjs with the words in ai/sig/content.js and the graders in ai/sig/grade.js.
-   The look is the trainings' look (claude/training-playbook.md, part A): Figtree, Newsreader for spoken words, white screens. */
+   The look is Warmup's one frame, the door-knocking lessons' (Robert's pick, Nov 20, 11:53 AM; playbook rules 58 and 62a): cream
+   screens, Newsreader headlines, the campaign's name on top, dark buttons and the Tap to talk button. The world stays the course's
+   own: the sidewalk, its people and the walking passersby. */
 :root {
-  --ink: #262320; --muted: #6F685F; --soft: #F3F0EA; --line: #E6E0D6; --bg: #FFFFFF;
-  --green: #35B57C; --green-d: #22895A; --green-soft: #E6F5EC; --drive: #5A3E99; --drive-soft: #EFEAF8;
+  --ink: #262320; --ink-2: #5B554D; --muted: #6F685F; --paper: #FCF8F2; --card: #FFFDF9; --soft: #F4EEE5; --line: #E3DBCF; --track: #E6DFD3; --bg: var(--paper);
+  --green: #35B57C; --green-d: #1B7A4D; --green-soft: #DDF0E4; --drive: #5A3E99; --drive-soft: #EFEAF8;
+  --head: "Newsreader", Georgia, serif;
   --red: #C2412D; --red-soft: #FBE8E4; --warm: #E08A1A; --warm-soft: #FDF1DC; --pen: #1F3F8F;
   --u0: 1px; --u: var(--u0); color-scheme: light;
 }
@@ -24,21 +27,23 @@
 html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: "Figtree", system-ui, -apple-system, sans-serif; }
 body { overflow: hidden; overscroll-behavior: none; }
 button { font: inherit; color: inherit; }
-#app { position: fixed; inset: 0; display: flex; flex-direction: column; max-width: 520px; margin: 0 auto; padding: calc(env(safe-area-inset-top, 0px) + 10px) 18px calc(env(safe-area-inset-bottom, 0px) + 16px); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; max-width: 520px; margin: 0 auto; padding: calc(env(safe-area-inset-top, 0px) + 10px) 20px calc(env(safe-area-inset-bottom, 0px) + 16px); }
 .top { flex: none; display: block; }
-.top .row { display: flex; align-items: center; justify-content: space-between; height: 34px; }
-.x, .pp { flex: none; width: 34px; height: 34px; border: 0; background: none; padding: 0; display: grid; place-items: center; color: #7A7268; cursor: pointer; }
-.x { margin-left: -8px; } span.x { cursor: default; } /* a result screen has no way back; the bar keeps its place */
+.top .row { display: flex; align-items: center; gap: 4px; height: 46px; margin-top: 4px; }
+.top .row .sp { flex: 1; }
+.top .drive { margin: 0; } .top .drive b { font-size: 24px; line-height: .92; } .top .drive small { font-size: 8px; letter-spacing: .04em; margin-top: 4px; } /* the door-knocking lessons' campaign name, at their size */
+.x, .pp { flex: none; width: 34px; height: 34px; border: 0; background: none; padding: 0; display: grid; place-items: center; color: var(--ink); cursor: pointer; }
+.x { margin-left: -9px; } span.x { cursor: default; } /* a result screen has no way back; the bar keeps its place */
 .x svg { width: 24px; height: 24px; } .pp svg { width: 20px; height: 20px; }
 /* the four steps, by name (Robert, Nov 20, 8:23 AM; playbook rule 56): one segment each, filling as its screens are done, and the
    one you're in named in green. The names may run a little past their segment, as the door-knocking lessons' do. */
-.bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin: 0; }
+.bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin: 6px 0 0; }
 .bar button { min-width: 0; border: 0; background: none; padding: 0 0 2px; cursor: pointer; display: block; text-align: center; }
 .bar button[disabled] { cursor: default; }
-.bar button i { display: block; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.bar button i { display: block; height: 6px; border-radius: 3px; background: var(--track); overflow: hidden; }
 .bar button i b { display: block; height: 100%; border-radius: inherit; background: var(--green); transition: width .4s ease; }
-.bar button span { display: block; margin: 5px -4px 0; font: 700 10.5px/1.2 "Figtree"; letter-spacing: 0; white-space: nowrap; color: #7A7268; } /* as the door-knocking lessons' names */
-.bar button.cur span { color: var(--green-d); } .bar button.cur i { background: #CDEBD9; } /* the step you're in: a light green track, as the door-knocking lessons mark it */
+.bar button span { display: block; margin: 5px -4px 0; font: 700 10.5px/1.2 "Figtree"; letter-spacing: 0; white-space: nowrap; color: var(--muted); } /* as the door-knocking lessons' names */
+.bar button.cur span { color: var(--green-d); } /* the step you're in: its name in green and a little green in its segment, as the door-knocking lessons mark it */
 #scr { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; container-type: inline-size; --u: calc(var(--u0) * var(--k, 1)); }
 /* fill: a screen with room to spare grows its words and pictures together (--k, set by fillUp in the engine) until the room is
    used, so no blank band is left. The main button keeps its size, so its words stay on one line. */
@@ -49,9 +54,9 @@ button { font: inherit; color: inherit; }
 #scr.fitting .faces.big { flex: 0 0 auto; height: calc(2 * min(132 * var(--u), 50cqw - 30px) + 60px); }
 .tag { position: absolute; right: 8px; bottom: calc(env(safe-area-inset-bottom, 0px) + 2px); font: 600 9px/1 "Figtree"; color: #A69E92; letter-spacing: 0.04em; pointer-events: none; z-index: 30; }
 .tag.onpic { background: rgba(255,255,255,.82); color: #6F685F; border-radius: 4px; padding: 2px 4px; }
-.kick { flex: none; margin: 10px 0 0; font: 800 calc(12 * var(--u))/1 "Figtree"; letter-spacing: .07em; text-transform: uppercase; color: var(--green-d); }
-h1 { flex: none; font: 800 calc(23 * var(--u))/1.18 "Figtree"; letter-spacing: -0.015em; margin: 8px 0 0; text-wrap: balance; }
-h1.lg { font-size: calc(30 * var(--u)); line-height: 1.12; }
+.kick { flex: none; margin: 10px 0 0; font: 700 calc(12.5 * var(--u))/1 "Figtree"; letter-spacing: .08em; text-transform: uppercase; color: var(--green-d); }
+h1 { flex: none; font: 500 calc(22.4 * var(--u))/1.15 var(--head); letter-spacing: -0.01em; margin: 8px 0 0; text-wrap: balance; } /* the door-knocking lessons' headline (.h2) */
+h1.lg { font-size: calc(30 * var(--u)); line-height: 1.08; letter-spacing: -0.015em; } /* and their title (.h1) */
 .sub { flex: none; font: 500 calc(16 * var(--u))/1.4 "Figtree"; color: var(--muted); margin: 8px 0 0; text-wrap: pretty; }
 .grow { flex: 1; min-height: 0; }
 .fill { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-evenly; padding-top: 12px; }
@@ -94,28 +99,29 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.12; }
 .nextp { flex: none; display: flex; align-items: center; gap: 10px; margin-top: 10px; font: 700 calc(15 * var(--u))/1.2 "Figtree"; }
 .nextp svg, .nextp img.av { flex: none; object-fit: cover; width: calc(40 * var(--u)); height: calc(40 * var(--u)); border-radius: 50%; background: var(--soft); }
 .capts { position: absolute; left: 10px; right: 10px; bottom: 10px; display: flex; flex-direction: column; gap: 6px; z-index: 3; pointer-events: none; }
-.capt { max-width: 92%; padding: 9px 13px; border-radius: 16px; font: 500 calc(16 * var(--u))/1.32 "Newsreader", Georgia, serif; animation: in .22s ease both; box-shadow: 0 1px 0 rgba(0,0,0,.06); }
-.capt b { font: 800 calc(11 * var(--u))/1 "Figtree"; letter-spacing: .05em; text-transform: uppercase; display: block; margin-bottom: 4px; color: var(--muted); }
-.capt.them { align-self: flex-start; background: #fff; border-bottom-left-radius: 5px; }
+.capt { max-width: 92%; padding: 9px 13px; border-radius: 16px; font: 500 calc(15 * var(--u))/1.36 "Figtree"; animation: in .22s ease both; box-shadow: 0 1px 0 rgba(0,0,0,.06); }
+.capt b { font: 700 calc(15 * var(--u))/1.36 "Figtree"; display: inline; color: var(--ink); } .capt b::after { content: ": "; } /* "Coach: ...", as the door-knocking lessons' "Sofia: ..." */
+.capt.them { align-self: flex-start; background: var(--card); border-bottom-left-radius: 5px; }
 .capt.you { align-self: flex-end; background: var(--ink); color: #fff; border-bottom-right-radius: 5px; }
-.capt.you b { color: #CFC8BC; }
+.capt.you b { color: #FFFFFF; }
 .capt.you.live { background: #4A453F; }
-.capt.note { align-self: center; background: rgba(255,255,255,.92); color: var(--muted); font: 700 calc(13 * var(--u))/1.3 "Figtree"; text-align: center; }
-.coach { flex: none; margin: 10px 2px 0; font: 500 calc(17 * var(--u))/1.34 "Newsreader", Georgia, serif; color: #3F3A35; text-wrap: pretty; min-height: calc(2 * 1.34 * 17 * var(--u)); }
-.coach.q3 { min-height: calc(3 * 1.34 * 17 * var(--u)); }
+.capt.note { align-self: center; background: rgba(255,253,249,.95); color: var(--ink-2); font: 600 calc(13.5 * var(--u))/1.3 "Figtree"; text-align: center; }
+.capt.note b { font: 700 calc(13.5 * var(--u))/1.3 "Figtree"; } .capt.note b::after { content: none; } /* a note is one message, not a speaker */
+.coach { flex: none; margin: 10px 2px 0; font: 400 calc(16 * var(--u))/1.4 "Figtree"; color: var(--ink-2); text-wrap: pretty; min-height: calc(2 * 1.4 * 16 * var(--u)); }
+.coach.q3 { min-height: calc(3 * 1.4 * 16 * var(--u)); }
 .coach.dim { opacity: .4; }
 .hint { flex: none; margin: 10px 2px 0; font: 700 calc(15 * var(--u))/1.35 "Figtree"; color: var(--ink); }
-/* a conversation is a FaceTime call: the person fills the screen edge to edge, the mic floats over the picture and the
-   latest line from each side sits over the chest, never the face */
-.ft { flex: 1; min-height: 0; position: relative; margin: 10px -18px calc(-16px - env(safe-area-inset-bottom, 0px)); border-radius: 22px 22px 0 0; overflow: hidden; background: var(--soft); }
+/* a conversation is a FaceTime call: the person fills a card, as the door-knocking lessons' door does, the latest line from each
+   side sits over the chest, never the face, and the talk button sits under the card */
+.ft { flex: 1; min-height: 0; position: relative; margin: 10px 0 0; border-radius: 24px; overflow: hidden; background: var(--soft); box-shadow: 0 0 0 1px var(--line); }
 .ft > svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .ft .who { left: 12px; top: 12px; }
-.dock { position: absolute; left: 12px; right: 12px; bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); display: flex; flex-direction: column; gap: 8px; z-index: 3; }
+.dock { position: absolute; left: 10px; right: 10px; bottom: 10px; display: flex; flex-direction: column; gap: 8px; z-index: 3; }
 .dock .capts { position: static; }
 .dock .pet { margin: 0; box-shadow: inset 0 0 0 1.5px #D9D2C4, 0 2px 10px rgba(38,35,32,.14); }
+.dock .pet .pet-t > span { letter-spacing: .025em; } /* the card's line takes a little width: the measure's name keeps to one line */
 .dock.haspet .capt:not(:last-child) { display: none; } /* with the petition on screen only the latest line stays, so it always sits under the chin */
-.dock .mic { margin: 0; min-height: 0; background: rgba(255,255,255,.96); border-radius: 40px; padding: 7px 16px 7px 7px; box-shadow: 0 2px 12px rgba(38,35,32,.18); }
-.dock .micb { width: calc(58 * var(--u)); height: calc(58 * var(--u)); }
+
 /* people */
 .p { transition: transform 1.2s cubic-bezier(.3,.7,.2,1), opacity .5s ease; }
 @keyframes walk { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
@@ -127,40 +133,40 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.12; }
 .prop { transition: opacity .35s ease, transform .45s cubic-bezier(.2,.8,.2,1); } .prop.hid { opacity: 0; transform: translateY(14px); }
 /* buttons */
 .foot { flex: none; display: flex; gap: 10px; margin-top: 12px; align-items: stretch; }
-.btn { flex: 1; min-height: 54px; border: 0; border-radius: 16px; background: var(--green); color: #fff; font: 800 calc(17 * var(--u))/1.2 "Figtree"; letter-spacing: .01em; box-shadow: 0 4px 0 var(--green-d); cursor: pointer; padding: 12px 14px; white-space: nowrap; transition: transform .08s, box-shadow .08s; }
-.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--green-d); }
-.btn.ghost { background: #fff; color: var(--ink); box-shadow: 0 4px 0 var(--line), inset 0 0 0 2px var(--line); }
+.btn { flex: 1; min-height: 54px; border: 1.5px solid var(--ink); border-radius: 16px; background: var(--ink); color: var(--paper); font: 700 16.5px/1.2 "Figtree"; letter-spacing: .005em; box-shadow: none; cursor: pointer; padding: 12px 14px; white-space: nowrap; transition: transform .08s, box-shadow .08s; }
+.btn:active { transform: translateY(1px); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
 .btn[disabled] { opacity: .45; pointer-events: none; }
 .link { flex: none; align-self: center; border: 0; background: none; color: var(--muted); font: 600 calc(14 * var(--u))/1.2 "Figtree"; text-decoration: underline; text-underline-offset: 3px; padding: 8px 6px 0; cursor: pointer; }
 /* taps */
 .opts { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
-.opts.row { flex-direction: row; } .opts.row .opt { flex: 1; justify-content: center; text-align: center; padding: calc(26 * var(--u)) 4px; font: 600 calc(21 * var(--u))/1.1 "Newsreader", Georgia, serif; white-space: nowrap; }
+.opts.row { flex-direction: row; } .opts.row .opt { flex: 1; justify-content: center; text-align: center; padding: calc(26 * var(--u)) 4px; font: 700 calc(18 * var(--u))/1.1 "Figtree"; white-space: nowrap; }
 .opts.two { display: grid; grid-template-columns: 1fr 1fr; }
 /* a guess between numbers: three big tiles that fill the screen */
 .opts.tall { flex: 1; min-height: 0; }
 .opts.tall .opt { flex: 1; min-height: 50px; justify-content: center; align-items: center; text-align: center; font: 600 clamp(calc(31 * var(--u)), 4.6vh, calc(46 * var(--u)))/1 "Newsreader", Georgia, serif; }
-.opt { text-align: left; border: 0; border-radius: 16px; background: #fff; box-shadow: inset 0 0 0 2px var(--line), 0 4px 0 var(--line); padding: 13px 14px; font: 700 calc(16 * var(--u))/1.28 "Figtree"; cursor: pointer; transition: background .2s, box-shadow .2s, transform .08s; display: flex; gap: 10px; align-items: flex-start; }
-.opt:active { transform: translateY(2px); }
+.opt { text-align: left; border: 0; border-radius: 16px; background: var(--card); box-shadow: inset 0 0 0 1.5px var(--line); padding: 13px 14px; font: 700 calc(16 * var(--u))/1.28 "Figtree"; cursor: pointer; transition: background .2s, box-shadow .2s, transform .08s; display: flex; gap: 10px; align-items: flex-start; }
+.opt:active { transform: translateY(1px); }
 .opt .lt { flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--soft); display: grid; place-items: center; font: 800 12px/1 "Figtree"; color: var(--muted); margin-top: -1px; }
-.opt.qt { font: 500 calc(16.5 * var(--u))/1.3 "Newsreader", Georgia, serif; }
-.opt.right { background: var(--green-soft); box-shadow: inset 0 0 0 2px var(--green), 0 4px 0 var(--green-d); } .opt.right .lt { background: var(--green); color: #fff; }
-.opt.wrong { background: var(--red-soft); box-shadow: inset 0 0 0 2px var(--red), 0 4px 0 #9A3222; }
+.opt.qt { font: 600 calc(15.5 * var(--u))/1.32 "Figtree"; }
+.opt.right { background: var(--green-soft); box-shadow: inset 0 0 0 2px var(--green); } .opt.right .lt { background: var(--green); color: #fff; }
+.opt.wrong { background: var(--red-soft); box-shadow: inset 0 0 0 2px var(--red); }
 .opt.faded { opacity: .5; }
-.opt.picked { box-shadow: inset 0 0 0 2px #A69E92, 0 4px 0 var(--line); } /* a guess that wasn't the number: kept plain, never marked wrong */
+.opt.picked { box-shadow: inset 0 0 0 2px #A69E92; } /* a guess that wasn't the number: kept plain, never marked wrong */
 .opts.done .opt { pointer-events: none; }
 .pics { display: grid; grid-template-columns: 1fr; grid-auto-rows: 1fr; gap: 10px; margin-top: 14px; flex: 1; min-height: 56cqw; } /* A over B, each as wide as the screen: the two pictures take the room that is left, and each scene is drawn as large as its tile allows */
-.pic { border: 0; padding: 0; border-radius: 18px; background: #EFE7D8; box-shadow: inset 0 0 0 2px var(--line), 0 4px 0 var(--line); position: relative; overflow: hidden; cursor: pointer; }
+.pic { border: 0; padding: 0; border-radius: 18px; background: #EFE7D8; box-shadow: inset 0 0 0 1.5px var(--line); position: relative; overflow: hidden; cursor: pointer; }
 .pic svg { position: absolute; left: 0; right: 0; bottom: 0; top: 12%; width: 100%; height: 88%; display: block; } /* the scene sits under the awning, so no head is ever behind it */
 .pic img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; object-position: 50% 45%; } /* a painting carries the store's own sign */
 .pic:has(img)::before { display: none; }
 .pic::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 12%; background: #2F5D50; z-index: 1; }
 .pic .lt { position: absolute; left: 8px; top: 8px; width: 26px; height: 26px; border-radius: 50%; background: #fff; display: grid; place-items: center; font: 800 13px/1 "Figtree"; z-index: 2; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
-.pic.right { box-shadow: 0 4px 0 var(--green-d); } .pic.right .lt { background: var(--green); color: #fff; }
-.pic.wrong { box-shadow: 0 4px 0 #9A3222; } .pic.wrong .lt { background: var(--red); color: #fff; } .pic.faded { opacity: .55; }
+.pic.right { box-shadow: none; } .pic.right .lt { background: var(--green); color: #fff; }
+.pic.wrong { box-shadow: none; } .pic.wrong .lt { background: var(--red); color: #fff; } .pic.faded { opacity: .55; }
 /* the right and wrong marks are drawn over the picture, all the way round, so the drawing never hides them */
 .pic::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 2; }
 .pic.right::after { box-shadow: inset 0 0 0 4px var(--green); } .pic.wrong::after { box-shadow: inset 0 0 0 4px var(--red); }
-.why { flex: none; margin-top: 12px; display: flex; gap: 10px; align-items: flex-start; font: 500 calc(16.5 * var(--u))/1.34 "Newsreader", Georgia, serif; animation: in .3s ease both; text-wrap: pretty; }
+.why { flex: none; margin-top: 12px; display: flex; gap: 10px; align-items: flex-start; font: 500 calc(15.5 * var(--u))/1.38 "Figtree"; animation: in .3s ease both; text-wrap: pretty; }
 .why.plain { font: 600 calc(15.5 * var(--u))/1.38 "Figtree"; }
 .why .dot { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--green); color: #fff; margin-top: 1px; }
 .why .dot.no { background: #B8B0A3; } .why .dot svg { width: 14px; height: 14px; }
@@ -171,38 +177,41 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.12; }
 .rows li { display: flex; gap: 10px; align-items: flex-start; font: 600 calc(15.5 * var(--u))/1.3 "Figtree"; text-wrap: balance; }
 .rows .ck { flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--green); color: #fff; margin-top: -1px; }
 .rows .ck svg { width: 13px; height: 13px; }
-.rows li.off { color: var(--muted); } .rows li.off .ck { background: #fff; box-shadow: inset 0 0 0 2px #CFC8BC; color: transparent; }
+.rows li.off { color: var(--muted); } .rows li.off .ck { background: var(--card); box-shadow: inset 0 0 0 2px #CFC8BC; color: transparent; }
 .rows li.fix .ck { background: #fff; box-shadow: inset 0 0 0 2px var(--warm); color: var(--warm); }
 .rows li small { display: block; font: 800 calc(10.5 * var(--u))/1 "Figtree"; letter-spacing: .06em; text-transform: uppercase; color: #9B9389; margin-bottom: 3px; }
 .rows li.tick { animation: pop .35s ease both; } @keyframes pop { 50% { transform: scale(1.03); } }
-.said { flex: none; margin: 12px 0 0; padding: 10px 14px; border-left: 4px solid var(--line); font: 500 calc(15.5 * var(--u))/1.35 "Newsreader", Georgia, serif; color: #4A453F; }
+.said { flex: none; margin: 12px 0 0; padding: 10px 14px; border-left: 4px solid var(--line); font: 500 calc(15 * var(--u))/1.38 "Figtree"; color: var(--ink-2); }
 .said b { font: 800 calc(10.5 * var(--u))/1 "Figtree"; letter-spacing: .06em; text-transform: uppercase; color: #9B9389; display: block; margin-bottom: 4px; }
 .said.sm { font-size: calc(14 * var(--u)); line-height: 1.3; }
 .scoreh { font: 600 calc(36 * var(--u))/1 "Newsreader", Georgia, serif; letter-spacing: -0.01em; margin-top: 6px; }
-.tip { flex: none; margin: 8px 0 0; padding: 11px 14px; border-radius: 14px; background: var(--soft); font: 500 calc(16 * var(--u))/1.35 "Newsreader", Georgia, serif; text-wrap: pretty; }
+.tip { flex: none; margin: 8px 0 0; padding: 11px 14px; border-radius: 14px; background: var(--soft); font: 600 calc(15.5 * var(--u))/1.38 "Figtree"; text-wrap: pretty; }
 .from { flex: none; margin: 10px 0 0; display: flex; gap: 8px; align-items: center; font: 700 calc(14 * var(--u))/1.3 "Figtree"; color: var(--green-d); }
 .from svg { width: 16px; height: 16px; flex: none; }
 .callout { flex: none; margin: 14px 0 0; padding: 14px 16px; border-radius: 16px; background: var(--warm-soft); font: 700 calc(17 * var(--u))/1.32 "Figtree"; text-wrap: balance; }
-.callout.true { background: var(--green-soft); font: 500 calc(18 * var(--u))/1.34 "Newsreader", Georgia, serif; }
+.callout.true { background: var(--green-soft); font: 600 calc(16.5 * var(--u))/1.36 "Figtree"; }
 .callout.must { background: var(--warm-soft); font-weight: 600; }
 .callout b.cl { display: block; font: 800 calc(16 * var(--u))/1.3 "Figtree"; margin-bottom: 8px; }
-.xo { display: flex; gap: 9px; align-items: flex-start; margin-top: 6px; font: 500 calc(17.5 * var(--u))/1.3 "Newsreader", Georgia, serif; }
+.xo { display: flex; gap: 9px; align-items: flex-start; margin-top: 6px; font: 600 calc(16 * var(--u))/1.32 "Figtree"; }
 .xo svg { flex: none; width: 20px; height: 20px; border-radius: 50%; padding: 4px; color: #fff; margin-top: 1px; }
 .xo.no svg { background: var(--red); } .xo.no span { color: #8A5A50; text-decoration: line-through; text-decoration-color: rgba(194,65,45,.55); }
 .xo.ok svg { background: var(--green); }
 .cl2 { margin-top: 10px; font: 800 calc(15.5 * var(--u))/1.2 "Figtree"; }
-/* mic */
-.mic { flex: none; display: flex; align-items: center; gap: 12px; min-height: 64px; margin-top: 10px; }
-.micb { flex: none; width: 64px; height: 64px; border-radius: 50%; border: 0; background: var(--green); color: #fff; display: grid; place-items: center; box-shadow: 0 4px 0 var(--green-d); cursor: pointer; position: relative; }
-.micb svg { width: 28px; height: 28px; }
-.micb.on { background: #E5483B; box-shadow: 0 4px 0 #A82F24; }
-.micb.on::before { content: ""; position: absolute; inset: -7px; border-radius: 50%; border: 3px solid rgba(229, 72, 59, .35); animation: ring 1.3s ease-out infinite; }
-.micb.wait { background: #CFC8BC; box-shadow: 0 4px 0 #ADA597; pointer-events: none; }
-@keyframes ring { from { transform: scale(.9); opacity: 1; } to { transform: scale(1.25); opacity: 0; } }
-.micb.pulse { animation: pulse 1.6s ease-in-out infinite; } @keyframes pulse { 50% { transform: scale(1.06); } }
-.mict { flex: 1; min-width: 0; font: 600 calc(15.5 * var(--u))/1.32 "Figtree"; color: var(--muted); }
+/* mic: the door-knocking lessons' talk button. Dark, with a green mic, "Tap to talk"; while it listens it turns green and says
+   "I'm done", and your bubble on the picture says "Listening. Say it your way." until your words come in. A note (a mic that
+   is off, a line it missed) sits just over the button. */
+.mic { flex: none; display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+.mict { font: 600 calc(14.5 * var(--u))/1.32 "Figtree"; color: var(--ink-2); text-wrap: pretty; } .mict:empty { display: none; }
 .mict b { color: var(--ink); font-weight: 800; }
-.typed { flex: 1; display: flex; gap: 8px; } .typed input { flex: 1; min-width: 0; border: 2px solid var(--line); border-radius: 14px; padding: 12px 12px; font: 500 16px/1.2 "Figtree"; } .typed button { flex: none; }
+.micb { position: relative; display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-height: 56px; padding: 0 18px; border-radius: 999px; border: 1.5px solid var(--ink); background: var(--ink); color: var(--paper); font: 700 17px/1.2 "Figtree"; cursor: pointer; transition: opacity .3s ease, background .25s ease; }
+.micb:active { transform: translateY(1px); }
+.micb .md { position: relative; flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--green); color: #fff; }
+.micb .md svg { width: 19px; height: 19px; }
+.micb.on { background: var(--green-d); border-color: var(--green-d); }
+.micb.on .md { display: none; } /* "I'm done": the words alone, as the door-knocking lessons' */
+.micb.wait { opacity: .38; pointer-events: none; }
+.capt.you.lis { background: var(--green-d); } .capt.you.lis b { color: #BFE8D2; } /* "Listening. Say it your way." until your words come in */
+.typed { flex: 1; display: flex; gap: 8px; margin-top: 12px; } .typed input { flex: 1; min-width: 0; border: 2px solid var(--line); border-radius: 14px; padding: 12px 12px; font: 500 16px/1.2 "Figtree"; } .typed button { flex: none; }
 /* the practice petition */
 .pet { flex: none; margin-top: 10px; border-radius: 12px; background: #FFFEFA; box-shadow: inset 0 0 0 1.5px #D9D2C4, 0 2px 0 #E6E0D6; padding: 8px 10px 9px; position: relative; overflow: hidden; }
 .pet-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; --u: var(--u0); } /* the heading and the stamp keep their size on a screen that grows, so the name and the stamp always share one row */
@@ -273,10 +282,22 @@ svg.close .kid { display: none; } /* a close-up of Tanya leaves her daughter out
 .panel.lab .capts { bottom: calc(50 * var(--u)); }
 .labels span { flex: 1 1 auto; display: grid; place-items: center; text-align: center; white-space: nowrap; padding: 6px 4px; min-height: calc(34 * var(--u)); border-radius: 9px; background: rgba(255,255,255,.9); font: 800 calc(10.5 * var(--u))/1.15 "Figtree"; color: #A69E92; transition: background .3s, color .3s; }
 .labels span.on { background: var(--green); color: #fff; }
-.sayq { margin: 14px 0 0; padding: 16px 18px; border-radius: 18px; background: var(--soft); font: 500 calc(20 * var(--u))/1.36 "Newsreader", Georgia, serif; text-wrap: pretty; }
+.sayq { margin: 14px 0 0; padding: 16px 18px; border-radius: 18px; background: var(--soft); font: 600 calc(18 * var(--u))/1.36 "Figtree"; text-wrap: pretty; }
 .sayq small { display: block; font: 800 calc(11 * var(--u))/1 "Figtree"; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
-.decl { text-align: left; border: 0; width: 100%; border-radius: 14px; background: #fff; box-shadow: inset 0 0 0 2px var(--line), 0 4px 0 var(--line); padding: 11px 14px; font: 600 calc(15.5 * var(--u))/1.3 "Figtree"; cursor: pointer; display: flex; gap: 10px; }
-.decl.sel { box-shadow: inset 0 0 0 2.5px var(--ink), 0 4px 0 var(--ink); } .decl.right { background: var(--green-soft); box-shadow: inset 0 0 0 2px var(--green), 0 4px 0 var(--green-d); } .decl.wrong { background: var(--red-soft); box-shadow: inset 0 0 0 2px var(--red), 0 4px 0 #9A3222; } .decl.keep { opacity: .6; }
+.decl { text-align: left; border: 0; width: 100%; border-radius: 14px; background: var(--card); box-shadow: inset 0 0 0 1.5px var(--line); padding: 11px 14px; font: 600 calc(15.5 * var(--u))/1.3 "Figtree"; cursor: pointer; display: flex; gap: 10px; }
+.decl.sel { box-shadow: inset 0 0 0 2.5px var(--ink); } .decl.right { background: var(--green-soft); box-shadow: inset 0 0 0 2px var(--green); } .decl.wrong { background: var(--red-soft); box-shadow: inset 0 0 0 2px var(--red), 0 4px 0 #9A3222; } .decl.keep { opacity: .6; }
+/* Part N of 4: before each step's first screen, as in the door-knocking lessons. The ring fills a fifth more for each step. */
+.beat { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 12px; padding: 0 22px 40px; cursor: pointer; }
+.beat-ring { position: relative; width: 104px; height: 104px; margin-bottom: 2px; animation: beatin .3s ease both; }
+.beat-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.beat-arc { animation: beatarc .8s cubic-bezier(.3,.7,.2,1) .3s both; }
+@keyframes beatarc { from { stroke-dashoffset: var(--from); } to { stroke-dashoffset: var(--to); } }
+@keyframes beatin { from { opacity: 0; transform: translateY(6px); } }
+.beat .beat-k { margin: 0 0 -4px; font: 700 12px/1 "Figtree"; letter-spacing: .1em; text-transform: uppercase; color: var(--green-d); animation: beatin .3s ease both; }
+.beat-name { font: 500 34px/1.1 var(--head); letter-spacing: -0.015em; animation: beatin .3s ease .05s both; }
+.beat p:not(.beat-k) { margin: 0; font: 400 17.5px/1.4 "Figtree"; color: var(--ink-2); max-width: 300px; animation: beatin .3s ease .1s both; }
+/* over a screen that waits for your tap (the 2nd try's), as theirs is: the screen's button stays in view under it */
+.beat.over { position: absolute; left: 0; right: 0; top: 0; z-index: 25; background: var(--paper); padding-bottom: 0; }
 /* the end of a lesson */
 .ringrow { flex: none; display: flex; align-items: center; gap: 16px; margin-top: 14px; }
 .ringrow svg { flex: none; width: calc(84 * var(--u)); height: calc(84 * var(--u)); }
@@ -286,12 +307,12 @@ svg.close .kid { display: none; } /* a close-up of Tanya leaves her daughter out
 .nx p { margin: 6px 0 0; font: 600 calc(15 * var(--u))/1.35 "Figtree"; }
 .nx ol { list-style: none; margin: 9px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .nx li { display: flex; align-items: center; gap: 10px; font: 600 calc(14.5 * var(--u))/1.25 "Figtree"; color: #9B9389; text-wrap: balance; }
-.nx li i { flex: none; width: 24px; height: 24px; border-radius: 50%; background: #fff; display: grid; place-items: center; font: 800 12px/1 "Figtree"; font-style: normal; color: #9B9389; }
+.nx li i { flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--card); display: grid; place-items: center; font: 800 12px/1 "Figtree"; font-style: normal; color: #9B9389; }
 .nx li.lit { color: var(--ink); font-weight: 800; } .nx li.lit i { background: var(--green); color: #fff; }
 .nx li em { display: inline-block; vertical-align: 1px; margin-left: 4px; white-space: nowrap; font: 800 calc(10.5 * var(--u))/1 "Figtree"; letter-spacing: .05em; text-transform: uppercase; color: var(--green-d); background: var(--green-soft); border-radius: 99px; padding: 4px 8px; font-style: normal; } /* it follows the lesson's name, so a name that wraps never leaves it stranded */
 .shift { flex: none; margin: 12px 2px 0; font: 700 calc(16 * var(--u))/1.36 "Figtree"; text-wrap: pretty; }
 .shift.sm { font-weight: 600; color: var(--muted); font-size: calc(14.5 * var(--u)); }
-.course { flex: none; margin: 6px 0 0; font: 500 calc(17 * var(--u))/1.35 "Newsreader", Georgia, serif; color: #4A453F; }
+.course { flex: none; margin: 6px 0 0; font: 600 calc(16 * var(--u))/1.36 "Figtree"; color: var(--ink-2); }
 .score { font: 800 calc(26 * var(--u))/1 "Figtree"; letter-spacing: -.02em; } .score small { font: 700 calc(14 * var(--u))/1 "Figtree"; color: var(--muted); letter-spacing: 0; margin-left: 8px; }
 /* cover and the card */
 .drive { margin-top: 16px; display: inline-flex; flex-direction: column; color: var(--drive); text-transform: uppercase; line-height: 1; }
@@ -300,20 +321,20 @@ svg.close .kid { display: none; } /* a close-up of Tanya leaves her daughter out
 .rules { flex: 1; min-height: 0; overflow: hidden; margin: 10px 0 0; padding: 0 2px 0 22px; font: 500 16px/1.32 "Figtree"; } .rules li { margin: 0; } .rules b { font-weight: 800; } /* all eight rules on one screen: the type is sized to fit (vCard) */
 /* sources */
 .sheet { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; justify-content: flex-end; background: rgba(20,18,16,.38); animation: fade .2s ease both; }
-.sheet > div { background: #fff; border-radius: 22px 22px 0 0; max-height: 96%; display: flex; flex-direction: column; padding: 16px 18px calc(env(safe-area-inset-bottom, 0px) + 18px); width: 100%; animation: up .28s cubic-bezier(.2,.8,.2,1) both; }
-.sheet h2 { flex: none; font: 800 calc(19 * var(--u))/1.2 "Figtree"; margin: 0 0 6px; } .sheet ul { flex: 0 1 auto; min-height: 0; margin: 0; padding-left: 17px; font: 500 calc(13 * var(--u))/1.34 "Figtree"; } .sheet li { margin: calc(5 * var(--u)) 0; } .sheet a { color: var(--drive); } .sheet .fine { flex: none; font: 500 calc(12 * var(--u))/1.35 "Figtree"; color: var(--muted); margin: 8px 0 10px; }
+.sheet > div { background: var(--paper); border-radius: 22px 22px 0 0; max-height: 96%; display: flex; flex-direction: column; padding: 16px 18px calc(env(safe-area-inset-bottom, 0px) + 18px); width: 100%; animation: up .28s cubic-bezier(.2,.8,.2,1) both; }
+.sheet h2 { flex: none; font: 500 calc(22 * var(--u))/1.2 var(--head); margin: 0 0 6px; } .sheet ul { flex: 0 1 auto; min-height: 0; margin: 0; padding-left: 17px; font: 500 calc(13 * var(--u))/1.34 "Figtree"; } .sheet li { margin: calc(5 * var(--u)) 0; } .sheet a { color: var(--drive); } .sheet .fine { flex: none; font: 500 calc(12 * var(--u))/1.35 "Figtree"; color: var(--muted); margin: 8px 0 10px; }
 .sheet .btn { flex: none; min-height: 46px; }
 @keyframes fade { from { opacity: 0; } } @keyframes up { from { transform: translateY(40px); opacity: 0; } }
 /* on a laptop the lesson sits in a phone frame */
 @media (min-width: 700px) and (min-height: 480px) {
   html, body { background: #E9E4DA; }
-  #app { inset: auto; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 400px; height: min(calc(100vh - 36px), 860px); max-width: none; background: #fff; border-radius: 44px; box-shadow: 0 0 0 11px #262320, 0 26px 60px rgba(38,35,32,.3); overflow: hidden; padding-top: 24px; padding-bottom: 18px; }
-  .ft { margin-bottom: -18px; }
+  #app { inset: auto; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 400px; height: min(calc(100vh - 36px), 860px); max-width: none; background: var(--paper); border-radius: 44px; box-shadow: 0 0 0 11px #262320, 0 26px 60px rgba(38,35,32,.3); overflow: hidden; padding-top: 24px; padding-bottom: 18px; }
   .tag { right: 32px; bottom: 5px; } /* clear of the frame's round corner and of the button above it */
 }
 @media (min-height: 780px) { :root { --u0: 1.07px; } }
 @media (min-height: 880px) { :root { --u0: 1.14px; } }
 @media (max-height: 700px) { :root { --u0: .94px; }
+  .top .row { height: 36px; } .top .drive b { font-size: 18px; } .top .drive small { font-size: 7px; margin-top: 3px; } .bar { margin-top: 4px; } .opts { gap: 8px; } /* a short phone: the header and the answers give back a few pixels */
 }
 /* Hear it done with the petition under the picture, on a short phone or in the laptop frame: the picture gets the room, so a
    three-line caption still sits under the chins */
