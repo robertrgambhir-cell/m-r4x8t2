@@ -25,16 +25,20 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 body { overflow: hidden; overscroll-behavior: none; }
 button { font: inherit; color: inherit; }
 #app { position: fixed; inset: 0; display: flex; flex-direction: column; max-width: 520px; margin: 0 auto; padding: calc(env(safe-area-inset-top, 0px) + 10px) 18px calc(env(safe-area-inset-bottom, 0px) + 16px); }
-.top { flex: none; display: flex; align-items: center; gap: 10px; height: 34px; }
+.top { flex: none; display: block; }
+.top .row { display: flex; align-items: center; justify-content: space-between; height: 34px; }
 .x, .pp { flex: none; width: 34px; height: 34px; border: 0; background: none; padding: 0; display: grid; place-items: center; color: #7A7268; cursor: pointer; }
 .x { margin-left: -8px; } span.x { cursor: default; } /* a result screen has no way back; the bar keeps its place */
 .x svg { width: 24px; height: 24px; } .pp svg { width: 20px; height: 20px; }
-.bar { flex: 1; display: flex; gap: 4px; }
-.bar button { flex: 1; height: 26px; border: 0; background: none; padding: 0; cursor: pointer; position: relative; }
+/* the four steps, by name (Robert, Nov 20, 8:23 AM; playbook rule 56): one segment each, filling as its screens are done, and the
+   one you're in named in green. The names may run a little past their segment, as the door-knocking lessons' do. */
+.bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin: 0; }
+.bar button { min-width: 0; border: 0; background: none; padding: 0 0 2px; cursor: pointer; display: block; text-align: center; }
 .bar button[disabled] { cursor: default; }
-.bar button::after { content: ""; position: absolute; left: 0; right: 0; top: 10px; height: 6px; border-radius: 3px; background: var(--line); }
-.bar button.full::after { background: var(--green); }
-.bar button.cur::after { box-shadow: 0 0 0 2px var(--ink); } /* where you are: an outline, never a partly filled bar */
+.bar button i { display: block; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.bar button i b { display: block; height: 100%; border-radius: inherit; background: var(--green); transition: width .4s ease; }
+.bar button span { display: block; margin: 5px -4px 0; font: 700 10.5px/1.2 "Figtree"; letter-spacing: 0; white-space: nowrap; color: #7A7268; } /* as the door-knocking lessons' names */
+.bar button.cur span { color: var(--green-d); } .bar button.cur i { background: #CDEBD9; } /* the step you're in: a light green track, as the door-knocking lessons mark it */
 #scr { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; container-type: inline-size; --u: calc(var(--u0) * var(--k, 1)); }
 /* fill: a screen with room to spare grows its words and pictures together (--k, set by fillUp in the engine) until the room is
    used, so no blank band is left. The main button keeps its size, so its words stay on one line. */
@@ -73,6 +77,7 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.12; }
 /* a passerby walks in over the storefront while the line plays (rule 54a): from your left toward the door, or from the right toward the canvasser */
 .ph.one.off .pt.walker { transform: translateX(-55%) scale(.9); opacity: 0; } .ph.two.off .pt.walker { transform: translateX(42%) scale(.95); opacity: 0; }
 .ph.one.gone .pt.walker { transform: translateX(58%) scale(.92); opacity: 0; } .ph.two.gone .pt.walker { transform: translateX(46%) scale(.95); opacity: 0; }
+.ph.walking .pt.walker { transition: opacity .5s ease; will-change: transform; } .ph.walking.gone .pt.walker { opacity: 1; } /* lesson 2: the engine walks them across, and off */
 .ph.walk .pt.walker .bob { animation: walkph .56s ease-in-out infinite; } @keyframes walkph { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.1%); } }
 .ph.close img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 38%; }
 @media (prefers-reduced-motion: reduce) { .ph.walk .pt.walker .bob { animation: none; } .ph .pt { transition: opacity .5s ease; } }

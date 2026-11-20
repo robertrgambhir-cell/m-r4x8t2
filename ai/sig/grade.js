@@ -134,7 +134,7 @@ var SIGG = (function () {
     var long = !!q && explWords > 13; /* "runs past about 12 words" before the question: one word of grace for a recognizer's extra word. With no question it can't run long before it. */
     var hoursAny = HOURS_RE.test(t), topic = libAny || hoursAny, sentence = hoursAny && hoursFor(t, q, g), topicOnly = topic && !sentence && !untrue && !long;
     var sorryWord = !!(tm && /sorry|pardon|apolog|excuse|bother/.test(tm[0])), sorryFirst = sorryWord && (!q || timeAt < q.at);
-    var hits = [g > 0, sentence && !untrue && !long, !!(q && q.county), timeAt < 0];
+    var hits = [g > 0, sentence && !untrue && !long, !!(q && q.county), timeAt < 0 && ws.length > 0]; /* part 4 is about what you leave out, so it counts only once you've said something (a passerby who walked past a silent canvasser) */
     return {
       hits: hits, n: hits.filter(Boolean).length, text: String(text || "").trim(), norm: t,
       greet: g > 0, topic: topic, sentence: sentence, hours: sentence, topicOnly: topicOnly, long: long, explWords: explWords, untrue: untrue, untrueSaid: um, promise: promise,
@@ -341,7 +341,7 @@ var SIGG = (function () {
     /* more: the passerby has just said or done something the canvasser gets to answer, even past the fourth line */
     var out = function (say, end, more) { S.said = S.said.concat(say); if (end || (P.length >= CAP && !more)) S.end = true; return { say: say, end: S.end }; };
     var mine = function () { return P[P.length - 1] || ""; }, saidK = function (k) { return S.said.indexOf(k) >= 0; };
-    /* the fallback lines: a hello or small talk gets one back (once each), a push to sign gets "I'd rather decide for myself." */
+    /* the fallback lines: a hello or small talk gets one back (once each), a push to sign gets "I'll think about it." */
     var hello = function () { var f = fallback(mine()); return f && !saidK(f) ? out([f]) : null; }; /* said once: after that a bare hello is nothing new */
     /* does this piece add to the ask: being paid, the funders, what it does, how it's paid for, or what it is */
     var adds3 = function (text) { var x = norm(text); return PAID_RE.test(x) || FUND_RE.test(x) || HOURS_RE.test(x) || TAX_RE.test(x) || /\blibrar|\bpetition\b|\bballot\b|\bmeasure\b|\binitiative\b|\bact\b/.test(x); };
@@ -425,7 +425,7 @@ var SIGG = (function () {
           var g = grade3(join(), st), gm = grade3(mine(), st), say = [];
           if (gm.dbl && !saidK("nodbl")) say.push("nodbl");
           if (gm.ask) return out(say.concat(["yes"]), true); /* asked to sign: she answers that */
-          if (gm.press) return out(say.concat(saidK("fPush") ? [] : ["fPush"])); /* told to sign: "I'd rather decide for myself." */
+          if (gm.press) return out(say.concat(saidK("fPush") ? [] : ["fPush"])); /* told to sign: "I'll think about it." */
           if (bye(mine())) return out(say.concat(["fBye"]), true);
           if (say.length) return out(say);
           var hi = hello(); if (hi) return hi;
@@ -559,7 +559,10 @@ var SIGG = (function () {
     var m = M[key] || M[{ "2.soojin": "2.stop", "2.luis": "2.stop" }[key]];
     if (!m) throw new Error("no such passerby: " + key);
     S.hear = function (piece) { if (S.end) return { say: [], end: true }; P.push(String(piece || "").trim()); return m.hear(); };
-    S.grade = m.grade;
+    /* lesson 2: a passerby who walked on before the opener landed (Robert, Nov 20, 8:23 AM). Part 4 is about not taking their time,
+       so too slow misses it, with its own line; the try can't count as all four. */
+    S.walkedOn = function () { S.walked = true; S.end = true; };
+    S.grade = function () { var g = m.grade(); if (S.walked && g && g.hits) { g.walked = true; g.hits = g.hits.slice(); g.hits[3] = false; g.n = g.hits.filter(Boolean).length; g.miss = (g.miss || [null, null, null, null]).slice(); g.miss[3] = "Slow"; } return g; };
     return S;
   }
 

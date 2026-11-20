@@ -283,5 +283,21 @@ ok(run("2.ben", ["Come on, just sign it."]).said === "fPush" && run("2.luis", ["
   ok(SIGG.grade("Hi! This petition is for longer library hours, and it costs you nothing. " + REG, ST).untrue === "cost", "review 11: \"costs you nothing\" isn't true");
 }
 
+/* version 6 (Robert, Nov 20, 8:23 AM): lesson 2's passersby keep walking. Too slow and they walk on: part 4 is missed with its own
+   line, so the try can't count as all four. And with nothing said, none of the four counts. */
+{
+  const OPN = "Hi there! This petition is for longer library hours. Are you registered to vote in LA County?";
+  ok(SIGG.grade("", ST).hits.every((h) => !h), "v6: nothing said is none of the four");
+  ok(SIGG.grade("Hi there!", ST).hits[3], "v6: once you've said something, part 4 still counts");
+  { const T = SIGG.talk("2.ben", ST); T.hear(OPN); T.walkedOn(); const g = T.grade(); ok(g.walked && !g.hits[3] && g.miss[3] === "Slow" && g.n === 3 && g.hits[0] && g.hits[1] && g.hits[2], "v6: the opener, too slow: three of four, part 4 is the walk-on"); }
+  { const T = SIGG.talk("2.soojin", ST); T.walkedOn(); const g = T.grade(); ok(g.walked && g.n === 0 && g.miss[3] === "Slow", "v6: walked past a silent canvasser: none of the four"); ok(T.hear("Hi!").end && !T.hear("Hi!").say.length, "v6: once they've walked on, nothing more is heard"); }
+  { const T = SIGG.talk("2.ben", ST); T.hear(OPN); const g = T.grade(); ok(!g.walked && g.n === 4, "v6: the opener in time is all four"); }
+  ok(SIG_LESSONS[2].parts[3].missedSlow === "Took so long they walked on.", "v6: part 4's walk-on line");
+  ["ben", "soojin", "kayla", "luis"].forEach((w) => { const P = w === "ben" ? SIG_LESSONS[2].steps[0] : SIG_LESSONS[2].steps[5].people.find((x) => x.who === w); ok(P.replies.busy && P.replies.busy.text === "Oh, sorry, I'm busy. Have a good day." && P.replies.busy.act === "go", "v6: " + w + " has the brush-off"); });
+  ok(SIG_LESSONS[2].steps[1].scenes[1].lines[1].text === "No, I'm not.", "v6: Dwayne answers like a person");
+  [1, 2, 3, 4, 5].forEach((n) => { const L = SIG_LESSONS[n]; ok(L.phases.length === 4 && L.steps.every((s) => s.ph >= 0 && s.ph <= 3) && L.steps.every((s, i) => i === 0 || s.ph >= L.steps[i - 1].ph), "v6: lesson " + n + " has four named steps, in order"); });
+  ok(SIG_LESSONS[2].phases.join("|") === "Your 1st try|Hear it done|Catch the mistake|Your 2nd try" && SIG_LESSONS[1].phases.join("|") === "How it counts|Sort and guess|Say it|Watch it done", "v6: the four names");
+}
+
 console.log(`sig-grade: ${pass} pass, ${fail} fail`);
 process.exit(fail ? 1 : 0);

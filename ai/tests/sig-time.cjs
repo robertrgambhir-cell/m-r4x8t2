@@ -12,7 +12,7 @@ const FAKE_SR = () => {
   window.__srs = [];
   class FakeSR {
     constructor() { this.continuous = false; this.interimResults = false; window.__srs.push(this); }
-    start() { window.__sr = this; this.on = true; }
+    start() { window.__sr = this; this.on = true; setTimeout(() => { if (this.on && this.onstart) this.onstart(); }, 10); } /* as a real mic: listening a moment later */
     stop() { if (!this.on) return; this.on = false; setTimeout(() => { if (this.onend) this.onend(); }, 400); }
     abort() { if (!this.on) return; this.on = false; setTimeout(() => { if (this.onend) this.onend(); }, 0); }
   }

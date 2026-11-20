@@ -4,6 +4,7 @@ var qs = new URLSearchParams(location.search);
 var LN = qs.get("l") === "card" ? 0 : Math.max(1, Math.min(5, parseInt(qs.get("l"), 10) || 2));
 var L = DATA.lessons[LN] || null;
 var PRACTICE = qs.has("practice"); /* a practice round on one lesson's must, opened from lesson 5's last screen */
+var WALKTEST = qs.has("walk"); /* tests: lesson 2's passersby walk past even in fast mode, eight times as fast */
 var FAST = qs.has("fast"), HOLD = Math.max(10, parseInt(qs.get("fast"), 10) || 10); /* tests: no sound, no waiting. fast=300 holds each spoken line 300 ms so a test sees every caption */
 var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 var $ = function (s) { return document.querySelector(s); };
@@ -99,6 +100,8 @@ function listen(o) {
   function end() { done = true; clearInterval(tick); clearTimeout(cap); try { R.onend = null; R.abort(); } catch (e) {} try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {} }
   function finish() { if (done) return; end(); o.onDone(text.trim()); }
   R.onresult = function (e) { var parts = []; for (var j = 0; j < e.results.length; j += 1) parts.push(String(e.results[j][0].transcript || "").trim()); var t = parts.filter(Boolean).join(" ").replace(/\s+/g, " "); if (t !== text) { text = t; changed = performance.now(); o.onWords(text); } };
+  R.onstart = function () { if (o.onStart) o.onStart(); }; /* listening, after any permission prompt */
+  R.onspeechstart = function () { if (o.onSpeech) o.onSpeech(true); }; R.onspeechend = function () { if (o.onSpeech) o.onSpeech(false); }; /* a walking passerby slows while you talk */
   R.onerror = function (e) { var c = e && e.error; if (c === "no-speech" || c === "aborted") return; if (done) return; end(); o.onError(c === "not-allowed" || c === "service-not-allowed" ? "denied" : c === "audio-capture" ? "busy" : "error"); };
   R.onend = function () { if (done) return; if (text) { finish(); return; } if (performance.now() - started < 9000) { try { R.start(); } catch (e) { finish(); } return; } finish(); }; /* iOS ends a quiet session on its own */
   try { R.start(); started = performance.now(); } catch (e) { end(); setTimeout(function () { o.onError("error"); }, 0); }

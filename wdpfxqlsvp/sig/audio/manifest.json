@@ -184,13 +184,13 @@
   "bytes": 7725,
   "text": "I'm good, thanks."
  },
- "8920ad14037d": {
-  "file": "8920ad14037d.mp3",
+ "d2ad4f1464db": {
+  "file": "d2ad4f1464db.mp3",
   "who": "marisol",
   "voice": "el:EXAVITQu4vr4xnSDxMaL:0.88",
-  "dur": 1.8,
-  "bytes": 11037,
-  "text": "I'd rather decide for myself."
+  "dur": 1.18,
+  "bytes": 7293,
+  "text": "I'll think about it."
  },
  "1fbbc18e0d34": {
   "file": "1fbbc18e0d34.mp3",
@@ -288,13 +288,13 @@
   "bytes": 14493,
   "text": "Good. Take those two lines with you today."
  },
- "c96e8768b598": {
-  "file": "c96e8768b598.mp3",
+ "f0b0c48ac9fc": {
+  "file": "f0b0c48ac9fc.mp3",
   "who": "coach",
   "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
-  "dur": 8.35,
-  "bytes": 50349,
-  "text": "You're outside Westside Market with your table and your board. A man with a coffee is heading for the door. Say hello and see if he'll stop."
+  "dur": 9.41,
+  "bytes": 56685,
+  "text": "You're outside Westside Market with your table and your board. A man with a coffee is heading for the door. Say hello as he walks up and see if he'll stop."
  },
  "c2821f6d7752": {
   "file": "c2821f6d7752.mp3",
@@ -311,6 +311,14 @@
   "dur": 2.21,
   "bytes": 13485,
   "text": "Oh, the library? What do you need?"
+ },
+ "b12668162eca": {
+  "file": "b12668162eca.mp3",
+  "who": "ben",
+  "voice": "el:cjVigY5qzO86Huf0OWal:0.88",
+  "dur": 1.99,
+  "bytes": 12189,
+  "text": "Oh, sorry, I'm busy. Have a good day."
  },
  "afd4fc8cdee8": {
   "file": "afd4fc8cdee8.mp3",
@@ -344,13 +352,13 @@
   "bytes": 7293,
   "text": "I'm good, thanks."
  },
- "43cca5785473": {
-  "file": "43cca5785473.mp3",
+ "4ff9625115c0": {
+  "file": "4ff9625115c0.mp3",
   "who": "ben",
   "voice": "el:cjVigY5qzO86Huf0OWal:0.88",
-  "dur": 1.63,
-  "bytes": 10029,
-  "text": "I'd rather decide for myself."
+  "dur": 1.01,
+  "bytes": 6285,
+  "text": "I'll think about it."
  },
  "fd3b7f857ea9": {
   "file": "fd3b7f857ea9.mp3",
@@ -408,13 +416,13 @@
   "bytes": 28173,
   "text": "Fourth, she never asked for a minute. The whole thing took about five seconds."
  },
- "22764a1662e2": {
-  "file": "22764a1662e2.mp3",
+ "642006920aa9": {
+  "file": "642006920aa9.mp3",
   "who": "dwayne",
   "voice": "el:nPczCjzI2devNBz1zQrb:0.88",
-  "dur": 1.92,
-  "bytes": 11757,
-  "text": "Nope. Never got around to it."
+  "dur": 0.82,
+  "bytes": 5133,
+  "text": "No, I'm not."
  },
  "0d3eabf555ba": {
   "file": "0d3eabf555ba.mp3",
@@ -489,13 +497,13 @@
   "bytes": 92829,
   "text": "About 5% to 10% stop. Most people keep walking, even past the best canvassers. A no isn't about you. The canvassers who gather the most ask everyone, and someone else is always coming."
  },
- "0a49c4d5fb7e": {
-  "file": "0a49c4d5fb7e.mp3",
+ "5767580400a6": {
+  "file": "5767580400a6.mp3",
   "who": "coach",
   "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
-  "dur": 7.94,
-  "bytes": 47901,
-  "text": "It's your turn again. Three people are coming, one after another. Say your opener to each one, and your best opener counts."
+  "dur": 9.46,
+  "bytes": 56973,
+  "text": "It's your turn again. Three people are coming, one after another. Say your opener to each one as they walk up, and your best opener counts."
  },
  "b7ad644f5939": {
   "file": "b7ad644f5939.mp3",
@@ -512,6 +520,14 @@
   "dur": 2.23,
   "bytes": 13629,
   "text": "Oh, the library? What do you need?"
+ },
+ "0ec7b5ee5d6b": {
+  "file": "0ec7b5ee5d6b.mp3",
+  "who": "soojin",
+  "voice": "el:hpp4J3VqNfWAUOO0d1Us:0.88",
+  "dur": 2.38,
+  "bytes": 14493,
+  "text": "Oh, sorry, I'm busy. Have a good day."
  },
  "dca104d6caf9": {
   "file": "dca104d6caf9.mp3",
@@ -537,13 +553,13 @@
   "bytes": 7869,
   "text": "I'm good, thanks."
  },
- "14ca7174666c": {
-  "file": "14ca7174666c.mp3",
+ "c0ed0cc3e4ee": {
+  "file": "c0ed0cc3e4ee.mp3",
   "who": "soojin",
   "voice": "el:hpp4J3VqNfWAUOO0d1Us:0.88",
-  "dur": 1.87,
-  "bytes": 11469,
-  "text": "I'd rather decide for myself."
+  "dur": 1.15,
+  "bytes": 7149,
+  "text": "I'll think about it."
  },
  "7c79acefc8bb": {
   "file": "7c79acefc8bb.mp3",
@@ -569,6 +585,14 @@
   "bytes": 12045,
   "text": "Oh, the library? What do you need?"
  },
+ "19e6209c5a45": {
+  "file": "19e6209c5a45.mp3",
+  "who": "kayla",
+  "voice": "el:FGY2WhTYpPnrIDTdsKH5:0.88",
+  "dur": 2.5,
+  "bytes": 15213,
+  "text": "Oh, sorry, I'm busy. Have a good day."
+ },
  "712c6f19ca66": {
   "file": "712c6f19ca66.mp3",
   "who": "kayla",
@@ -593,13 +617,13 @@
   "bytes": 9021,
   "text": "I'm good, thanks."
  },
- "a7ac8dfbdea3": {
-  "file": "a7ac8dfbdea3.mp3",
+ "9c4c20ccf7be": {
+  "file": "9c4c20ccf7be.mp3",
   "who": "kayla",
   "voice": "el:FGY2WhTYpPnrIDTdsKH5:0.88",
-  "dur": 1.85,
-  "bytes": 11325,
-  "text": "I'd rather decide for myself."
+  "dur": 1.34,
+  "bytes": 8301,
+  "text": "I'll think about it."
  },
  "b02e1d4d7889": {
   "file": "b02e1d4d7889.mp3",
@@ -625,6 +649,14 @@
   "bytes": 12765,
   "text": "Oh, the library? What do you need?"
  },
+ "26c474323878": {
+  "file": "26c474323878.mp3",
+  "who": "luis",
+  "voice": "el:TX3LPaxmHKxFdv7VOQHJ:0.88",
+  "dur": 2.5,
+  "bytes": 15213,
+  "text": "Oh, sorry, I'm busy. Have a good day."
+ },
  "a412f9ea4f80": {
   "file": "a412f9ea4f80.mp3",
   "who": "luis",
@@ -649,13 +681,13 @@
   "bytes": 7581,
   "text": "I'm good, thanks."
  },
- "b870284b63bc": {
-  "file": "b870284b63bc.mp3",
+ "178b01bc0f32": {
+  "file": "178b01bc0f32.mp3",
   "who": "luis",
   "voice": "el:TX3LPaxmHKxFdv7VOQHJ:0.88",
-  "dur": 1.73,
-  "bytes": 10605,
-  "text": "I'd rather decide for myself."
+  "dur": 1.13,
+  "bytes": 7005,
+  "text": "I'll think about it."
  },
  "a4e339d28b07": {
   "file": "a4e339d28b07.mp3",
@@ -721,13 +753,13 @@
   "bytes": 7581,
   "text": "I'm good, thanks."
  },
- "7e698885b795": {
-  "file": "7e698885b795.mp3",
+ "af3ed84a5117": {
+  "file": "af3ed84a5117.mp3",
   "who": "tanya",
   "voice": "el:XrExE9yKIg1WjnnlVkGX:0.88",
-  "dur": 1.9,
-  "bytes": 11613,
-  "text": "I'd rather decide for myself."
+  "dur": 1.18,
+  "bytes": 7293,
+  "text": "I'll think about it."
  },
  "a36b830da430": {
   "file": "a36b830da430.mp3",
@@ -1276,13 +1308,13 @@
   "bytes": 7437,
   "text": "I'm good, thanks."
  },
- "fe2dac646a72": {
-  "file": "fe2dac646a72.mp3",
+ "abea03472814": {
+  "file": "abea03472814.mp3",
   "who": "hank",
   "voice": "el:pqHfZKP75CvOlQylNhV4:0.88",
-  "dur": 1.87,
-  "bytes": 11469,
-  "text": "I'd rather decide for myself."
+  "dur": 0.96,
+  "bytes": 5997,
+  "text": "I'll think about it."
  },
  "e1736ee5c7c8": {
   "file": "e1736ee5c7c8.mp3",
