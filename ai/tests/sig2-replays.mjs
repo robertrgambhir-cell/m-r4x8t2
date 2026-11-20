@@ -1,6 +1,6 @@
 /* Signature lesson 2, "How to stop a passerby": the replays.
 
-   One replay for every example in the lesson's grading table (claude/signature-curriculum-claude-v4.md, "What gets
+   One replay for every example in the lesson's grading table (claude/signature-curriculum-claude-v5.md, "What gets
    graded in the spoken practice"), word for word, plus the five Robert asked for on Nov 18: "in LA" with no "County",
    a hello that comes after the question, "Do you have a minute?", "save our libraries" and three openers where only
    the second is good.
@@ -18,7 +18,10 @@ export const REPLAYS = [
   { id: "1-counts-good-morning", table: 'Part 1 counts: "Good morning"', say: `Good morning! This petition is for longer library hours. ${Q}`, parts: [1, 1, 1, 1], ben: "stop", stops: true },
   { id: "1-not-no-greeting", table: "Part 1 doesn't count: no greeting", say: `This petition is for longer library hours. ${Q}`, parts: [0, 1, 1, 1], ben: "stop", stops: true },
   { id: "1-not-greeting-after", table: "Part 1 doesn't count: a greeting after the question", say: `This petition is for longer library hours. ${Q} Hi there!`, parts: [0, 1, 1, 1], ben: "stop", stops: true },
-  /* ---- Part 2. Says what the petition is for, in a sentence (version 3: the topic words on their own no longer count) ---- */
+  /* ---- Part 2. Says what the petition is for (version 5, Nov 20: the hours named after "for" or a verb count; the library alone doesn't) ---- */
+  { id: "2-counts-signatures-for", table: 'Part 2 counts: "Signatures for longer library hours!" (Robert, Nov 20)', say: `Hi there! Signatures for longer library hours! ${Q}`, parts: [1, 1, 1, 1], ben: "stop", stops: true },
+  { id: "2-not-support", table: 'Part 2 doesn\'t count: "Support your library!" (Robert, Nov 20)', say: `Hi there! Support your library! ${Q}`, parts: [1, 0, 1, 1], ben: "stop", stops: true, topicOnly: true },
+  { id: "2-not-for-the-library", table: 'Part 2 doesn\'t count: "This petition is for the library." (Robert, Nov 20)', say: `Hi there! This petition is for the library. ${Q}`, parts: [1, 0, 1, 1], ben: "stop", stops: true, topicOnly: true },
   { id: "2-counts-this-petition", table: 'Part 2 counts: "This petition is for longer library hours"', say: `Hi there! This petition is for longer library hours. ${Q}`, parts: [1, 1, 1, 1], ben: "stop", stops: true },
   { id: "2-counts-gathering", table: 'Part 2 counts: "I\'m gathering signatures for longer library hours"', say: `Hi there! I'm gathering signatures for longer library hours. ${Q}`, parts: [1, 1, 1, 1], ben: "stop", stops: true },
   { id: "2-counts-evening-weekend", table: 'Part 2 counts: "It\'s for more evening and weekend hours at the library"', say: `Hi there! It's for more evening and weekend hours at the library. ${Q}`, parts: [1, 1, 1, 1], ben: "stop", stops: true },

@@ -144,6 +144,14 @@
   "bytes": 20973,
   "text": "Me? I vote in every election. Why do you ask?"
  },
+ "a4ab9b3b1e7f": {
+  "file": "a4ab9b3b1e7f.mp3",
+  "who": "marisol",
+  "voice": "el:EXAVITQu4vr4xnSDxMaL:0.88",
+  "dur": 2.3,
+  "bytes": 14061,
+  "text": "Oh, the library? What do you need?"
+ },
  "1d42ed8fd6e1": {
   "file": "1d42ed8fd6e1.mp3",
   "who": "marisol",
@@ -296,6 +304,14 @@
   "bytes": 13917,
   "text": "Uh, yeah, I'm registered. What's up?"
  },
+ "ed2273d05188": {
+  "file": "ed2273d05188.mp3",
+  "who": "ben",
+  "voice": "el:cjVigY5qzO86Huf0OWal:0.88",
+  "dur": 2.21,
+  "bytes": 13485,
+  "text": "Oh, the library? What do you need?"
+ },
  "afd4fc8cdee8": {
   "file": "afd4fc8cdee8.mp3",
   "who": "ben",
@@ -376,13 +392,13 @@
   "bytes": 22557,
   "text": "Second, she said what the petition is for in one short sentence."
  },
- "6330849e0f89": {
-  "file": "6330849e0f89.mp3",
+ "0dd30c708446": {
+  "file": "0dd30c708446.mp3",
   "who": "coach",
   "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
-  "dur": 7.8,
-  "bytes": 47037,
-  "text": "Third, she asked if the woman is registered to vote in L.A. County. A yes means she can sign, and now they're talking."
+  "dur": 8.47,
+  "bytes": 51069,
+  "text": "Third, she asked if the woman is registered to vote in L.A. County. A yes means the woman can sign, and now they're talking."
  },
  "9f02d43beafb": {
   "file": "9f02d43beafb.mp3",
@@ -489,6 +505,14 @@
   "bytes": 9021,
   "text": "Yes, I am, dear."
  },
+ "74892a7fecd5": {
+  "file": "74892a7fecd5.mp3",
+  "who": "soojin",
+  "voice": "el:hpp4J3VqNfWAUOO0d1Us:0.88",
+  "dur": 2.23,
+  "bytes": 13629,
+  "text": "Oh, the library? What do you need?"
+ },
  "dca104d6caf9": {
   "file": "dca104d6caf9.mp3",
   "who": "soojin",
@@ -536,6 +560,14 @@
   "dur": 1.61,
   "bytes": 9885,
   "text": "Oh. I'm not registered."
+ },
+ "b2305f360b95": {
+  "file": "b2305f360b95.mp3",
+  "who": "kayla",
+  "voice": "el:FGY2WhTYpPnrIDTdsKH5:0.88",
+  "dur": 1.97,
+  "bytes": 12045,
+  "text": "Oh, the library? What do you need?"
  },
  "712c6f19ca66": {
   "file": "712c6f19ca66.mp3",
@@ -585,6 +617,14 @@
   "bytes": 8877,
   "text": "Yeah, I'm registered."
  },
+ "d23a1b217d04": {
+  "file": "d23a1b217d04.mp3",
+  "who": "luis",
+  "voice": "el:TX3LPaxmHKxFdv7VOQHJ:0.88",
+  "dur": 2.09,
+  "bytes": 12765,
+  "text": "Oh, the library? What do you need?"
+ },
  "a412f9ea4f80": {
   "file": "a412f9ea4f80.mp3",
   "who": "luis",
@@ -625,13 +665,13 @@
   "bytes": 7725,
   "text": "Okay, bye now."
  },
- "2ea4222436cb": {
-  "file": "2ea4222436cb.mp3",
+ "d1f078a31265": {
+  "file": "d1f078a31265.mp3",
   "who": "coach",
   "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
-  "dur": 4.97,
-  "bytes": 30045,
-  "text": "A woman with a shopping cart has stopped. When you're ready, ask for her signature."
+  "dur": 5.93,
+  "bytes": 35805,
+  "text": "A woman with a shopping cart heard your opener and stopped. When you're ready, ask for her signature."
  },
  "38fa64342eb2": {
   "file": "38fa64342eb2.mp3",
@@ -697,13 +737,13 @@
   "bytes": 7725,
   "text": "Okay, bye now."
  },
- "7eda34bc59ed": {
-  "file": "7eda34bc59ed.mp3",
+ "5ac16d355358": {
+  "file": "5ac16d355358.mp3",
   "who": "coach",
   "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
-  "dur": 1.46,
-  "bytes": 9021,
-  "text": "Now listen to Lena."
+  "dur": 4.06,
+  "bytes": 24573,
+  "text": "Now listen to Lena. An older man heard her opener and stopped."
  },
  "b1356db407c5": {
   "file": "b1356db407c5.mp3",
@@ -1317,13 +1357,13 @@
   "bytes": 19533,
   "text": "First, she answered the question, and the answer was true."
  },
- "977c7e9e5089": {
-  "file": "977c7e9e5089.mp3",
+ "7609bde81621": {
+  "file": "7609bde81621.mp3",
   "who": "coach",
   "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
-  "dur": 2.76,
-  "bytes": 16797,
-  "text": "Second, she showed her where the tax is printed."
+  "dur": 3.46,
+  "bytes": 20973,
+  "text": "Second, she showed the woman where the tax is printed."
  },
  "d4670c08188c": {
   "file": "d4670c08188c.mp3",
@@ -1467,10 +1507,10 @@
   "file": "8f250d52f639.mp3",
   "who": "ben",
   "voice": "el:cjVigY5qzO86Huf0OWal:0.88",
-  "dur": 2.33,
-  "bytes": 14205,
+  "dur": 2.42,
+  "bytes": 14781,
   "text": "Sorry, but are you a volunteer or not?",
-  "take": 1
+  "take": 4
  },
  "b9a2229667bb": {
   "file": "b9a2229667bb.mp3",

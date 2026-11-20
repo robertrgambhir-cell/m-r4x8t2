@@ -35,6 +35,10 @@ Every rule here came from Robert testing the app on his phone. Each one says wha
 
 10. **A FaceTime call, not a transcript (Robert, Nov 15).** The voter fills the screen edge to edge, the button floats over the picture, and only the latest lines show as captions (on a short phone, only the voter's). Her face sits in the top third of the picture and the captions sit over her chest, never her face (Robert, Nov 16: "We want to be able to see their face there moving"). Every voter has a normal upper body, square shoulders, arms at the sides and a neckline, not a long rounded tube (Robert, Nov 16, version 171). *Enforced:* versions 168, 169, 170 and 171 (the app pages; version 170 draws a taller doorway on the conversation screen); test165.cjs checks the layout.
 
+## The signature course's passersby (ai/sig/grade.js)
+
+11. **Nobody answers a question that wasn't asked (Robert, Nov 20).** A passerby says they're registered, or that they aren't, only after the canvasser asks. One who has only heard what the petition is for says "Oh, the library? What do you need?", answers the registered question if it comes next and walks on if it doesn't. Before: Ben, Soo-jin and Luis could say "I'm registered" when nobody had asked (Sig 2.1 and 2.6). After: the line above, for lesson 2's four passersby and the woman in scrubs in lessons 1 and 3. A passerby who asked "What's this?" stays to hear the answer, and the woman in scrubs says "Me? I vote in every election." only to a question about voting; to anything else she waits (Nov 20 review). *Enforced:* the "lib" branch in talk() for 2.ben, 2.stop, 2.kayla, 1.marisol and 3.marisol (ai/sig/grade.js); sig-grade.test.mjs replays his cases and the new sigscripts path "lib" walks it in the browser. Playbook rule 37b.
+
 ## Changelog
 
 - 2026-11-16: written from Robert's Nov 15 and 16 phone runs (versions 165 to 169, practice AI 165-1 to 165-7).
@@ -42,3 +46,4 @@ Every rule here came from Robert testing the app on his phone. Each one says wha
 - 2026-11-16: version 170 and practice AI 165-10. The face sits above the captions; a goodbye from the canvasser closes the door with no question tacked on (found by test156 while checking version 170).
 - 2026-11-17: practice AI 165-12 and version 172 from Robert's 7:54 PM PT run (the open door question; waiting through a mid-thought pause). 24 of 24 replays pass live.
 - 2026-11-17: practice AI 165-13 from Robert's 8:34 PM PT run (his question answered first).
+- 2026-11-20: rule 11 for the signature course's passersby, from Robert's answer to the build's question on Sig 2.1 and 2.6 (curriculum version 5).

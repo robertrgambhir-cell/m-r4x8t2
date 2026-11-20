@@ -1,5 +1,5 @@
 /* The signature course's browser walks: what the stand-in canvasser says and taps in each one (used by sig-walk.cjs and sig-time.cjs). "show" visits every screen, including a correction and a retry. */
-const OPENER = "Hi there! Longer library hours. Are you registered to vote in LA County?";
+const OPENER = "Hi there! This petition is for longer library hours. Are you registered to vote in LA County?"; /* the course's opener since version 3 */
 const PAID = "I'm paid to gather signatures, and here are the top funders.", TWO = "It funds longer evening and weekend hours at branch libraries, and it's paid for by a new state tax on digital ad sales.", DBL = "Have you signed this one already?", ASK = "Will you sign to put it on the ballot?";
 const WALK = "Print your name here, then sign, then the address where you're registered to vote.";
 module.exports = {
@@ -11,8 +11,10 @@ module.exports = {
   2: { show: ["Hi, do you have a minute?", OPENER, OPENER, "No problem. Have a good one!", "Hi there! Save our libraries! Are you registered to vote in LA County?", "Hi! Longer library hours. Are you registered to vote?"],
        perfect: [OPENER, OPENER, OPENER, "Thanks anyway!", OPENER],
        normal: ["Hi, do you have a minute for the library?", OPENER, OPENER, "No problem. Have a good one!", "Hi! Longer library hours. Are you registered to vote?"], tapsNormal: [1, 1, 3, 0],
-       pieces: ["Hi there! Longer library hours!", "Are you registered to vote in LA County?", "Are you registered to vote in LA County?", "Hi there, longer library hours.", OPENER, "You can sign anyway.", "Sorry to bother you. Got a second?", "It's about the library."],
-       taps: [0, 1, 1, 0] },
+       pieces: ["Hi there! Longer library hours!", "Are you registered to vote in LA County?", "Are you registered to vote in LA County?", "Hi there, longer library hours.", OPENER, "You can sign anyway.", "Sorry to bother you. Got a second?", "It's about the library.", "Are you registered to vote in LA County?"], /* since v5 the man in the apron stays for the question once he hears what it's about */
+       taps: [0, 1, 1, 0],
+       /* version 5 (Nov 20): told only what it's for, each passerby asks "Oh, the library? What do you need?" and answers the registered question that follows */
+       lib: ["Hi there! This petition is for longer library hours.", "Are you registered to vote in LA County?", "Hi there! This petition is for longer library hours.", "Are you registered to vote in LA County?", "Hi! Signatures for longer library hours!", "Are you registered to vote in LA County?", "No problem. Have a good one!", "Hi there! Support your library!", "Are you registered to vote in LA County?"] },
   3: { untrue1: ["It's free, it won't cost you a thing. Will you sign?", OPENER, [PAID, "It gives libraries more hours and it won't cost you a thing.", DBL, ASK].join(" "), OPENER, [PAID, "It keeps our libraries from closing.", DBL, ASK].join(" "), "It's the Neighborhood Libraries Act, for longer library hours.", "No problem, once is enough. Thanks!"],
        must2: ["It's for longer library hours. " + DBL, ASK, OPENER, [TWO, DBL, ASK].join(" "), OPENER, [TWO, DBL, ASK].join(" "), "It's the Neighborhood Libraries Act, for longer library hours.", "No problem, once is enough. Thanks!"],
        show: ["It's for longer library hours. " + DBL, ASK, OPENER, [TWO, DBL].join(" "), ASK, OPENER, [PAID, "It funds longer evening and weekend hours at branch libraries.", DBL, ASK].join(" "), "It's the Neighborhood Libraries Act, for longer library hours.", "No problem, once is enough. Thanks!"],

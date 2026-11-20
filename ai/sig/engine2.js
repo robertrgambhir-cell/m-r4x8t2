@@ -113,10 +113,13 @@ function sources() {
 }
 /* what you said, shown whole or not at all: no clipped words */
 function saidBlock(t) { t = tidy(t).replace(/'/g, "’"); return t && t.length <= 230 ? '<div class="said' + (t.length > 110 ? " sm" : "") + '"><b>You said</b>“' + esc(t) + '”</div>' : ""; }
-function missedLine(p, g, i) { return g.alt && g.alt[i] && p.missedAlt ? p.missedAlt : p.missed; }
+/* the missed line for how the part was missed (playbook rule 22a): a named way first (g.miss[i] picks the part's "missed" plus that name,
+   like missedLong), then the second line, then the plain one */
+function namedMiss(p, g, i) { return g.miss && g.miss[i] && p["missed" + g.miss[i]] ? p["missed" + g.miss[i]] : ""; }
+function missedLine(p, g, i) { return namedMiss(p, g, i) || (g.alt && g.alt[i] && p.missedAlt ? p.missedAlt : p.missed); }
 /* a missed part, as a row. Where the script's "missed" line wouldn't be true of what happened (the paid line came late, a no was
    met with "Hmm."), the row is the part's own name under "Watch for", the 1st try card's words. */
-function fixRow(p, g, i) { return g.vague && g.vague[i] && !(g.alt && g.alt[i] && p.missedAlt) ? (p.missedVague ? row("fix", p.missedVague) : row("fix", p.name, SH.try1.watch)) : row("fix", missedLine(p, g, i)); }
+function fixRow(p, g, i) { if (namedMiss(p, g, i)) return row("fix", namedMiss(p, g, i)); return g.vague && g.vague[i] && !(g.alt && g.alt[i] && p.missedAlt) ? (p.missedVague ? row("fix", p.missedVague) : row("fix", p.name, SH.try1.watch)) : row("fix", missedLine(p, g, i)); }
 /* something untrue, or a promise: what was said, the true words, and (on a scored try) one more time */
 function fixBlock(g, again) {
   if (g.promise && !g.untrue) return '<div class="callout must"><b class="cl">' + q(SH.promise) + '</b></div>';

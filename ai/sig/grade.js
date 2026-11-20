@@ -26,8 +26,9 @@ var SIGG = (function () {
     new RegExp("\\b(?:clos(?:ing|ure|ures)|shut(?:ting)? down|shutdowns?)\\b(?: [a-z']+){0,4}? " + LIB + "\\b"),
     new RegExp("\\b(?:stop|stops|stopping|prevent|prevents|preventing|fight|fighting|end|ending|block|blocking)\\b(?: [a-z']+){0,3}? (?:clos(?:ing|ure|ures|ings)|shut ?downs?)\\b"),
     new RegExp("\\bkeep(?:s|ing)?\\b(?: [a-z']+){0,3}? " + LIB + " open\\b(?! (?:later|longer|late|more|evenings?|weekends?|nights?|on|at night|till|until|past|after))"),
+    new RegExp("\\b" + LIB + "\\b(?: [a-z']+){0,2}? stay(?:s|ing)? open\\b(?! (?:later|longer|late|more|evenings?|weekends?|nights?|on|at night|till|until|past|after))"), /* "help our libraries stay open" (Nov 20) */
   ];
-  var COST = /\bfree\b|\bno (?:new |more |extra )?tax(?:es)?\b|\b(?:won't|wont|will not|doesn't|doesnt|does not|isn't going to|not going to) cost\b|\b(?:no|zero) cost\b|\bwithout (?:raising|new|any) tax(?:es)?\b|\bnot a tax\b/;
+  var COST = /\bfree\b|\bno (?:new |more |extra )?tax(?:es)?\b|\b(?:won't|wont|will not|doesn't|doesnt|does not|isn't going to|not going to) cost\b|\b(?:no|zero) cost\b|\bwithout (?:raising|new|any) tax(?:es)?\b|\bnot a tax\b|\bcosts? (?:you |taxpayers |anyone |anybody )?nothing\b/;
   /* a statement about being registered isn't the question */
   var STATEMENT = /\b(?:have to be|has to be|need to be|needs to be|must be|should be|gotta be|got to be|only|if you're|if you are|if they're|who are|who's|who is|i'm|i am|we're|we are|not|looking for|for)$/;
   var MID = /\b(?:um+|uh+|uhm|er+|erm|hmm+|ah|and|but|so|or|because|cause|i|i'?m|i am|my|me|we|we'?re|our|the|a|an|to|for|with|of|in|on|at|about|from|like|just|that|this|is|are|was|am|be|it'?s|you|your|who|what|if|then|also|really|very|here|registered|vote|la|los|angeles|library|longer|hi|hello|hey)$/i;
@@ -86,20 +87,27 @@ var SIGG = (function () {
     return best;
   }
 
-  /* lesson 2's part 2 (version 3): the topic has to come inside a sentence that says what the petition is for. The grader
-     listens for the topic words after "for" or a verb ("is", "funds", "keeps"), within a few words, outside the registered
-     question. "Longer library hours." on its own is only the topic. */
-  /* a verb that makes the topic part of a sentence ("This petition is for", "I'm gathering signatures for", "It funds"); "for" on
-     its own isn't one ("For longer library hours!"), and neither is the measure's name ("It's the Neighborhood Libraries Act.") */
-  var VERB = /^(?:is|are|am|was|i'm|we're|it's|that's|this's|petition's|here's|what's|its|funds?|funding|keeps?|keeping|gives?|giving|adds?|extends?|expands?|means|would|will|brings?|pays|opens?|makes?|gets?|gathering|collecting|getting|asking|want|wants|need|needs|trying|pushing|proposes?)$/;
+  /* lesson 2's part 2 (version 5, Robert, Nov 20, 12:21 AM; playbook rule 27a): it counts when the opener names the hours (longer,
+     more, evening or weekend hours) after "for" or after a verb, whatever the grammar. "Signatures for longer library hours!" counts.
+     "Support your library!" and "This petition is for the library." don't, because they never say what it does, and neither do the
+     hours on their own ("Longer library hours."). The words have to sit outside the registered question. */
+  /* the verbs that can come before the hours ("This petition is", "I'm gathering signatures", "It funds"), with "for" counted too */
+  var VERB = /^(?:is|are|am|was|i'm|we're|it's|that's|this's|petition's|here's|what's|its|funds?|funding|keeps?|keeping|gives?|giving|adds?|extends?|expands?|means|would|will|brings?|pays|opens?|makes?|gets?|gathering|collecting|getting|asking|want|wants|need|needs|trying|pushing|proposes?|supports?|supporting|backs?|backing|wins?|winning|help|helps|helping|hear|hearing|sign|signing|imagine|see|fight|fighting|vote|voting|like|love|deliver|delivers|restore|restores|demand|demanding)$/;
   var AFTER = /^(?:is|are|was|it's|that's|this's|what's|means|would|will)$/; /* the topic first: "Longer library hours is what this petition is for." */
-  function topicSentence(t, q, g) {
-    var at = 0, ws = t.replace(/\bneighborhood librar(?:y|ies) act\b/g, "the measure").split(" ").map(function (w) { var o = { w: w, at: at }; at += w.length + 1; return o; }).filter(function (x) { return x.w && x.w !== "?"; });
+  function hoursFor(t, q, g) {
+    var at = 0, ws = t.split(" ").map(function (w) { var o = { w: w, at: at }; at += w.length + 1; return o; }).filter(function (x) { return x.w && x.w !== "?"; });
     var inQ = function (x) { return q && x.at >= q.at && x.at < q.end; };
-    for (var i = 0; i < ws.length; i += 1) {
-      if (inQ(ws[i]) || !/^librar|^branch/.test(ws[i].w)) continue;
-      for (var j = Math.max(g, i - 9); j < i; j += 1) if (!inQ(ws[j]) && VERB.test(ws[j].w)) return true;
-      for (var k = i + 1; k < Math.min(ws.length, i + 7); k += 1) { if (inQ(ws[k])) break; if (AFTER.test(ws[k].w)) return true; }
+    var re = new RegExp(HOURS_RE.source, "g"), m;
+    while ((m = re.exec(t))) {
+      var s = m.index, e = s + m[0].length, first = -1, last = -1, inside = q && s >= q.at && s < q.end;
+      for (var k = 0; k < ws.length; k += 1) { if (first < 0 && ws[k].at + ws[k].w.length > s) first = k; if (ws[k].at < e) last = k; }
+      if (first < 0) continue;
+      if (!inside && /^(?:keep|keeps|keeping|extends?|expands?|lengthens?|stay|stays|staying)\b/.test(m[0])) return true; /* the verb is part of the match: "keep libraries open later" */
+      for (var j = Math.max(g, first - 9); j < first; j += 1) {
+        if (ws[j].w === "for" && j >= first - 2) return true; /* "for longer library hours", even inside the registered question */
+        if (!inQ(ws[j]) && (ws[j].w === "for" || VERB.test(ws[j].w))) return true;
+      }
+      for (var n = last + 1; n < Math.min(ws.length, last + 7); n += 1) { if (inQ(ws[n])) break; if (AFTER.test(ws[n].w)) return true; }
     }
     return false;
   }
@@ -123,16 +131,19 @@ var SIGG = (function () {
       if (seen <= g || FILLER.test(w) || (q && here >= q.at)) return; /* only what comes before the question counts toward "runs past about 12 words" */
       explWords += 1;
     });
-    var long = explWords > 13; /* "runs past about 12 words": one word of grace for a recognizer's extra word */
-    var sentence = libAny && topicSentence(t, q, g), topicOnly = libAny && !sentence && !untrue && !long;
+    var long = !!q && explWords > 13; /* "runs past about 12 words" before the question: one word of grace for a recognizer's extra word. With no question it can't run long before it. */
+    var hoursAny = HOURS_RE.test(t), topic = libAny || hoursAny, sentence = hoursAny && hoursFor(t, q, g), topicOnly = topic && !sentence && !untrue && !long;
     var sorryWord = !!(tm && /sorry|pardon|apolog|excuse|bother/.test(tm[0])), sorryFirst = sorryWord && (!q || timeAt < q.at);
     var hits = [g > 0, sentence && !untrue && !long, !!(q && q.county), timeAt < 0];
     return {
       hits: hits, n: hits.filter(Boolean).length, text: String(text || "").trim(), norm: t,
-      greet: g > 0, topic: libAny, sentence: sentence, topicOnly: topicOnly, long: long, explWords: explWords, untrue: untrue, untrueSaid: um, promise: promise,
+      greet: g > 0, topic: topic, sentence: sentence, hours: sentence, topicOnly: topicOnly, long: long, explWords: explWords, untrue: untrue, untrueSaid: um, promise: promise,
       alt: [false, topicOnly, false, sorryFirst], /* the second "missed" lines: only the topic, and an apology first */
       /* missed in a way no missed line describes: it ran long or wasn't true (the untrue card says that), or a sorry after the question */
-      vague: [false, libAny && !topicOnly && (long || !!untrue), false, sorryWord && !sorryFirst],
+      vague: [false, topic && !topicOnly && (long || !!untrue), false, sorryWord && !sorryFirst],
+      /* how a part was missed when its plain line wouldn't be true (playbook rule 22a): something the measure doesn't say, too much
+         before the question, a sorry after the question */
+      miss: [null, untrue ? "Untrue" : topic && long ? "Long" : null, null, sorryWord && !sorryFirst ? "Sorry" : null],
       regAsked: !!q, regAt: q ? q.at : -1, county: !!(q && q.county), timeAt: timeAt, timeSaid: tm ? tm[0] : "",
       /* what the passerby hears first, a request for time or the registered question */
       first: timeAt >= 0 && (!q || timeAt < q.at) ? "time" : q ? "reg" : "none",
@@ -225,7 +236,9 @@ var SIGG = (function () {
   var ASK_RE = /\b(?:will|would|can|could|won't|wouldn't) (?:you|ya|u)(?: (?:please|be willing to|like to|want to|be able to|mind|care to|go ahead and|add your name and))* sign(?:ing)?\b|\b(?:want|wanna|like|care|willing|ready|able|happy) (?:to )?sign\b|\bwanna sign\b|\b(?:can|could|may|might) i (?:get|have|grab) (?:your|a|ur) (?:signature|autograph|john hancock)\b|\b(?:get|have|need) your signature\b|\badd your (?:name|signature)\b|\bput your (?:name|signature)\b|\bhow about (?:a|your) signature\b|\byour signature \?/;
   var PRESS_RE = /\byou (?:have|need|got|gotta|ought|are going) to sign\b|\byou (?:must|should|better|gotta) sign\b|\bevery(?:body|one)(?:'s| is| else is| has| else has) sign|\bjust sign\b|\bsign it already\b/;
   var DBL_RE = /\b(?:have|did|haven't|didn't|had|has) (?:you|ya|u|he|she)(?: guys| already| ever| maybe| possibly)* (?:sign|signed|seen and signed)\b|\b(?:already|previously) sign(?:ed)?\b|\bsign(?:ed)? (?:this|it|that|one|the [a-z]+)(?: [a-z']+){0,3} (?:already|before|yet)\b|\bsign(?:ed)? (?:already|before)\b|\bfirst time (?:signing|seeing)\b/;
-  var HOURS_RE = /\b(?:longer|more|extended|extra|later|additional|added|expanded) (?:[a-z']+ ){0,3}?hours\b|\bhours\b(?: [a-z']+){0,4}? (?:longer|later)\b|\b(?:evenings?|weekends?|nights?)\b(?: [a-z']+){0,4}? (?:hours|open)\b|\bopen (?:later|longer|more|late|evenings?|weekends?|nights?|on (?:evenings|weekends|nights))\b|\bstays? open\b|\bkeep(?:s|ing)?\b(?: [a-z']+){0,4}? open (?:later|longer|late|more|evenings?|weekends?|nights?)\b|\b(?:extends?|expands?|lengthens?)\b(?: [a-z']+){0,4}? hours\b/;
+  /* the words that can sit inside "longer ... hours" (Nov 20 review: "more signatures for library hours" isn't the hours) */
+  var HW = "(?:library|libraries|library's|branch|branches|evening|evenings|weekend|weekends|night|nights|and|open|opening|public|neighborhood|local|our|the|their)";
+  var HOURS_RE = new RegExp("\\b(?:longer|more|extended|extra|later|additional|added|expanded) (?:" + HW + " ){0,3}?hours\\b|\\bhours\\b(?: (?:open|a|bit|little|lot|much|each|every|day|night|at|the|library|libraries|branch|branches|stay|stays|staying|run|runs|go|goes)){0,3} (?:longer|later)\\b|\\b(?:evenings?|weekends?|nights?)\\b(?: " + HW + "){0,3}? (?:hours|open)\\b|\\bopen (?:later|longer|more|late|evenings?|weekends?|nights?|on (?:evenings|weekends|nights))\\b|\\bstay(?:s|ing)? open (?:later|longer|late|more|evenings?|weekends?|nights?)\\b|\\bkeep(?:s|ing)?\\b(?: [a-z']+){0,4}? open (?:later|longer|late|more|evenings?|weekends?|nights?)\\b|\\b(?:extends?|expands?|lengthens?)\\b(?: [a-z']+){0,4}? hours\\b");
   var TAX_RE = /\btax(?:es|ed)?\b/;
   /* something untrue about the measure or about being paid, in any lesson (the scoring contract): what kind, and the words */
   function untrueOf(t, raw) {
@@ -251,6 +264,7 @@ var SIGG = (function () {
       untrue: untrue, untrueSaid: untrue ? (untrueOf(t, text) || { said: "" }).said : "", promise: promise, heardTopic: /\blibrar|\bpetition\b|\bballot\b|\bmeasure\b|\bsignatures?\b|\bhours\b|\binitiative\b|\bact\b/.test(t),
       /* a part that was missed in a way its "missed" line doesn't describe: the paid line said after the ask, or pressure in place of an ask */
       vague: [!(paid && fun) && ((paidAt >= 0 && !paid) || (sheet && funAt >= 0 && !before(funAt))) && paidAt >= 0, false, false, press && askAt < 0],
+      miss: [paid && sheet && funAt >= 0 && !before(funAt) ? "FundersLate" : null, closing || cost ? "Untrue" : null, null, null], /* the funders shown after the ask; part 2 with something the measure doesn't say (rule 22a) */
     };
   }
   /* a passerby who thinks he signed already: thank him and let him go */
@@ -344,7 +358,10 @@ var SIGG = (function () {
             var hi = hello(); if (hi) return hi;
             if (fallback(mine())) return out([], true); /* hello again and nothing more: she walks on */
             if (whyNow && !S.waited) { S.waited = true; return out([]); } /* told why before any question: she listens */
-            S.answered = true; return out(["askOther"]); /* asked anything else: "Me? I vote in every election. Why do you ask?" */
+            var voteQ = /\bvot(?:e|es|er|ers|ing)\b/.test(tm) && (/\?/.test(mine()) || /\b(?:do|are|have|did|will|would|can|could|were|is)\s+(?:you|ya|u)\b/.test(tm));
+            if (!voteQ && !S.libbed && grade(mine(), st).topic) { S.libbed = true; return out(["lib"]); } /* told only what it's for: "Oh, the library? What do you need?" (rule 37b) */
+            if (voteQ) { S.answered = true; return out(["askOther"]); } /* another question about voting: "Me? I vote in every election. Why do you ask?" */
+            return out([]); /* anything else: she waits for the question (rule 37b) */
           }
           if (whyNow) return out(["yes"], true);
           if (bye(mine())) return out([], true);
@@ -366,9 +383,9 @@ var SIGG = (function () {
           if (bye(mine())) return out(["fBye"], true);
           var hi = hello(); if (hi) return hi;
           if (PRESS_RE.test(norm(mine())) && !saidK("fPush")) return out(["fPush"]);
+          if (g.topic && !S.libbed) { S.libbed = true; return out(["lib"]); } /* told what it's for, now or after his own question: "Oh, the library? What do you need?" (rule 37b) */
           if (S.asked && !S.asked2 && !g.topic) { S.asked2 = true; return out(["other"]); } /* a dodge: his question once more, then he moves on */
-          if (S.asked || S.looked) return out(["@go"], true);
-          if (g.topic) { S.looked = true; return out(["@look"]); }
+          if (S.asked || S.libbed) return out(["@go"], true);
           S.asked = true; return out(["other"]);
         },
         grade: function () { var g = grade(join(), st); g.quote = join(); return g; },
@@ -377,14 +394,14 @@ var SIGG = (function () {
         hear: function () {
           var g = grade(join(), st);
           if (S.said.indexOf("stop") >= 0) return out([], true);
-          if (g.regAsked && (g.topic || S.asked || S.looked)) return out(["stop"], true);
+          if (g.regAsked && (g.topic || S.asked || S.libbed)) return out(["stop"], true);
           if (!g.regAsked && bye(mine())) return out(["fBye"], true);
           if (!g.regAsked) { var hi = hello(); if (hi) return hi; }
           if (g.regAsked) { S.asked = true; return out(["stop", "other"]); }
           if (PRESS_RE.test(norm(mine())) && !saidK("fPush")) return out(["fPush"]);
+          if (g.topic && !S.libbed) { S.libbed = true; return out(["lib"]); } /* told what it's for, now or after their own question: "Oh, the library? What do you need?" */
           if (S.asked && !S.asked2 && !g.topic) { S.asked2 = true; return out(["other"]); } /* a dodge: the question once more, then they move on */
-          if (S.asked || S.looked) return out(["@go"], true);
-          if (g.topic) { S.looked = true; return out(["@look"]); }
+          if (S.asked || S.libbed) return out(["@go"], true);
           S.asked = true; return out(["other"]);
         },
         grade: function () { var g = grade(join(), st); g.quote = join(); return g; },
@@ -396,7 +413,8 @@ var SIGG = (function () {
           if (bye(mine())) return out(["fBye"], true);
           var hi = hello(); if (hi) return hi;
           if (PRESS_RE.test(norm(mine())) && !saidK("fPush")) return out(["fPush"]);
-          if (!S.looked) { S.looked = true; return out(["@look"]); }
+          if (grade(join(), st).topic && !S.libbed) { S.libbed = true; return out(["lib"]); } /* told what it's for, she asks what you need (rule 37b) */
+          if (!S.looked && !S.libbed) { S.looked = true; return out(["@look"]); }
           return out(["@go"], true);
         },
         grade: function () { var n = S.phase === 1 ? S.mark : P.length, g = grade(join(0, n), st); g.quote = join(0, n); g.asked = S.phase === 1; g.from = S.phase === 1 && P.length > S.mark && letGo(join(S.mark)); return g; },
@@ -423,11 +441,14 @@ var SIGG = (function () {
       "3.marisol": { /* the opener and the ask, in as many pieces as they come. Every piece is scored together. */
         hear: function () {
           var g = grade3(join(), st), gm = grade3(mine(), st), o = grade(mine(), st), say = [];
-          if (P.length === 1) S.openerOnly = !(PAID_RE.test(norm(mine())) || FUND_RE.test(norm(mine())) || TAX_RE.test(norm(mine())) || gm.dbl || gm.ask);
-          var room = P.length < CAP + (S.openerOnly ? 1 : 0); /* the opener is lesson 2's; the ask that follows gets its four lines */
+          var tmn = norm(mine()), opPiece = !(PAID_RE.test(tmn) || FUND_RE.test(tmn) || TAX_RE.test(tmn) || gm.dbl || gm.ask);
+          if (P.length === 1) S.openerOnly = opPiece;
+          if (!S.opDone) { if (opPiece && (S.op || 0) < 2) S.op = (S.op || 0) + 1; else S.opDone = true; }
+          var room = P.length < CAP + (S.op || 0); /* the opener is lesson 2's, in as many as two pieces; the ask that follows gets its four lines */
           if (o.regAsked && !saidK("reg")) say.push("reg");
           /* her first words: asked whether she's registered, she says so; told nothing about the petition, "Hi. What's this one for?" */
           if (P.length === 1 && !o.regAsked && S.openerOnly && !adds3(mine()) && !bye(mine())) { var f0 = fallback(mine()); if (f0 !== "fSmall") say.push("what"); else say.push("fSmall"); }
+          else if (P.length === 1 && !o.regAsked && S.openerOnly && o.topic && !bye(mine())) say.push("lib"); /* told only what it's for: "Oh, the library? What do you need?" */
           if (gm.dbl && !saidK("dbl")) say.push("dbl");
           if (gm.ask) return out(say.concat(["yes"]), true);
           if (gm.press) return out(say.concat(saidK("fPush") ? [] : ["fPush"]), false, room);
@@ -550,7 +571,7 @@ var SIGG = (function () {
   /* lesson 2's score: the best of the openers, with "said sorry" told apart from "asked for a minute" */
   function score2(tries) {
     var k = best(tries), pick = k >= 0 ? k : (function () { var b = -1; tries.forEach(function (x, i) { if (x && (b < 0 || x.n >= tries[b].n)) b = i; }); return b; })(), g = tries[pick] || { hits: [false, false, false, false], n: 0 };
-    return { hits: g.hits.slice(), n: g.n, pick: pick, alt: (g.alt || [false, !!g.topicOnly, false, sorry(g)]).slice(), vague: (g.vague || [false, false, false, false]).slice(), untrue: g.untrue || null, promise: !!g.promise, text: g.text || "" };
+    return { hits: g.hits.slice(), n: g.n, pick: pick, alt: (g.alt || [false, !!g.topicOnly, false, sorry(g)]).slice(), vague: (g.vague || [false, false, false, false]).slice(), miss: (g.miss || [null, null, null, null]).slice(), untrue: g.untrue || null, promise: !!g.promise, text: g.text || "" };
   }
   function sorry(g) { return !!(g && g.timeSaid && /sorry|pardon|apolog|excuse|bother/.test(g.timeSaid)); }
   /* the musts a scored try missed, as part numbers from 0 */
