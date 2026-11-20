@@ -1,19 +1,113 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Warmup</title>
 <meta name="robots" content="noindex, nofollow">
-<meta property="og:title" content="This link has expired">
-<title>Link expired</title>
+<meta name="theme-color" content="#FCF8F2">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='38' fill='none' stroke='%2335B57C' stroke-width='16'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500&family=Figtree:wght@500;600&display=swap">
 <style>
-  html, body { margin: 0; height: 100%; background: #FCF8F2; }
-  .box { height: 100%; display: grid; place-items: center; text-align: center; padding: 0 24px; font: 17px/1.5 -apple-system, system-ui, sans-serif; color: #262320; }
-  h1 { font-size: 24px; margin: 0 0 8px; }
-  p { margin: 0; color: #6B645C; }
+  :root {
+    --paper: #FCF8F2; --ink: #262320; --gray: #6F685F;
+    --track: #E3DBCF; --green: #35B57C; --deep: #1B7A4D;
+    --display: "Newsreader", Georgia, serif;
+    --body: "Figtree", system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--paper); color: var(--ink);
+    display: grid; place-items: center; min-height: 100svh;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { display: flex; flex-direction: column; align-items: center; gap: clamp(28px, 5vw, 48px); padding: 24px; }
+
+  /* Lockup: the ring sits like a round letter, top at cap height, bottom just under the baseline */
+  .lockup { display: flex; align-items: flex-start; gap: 0.18em; font-size: clamp(44px, 13vw, 144px); }
+  .word { font-size: 1em; font-family: var(--display); font-weight: 500; line-height: 1; letter-spacing: -0.015em; padding-top: 0.02em; }
+  .ring-btn {
+    all: unset; cursor: pointer; display: block;
+    width: 0.71em; height: 0.71em; margin-top: 0.195em;
+    border-radius: 50%; -webkit-tap-highlight-color: transparent;
+  }
+  .ring-btn:focus-visible { outline: 3px solid var(--deep); outline-offset: 6px; }
+  .ring-btn svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .track { fill: none; stroke: var(--track); stroke-width: 13; }
+  .arc {
+    fill: none; stroke: var(--green); stroke-width: 13; stroke-linecap: round;
+    transform: rotate(-90deg); transform-origin: 50px 50px;
+  }
+  .ring-btn.done svg { animation: settle 700ms cubic-bezier(.2,.8,.2,1); }
+  @keyframes settle { 0% { transform: scale(1); } 40% { transform: scale(1.07); } 100% { transform: scale(1); } }
+
+  .soon {
+    font-family: var(--body); font-weight: 600; font-size: clamp(13px, 1.6vw, 15px);
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--gray);
+    opacity: 0; transform: translateY(6px); transition: opacity 900ms ease, transform 900ms ease;
+  }
+  .soon.show { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .soon { transition: none; }
+    .ring-btn.done svg { animation: none; }
+  }
 </style>
 </head>
 <body>
-<div class="box"><div><h1>This link has expired.</h1><p>Ask the person who shared it for a new one.</p></div></div>
+<main>
+  <div class="lockup">
+    <button class="ring-btn" id="ring" aria-label="Warmup ring. Tap to fill it again.">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <circle class="track" cx="50" cy="50" r="40"/>
+        <circle class="arc" id="arc" cx="50" cy="50" r="40"/>
+      </svg>
+    </button>
+    <h1 class="word">Warmup</h1>
+  </div>
+  <p class="soon" id="soon">Coming soon</p>
+</main>
+<script>
+(function () {
+  var C = 2 * Math.PI * 40;            // ring length
+  var arc = document.getElementById('arc');
+  var ring = document.getElementById('ring');
+  var soon = document.getElementById('soon');
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var raf = null, filling = false;
+
+  function draw(p) { arc.style.strokeDasharray = (C * p).toFixed(2) + ' ' + C.toFixed(2); }
+  function ease(t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+
+  function fill(delay) {
+    if (filling) return;
+    filling = true; ring.classList.remove('done');
+    if (reduce) { draw(1); finish(); return; }
+    var dur = 2400, start = null;
+    draw(0);
+    setTimeout(function () {
+      raf = requestAnimationFrame(function step(ts) {
+        if (start === null) start = ts;
+        var t = Math.min(1, (ts - start) / dur);
+        draw(ease(t));
+        if (t < 1) raf = requestAnimationFrame(step); else finish();
+      });
+    }, delay || 0);
+  }
+  function finish() {
+    filling = false;
+    void ring.offsetWidth; ring.classList.add('done');
+    soon.classList.add('show');
+  }
+
+  ring.addEventListener('click', function () { fill(0); });
+  draw(0);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { fill(500); });
+  else fill(500);
+})();
+</script>
 </body>
 </html>
