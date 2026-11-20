@@ -25,7 +25,7 @@ Do all of this in the same session, before you finish:
 
 ## Never
 
-- Never publish to the live site (push or merge to the branch the site is served from, or deploy the AI server) until Robert says "ship it."
+- Never publish to the live site (push or merge to the branch the site is served from, or deploy the AI server) until Robert says "ship it." One exception (Robert, Nov 20, 2026): the signature thread keeps pushing the signature course's review builds to `main`, where they show at the course's unlisted review link for Robert to try on his phone. A review push leaves the other courses and the AI server's code as they were. For that course, "ship it" means opening the lessons to canvassers. See rule B3 in `rules/training-playbook.md`.
 - Never add a rule Robert didn't give. Claude's own ideas go in `rules/proposals.md` until he approves them.
 - The Record, Convictions, Prices, Systems sort of issues is not a rule (Robert, Nov 19, 2026). Keep it as history only.
 - Nothing from the signature course goes public before a lawyer has reviewed it (Robert, Nov 18). Internal builds and private demos are fine.
@@ -43,7 +43,7 @@ Plain, short and warm. Lead with what he needs to do. Mark guesses as guesses. N
 
 ## This repo: the app and the live site
 
-- **This repo is public and it is the live site.** GitHub Pages serves the `main` branch at yourwarmup.com, the whole repo from its top folder. A file anywhere in it, outside a folder whose name starts with a dot, can be read on the web, markdown included. Every push to `main` also redeploys the AI server (`ai/README.md`). So a push or a merge to `main` is publishing: do neither until Robert says "ship it." Work on a branch.
+- **This repo is public and it is the live site.** GitHub Pages serves the `main` branch at yourwarmup.com, the whole repo from its top folder. A file anywhere in it, outside a folder whose name starts with a dot, can be read on the web, markdown included. Every push to `main` also redeploys the AI server (`ai/README.md`). So a push or a merge to `main` is publishing: do neither until Robert says "ship it." Work on a branch. The one exception is the signature course's review builds (see "Never").
 - **No rule files here.** They live in the private repo (see "Where the rules live"). The one exception is `ai/voter-rules.md`, which stays beside the server code and tests that enforce it.
 - **This file sits in `.claude/`** so the website doesn't serve it. Claude Code reads `.claude/CLAUDE.md` the same way as a `CLAUDE.md` at the top of the repo.
 - **The other copy of this file** is `CLAUDE.md` at the top of the issue-trainings repo. Everything above this section is the same in both: change both together.
