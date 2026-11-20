@@ -1,115 +1,132 @@
 {
- "4399bcf90a67": {
-  "file": "4399bcf90a67.mp3",
+ "0447fa356eb5": {
+  "file": "0447fa356eb5.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 7.78,
-  "bytes": 46893,
-  "text": "Welcome. You're about to gather signatures to put the Neighborhood Libraries Act on the ballot. First, a guess."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 3.86,
+  "bytes": 23421,
+  "text": "That part isn't true. Here's the true sentence. Try it once more."
  },
- "5839c69d8476": {
-  "file": "5839c69d8476.mp3",
+ "125ae952c647": {
+  "file": "125ae952c647.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 4.7,
-  "bytes": 28461,
-  "text": "About 25%. Today you learn which ones count, and how to bring that number down."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 4.44,
+  "bytes": 26877,
+  "text": "Only the county decides. Leave out the promise and try it once more."
  },
- "0c06bcc29f58": {
-  "file": "0c06bcc29f58.mp3",
+ "bc594a0a81f6": {
+  "file": "bc594a0a81f6.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 6.41,
-  "bytes": 38685,
-  "text": "Who decides? The county elections office. It pulls up the voter's record and checks four things."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 5.95,
+  "bytes": 35949,
+  "text": "Welcome. You're about to gather signatures to put the Neighborhood Libraries Act on the ballot.",
+  "take": 3
  },
- "e7226c1cd0b9": {
-  "file": "e7226c1cd0b9.mp3",
+ "36955dfa0494": {
+  "file": "36955dfa0494.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 2.21,
-  "bytes": 13485,
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 4.34,
+  "bytes": 26301,
+  "text": "About 25% get thrown out. Today you learn which ones count."
+ },
+ "bcb02eb8c08f": {
+  "file": "bcb02eb8c08f.mp3",
+  "who": "coach",
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 3.36,
+  "bytes": 20397,
+  "text": "The county checks each signer's voter record for four things."
+ },
+ "bddfbdee8456": {
+  "file": "bddfbdee8456.mp3",
+  "who": "coach",
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 2.71,
+  "bytes": 16509,
   "text": "1. Is this person registered to vote?"
  },
- "995754dfa944": {
-  "file": "995754dfa944.mp3",
+ "6ec2bc9c6b3d": {
+  "file": "6ec2bc9c6b3d.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 1.15,
-  "bytes": 7149,
-  "text": "2. In this county?"
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 2.71,
+  "bytes": 16509,
+  "text": "2. Are they registered in this county?"
  },
- "d49da56b047c": {
-  "file": "d49da56b047c.mp3",
+ "b1a2144d60c0": {
+  "file": "b1a2144d60c0.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 1.92,
-  "bytes": 11757,
-  "text": "3. At the address they wrote?"
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 3.26,
+  "bytes": 19821,
+  "text": "3. Are they registered at the address they wrote?"
  },
- "0367aefd01e8": {
-  "file": "0367aefd01e8.mp3",
+ "5eae70937173": {
+  "file": "5eae70937173.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 2.28,
-  "bytes": 13917,
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 3.02,
+  "bytes": 18381,
   "text": "4. Does the signature look like theirs?"
  },
- "e2e84a9d2b92": {
-  "file": "e2e84a9d2b92.mp3",
+ "3d1a34ed7efb": {
+  "file": "3d1a34ed7efb.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 8.76,
-  "bytes": 52797,
-  "text": "Four yeses and it counts. One no and it's thrown out. Only the county decides, so never promise anyone their signature will count."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 10.18,
+  "bytes": 61293,
+  "text": "With four yeses, the signature counts. With one no, it's thrown out. Only the county decides, so never promise anyone their signature will count."
  },
- "dcb4da357ad2": {
-  "file": "dcb4da357ad2.mp3",
+ "58ff6765d946": {
+  "file": "58ff6765d946.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 4.87,
-  "bytes": 29469,
-  "text": "Now you're the county. Six people signed at Westside Market today. Sort each one."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 5.76,
+  "bytes": 34797,
+  "text": "Now you're the county. Five people signed at Westside Market today. Decide which lines count."
  },
- "ab23da8fe551": {
-  "file": "ab23da8fe551.mp3",
+ "b91fb3bb7235": {
+  "file": "b91fb3bb7235.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 5.42,
-  "bytes": 32781,
-  "text": "Look at the four you threw out. Not one was about handwriting. All four were about who signed."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 6.79,
+  "bytes": 40989,
+  "text": "Three of those five lines get thrown out. Not one was about handwriting. All three were about who signed."
  },
- "955adb93aea8": {
-  "file": "955adb93aea8.mp3",
+ "295c94a4ea88": {
+  "file": "295c94a4ea88.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 5.18,
-  "bytes": 31341,
-  "text": "Back to Luis, who signed twice. The county checks a sample, about 3 lines in every 100."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 4.94,
+  "bytes": 29901,
+  "text": "Luis signed twice. The county checks a sample, about 3 lines in every 100."
  },
- "dc65232ed2dd": {
-  "file": "dc65232ed2dd.mp3",
+ "d5549edb4d60": {
+  "file": "d5549edb4d60.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 13.03,
-  "bytes": 78429,
-  "text": "About 1,000. One double in the sample tells the county the stack holds many more. In L.A. County in 2026, 26 doubles in one sample cost a drive about 28,000 signatures."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 6.91,
+  "bytes": 41709,
+  "text": "The drive loses about 1,000. One double in the sample tells the county the stack holds many more."
  },
- "7d86e2f889bf": {
-  "file": "7d86e2f889bf.mp3",
+ "658ae81967e3": {
+  "file": "658ae81967e3.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 8.4,
-  "bytes": 50637,
-  "text": "Ben. Signatures that count are the score. Libraries for All checks your signatures. Your bonus is paid on the ones that count."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 9.48,
+  "bytes": 57117,
+  "text": "Nate had the better hour. Signatures that count are the score. Libraries for All checks your signatures. Your bonus is paid on the ones that count."
  },
- "35f857c87be9": {
-  "file": "35f857c87be9.mp3",
+ "790b9ce1ffa4": {
+  "file": "790b9ce1ffa4.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 8.06,
-  "bytes": 48621,
-  "text": "Here's the question that screens out the most bad lines. Marisol is walking up. Ask her if she's registered to vote in L.A. County."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 8.78,
+  "bytes": 52941,
+  "text": "Here's the question that screens out the most bad lines. A woman in scrubs is walking up. Ask her if she's registered to vote in L.A. County."
  },
  "da35d4e5d01b": {
   "file": "da35d4e5d01b.mp3",
@@ -118,6 +135,14 @@
   "dur": 1.87,
   "bytes": 11469,
   "text": "I am. Why do you ask?"
+ },
+ "442d634bcf27": {
+  "file": "442d634bcf27.mp3",
+  "who": "marisol",
+  "voice": "el:EXAVITQu4vr4xnSDxMaL:0.88",
+  "dur": 3.46,
+  "bytes": 20973,
+  "text": "Me? I vote in every election. Why do you ask?"
  },
  "1d42ed8fd6e1": {
   "file": "1d42ed8fd6e1.mp3",
@@ -135,21 +160,53 @@
   "bytes": 5997,
   "text": "Oh, okay."
  },
- "aeae3bc9d17e": {
-  "file": "aeae3bc9d17e.mp3",
+ "510173be7081": {
+  "file": "510173be7081.mp3",
+  "who": "marisol",
+  "voice": "el:EXAVITQu4vr4xnSDxMaL:0.88",
+  "dur": 0.58,
+  "bytes": 3693,
+  "text": "Hi."
+ },
+ "61bd533eeec5": {
+  "file": "61bd533eeec5.mp3",
+  "who": "marisol",
+  "voice": "el:EXAVITQu4vr4xnSDxMaL:0.88",
+  "dur": 1.25,
+  "bytes": 7725,
+  "text": "I'm good, thanks."
+ },
+ "8920ad14037d": {
+  "file": "8920ad14037d.mp3",
+  "who": "marisol",
+  "voice": "el:EXAVITQu4vr4xnSDxMaL:0.88",
+  "dur": 1.8,
+  "bytes": 11037,
+  "text": "I'd rather decide for myself."
+ },
+ "1fbbc18e0d34": {
+  "file": "1fbbc18e0d34.mp3",
+  "who": "marisol",
+  "voice": "el:EXAVITQu4vr4xnSDxMaL:0.88",
+  "dur": 1.39,
+  "bytes": 8589,
+  "text": "Okay, bye now."
+ },
+ "50279200aa51": {
+  "file": "50279200aa51.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 1.87,
-  "bytes": 11469,
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 2.52,
+  "bytes": 15357,
   "text": "Now watch Lena do the whole job once."
  },
- "d5241c712fe0": {
-  "file": "d5241c712fe0.mp3",
+ "48015756e5f2": {
+  "file": "48015756e5f2.mp3",
   "who": "lena",
   "voice": "el:cgSgspJ2msm6clMCkdW9:0.88",
-  "dur": 5.04,
-  "bytes": 30477,
-  "text": "Hi there! Longer library hours. Are you registered to vote in L.A. County?"
+  "dur": 6.17,
+  "bytes": 37245,
+  "text": "Hi there! This petition is for longer library hours. Are you registered to vote in L.A. County?"
  },
  "5622a9f80317": {
   "file": "5622a9f80317.mp3",
@@ -191,13 +248,13 @@
   "bytes": 3837,
   "text": "Sure."
  },
- "01aef2355a14": {
-  "file": "01aef2355a14.mp3",
+ "4a5b080d005c": {
+  "file": "4a5b080d005c.mp3",
   "who": "lena",
   "voice": "el:cgSgspJ2msm6clMCkdW9:0.88",
-  "dur": 4.13,
-  "bytes": 25005,
-  "text": "Print your name, sign, then the address where you're registered to vote."
+  "dur": 4.82,
+  "bytes": 29181,
+  "text": "Print your name, sign, then write the address where you're registered to vote."
  },
  "328f56a25fe7": {
   "file": "328f56a25fe7.mp3",
@@ -207,29 +264,29 @@
   "bytes": 8445,
   "text": "All set. Thank you!"
  },
- "6c2da5e4fa74": {
-  "file": "6c2da5e4fa74.mp3",
+ "2d0894828f13": {
+  "file": "2d0894828f13.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 4.37,
-  "bytes": 26445,
-  "text": "That's the job. Two of her lines are the law. Say each one once."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 3.43,
+  "bytes": 20829,
+  "text": "Two of Lena's lines are the law. Say each one once."
  },
- "5aeaabe52366": {
-  "file": "5aeaabe52366.mp3",
+ "461f84736714": {
+  "file": "461f84736714.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 1.94,
-  "bytes": 11901,
-  "text": "Good. Those two go with you today."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 2.38,
+  "bytes": 14493,
+  "text": "Good. Take those two lines with you today."
  },
- "b3be95ef6cf4": {
-  "file": "b3be95ef6cf4.mp3",
+ "c96e8768b598": {
+  "file": "c96e8768b598.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 9.34,
-  "bytes": 56253,
-  "text": "You're outside Westside Market with your table and your board. Here comes Ben. He's walking fast. You have five seconds. Get him to stop."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 8.35,
+  "bytes": 50349,
+  "text": "You're outside Westside Market with your table and your board. A man with a coffee is heading for the door. Say hello and see if he'll stop."
  },
  "c2821f6d7752": {
   "file": "c2821f6d7752.mp3",
@@ -255,12 +312,44 @@
   "bytes": 7293,
   "text": "Sorry, what's this?"
  },
- "5171c6b0f434": {
-  "file": "5171c6b0f434.mp3",
+ "735718422134": {
+  "file": "735718422134.mp3",
+  "who": "ben",
+  "voice": "el:cjVigY5qzO86Huf0OWal:0.88",
+  "dur": 0.53,
+  "bytes": 3405,
+  "text": "Hi."
+ },
+ "a83fb96f06c9": {
+  "file": "a83fb96f06c9.mp3",
+  "who": "ben",
+  "voice": "el:cjVigY5qzO86Huf0OWal:0.88",
+  "dur": 1.18,
+  "bytes": 7293,
+  "text": "I'm good, thanks."
+ },
+ "43cca5785473": {
+  "file": "43cca5785473.mp3",
+  "who": "ben",
+  "voice": "el:cjVigY5qzO86Huf0OWal:0.88",
+  "dur": 1.63,
+  "bytes": 10029,
+  "text": "I'd rather decide for myself."
+ },
+ "fd3b7f857ea9": {
+  "file": "fd3b7f857ea9.mp3",
+  "who": "ben",
+  "voice": "el:cjVigY5qzO86Huf0OWal:0.88",
+  "dur": 0.94,
+  "bytes": 5853,
+  "text": "Okay, bye now."
+ },
+ "3a0c94914800": {
+  "file": "3a0c94914800.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 1.92,
-  "bytes": 11757,
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 2.4,
+  "bytes": 14637,
   "text": "Now listen to Lena. She does this all day."
  },
  "0a35b1f9a4cc": {
@@ -271,37 +360,37 @@
   "bytes": 6717,
   "text": "I am, yeah."
  },
- "362cdc6d366f": {
-  "file": "362cdc6d366f.mp3",
+ "49037e875ada": {
+  "file": "49037e875ada.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 1.3,
-  "bytes": 8013,
-  "text": "One. She said hi first."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 1.49,
+  "bytes": 9165,
+  "text": "First, she said hi."
  },
- "fba9d48ac11c": {
-  "file": "fba9d48ac11c.mp3",
+ "3c4fc6067033": {
+  "file": "3c4fc6067033.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 2.9,
-  "bytes": 17661,
-  "text": "Two. She said what it's for in three true words."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 3.72,
+  "bytes": 22557,
+  "text": "Second, she said what the petition is for in one short sentence."
  },
- "221cfd1c3bb5": {
-  "file": "221cfd1c3bb5.mp3",
+ "6330849e0f89": {
+  "file": "6330849e0f89.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 7.75,
-  "bytes": 46749,
-  "text": "Three. She asked if Tanya is registered to vote in L.A. County. A yes means Tanya can sign, and now they're talking."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 7.8,
+  "bytes": 47037,
+  "text": "Third, she asked if the woman is registered to vote in L.A. County. A yes means she can sign, and now they're talking."
  },
- "adeb776903f1": {
-  "file": "adeb776903f1.mp3",
+ "9f02d43beafb": {
+  "file": "9f02d43beafb.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 4.2,
-  "bytes": 25437,
-  "text": "Four. She never asked for a minute. The whole thing took five seconds."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 4.66,
+  "bytes": 28173,
+  "text": "Fourth, she never asked for a minute. The whole thing took about five seconds."
  },
  "22764a1662e2": {
   "file": "22764a1662e2.mp3",
@@ -315,57 +404,58 @@
   "file": "0d3eabf555ba.mp3",
   "who": "lena",
   "voice": "el:cgSgspJ2msm6clMCkdW9:0.88",
-  "dur": 1.51,
-  "bytes": 9309,
-  "text": "No problem. Have a good one!"
+  "dur": 1.63,
+  "bytes": 10029,
+  "text": "No problem. Have a good one!",
+  "take": 1
  },
- "1745e3b1681c": {
-  "file": "1745e3b1681c.mp3",
+ "c5a359557b89": {
+  "file": "c5a359557b89.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 6.46,
-  "bytes": 38973,
-  "text": "Dwayne can't sign, so Lena lets him go and turns to the next person. That 'no' just saved her a minute."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 7.2,
+  "bytes": 43437,
+  "text": "That man can't sign, so Lena lets him go and turns to the next person. His 'no' just saved her a minute."
  },
- "bf547fb5a55a": {
-  "file": "bf547fb5a55a.mp3",
+ "db26b8b77e1e": {
+  "file": "db26b8b77e1e.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 2.78,
-  "bytes": 16941,
-  "text": "Words are half of it. The other half is where you stand."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 3.67,
+  "bytes": 22269,
+  "text": "Words are half the job. The other half is where you stand."
  },
- "ba5459a41460": {
-  "file": "ba5459a41460.mp3",
+ "0d6db75e7b0a": {
+  "file": "0d6db75e7b0a.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 5.57,
-  "bytes": 33645,
-  "text": "B. People stop for someone who is up, looking at them and ready. The table is where your things sit."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 8.11,
+  "bytes": 48909,
+  "text": "B is right. People stop for someone who is standing, looking at them and ready. The table is just where your things sit."
  },
- "0e49c990c611": {
-  "file": "0e49c990c611.mp3",
+ "2ee3b022d19d": {
+  "file": "2ee3b022d19d.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 5.71,
-  "bytes": 34509,
-  "text": "B. Stand where people pass, and never block the way. Anyone who wants to keep walking can."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 7.3,
+  "bytes": 44013,
+  "text": "B is right. Stand where people pass, and never block the way. Anyone who wants to keep walking can."
  },
- "9a3292aff9b0": {
-  "file": "9a3292aff9b0.mp3",
+ "f27f8c35b172": {
+  "file": "f27f8c35b172.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 3.05,
-  "bytes": 18525,
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 3.77,
+  "bytes": 22845,
   "text": "Rico is new. Listen for the one thing that goes wrong."
  },
- "e211ab2746f6": {
-  "file": "e211ab2746f6.mp3",
+ "26ef63870fab": {
+  "file": "26ef63870fab.mp3",
   "who": "rico",
   "voice": "el:bIHbv24MWmeRgasZH58o:0.88",
-  "dur": 5.93,
-  "bytes": 35805,
-  "text": "Hi! Do you have a minute? It's for longer library hours. Are you registered to vote in L.A. County?"
+  "dur": 6.94,
+  "bytes": 41853,
+  "text": "Hi! Do you have a minute? This petition is for longer library hours. Are you registered to vote in L.A. County?"
  },
  "eb7142e1ddff": {
   "file": "eb7142e1ddff.mp3",
@@ -375,21 +465,21 @@
   "bytes": 8733,
   "text": "Not really, sorry."
  },
- "a1ffba5a4656": {
-  "file": "a1ffba5a4656.mp3",
+ "7fd95c05720d": {
+  "file": "7fd95c05720d.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 13.44,
-  "bytes": 80877,
-  "text": "About 5% to 10%. Most people keep walking, even past the best canvassers. It isn't about you. The canvassers who gather the most ask everyone, and the next person is five seconds away."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 15.43,
+  "bytes": 92829,
+  "text": "About 5% to 10% stop. Most people keep walking, even past the best canvassers. A no isn't about you. The canvassers who gather the most ask everyone, and someone else is always coming."
  },
- "cd4276a414a9": {
-  "file": "cd4276a414a9.mp3",
+ "0a49c4d5fb7e": {
+  "file": "0a49c4d5fb7e.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 7.03,
-  "bytes": 42429,
-  "text": "Your turn again. Three people are coming, one after another. Say your opener to each. Your best one counts."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 7.94,
+  "bytes": 47901,
+  "text": "It's your turn again. Three people are coming, one after another. Say your opener to each one, and your best opener counts."
  },
  "b7ad644f5939": {
   "file": "b7ad644f5939.mp3",
@@ -407,6 +497,38 @@
   "bytes": 8877,
   "text": "Sorry, what's this for?"
  },
+ "b9ce9f2bc442": {
+  "file": "b9ce9f2bc442.mp3",
+  "who": "soojin",
+  "voice": "el:hpp4J3VqNfWAUOO0d1Us:0.88",
+  "dur": 0.5,
+  "bytes": 3261,
+  "text": "Hi."
+ },
+ "1e13b0690779": {
+  "file": "1e13b0690779.mp3",
+  "who": "soojin",
+  "voice": "el:hpp4J3VqNfWAUOO0d1Us:0.88",
+  "dur": 1.27,
+  "bytes": 7869,
+  "text": "I'm good, thanks."
+ },
+ "14ca7174666c": {
+  "file": "14ca7174666c.mp3",
+  "who": "soojin",
+  "voice": "el:hpp4J3VqNfWAUOO0d1Us:0.88",
+  "dur": 1.87,
+  "bytes": 11469,
+  "text": "I'd rather decide for myself."
+ },
+ "7c79acefc8bb": {
+  "file": "7c79acefc8bb.mp3",
+  "who": "soojin",
+  "voice": "el:hpp4J3VqNfWAUOO0d1Us:0.88",
+  "dur": 1.15,
+  "bytes": 7149,
+  "text": "Okay, bye now."
+ },
  "becb26796bfc": {
   "file": "becb26796bfc.mp3",
   "who": "kayla",
@@ -422,6 +544,38 @@
   "dur": 1.49,
   "bytes": 9165,
   "text": "Thanks! Have a good one."
+ },
+ "1f625aca1885": {
+  "file": "1f625aca1885.mp3",
+  "who": "kayla",
+  "voice": "el:FGY2WhTYpPnrIDTdsKH5:0.88",
+  "dur": 0.55,
+  "bytes": 3549,
+  "text": "Hi."
+ },
+ "3f1a4ba62de4": {
+  "file": "3f1a4ba62de4.mp3",
+  "who": "kayla",
+  "voice": "el:FGY2WhTYpPnrIDTdsKH5:0.88",
+  "dur": 1.46,
+  "bytes": 9021,
+  "text": "I'm good, thanks."
+ },
+ "a7ac8dfbdea3": {
+  "file": "a7ac8dfbdea3.mp3",
+  "who": "kayla",
+  "voice": "el:FGY2WhTYpPnrIDTdsKH5:0.88",
+  "dur": 1.85,
+  "bytes": 11325,
+  "text": "I'd rather decide for myself."
+ },
+ "b02e1d4d7889": {
+  "file": "b02e1d4d7889.mp3",
+  "who": "kayla",
+  "voice": "el:FGY2WhTYpPnrIDTdsKH5:0.88",
+  "dur": 1.18,
+  "bytes": 7293,
+  "text": "Okay, bye now."
  },
  "c339d2f4f71c": {
   "file": "c339d2f4f71c.mp3",
@@ -439,13 +593,45 @@
   "bytes": 8445,
   "text": "Sorry, what's this for?"
  },
- "f9bf014744c0": {
-  "file": "f9bf014744c0.mp3",
+ "8e6ebe03721a": {
+  "file": "8e6ebe03721a.mp3",
+  "who": "luis",
+  "voice": "el:TX3LPaxmHKxFdv7VOQHJ:0.88",
+  "dur": 0.53,
+  "bytes": 3405,
+  "text": "Hi."
+ },
+ "0c5e4b6e1df1": {
+  "file": "0c5e4b6e1df1.mp3",
+  "who": "luis",
+  "voice": "el:TX3LPaxmHKxFdv7VOQHJ:0.88",
+  "dur": 1.22,
+  "bytes": 7581,
+  "text": "I'm good, thanks."
+ },
+ "b870284b63bc": {
+  "file": "b870284b63bc.mp3",
+  "who": "luis",
+  "voice": "el:TX3LPaxmHKxFdv7VOQHJ:0.88",
+  "dur": 1.73,
+  "bytes": 10605,
+  "text": "I'd rather decide for myself."
+ },
+ "a4e339d28b07": {
+  "file": "a4e339d28b07.mp3",
+  "who": "luis",
+  "voice": "el:TX3LPaxmHKxFdv7VOQHJ:0.88",
+  "dur": 1.25,
+  "bytes": 7725,
+  "text": "Okay, bye now."
+ },
+ "2ea4222436cb": {
+  "file": "2ea4222436cb.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 2.02,
-  "bytes": 12333,
-  "text": "Tanya stopped for you. Now get her signature."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 4.97,
+  "bytes": 30045,
+  "text": "A woman with a shopping cart has stopped. When you're ready, ask for her signature."
  },
  "38fa64342eb2": {
   "file": "38fa64342eb2.mp3",
@@ -479,13 +665,45 @@
   "bytes": 9885,
   "text": "No, I haven't signed it."
  },
- "8f51c715f30e": {
-  "file": "8f51c715f30e.mp3",
+ "51940e4e5359": {
+  "file": "51940e4e5359.mp3",
+  "who": "tanya",
+  "voice": "el:XrExE9yKIg1WjnnlVkGX:0.88",
+  "dur": 0.6,
+  "bytes": 3837,
+  "text": "Hi."
+ },
+ "13c107b02b93": {
+  "file": "13c107b02b93.mp3",
+  "who": "tanya",
+  "voice": "el:XrExE9yKIg1WjnnlVkGX:0.88",
+  "dur": 1.22,
+  "bytes": 7581,
+  "text": "I'm good, thanks."
+ },
+ "7e698885b795": {
+  "file": "7e698885b795.mp3",
+  "who": "tanya",
+  "voice": "el:XrExE9yKIg1WjnnlVkGX:0.88",
+  "dur": 1.9,
+  "bytes": 11613,
+  "text": "I'd rather decide for myself."
+ },
+ "a36b830da430": {
+  "file": "a36b830da430.mp3",
+  "who": "tanya",
+  "voice": "el:XrExE9yKIg1WjnnlVkGX:0.88",
+  "dur": 1.25,
+  "bytes": 7725,
+  "text": "Okay, bye now."
+ },
+ "7eda34bc59ed": {
+  "file": "7eda34bc59ed.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 1.32,
-  "bytes": 8157,
-  "text": "Listen to Lena with Bob."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 1.46,
+  "bytes": 9021,
+  "text": "Now listen to Lena."
  },
  "b1356db407c5": {
   "file": "b1356db407c5.mp3",
@@ -503,13 +721,13 @@
   "bytes": 30189,
   "text": "Thanks for stopping. I'm paid to gather signatures, and here are this month's top funders."
  },
- "2d9f79c3d9d3": {
-  "file": "2d9f79c3d9d3.mp3",
+ "246d0d47a8cf": {
+  "file": "246d0d47a8cf.mp3",
   "who": "lena",
   "voice": "el:cgSgspJ2msm6clMCkdW9:0.88",
-  "dur": 12.12,
-  "bytes": 72957,
-  "text": "It's the Neighborhood Libraries Act. It funds longer evening and weekend hours at branch libraries, and it's paid for by a new state tax on digital ad sales. Have you signed this one already?"
+  "dur": 9.62,
+  "bytes": 57981,
+  "text": "It funds longer evening and weekend hours at branch libraries, and it's paid for by a new state tax on digital ad sales. Have you signed this one already?"
  },
  "4403593beb8c": {
   "file": "4403593beb8c.mp3",
@@ -519,14 +737,6 @@
   "bytes": 9021,
   "text": "No, first I've heard of it."
  },
- "cc700dd8fe89": {
-  "file": "cc700dd8fe89.mp3",
-  "who": "lena",
-  "voice": "el:cgSgspJ2msm6clMCkdW9:0.88",
-  "dur": 5.09,
-  "bytes": 30765,
-  "text": "Then here's the petition. It's all there to read. Will you sign to put it on the ballot?"
- },
  "37c517084f6a": {
   "file": "37c517084f6a.mp3",
   "who": "bob",
@@ -535,77 +745,69 @@
   "bytes": 5277,
   "text": "All right."
  },
- "ec94e4d93cac": {
-  "file": "ec94e4d93cac.mp3",
+ "4b8908581486": {
+  "file": "4b8908581486.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 6.84,
-  "bytes": 41277,
-  "text": "One. She said she's paid and showed the top funders before the petition left her hand. Both are the law."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 9.1,
+  "bytes": 54813,
+  "text": "First, she said she's paid and showed the top funders before the petition left her hand. The law requires both, even if nobody asks."
  },
- "8c6263a682ed": {
-  "file": "8c6263a682ed.mp3",
+ "a53fa3002e0a": {
+  "file": "a53fa3002e0a.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
   "dur": 3.55,
   "bytes": 21549,
-  "text": "Two. She told both halves: what it does and how it's paid for."
+  "text": "Second, she said what the measure does and how it's paid for."
  },
- "5e886a6a3349": {
-  "file": "5e886a6a3349.mp3",
+ "cbc54bb19ff7": {
+  "file": "cbc54bb19ff7.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 6.77,
-  "bytes": 40845,
-  "text": "Three. She asked if he signed already. A double can cost the drive a thousand signatures."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 6.12,
+  "bytes": 36957,
+  "text": "Third, she asked if he signed already, because one double can cost about 1,000 signatures."
  },
- "33f5d52ca7a2": {
-  "file": "33f5d52ca7a2.mp3",
+ "1fe768754586": {
+  "file": "1fe768754586.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 6.53,
-  "bytes": 39405,
-  "text": "Four. She asked for the signature and left the choice with Bob. People sign when they're asked."
- },
- "a134812dd66c": {
-  "file": "a134812dd66c.mp3",
-  "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 10.78,
-  "bytes": 64893,
-  "text": "B. It says what the measure does and how it's paid for. Nothing in the measure says libraries are closing. And nobody can promise what a tax will cost someone."
- },
- "7017e4b3b37c": {
-  "file": "7017e4b3b37c.mp3",
-  "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 3.24,
-  "bytes": 19677,
-  "text": "B. Before you hand it over, every time, even if nobody asks."
- },
- "68fda5b3ad74": {
-  "file": "68fda5b3ad74.mp3",
-  "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
   "dur": 6.14,
   "bytes": 37101,
-  "text": "B. The sheet is only good for the month printed on it. An old sheet is the same as no sheet."
+  "text": "Fourth, she asked for the signature and left the choice with him, because people sign when they're asked."
  },
- "08bd22bf2a1d": {
-  "file": "08bd22bf2a1d.mp3",
+ "f473b84db28e": {
+  "file": "f473b84db28e.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 5.78,
-  "bytes": 34941,
-  "text": "B. One signature per voter. A second one never helps, and it can cost the drive about 1,000."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 7.13,
+  "bytes": 43005,
+  "text": "C is right. Nothing in the measure says libraries are closing, and nobody can promise what a tax will cost."
  },
- "adda3dea747d": {
-  "file": "adda3dea747d.mp3",
+ "75d33bb8bfa1": {
+  "file": "75d33bb8bfa1.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 1.92,
-  "bytes": 11757,
-  "text": "Rico again. One part is missing."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 3.86,
+  "bytes": 23421,
+  "text": "B is right. A sheet is only good for the month printed on it."
+ },
+ "b6b9f73bd477": {
+  "file": "b6b9f73bd477.mp3",
+  "who": "coach",
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 5.38,
+  "bytes": 32493,
+  "text": "A is right. A second signature never helps, and it can cost the drive about 1,000."
+ },
+ "fdafeb49a13a": {
+  "file": "fdafeb49a13a.mp3",
+  "who": "coach",
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 2.57,
+  "bytes": 15645,
+  "text": "Here's Rico again. One part is missing."
  },
  "2f3aa5ce998a": {
   "file": "2f3aa5ce998a.mp3",
@@ -623,29 +825,31 @@
   "bytes": 6717,
   "text": "No, I haven't."
  },
- "b4615934c6c3": {
-  "file": "b4615934c6c3.mp3",
+ "b1d1ac302ce1": {
+  "file": "b1d1ac302ce1.mp3",
   "who": "rico",
   "voice": "el:bIHbv24MWmeRgasZH58o:0.88",
-  "dur": 3.22,
-  "bytes": 19533,
-  "text": "Great. Here's the petition. Will you sign to put it on the ballot?"
+  "dur": 3.5,
+  "bytes": 21261,
+  "text": "Here's the petition. Will you sign to put it on the ballot?"
  },
  "69714b272e0f": {
   "file": "69714b272e0f.mp3",
   "who": "soojin",
   "voice": "el:hpp4J3VqNfWAUOO0d1Us:0.88",
-  "dur": 1.73,
-  "bytes": 10605,
-  "text": "Are you with the library, dear?"
+  "dur": 1.8,
+  "bytes": 11037,
+  "text": "Are you with the library, dear?",
+  "take": 1
  },
- "79b58a8e0c9d": {
-  "file": "79b58a8e0c9d.mp3",
+ "6871348ad7d5": {
+  "file": "6871348ad7d5.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 3.26,
-  "bytes": 19821,
-  "text": "Now the whole thing, starting from hello. Marisol is walking up."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 2.42,
+  "bytes": 14781,
+  "text": "Now do the whole stop, starting from hello.",
+  "take": 2
  },
  "952d48bbf145": {
   "file": "952d48bbf145.mp3",
@@ -654,6 +858,14 @@
   "dur": 2.52,
   "bytes": 15357,
   "text": "Yes, I'm registered. I've got a minute."
+ },
+ "64f750562525": {
+  "file": "64f750562525.mp3",
+  "who": "marisol",
+  "voice": "el:EXAVITQu4vr4xnSDxMaL:0.88",
+  "dur": 1.68,
+  "bytes": 10317,
+  "text": "Hi. What's this one for?"
  },
  "f8d6297025be": {
   "file": "f8d6297025be.mp3",
@@ -679,13 +891,21 @@
   "bytes": 9597,
   "text": "So, what do you need from me?"
  },
- "3e15d05a88f2": {
-  "file": "3e15d05a88f2.mp3",
+ "1c17457006e3": {
+  "file": "1c17457006e3.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 1.34,
-  "bytes": 8301,
-  "text": "Luis stopped too. Go."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 2.4,
+  "bytes": 14637,
+  "text": "A man has stopped too. Try it with him."
+ },
+ "f483e1541839": {
+  "file": "f483e1541839.mp3",
+  "who": "luis",
+  "voice": "el:TX3LPaxmHKxFdv7VOQHJ:0.88",
+  "dur": 1.54,
+  "bytes": 9453,
+  "text": "Hey. What's this one for?"
  },
  "aaafb280097c": {
   "file": "aaafb280097c.mp3",
@@ -711,13 +931,29 @@
   "bytes": 16365,
   "text": "Are you sure? I'm pretty sure I signed it."
  },
- "4800405eaf21": {
-  "file": "4800405eaf21.mp3",
+ "fb5ec40d4906": {
+  "file": "fb5ec40d4906.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 3.89,
-  "bytes": 23565,
-  "text": "Anika said yes. She's at your board with a grocery bag in each hand."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 4.18,
+  "bytes": 25293,
+  "text": "Saying you're paid and showing the funders is a must. Try it once more."
+ },
+ "a4b8fd8176af": {
+  "file": "a4b8fd8176af.mp3",
+  "who": "coach",
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 3.22,
+  "bytes": 19533,
+  "text": "Telling both halves is a must. Try it once more."
+ },
+ "3761314a81bc": {
+  "file": "3761314a81bc.mp3",
+  "who": "coach",
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 4.3,
+  "bytes": 26013,
+  "text": "A woman said yes. She's at your board with a grocery bag in each hand."
  },
  "608a922e82d3": {
   "file": "608a922e82d3.mp3",
@@ -743,21 +979,29 @@
   "bytes": 15357,
   "text": "Thanks! It's 88 Hill Street."
  },
- "0ab9629898de": {
-  "file": "0ab9629898de.mp3",
-  "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 2.45,
-  "bytes": 14925,
-  "text": "Watch the line while you listen to Lena and Bob."
+ "a51af811246c": {
+  "file": "a51af811246c.mp3",
+  "who": "anika",
+  "voice": "el:EXAVITQu4vr4xnSDxMaL:0.88",
+  "dur": 1.75,
+  "bytes": 10749,
+  "text": "So can you write it for me?"
  },
- "345a5d6cf3b1": {
-  "file": "345a5d6cf3b1.mp3",
+ "eaf6ede40ae8": {
+  "file": "eaf6ede40ae8.mp3",
+  "who": "coach",
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 3.17,
+  "bytes": 19245,
+  "text": "Watch the line as Lena helps an older man who said yes."
+ },
+ "a4be3da6eb25": {
+  "file": "a4be3da6eb25.mp3",
   "who": "lena",
   "voice": "el:cgSgspJ2msm6clMCkdW9:0.88",
-  "dur": 6.05,
-  "bytes": 36525,
-  "text": "Print your name right here, Bob. Then sign. Then the address where you're registered to vote."
+  "dur": 4.9,
+  "bytes": 29613,
+  "text": "Print your name right here. Then sign, and then write the address where you're registered to vote."
  },
  "be4c78d6baf5": {
   "file": "be4c78d6baf5.mp3",
@@ -767,29 +1011,29 @@
   "bytes": 21405,
   "text": "Can you write it for me? My handwriting's terrible."
  },
- "c8c4e7904412": {
-  "file": "c8c4e7904412.mp3",
+ "d24621070790": {
+  "file": "d24621070790.mp3",
   "who": "lena",
   "voice": "el:cgSgspJ2msm6clMCkdW9:0.88",
-  "dur": 4.99,
-  "bytes": 30189,
-  "text": "It has to be in your handwriting, Bob. Terrible is fine. Take your time."
+  "dur": 4.39,
+  "bytes": 26589,
+  "text": "It has to be in your handwriting. Terrible is fine. Take your time."
  },
- "632ac9cff2df": {
-  "file": "632ac9cff2df.mp3",
+ "228467b00ce0": {
+  "file": "228467b00ce0.mp3",
   "who": "lena",
   "voice": "el:cgSgspJ2msm6clMCkdW9:0.88",
-  "dur": 4.97,
-  "bytes": 30045,
-  "text": "One more thing, Bob. City and zip are still blank. Could you add those?"
+  "dur": 3.22,
+  "bytes": 19533,
+  "text": "Bob, your city and zip are still blank. Could you add them?"
  },
- "a54fb0f2cb3b": {
-  "file": "a54fb0f2cb3b.mp3",
+ "7f964cab7634": {
+  "file": "7f964cab7634.mp3",
   "who": "bob",
   "voice": "el:CwhRBWXzGAHq8TQ4Fs17:0.88",
-  "dur": 2.83,
-  "bytes": 17229,
-  "text": "Los Angeles, nine oh oh two four. There."
+  "dur": 3.74,
+  "bytes": 22701,
+  "text": "It's Los Angeles, nine oh oh two four. There you go."
  },
  "dc8d6fa44c83": {
   "file": "dc8d6fa44c83.mp3",
@@ -799,85 +1043,85 @@
   "bytes": 10461,
   "text": "That's a good line. Thank you!"
  },
- "33b07301dbda": {
-  "file": "33b07301dbda.mp3",
+ "bdc771d5f32f": {
+  "file": "bdc771d5f32f.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 2.02,
-  "bytes": 12333,
-  "text": "One. She asked him to print his name."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 2.52,
+  "bytes": 15357,
+  "text": "First, she asked him to print his name."
  },
- "198dd697e122": {
-  "file": "198dd697e122.mp3",
+ "420bed238368": {
+  "file": "420bed238368.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 3.36,
-  "bytes": 20397,
-  "text": "Two. She asked for the address where he's registered to vote."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 3.55,
+  "bytes": 21549,
+  "text": "Second, she asked for the address where he's registered to vote."
  },
- "0f301dad9549": {
-  "file": "0f301dad9549.mp3",
+ "45eaecbef161": {
+  "file": "45eaecbef161.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 4.34,
-  "bytes": 26301,
-  "text": "Three. She kept the pen in Bob's hand. The signer writes every word."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 4.85,
+  "bytes": 29325,
+  "text": "Third, she kept the pen in his hand, because the signer writes every word."
  },
- "e1c75305b95d": {
-  "file": "e1c75305b95d.mp3",
+ "457f5f2f949a": {
+  "file": "457f5f2f949a.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 3.67,
-  "bytes": 22269,
-  "text": "Four. She looked at the line before he left and caught the gap."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 3.53,
+  "bytes": 21405,
+  "text": "Fourth, she looked at the line before he left and caught the gap."
  },
- "b5882abbdc7b": {
-  "file": "b5882abbdc7b.mp3",
+ "d1c2f880ad8c": {
+  "file": "d1c2f880ad8c.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 7.2,
-  "bytes": 43437,
-  "text": "Your turn to look. Four lines. Tap the box that will get the line thrown out. If the line is fine, tap Good to go."
- },
- "6bdf878113b5": {
-  "file": "6bdf878113b5.mp3",
-  "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
   "dur": 7.42,
   "bytes": 44733,
-  "text": "C. No white-out, ever. And you never write on a signer's line. A fresh line in their own writing is the fix."
+  "text": "Now it's your turn to look at four lines. Tap the box that will get each line thrown out, or tap Good to go."
  },
- "137d6634f343": {
-  "file": "137d6634f343.mp3",
+ "434227eb00cf": {
+  "file": "434227eb00cf.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 17.66,
-  "bytes": 106221,
-  "text": "C. The line asks for where he lives now, and it has to match his voter record. He can update his registration on his phone at register to vote dot C A dot gov and sign right after. Don't promise it will count. The county decides."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 8.3,
+  "bytes": 50061,
+  "text": "C is right. Never use white-out, and never write on a signer's line. A fresh line in the signer's own writing is the fix."
  },
- "4cb44cebba2d": {
-  "file": "4cb44cebba2d.mp3",
+ "3ea2bb80a82e": {
+  "file": "3ea2bb80a82e.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 13.56,
-  "bytes": 81597,
-  "text": "Every sheet has one more line, and it's yours. It's called the Declaration of Circulator. It says you collected these signatures, watched each one being written and showed every signer this month's top funders."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 14.42,
+  "bytes": 86781,
+  "text": "C is right. His line needs his current address, and it must match his voter record. He can update his registration at register to vote dot C A dot gov, then sign. Never promise his line will count."
  },
- "aa475983a100": {
-  "file": "aa475983a100.mp3",
+ "27bc6cc8939c": {
+  "file": "27bc6cc8939c.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 16.39,
-  "bytes": 98589,
-  "text": "The blank one, and the one somebody else filled in. Each takes the whole sheet with it. After the last signature, write your name, your address and the first and last day you collected on that sheet. Then sign it and date it. All of it in your own writing."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 14.09,
+  "bytes": 84765,
+  "text": "Every sheet has one more line, and it's yours: the Declaration of Circulator. It says you gathered these signatures, watched each one being written and showed every signer this month's top funders."
  },
- "9a91664f6b72": {
-  "file": "9a91664f6b72.mp3",
+ "1f965027929a": {
+  "file": "1f965027929a.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 9.84,
-  "bytes": 59277,
-  "text": "Tanya is registered in L.A. County and ready to sign. Before the pen moves, ask the question from lesson 3. Then walk her through the line."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 16.27,
+  "bytes": 97869,
+  "text": "The blank one and the one your lead filled in each cost the whole sheet. After the last signature, write your name, your address and the first and last days you gathered on that sheet. Then sign and date it, all in your own writing."
+ },
+ "a23bfd78aeaf": {
+  "file": "a23bfd78aeaf.mp3",
+  "who": "coach",
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 9.05,
+  "bytes": 54525,
+  "text": "A woman with her daughter is registered and ready to sign. Before the pen moves, ask if she's signed this one already. Then walk her through the line."
  },
  "84ce22487481": {
   "file": "84ce22487481.mp3",
@@ -886,6 +1130,15 @@
   "dur": 4.46,
   "bytes": 27021,
   "text": "Can you fill in the address for me, though? I've got my hands full with this one."
+ },
+ "76102c937c9e": {
+  "file": "76102c937c9e.mp3",
+  "who": "tanya",
+  "voice": "el:XrExE9yKIg1WjnnlVkGX:0.88",
+  "dur": 3.98,
+  "bytes": 24141,
+  "text": "Can you fill in the address for me? I've got my hands full with this one.",
+  "take": 2
  },
  "e9552a2e5a34": {
   "file": "e9552a2e5a34.mp3",
@@ -927,13 +1180,21 @@
   "bytes": 7005,
   "text": "Great, thanks!"
  },
- "9e0c0b26c90c": {
-  "file": "9e0c0b26c90c.mp3",
+ "845f9061ced8": {
+  "file": "845f9061ced8.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 5.35,
-  "bytes": 32349,
-  "text": "Hank stopped. You told him what the measure does. He's holding the pen, and he has a question."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 4.99,
+  "bytes": 30189,
+  "text": "The signer writes every word on their line, and that's a must. Try it once more."
+ },
+ "d7838c0eb213": {
+  "file": "d7838c0eb213.mp3",
+  "who": "coach",
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 6,
+  "bytes": 36237,
+  "text": "An older man stopped, and you told him what the measure does. He's holding the pen, and he has a question."
  },
  "12419f032e5b": {
   "file": "12419f032e5b.mp3",
@@ -959,13 +1220,46 @@
   "bytes": 10605,
   "text": "Says here it's a tax."
  },
- "49f9005c87a1": {
-  "file": "49f9005c87a1.mp3",
+ "e4d9c12cca74": {
+  "file": "e4d9c12cca74.mp3",
+  "who": "hank",
+  "voice": "el:pqHfZKP75CvOlQylNhV4:0.88",
+  "dur": 0.48,
+  "bytes": 3117,
+  "text": "Hi."
+ },
+ "bf1caff193c3": {
+  "file": "bf1caff193c3.mp3",
+  "who": "hank",
+  "voice": "el:pqHfZKP75CvOlQylNhV4:0.88",
+  "dur": 1.2,
+  "bytes": 7437,
+  "text": "I'm good, thanks."
+ },
+ "fe2dac646a72": {
+  "file": "fe2dac646a72.mp3",
+  "who": "hank",
+  "voice": "el:pqHfZKP75CvOlQylNhV4:0.88",
+  "dur": 1.87,
+  "bytes": 11469,
+  "text": "I'd rather decide for myself."
+ },
+ "e1736ee5c7c8": {
+  "file": "e1736ee5c7c8.mp3",
+  "who": "hank",
+  "voice": "el:pqHfZKP75CvOlQylNhV4:0.88",
+  "dur": 1.49,
+  "bytes": 9165,
+  "text": "Okay, bye now."
+ },
+ "44dab198926e": {
+  "file": "44dab198926e.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 1.34,
-  "bytes": 8301,
-  "text": "Listen to Lena with Joan."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 2.71,
+  "bytes": 16509,
+  "text": "Listen to Lena with a woman who has stopped.",
+  "take": 3
  },
  "5540dead7379": {
   "file": "5540dead7379.mp3",
@@ -999,13 +1293,13 @@
   "bytes": 12045,
   "text": "Not today. I buy a lot of ads."
  },
- "b2701bebd05a": {
-  "file": "b2701bebd05a.mp3",
+ "62ddb675147e": {
+  "file": "62ddb675147e.mp3",
   "who": "lena",
   "voice": "el:cgSgspJ2msm6clMCkdW9:0.88",
-  "dur": 3.58,
-  "bytes": 21693,
-  "text": "No problem. Thanks for stopping, Joan. Have a good one."
+  "dur": 3.1,
+  "bytes": 18813,
+  "text": "No problem. Thanks for stopping. Have a good one."
  },
  "d0af6efba162": {
   "file": "d0af6efba162.mp3",
@@ -1015,93 +1309,93 @@
   "bytes": 14637,
   "text": "You too. Thanks for being straight with me."
  },
- "6d4885a4ab63": {
-  "file": "6d4885a4ab63.mp3",
+ "86bd6dd36a96": {
+  "file": "86bd6dd36a96.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 4.15,
-  "bytes": 25149,
-  "text": "One. She answered the question first, and the answer was true."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 3.22,
+  "bytes": 19533,
+  "text": "First, she answered the question, and the answer was true."
  },
- "6223fcc9ebe0": {
-  "file": "6223fcc9ebe0.mp3",
+ "977c7e9e5089": {
+  "file": "977c7e9e5089.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 1.85,
-  "bytes": 11325,
-  "text": "Two. She showed Joan where it's printed."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 2.76,
+  "bytes": 16797,
+  "text": "Second, she showed her where the tax is printed."
  },
- "e9d9775566bc": {
-  "file": "e9d9775566bc.mp3",
+ "d4670c08188c": {
+  "file": "d4670c08188c.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 1.49,
-  "bytes": 9165,
-  "text": "Three. She asked once more."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 1.92,
+  "bytes": 11757,
+  "text": "Third, she asked once more."
  },
- "c1ff9446bb4e": {
-  "file": "c1ff9446bb4e.mp3",
+ "d84b5cc0ccd1": {
+  "file": "d84b5cc0ccd1.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 3.17,
-  "bytes": 19245,
-  "text": "Four. Joan said no, and Lena let it go with a thank-you."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 4.56,
+  "bytes": 27597,
+  "text": "Fourth, the woman said no, and Lena let her go with a thank-you."
  },
- "37ed644fb369": {
-  "file": "37ed644fb369.mp3",
+ "62ebd9eda81d": {
+  "file": "62ebd9eda81d.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 6.96,
-  "bytes": 41997,
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 7.44,
+  "bytes": 44877,
   "text": "Some people sign after a straight answer and some don't. Either way Lena is free for the next person in twenty seconds."
  },
- "02ab2c03d04f": {
-  "file": "02ab2c03d04f.mp3",
+ "1df2ae6ab454": {
+  "file": "1df2ae6ab454.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 3.19,
-  "bytes": 19389,
-  "text": "Four questions you'll hear this week. Tap the straight answer."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 4.68,
+  "bytes": 28317,
+  "text": "You'll hear these four questions this week. Tap the straight answer to each one."
  },
- "ac0a69fd174d": {
-  "file": "ac0a69fd174d.mp3",
+ "314b16e7e9e7": {
+  "file": "314b16e7e9e7.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 2.11,
-  "bytes": 12909,
-  "text": "B. You already said it once. Say it again."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 4.3,
+  "bytes": 26013,
+  "text": "B is right. You already said you're paid once, so say it again."
  },
- "875977676c21": {
-  "file": "875977676c21.mp3",
+ "48a794d13ca0": {
+  "file": "48a794d13ca0.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 4.54,
-  "bytes": 27453,
-  "text": "A. A signature helps put the question on the ballot. It isn't a vote."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 5.09,
+  "bytes": 30765,
+  "text": "A is right. A signature helps put the question on the ballot, and it isn't a vote."
  },
- "7fa92345cfdf": {
-  "file": "7fa92345cfdf.mp3",
+ "46acc9b031fa": {
+  "file": "46acc9b031fa.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 6.6,
-  "bytes": 39837,
-  "text": "B. Never guess. 'I don't know, it's printed right here' is a whole answer. You can ask your lead later."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 8.64,
+  "bytes": 52077,
+  "text": "B is right. Never guess. 'I don't know, but it's printed right here' is a whole answer, and you can ask your lead later."
  },
- "df124b98706f": {
-  "file": "df124b98706f.mp3",
+ "8569c3b22682": {
+  "file": "8569c3b22682.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 5.54,
-  "bytes": 33501,
-  "text": "A. Giving money or anything of value for a signature is against the law. Don't offer even small things."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 6.19,
+  "bytes": 37389,
+  "text": "A is right. Giving anything of value for a signature is against the law, even something small."
  },
- "25808dfc3b6e": {
-  "file": "25808dfc3b6e.mp3",
+ "aee02a8a19fb": {
+  "file": "aee02a8a19fb.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 2.14,
-  "bytes": 13053,
-  "text": "Rico's last turn. One part goes wrong."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 3.6,
+  "bytes": 21837,
+  "text": "This is Rico's last turn. Listen for the part that goes wrong."
  },
  "bab27c60d991": {
   "file": "bab27c60d991.mp3",
@@ -1131,25 +1425,35 @@
   "file": "4679d985eef9.mp3",
   "who": "rico",
   "voice": "el:bIHbv24MWmeRgasZH58o:0.88",
-  "dur": 1.61,
-  "bytes": 9885,
-  "text": "No problem. Have a good one."
+  "dur": 1.63,
+  "bytes": 10029,
+  "text": "No problem. Have a good one.",
+  "take": 3
  },
- "9134b5bd94b9": {
-  "file": "9134b5bd94b9.mp3",
+ "a4a780df9fb9": {
+  "file": "a4a780df9fb9.mp3",
   "who": "coach",
-  "voice": "el:iP95p4xoKVk53GoZ742B:0.88",
-  "dur": 5.35,
-  "bytes": 32349,
-  "text": "Last one. Two people, two questions. Answer straight, show them, ask once and let a no go."
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 8.47,
+  "bytes": 51069,
+  "text": "This is your last try. Two people will ask two questions. Answer straight, show them the page, ask once and let a no go."
+ },
+ "38dd324ee1c6": {
+  "file": "38dd324ee1c6.mp3",
+  "who": "coach",
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 3.91,
+  "bytes": 23709,
+  "text": "A man with a coffee has stopped, and you've told him what the measure does."
  },
  "69c69903a217": {
   "file": "69c69903a217.mp3",
   "who": "ben",
   "voice": "el:cjVigY5qzO86Huf0OWal:0.88",
-  "dur": 1.54,
-  "bytes": 9453,
-  "text": "Wait. Are you a volunteer?"
+  "dur": 1.56,
+  "bytes": 9597,
+  "text": "Wait. Are you a volunteer?",
+  "take": 2
  },
  "c7332173d537": {
   "file": "c7332173d537.mp3",
@@ -1159,6 +1463,15 @@
   "bytes": 11757,
   "text": "Fair enough. Thanks for telling me."
  },
+ "8f250d52f639": {
+  "file": "8f250d52f639.mp3",
+  "who": "ben",
+  "voice": "el:cjVigY5qzO86Huf0OWal:0.88",
+  "dur": 2.33,
+  "bytes": 14205,
+  "text": "Sorry, but are you a volunteer or not?",
+  "take": 1
+ },
  "b9a2229667bb": {
   "file": "b9a2229667bb.mp3",
   "who": "ben",
@@ -1167,13 +1480,22 @@
   "bytes": 6573,
   "text": "Sure, I'll sign."
  },
- "a27210e7b6e4": {
-  "file": "a27210e7b6e4.mp3",
+ "af98d2cd11f0": {
+  "file": "af98d2cd11f0.mp3",
+  "who": "ben",
+  "voice": "el:cjVigY5qzO86Huf0OWal:0.88",
+  "dur": 2.54,
+  "bytes": 15501,
+  "text": "Okay. Is there something you want me to sign?",
+  "take": 1
+ },
+ "ffc072aedcad": {
+  "file": "ffc072aedcad.mp3",
   "who": "pat",
   "voice": "el:XrExE9yKIg1WjnnlVkGX:0.88",
-  "dur": 3.05,
-  "bytes": 18525,
-  "text": "Before I sign anything. Is this a new tax?"
+  "dur": 3.14,
+  "bytes": 19101,
+  "text": "Before I sign anything, is this a new tax?"
  },
  "0afd7a27c245": {
   "file": "0afd7a27c245.mp3",
@@ -1182,6 +1504,14 @@
   "dur": 1.58,
   "bytes": 9741,
   "text": "So what do you want me to do?"
+ },
+ "276b0d49e447": {
+  "file": "276b0d49e447.mp3",
+  "who": "pat",
+  "voice": "el:XrExE9yKIg1WjnnlVkGX:0.88",
+  "dur": 3.43,
+  "bytes": 20829,
+  "text": "That isn't what I asked. Is it a new tax or not?"
  },
  "48b19a77bc5d": {
   "file": "48b19a77bc5d.mp3",
@@ -1195,9 +1525,10 @@
   "file": "e4546c805cbb.mp3",
   "who": "pat",
   "voice": "el:XrExE9yKIg1WjnnlVkGX:0.88",
-  "dur": 2.42,
-  "bytes": 14781,
-  "text": "I don't sign anything with a new tax in it."
+  "dur": 2.59,
+  "bytes": 15789,
+  "text": "I don't sign anything with a new tax in it.",
+  "take": 5
  },
  "4c619cc9ccbe": {
   "file": "4c619cc9ccbe.mp3",
@@ -1207,6 +1538,14 @@
   "bytes": 22125,
   "text": "You're the first one out here who just told me. Good luck."
  },
+ "b903c33bf34a": {
+  "file": "b903c33bf34a.mp3",
+  "who": "pat",
+  "voice": "el:XrExE9yKIg1WjnnlVkGX:0.88",
+  "dur": 1.34,
+  "bytes": 8301,
+  "text": "Okay. Bye now."
+ },
  "c7371daba941": {
   "file": "c7371daba941.mp3",
   "who": "pat",
@@ -1214,5 +1553,13 @@
   "dur": 1.63,
   "bytes": 10029,
   "text": "Like I said, no thanks."
+ },
+ "989d2e20eb9a": {
+  "file": "989d2e20eb9a.mp3",
+  "who": "coach",
+  "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
+  "dur": 3.24,
+  "bytes": 19677,
+  "text": "A straight, true answer is a must. Try it once more."
  }
 }

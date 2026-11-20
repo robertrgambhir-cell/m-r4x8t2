@@ -13,17 +13,17 @@ VIEW.cards = function (st) {
     $("#go").classList.remove("ghost");
   })();
 };
-/* sort six lines: Counts or Thrown out, with the reason after each tap */
+/* sort five lines: Counts or Thrown out, with the reason after each tap */
 VIEW.sort = function (st) {
   var r = RUN + 0, k = S.sub, n = st.cards.length;
   top({});
   if (k >= n) {
     var out = st.cards.filter(function (c) { return c.right === 1; });
-    show(kick(st) + '<div class="fill"><div class="quad">' + out.map(function (c) { return '<div class="panel">' + sceneOne(c.face, "") + '<div class="who">' + esc(CAST[c.face].name) + '</div></div>'; }).join("") + '</div><div class="coach q3" style="font-size:calc(19 * var(--u))">' + q(st.after.text) + '</div></div>' + foot(btn(nextLabel(), "go")), "g");
+    show(kick(st) + '<div class="fill"><div class="quad">' + out.map(function (c) { return '<div class="panel">' + sceneOne(c.face, "") + '<div class="who">' + esc(CAST[c.face].name) + '</div></div>'; }).join("") + '</div><div class="coach q3" style="font-size:calc(19 * var(--u))">' + q(st.after.text) + '</div></div>' + foot(btn(nextLabel(), "go")), "abcdefgh"[n]); /* the screen after the last card: Sig 1.3f with five cards */
     $("#go").onclick = nextStep; sayLine(st.after, r); return;
   }
   var C = st.cards[k];
-  show(kick(st) + (k === 0 ? '<div class="coach" id="coach">' + q(st.coach.text) + '</div>' : "") + '<div class="count">' + (k + 1) + " of " + n + '</div><div class="fill"><div class="panel grow" data-who="' + C.face + '">' + sceneOne(C.face, "") + '<div class="who">' + esc(CAST[C.face].full || CAST[C.face].name) + '</div></div><p class="sctext">' + q(C.text) + '</p>' +
+  show(kick(st) + (k === 0 ? '<div class="coach" id="coach">' + q(st.coach.text) + '</div>' : "") + '<div class="count">' + (k + 1) + " of " + n + '</div><div class="fill"><div class="panel grow" data-who="' + C.face + '">' + sceneOne(C.face, "") + '<div class="who">' + esc(CAST[C.face].full || CAST[C.face].name) + '</div></div><p class="sctext">' + q(C.text) + '</p>' + (st.ask ? '<div class="sqq">' + q(st.ask) + '</div>' : "") +
     '<div class="opts row" id="opts">' + st.buttons.map(function (b, i) { return '<button class="opt" data-i="' + i + '"><span style="flex:1">' + q(b) + '</span></button>'; }).join("") + '</div><div id="why"></div></div><div id="ft"></div>', "abcdef"[k]);
   if (k === 0) sayLine(st.coach, r);
   fitPic();
@@ -34,7 +34,7 @@ VIEW.sort = function (st) {
       var c = $("#coach"); if (c) c.remove();
       $("#why").innerHTML = why(i === C.right, C.why, true);
       shrinkPic();
-      $("#ft").innerHTML = foot(btn(k + 1 < n ? "Next line" : "Next: the four you threw out", "go"));
+      $("#ft").innerHTML = foot(btn(k + 1 < n ? "Next line" : st.last || "Next", "go"));
       $("#go").onclick = function () { go(S.step, k + 1); };
     };
   });
@@ -43,9 +43,9 @@ VIEW.sort = function (st) {
 VIEW.say = function (st) {
   var sub = S.sub;
   if (sub === 0) return vReady(st, st.coach, function () { S.retried = false; go(S.step, 1); });
-  if (sub === 90) { vReady(st, null, function () { go(S.step, 1); }, fixBlock(S.score, true), "r", true); return; }
+  if (sub === 90) { vReady(st, null, function () { go(S.step, 1); }, fixBlock(S.score, true), "r", true, SH.tryAgain); sayFix(S.score); return; }
   if (sub === 2) return vFeedback(st, S.score, nextStep, nextLabel(), "c", '<div class="tip" style="background:var(--green-soft)">' + q(st.oneWay) + '</div>');
-  talk({ st: st, key: "1.marisol", who: st.who, replies: Object.assign({ ask: st.ask }, st.replies), walk: true, note: st.note, hint: st.hint, hintAfter: "ask", tag: "b",
+  talk({ st: st, key: "1.marisol", who: st.who, replies: Object.assign({ ask: st.ask, askOther: st.askOther }, st.replies), walk: true, hint: st.hint, hintAfter: "ask|askOther", tag: "b",
     onEnd: function (T) {
       var g = T.grade(); g.musts = [];
       if ((g.promise || g.untrue) && !S.retried) { S.retried = true; S.score = g; return go(S.step, 90); } /* a promise or something untrue: one more try */
@@ -84,7 +84,7 @@ VIEW.stop = function (st) {
 VIEW.lines = function (st) {
   var r = RUN + 0, k = S.sub, X = st.lines[k], last = k === st.lines.length - 1;
   top({});
-  show(kick(st) + (k === 0 ? '<div class="coach q3" id="coach">' + q(st.coach.text) + '</div>' : "") + '<div class="count">Line ' + X.tag + '</div><div id="pw" class="psheet">' + pet(X.fill, { tap: true, big: true, note: X.note, sheet: true }) + '</div>' +
+  show(kick(st) + (k === 0 ? '<div class="coach q3" id="coach">' + q(st.coach.text) + '</div>' : "") + '<div class="count">Line ' + X.tag + (st.ask ? '. ' + q(st.ask) : "") + '</div><div id="pw" class="psheet">' + pet(X.fill, { tap: true, big: true, note: X.note, sheet: true }) + '</div>' +
     '<div class="fill"><div class="opts" id="opts"><button class="opt" id="okb"><span style="flex:1;text-align:center">' + q(st.ok) + '</span></button></div><div id="why"></div></div><div id="ft"></div>', "abcd"[k]);
   if (k === 0) sayLine(st.coach, r);
   var done = false, pick = function (key) {
@@ -142,7 +142,9 @@ function vCard() {
 
 /* ---------------- start ---------------- */
 document.title = LN ? "Lesson " + LN + ": " + L.title + " · Warmup" : "Before your first signature · Warmup";
-if (!LN) vCard();
+var OPEN = !DATA.open || qs.has("preview") || DATA.open.indexOf(LN || "card") >= 0; /* a lesson that isn't open yet shows nothing of itself */
+if (!OPEN) { $("#top").style.display = "none"; $("#tag").textContent = ""; $("#scr").innerHTML = '<div class="fill" style="justify-content:center"><h1 style="text-align:center">' + q(LN ? "Lesson " + LN + " isn't open yet." : "This card isn't open yet.") + '</h1></div>'; }
+else if (!LN) vCard();
 else if (qs.has("at")) { var at0 = qs.get("at").split("."); S.step = -1; go(Math.max(0, Math.min(L.steps.length - 1, (parseInt(at0[0], 10) || 1) - 1)), parseInt(at0[1], 10) || 0); }
 else go(-1);
 window.__sgBusy = function () { return playing.length > 0; };

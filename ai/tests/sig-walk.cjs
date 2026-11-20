@@ -42,7 +42,7 @@ const [,, lesson = "2", W = "375", H = "667", scriptName = "show", mode = "fast"
   const p = await c.newPage(); const errs = []; p.on("pageerror", (e) => errs.push(String(e).slice(0, 300))); p.on("console", (m) => { if (m.type() === "error" && !/Failed to load resource|ERR_FAILED/.test(m.text())) errs.push("console: " + m.text().slice(0, 200)); });
   const out = path.join(process.env.OUT || path.join(os.tmpdir(), "sig-walk"), `L${lesson}-${W}${scriptName === "show" ? "" : "-" + scriptName}`); fs.rmSync(out, { recursive: true, force: true }); fs.mkdirSync(out, { recursive: true });
   const srv = process.env.BASE ? null : await serve(), base = process.env.BASE || `http://127.0.0.1:${srv.address().port}/wdpfxqlsvp/sig/`;
-  await p.goto(`${base}index.html?l=${lesson}${mode === "fast" ? "&fast" : mode === "caps" ? "&fast=320" : ""}`, { waitUntil: "load" });
+  await p.goto(`${base}index.html?preview&l=${lesson}${mode === "fast" ? "&fast" : mode === "caps" ? "&fast=320" : ""}`, { waitUntil: "load" });
   await p.waitForSelector("#start", { timeout: 8000 });
   await p.evaluate(() => document.fonts.ready);
   const say = SCRIPTS[lesson][scriptName].slice(); const problems = []; let n = 0, lastSig = "", idle = 0;

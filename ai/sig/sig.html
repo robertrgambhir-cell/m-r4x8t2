@@ -61,25 +61,26 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.12; }
 .panel > svg.fitw { height: auto; bottom: auto; } /* a wide picture always shows its full width; a short panel crops it from the bottom */
 /* the painted pictures (playbook rule 67): each fills its frame, shifted by place() so faces sit where the screen needs them */
 .ph { position: absolute; inset: 0; overflow: hidden; background: #E9E1D2; }
-.ph .bobber { position: absolute; inset: -6px 0; }
-.ph img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; object-position: 50% 30%; }
-.ph[data-img] img { inset: auto; left: var(--ox, 0px); top: var(--oy, 0px); width: var(--rw, 100%); height: var(--rh, 100%); } /* place() sizes and moves the picture */
-.ph.close img { object-position: 50% 50%; }
-.ph .v { opacity: 0; transition: opacity .45s ease; }
-.ph.warm .v-warm, .ph.turned .v-turned, .ph.sheet .v-sheet { opacity: 1; }
-.ph.p.walk .bobber { animation: walkph .62s ease-in-out infinite; } @keyframes walkph { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-.ph.p { transition: transform 1.6s cubic-bezier(.22,.7,.25,1), opacity 1.1s ease; transform-origin: 50% 85%; }
-.ph.p.off-l { transform: translateX(-18px) scale(.95); opacity: 0; } .ph.two.p.off-r { transform: none; opacity: 1; } /* a painting fades in as the passerby arrives (no slide, so no empty strip shows beside it); a two-person scene stays when they go */
-.ph.one.p.off-r { transform: translateX(18px); opacity: 0; }
-/* a painting can't move its lips, so a canvasser talking gets a soft pulsing mark beside their name (passersby have no tag: playbook, Nov 19) */
-.ph.talking ~ .who::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); margin-right: 7px; vertical-align: 1px; animation: talkdot 1s ease-in-out infinite; }
-@keyframes talkdot { 50% { transform: scale(.55); opacity: .55; } }
-@media (prefers-reduced-motion: reduce) { .ph.p.walk .bobber, .ph.talking ~ .who::before { animation: none; } }
+.ph .fr { position: absolute; left: var(--ox, 0px); top: var(--oy, 0px); width: var(--rw, 100%); height: var(--rh, 100%); } /* place() sizes and moves the picture */
+.ph .fr { opacity: 0; transition: opacity .25s ease; } .ph .fr.ok { opacity: 1; }
+.ph .fr > .bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.ph .pt { position: absolute; transition: transform 1.5s cubic-bezier(.2,.65,.25,1), opacity .5s ease; transform-origin: 50% 100%; }
+.ph .pt .bob { position: absolute; inset: 0; }
+.ph .pt img { position: absolute; display: block; }
+.ph .pt .cut { inset: 0; width: 100%; height: 100%; }
+.ph .pt .alt { opacity: 0; transition: opacity .3s ease; } .ph .pt .alt.on { opacity: 1; } .ph .pt.alton .cut:not(.alt) { opacity: 0; transition: opacity .3s ease; }
+.ph .pt .mo, .ph .pt .bl { opacity: 0; } .ph .pt .bl.on { opacity: 1; } /* the talking mouth and the closed eyes, shown by the page as the voice plays and now and then */
+/* a passerby walks in over the storefront while the line plays (rule 54a): from your left toward the door, or from the right toward the canvasser */
+.ph.one.off .pt.walker { transform: translateX(-55%) scale(.9); opacity: 0; } .ph.two.off .pt.walker { transform: translateX(42%) scale(.95); opacity: 0; }
+.ph.one.gone .pt.walker { transform: translateX(58%) scale(.92); opacity: 0; } .ph.two.gone .pt.walker { transform: translateX(46%) scale(.95); opacity: 0; }
+.ph.walk .pt.walker .bob { animation: walkph .56s ease-in-out infinite; } @keyframes walkph { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.1%); } }
+.ph.close img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 38%; }
+@media (prefers-reduced-motion: reduce) { .ph.walk .pt.walker .bob { animation: none; } .ph .pt { transition: opacity .5s ease; } }
 /* a cover and the beat before a try have few words, so on a tall phone their picture would show a band of empty pavement.
    There the panel stops growing at the picture's own height (--cap, with a little ground under the shoes), and the room that
    is left goes to the words (fillUp). The storefront with nobody in it first draws up to a quarter larger, cropped at its
    sides, so it fills a tall panel */
-.panel.cap:has(> .ph.two), .panel.cap:has(> .ph.shop), .panel.cap:has(> .ph.one) { --cap: 148cqw; max-height: var(--cap); margin-bottom: auto; } /* the paintings are 896 by 1216: at the cap, a little of each side is cropped and no pavement band shows */
+.panel.cap:has(> .ph.two), .panel.cap:has(> .ph.shop), .panel.cap:has(> .ph.one) { --cap: 148cqw; max-height: var(--cap); margin-bottom: auto; } /* the pictures are 896 by 1216 and 768 by 1344: at the cap, a little of each side is cropped and no pavement band shows */
 #scr.fitting > .panel.cap { flex: 0 0 auto; height: var(--cap); margin-bottom: 0; }
 .panel.cap ~ .foot { margin-top: auto; padding-top: 12px; } /* any room still left sits half under the picture and half over the button */
 #scr.fitting > .panel.cap ~ .foot { margin-top: 0; }
@@ -112,8 +113,6 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.12; }
 .dock .micb { width: calc(58 * var(--u)); height: calc(58 * var(--u)); }
 /* people */
 .p { transition: transform 1.2s cubic-bezier(.3,.7,.2,1), opacity .5s ease; }
-.p.off-l { transform: translateX(-260px); opacity: 0; } .p.off-r { transform: translateX(260px); opacity: 0; }
-.p.walk .bobber { animation: walk .62s ease-in-out infinite; }
 @keyframes walk { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 .p .eyes { transform-box: fill-box; transform-origin: center; animation: blink 5.2s infinite; }
 @keyframes blink { 0%, 96%, 100% { transform: scaleY(1); } 98% { transform: scaleY(.1); } }
@@ -259,6 +258,7 @@ svg.close .kid { display: none; } /* a close-up of Tanya leaves her daughter out
 .decl { align-items: center; } .decl .dpic { flex: none; width: calc(80 * var(--u)); height: auto; }
 .opts.decls { flex: 1 1 auto; justify-content: space-evenly; } .opts.decls + .fill { flex: 0 0 auto; } /* the three declarations take the room; the answer takes what it needs */
 .sctext { margin: 12px 2px 0; font: 600 calc(17 * var(--u))/1.38 "Figtree"; text-wrap: pretty; }
+.sqq { font-weight: 700; font-size: calc(17 * var(--u)); line-height: 1.25; margin: 0 0 calc(8 * var(--u)); }
 .sc { margin-top: 14px; border-radius: 20px; background: var(--soft); padding: 16px; display: flex; gap: 14px; align-items: flex-start; }
 .sc svg, .sc img.av { flex: none; object-fit: cover; width: calc(72 * var(--u)); height: calc(72 * var(--u)); border-radius: 50%; background: #E4DDD0; }
 .sc p { margin: 0; font: 600 calc(16.5 * var(--u))/1.36 "Figtree"; text-wrap: pretty; }

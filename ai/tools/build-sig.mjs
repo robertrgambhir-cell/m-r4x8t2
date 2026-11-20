@@ -7,7 +7,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
-import { SIG_SETTINGS, SIG_SHARED, SIG_MEASURE, SIG_CAST, SIG_LESSONS, SIG_CARD, SIG_VOICES, sigFill, sigText, sigSay } from "../sig/content.js";
+import { SIG_SETTINGS, SIG_SHARED, SIG_MEASURE, SIG_CAST, SIG_LESSONS, SIG_CARD, SIG_VOICES, SIG_OPEN, SIG_SAY, sigFill, sigText, sigSay } from "../sig/content.js";
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../..");
 const OUT = path.join(ROOT, "wdpfxqlsvp/sig");
@@ -34,9 +34,24 @@ function fill(x) {
 const card = { title: SIG_CARD.title, rules: SIG_CARD.rules.map((r) => (st.funders === "printed" && r[2] && r[2].printed ? r[2].printed : [r[0], r[1]]).map((t) => sigFill(t, st))) };
 /* the painted pictures (Nov 19): the manifest from ai/tools/sig-pictures.md's steps; every file it names must be there */
 const IMG = JSON.parse(fs.readFileSync(path.join(OUT, "img/manifest.json"), "utf8"));
-for (const [n, m] of Object.entries(IMG)) for (const f of [n].concat((m.v || []).map((k) => n + "-" + k), m.face ? [n + "-close", n + "-av"] : [])) if (!fs.existsSync(path.join(OUT, "img", f + ".webp"))) throw new Error("no picture file: img/" + f + ".webp");
-for (const who of Object.keys(SIG_CAST)) if (!["lena", "rico", "joan", "karim"].includes(who) && !IMG[who]) throw new Error("no painted portrait for " + who);
-const DATA = { st: Object.assign({}, st, { label: SIG_MEASURE.label }), shared: fill(SIG_SHARED), measure: fill(SIG_MEASURE), cast: SIG_CAST, lessons: fill(SIG_LESSONS), card, img: IMG };
+/* every file a picture names must be there: its storefront, each person's cutout and versions, each face's talking mouth and
+   closed eyes, and the close and round faces for cards (look Q, Nov 19: ai/tools/sig-pictures/q_build.py) */
+for (const [n, m] of Object.entries(IMG)) {
+  const files = [].concat(m.bg ? [m.bg] : [], ...(m.parts || []).map((p) => [p.src].concat(Object.values(p.alt || {}), p.head ? ["mo-" + p.head, "bl-" + p.head] : [])), m.close ? [n + "-close", n + "-av"] : [], !m.parts && !m.close && !m.bg ? [n] : []);
+  for (const f of files) if (!fs.existsSync(path.join(OUT, "img", f + ".webp"))) throw new Error("no picture file: img/" + f + ".webp");
+}
+/* everyone the lessons show has a picture: each passerby alone, each version a step names (pic) and each scene with a canvasser */
+{ const need = new Set(); const by = (st) => st.by || "lena";
+  for (const L of Object.values(SIG_LESSONS)) for (const st of L.steps) {
+    JSON.stringify(st, (k, v) => { if ((k === "who" || k === "face") && typeof v === "string" && SIG_CAST[v] && SIG_CAST[v].full) need.add(v); if (k === "pic" && v && v.who) need.add(v.who); return v; });
+    if (typeof st.pic === "string") need.add(st.pic);
+    for (const P of st.people || []) if (P.pic) need.add(P.pic);
+    for (const sc of st.scenes || []) need.add("two-" + by(st) + "-" + (sc.pic || sc.who));
+    if (st.kind === "spot") need.add("two-" + by(st) + "-" + st.who);
+    if (st.kind === "stop") need.add("two-lena-" + st.who);
+  }
+  for (const n of need) if (!IMG[n]) throw new Error("no picture for " + n); }
+const DATA = { st: Object.assign({}, st, { label: SIG_MEASURE.label }), shared: fill(SIG_SHARED), measure: fill(SIG_MEASURE), cast: SIG_CAST, lessons: fill(SIG_LESSONS), card, img: IMG, open: SIG_OPEN, say: fill(SIG_SAY) };
 const read = (f) => fs.readFileSync(path.join(ROOT, "ai/sig", f), "utf8");
 let html = read("sig.html");
 const slot = (name, body) => { if (!html.includes(name)) throw new Error("no slot " + name); html = html.split(name).join(body); };

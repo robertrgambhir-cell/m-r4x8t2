@@ -1,6 +1,6 @@
 /* The California signature course: the scripted graders and the passersby's side of each spoken try.
 
-   The rules are each lesson's own "Counts" and "Doesn't count" table in claude/signature-curriculum-claude-v2.md, and
+   The rules are each lesson's own "Counts" and "Doesn't count" table in claude/signature-curriculum-claude-v4.md, and
    ai/tests/sig-grade.test.mjs replays every example in those tables. It is deterministic on purpose: a try is graded
    the instant the canvasser stops talking, a firm can read exactly why a part did or didn't count, and every rule has a
    replay. Nothing here calls an AI: a passerby says only the lines the script gives them, chosen by what the canvasser
@@ -86,11 +86,29 @@ var SIGG = (function () {
     return best;
   }
 
+  /* lesson 2's part 2 (version 3): the topic has to come inside a sentence that says what the petition is for. The grader
+     listens for the topic words after "for" or a verb ("is", "funds", "keeps"), within a few words, outside the registered
+     question. "Longer library hours." on its own is only the topic. */
+  /* a verb that makes the topic part of a sentence ("This petition is for", "I'm gathering signatures for", "It funds"); "for" on
+     its own isn't one ("For longer library hours!"), and neither is the measure's name ("It's the Neighborhood Libraries Act.") */
+  var VERB = /^(?:is|are|am|was|i'm|we're|it's|that's|this's|petition's|here's|what's|its|funds?|funding|keeps?|keeping|gives?|giving|adds?|extends?|expands?|means|would|will|brings?|pays|opens?|makes?|gets?|gathering|collecting|getting|asking|want|wants|need|needs|trying|pushing|proposes?)$/;
+  var AFTER = /^(?:is|are|was|it's|that's|this's|what's|means|would|will)$/; /* the topic first: "Longer library hours is what this petition is for." */
+  function topicSentence(t, q, g) {
+    var at = 0, ws = t.replace(/\bneighborhood librar(?:y|ies) act\b/g, "the measure").split(" ").map(function (w) { var o = { w: w, at: at }; at += w.length + 1; return o; }).filter(function (x) { return x.w && x.w !== "?"; });
+    var inQ = function (x) { return q && x.at >= q.at && x.at < q.end; };
+    for (var i = 0; i < ws.length; i += 1) {
+      if (inQ(ws[i]) || !/^librar|^branch/.test(ws[i].w)) continue;
+      for (var j = Math.max(g, i - 9); j < i; j += 1) if (!inQ(ws[j]) && VERB.test(ws[j].w)) return true;
+      for (var k = i + 1; k < Math.min(ws.length, i + 7); k += 1) { if (inQ(ws[k])) break; if (AFTER.test(ws[k].w)) return true; }
+    }
+    return false;
+  }
   /* grade one opener (all of its pieces joined): the four parts and what the passerby would have heard */
   function grade(text, st) {
     var t = norm(text), ws = words(t), g = greetLen(ws), q = question(t, st), lre = labelRe(st);
     var tm = TIME_RE.exec(t), timeAt = tm ? tm.index : -1;
-    var libAny = new RegExp("\\b" + LIB + "\\b").test(t) || /\bbranch(?:es)?\b(?: [a-z']+){0,3}? (?:hours?|open)\b/.test(t) || (lre ? lre.test(t) : false);
+    var tn = t.replace(/\bneighborhood librar(?:y|ies) act\b/g, "the measure"); /* the measure's name isn't what it's for */
+    var libAny = new RegExp("\\b" + LIB + "\\b").test(tn) || /\bbranch(?:es)?\b(?: [a-z']+){0,3}? (?:hours?|open)\b/.test(tn) || (lre ? lre.test(tn) : false);
     var ta = t.replace(/\bfeel free\b/g, " "), um = null;
     CLOSING.some(function (r) { var m = r.exec(t); if (m) um = m[0]; return !!m; });
     var closing = !!um, cm = closing ? null : COST.exec(ta), cost = !!cm, untrue = closing ? "closing" : cost ? "cost" : null;
@@ -102,14 +120,19 @@ var SIGG = (function () {
       var here = at; at += w.length + 1;
       if (!w || w === "?") return;
       seen += 1;
-      if (seen <= g || FILLER.test(w) || (q && here >= q.at && here < q.end)) return;
+      if (seen <= g || FILLER.test(w) || (q && here >= q.at)) return; /* only what comes before the question counts toward "runs past about 12 words" */
       explWords += 1;
     });
     var long = explWords > 13; /* "runs past about 12 words": one word of grace for a recognizer's extra word */
-    var hits = [g > 0, libAny && !untrue && !long, !!(q && q.county), timeAt < 0];
+    var sentence = libAny && topicSentence(t, q, g), topicOnly = libAny && !sentence && !untrue && !long;
+    var sorryWord = !!(tm && /sorry|pardon|apolog|excuse|bother/.test(tm[0])), sorryFirst = sorryWord && (!q || timeAt < q.at);
+    var hits = [g > 0, sentence && !untrue && !long, !!(q && q.county), timeAt < 0];
     return {
       hits: hits, n: hits.filter(Boolean).length, text: String(text || "").trim(), norm: t,
-      greet: g > 0, topic: libAny, long: long, explWords: explWords, untrue: untrue, untrueSaid: um, promise: promise,
+      greet: g > 0, topic: libAny, sentence: sentence, topicOnly: topicOnly, long: long, explWords: explWords, untrue: untrue, untrueSaid: um, promise: promise,
+      alt: [false, topicOnly, false, sorryFirst], /* the second "missed" lines: only the topic, and an apology first */
+      /* missed in a way no missed line describes: it ran long or wasn't true (the untrue card says that), or a sorry after the question */
+      vague: [false, libAny && !topicOnly && (long || !!untrue), false, sorryWord && !sorryFirst],
       regAsked: !!q, regAt: q ? q.at : -1, county: !!(q && q.county), timeAt: timeAt, timeSaid: tm ? tm[0] : "",
       /* what the passerby hears first, a request for time or the registered question */
       first: timeAt >= 0 && (!q || timeAt < q.at) ? "time" : q ? "reg" : "none",
@@ -291,11 +314,21 @@ var SIGG = (function () {
        the answer to that is still heard);
      - grade() scores every piece together as one try. st.again marks the one more try a must or an untrue statement gives:
        there an untrue statement no longer stops the try, it just can't pass. */
+  var SMALL_RE = /\bhow (?:are|r) (?:you|ya|u)(?: doing| today)?\b|\bhow(?:'s| is) it going\b|\bhow(?:'s| is| has) your day\b|\bhow you doing\b|\bhow's everything\b|\bhow are things\b/;
+  /* a piece that is only a hello ("Hi there!"), or only small talk ("Hi, how are you?"): the passerby says hello back and waits */
+  function fallback(text) {
+    var t = norm(text), small = SMALL_RE.test(t), rest = words(small ? t.replace(SMALL_RE, " ") : t), g = greetLen(rest);
+    var left = rest.slice(g).filter(function (w) { return !FILLER.test(w) && !/^(?:today|doing|there|this|fine|good|great|morning|afternoon|evening)$/.test(w); });
+    if (left.length) return null;
+    return small ? "fSmall" : g ? "fHi" : null;
+  }
   function talk(key, st) {
     var CAP = 4, P = [], S = { pieces: P, said: [], end: false, phase: 0, asked: false }, join = function (a, b) { return P.slice(a || 0, b).join(" "); };
     /* more: the passerby has just said or done something the canvasser gets to answer, even past the fourth line */
     var out = function (say, end, more) { S.said = S.said.concat(say); if (end || (P.length >= CAP && !more)) S.end = true; return { say: say, end: S.end }; };
     var mine = function () { return P[P.length - 1] || ""; }, saidK = function (k) { return S.said.indexOf(k) >= 0; };
+    /* the fallback lines: a hello or small talk gets one back (once each), a push to sign gets "I'd rather decide for myself." */
+    var hello = function () { var f = fallback(mine()); return f && !saidK(f) ? out([f]) : null; }; /* said once: after that a bare hello is nothing new */
     /* does this piece add to the ask: being paid, the funders, what it does, how it's paid for, or what it is */
     var adds3 = function (text) { var x = norm(text); return PAID_RE.test(x) || FUND_RE.test(x) || HOURS_RE.test(x) || TAX_RE.test(x) || /\blibrar|\bpetition\b|\bballot\b|\bmeasure\b|\binitiative\b|\bact\b/.test(x); };
     var M = {
@@ -307,8 +340,11 @@ var SIGG = (function () {
           var whyNow = /\bregist|\bunregistered\b/.test(rest) || CHECK_RE.test(tm);
           if (!S.answered) {
             if (g.hits[0]) { S.answered = true; return g.why ? out(["yes"], true) : out(["ask"]); } /* told why already: she doesn't ask why */
-            if (bye(mine()) || S.waited) return out(whyNow && !bye(mine()) ? ["other"] : [], true);
-            S.waited = true; return out([]); /* no question yet: she waits, once */
+            if (bye(mine())) return out(["fBye"], true);
+            var hi = hello(); if (hi) return hi;
+            if (fallback(mine())) return out([], true); /* hello again and nothing more: she walks on */
+            if (whyNow && !S.waited) { S.waited = true; return out([]); } /* told why before any question: she listens */
+            S.answered = true; return out(["askOther"]); /* asked anything else: "Me? I vote in every election. Why do you ask?" */
           }
           if (whyNow) return out(["yes"], true);
           if (bye(mine())) return out([], true);
@@ -327,6 +363,10 @@ var SIGG = (function () {
           var g = grade(join(), st);
           if (g.first === "time") return out(["time"], true);
           if (g.regAsked) return out(["stop"], true);
+          if (bye(mine())) return out(["fBye"], true);
+          var hi = hello(); if (hi) return hi;
+          if (PRESS_RE.test(norm(mine())) && !saidK("fPush")) return out(["fPush"]);
+          if (S.asked && !S.asked2 && !g.topic) { S.asked2 = true; return out(["other"]); } /* a dodge: his question once more, then he moves on */
           if (S.asked || S.looked) return out(["@go"], true);
           if (g.topic) { S.looked = true; return out(["@look"]); }
           S.asked = true; return out(["other"]);
@@ -338,7 +378,11 @@ var SIGG = (function () {
           var g = grade(join(), st);
           if (S.said.indexOf("stop") >= 0) return out([], true);
           if (g.regAsked && (g.topic || S.asked || S.looked)) return out(["stop"], true);
+          if (!g.regAsked && bye(mine())) return out(["fBye"], true);
+          if (!g.regAsked) { var hi = hello(); if (hi) return hi; }
           if (g.regAsked) { S.asked = true; return out(["stop", "other"]); }
+          if (PRESS_RE.test(norm(mine())) && !saidK("fPush")) return out(["fPush"]);
+          if (S.asked && !S.asked2 && !g.topic) { S.asked2 = true; return out(["other"]); } /* a dodge: the question once more, then they move on */
           if (S.asked || S.looked) return out(["@go"], true);
           if (g.topic) { S.looked = true; return out(["@look"]); }
           S.asked = true; return out(["other"]);
@@ -349,6 +393,9 @@ var SIGG = (function () {
         hear: function () {
           if (S.phase === 1) return out(["bye"], true);
           if (grade(join(), st).regAsked) { S.phase = 1; S.mark = P.length; return out(["not"]); }
+          if (bye(mine())) return out(["fBye"], true);
+          var hi = hello(); if (hi) return hi;
+          if (PRESS_RE.test(norm(mine())) && !saidK("fPush")) return out(["fPush"]);
           if (!S.looked) { S.looked = true; return out(["@look"]); }
           return out(["@go"], true);
         },
@@ -359,9 +406,11 @@ var SIGG = (function () {
         hear: function () {
           var g = grade3(join(), st), gm = grade3(mine(), st), say = [];
           if (gm.dbl && !saidK("nodbl")) say.push("nodbl");
-          if (gm.ask || gm.press) return out(say.concat(["yes"]), true); /* asked to sign, or told to: she answers that */
-          if (bye(mine())) return out(say, true);
+          if (gm.ask) return out(say.concat(["yes"]), true); /* asked to sign: she answers that */
+          if (gm.press) return out(say.concat(saidK("fPush") ? [] : ["fPush"])); /* told to sign: "I'd rather decide for myself." */
+          if (bye(mine())) return out(say.concat(["fBye"]), true);
           if (say.length) return out(say);
+          var hi = hello(); if (hi) return hi;
           var allBut = g.hits[0] && g.hits[1] && g.hits[2];
           if (adds3(mine()) && !allBut) return out([]); /* still telling her: she listens */
           if (allBut && !S.asked) { S.asked = true; return out(["wait"]); } /* everything but the ask */
@@ -377,9 +426,12 @@ var SIGG = (function () {
           if (P.length === 1) S.openerOnly = !(PAID_RE.test(norm(mine())) || FUND_RE.test(norm(mine())) || TAX_RE.test(norm(mine())) || gm.dbl || gm.ask);
           var room = P.length < CAP + (S.openerOnly ? 1 : 0); /* the opener is lesson 2's; the ask that follows gets its four lines */
           if (o.regAsked && !saidK("reg")) say.push("reg");
+          /* her first words: asked whether she's registered, she says so; told nothing about the petition, "Hi. What's this one for?" */
+          if (P.length === 1 && !o.regAsked && S.openerOnly && !adds3(mine()) && !bye(mine())) { var f0 = fallback(mine()); if (f0 !== "fSmall") say.push("what"); else say.push("fSmall"); }
           if (gm.dbl && !saidK("dbl")) say.push("dbl");
-          if (gm.ask || gm.press) return out(say.concat(["yes"]), true);
-          if (bye(mine()) && !say.length) return out([], true);
+          if (gm.ask) return out(say.concat(["yes"]), true);
+          if (gm.press) return out(say.concat(saidK("fPush") ? [] : ["fPush"]), false, room);
+          if (bye(mine()) && !say.length) return out(["fBye"], true);
           if (say.length) return out(say, false, room);
           var allBut = g.hits[0] && g.hits[1] && g.hits[2];
           if ((adds3(mine()) || o.greet) && !allBut) return out([], false, room);
@@ -394,8 +446,10 @@ var SIGG = (function () {
         hear: function () {
           if (S.phase === 0) {
             var g = grade3(join(), st);
-            if (g.heardTopic || P.length >= 2) { S.phase = 1; S.mark = P.length; return out(["signed"], false, true); }
-            if (bye(mine())) return out([], true);
+            if (g.heardTopic) { S.phase = 1; S.mark = P.length; return out(["signed"], false, true); }
+            if (bye(mine())) return out(["fBye"], true);
+            var hi = hello(); if (hi) return hi;
+            if (!saidK("what")) return out(["what"]); /* "Hey. What's this one for?" */
             return out([]);
           }
           if (signAgain(mine())) { S.again = true; if (!saidK("again")) return out(["again"]); return out([], true); }
@@ -406,7 +460,7 @@ var SIGG = (function () {
       },
       /* lesson 4 */
       "4.anika": {
-        hear: function () { var g = grade4(join(), st); if (g.self) return out(["self"], true); if (g.agree) return out(["agree"], true); if (bye(mine())) return out([], true); if (!S.asked) { S.asked = true; return out([]); } return out([], true); },
+        hear: function () { var g = grade4(join(), st); if (g.self) return out(["self"], true); if (g.agree) return out(["agree"], true); if (bye(mine())) return out(["fBye"], true); if (!saidK("other")) return out(["other"]); return out([], true); }, /* neither: "So can you write it for me?" */
         grade: function () { var g = grade4(join(), st), hits = [g.print, g.addr, g.self, false]; return { hits: hits, n: hits.filter(Boolean).length, alt: [false, false, false, false], untrue: g.untrue, untrueSaid: g.untrueSaid, promise: g.promise, wrote: g.agree, text: join() }; },
       },
       "4.tanya": { /* before the pen: the double question, whenever it is asked, and her ask. Then who writes. Then the look before she leaves. */
@@ -414,10 +468,10 @@ var SIGG = (function () {
           var gm = grade4(mine(), st), say = [];
           if (S.phase < 2) {
             if (gm.dbl && !saidK("nodbl")) { say.push("nodbl"); S.dbl = true; }
-            if (S.phase === 0) { if (bye(mine()) && !gm.dbl && !gm.print && !gm.addr) return out([], true); S.phase = 1; return out(say.concat(["ask"]), false, true); } /* her ask follows the canvasser's first words */
+            if (S.phase === 0) { if (bye(mine()) && !gm.dbl && !gm.print && !gm.addr) return out(["fBye"], true); S.phase = 1; return out(say.concat([S.dbl ? "ask" : "ask0"]), false, true); } /* her ask follows the canvasser's first words */
             if (gm.self) { S.pen = "hers"; S.phase = 2; return out(say.concat(["self", "@fill", "set"]), false, true); }
             if (gm.agree) { S.pen = "yours"; S.phase = 2; return out(say.concat(["@fillOther", "set"]), false, true); }
-            if (bye(mine())) return out(say, true);
+            if (bye(mine())) return out(say.concat(["fBye"]), true);
             if (P.length >= CAP) { S.pen = "silent"; S.phase = 2; return out(say.concat(["@fill", "set"]), false, true); } /* nobody answered her: she writes it herself */
             return out(say, false, true); /* she waits for an answer about her address */
           }
@@ -446,9 +500,10 @@ var SIGG = (function () {
             if (a.untrue) { S.untrue = a.untrue; S.untrueSaid = a.untrueSaid; if (!st.again) return out([], true); }
             if (am.paid && !saidK("paid")) say.push("paid");
             if (am.ask) { S.phase = 1; S.mark = P.length; return out(say.concat(["yes", "@hint"]), false, true); }
-            if (bye(mine())) return out(say, true);
+            if (bye(mine())) return out(say.concat(["fBye"]), true);
             if (say.length) return out(say);
-            if (!a.straight && !a.untrue && !S.again1) { S.again1 = true; return out(["again"]); } /* his question wasn't answered: he asks it once more */
+            if (!a.straight && !a.untrue && !S.again1) { S.again1 = true; return out(["dodge"]); } /* his question wasn't answered: "Sorry, but are you a volunteer or not?" */
+            if (a.straight && !S.noask) { S.noask = true; return out(["noask"]); } /* answered, and no ask: "Okay. Is there something you want me to sign?" */
             return out([]); /* he listens */
           }
           return out([], true);
@@ -462,21 +517,21 @@ var SIGG = (function () {
         hear: function () {
           if (S.phase === 0) {
             var a = answer5(join(), "tax", st), am = answer5(mine(), "tax", st);
-            if (a.untrue) { S.untrue = a.untrue; S.untrueSaid = a.untrueSaid; if (!st.again) return out([], true); }
+            if (a.untrue) { S.untrue = a.untrue; S.untrueSaid = a.untrueSaid; if (!st.again) return out(["dodge"], true); } /* "That isn't what I asked. Is it a new tax or not?" */
             if (am.ask || S.nudged) { S.phase = 1; S.mark = P.length; S.straight = a.straight; S.askedOnce = a.ask; return out((a.straight ? ["no1"] : []).concat(["no2"]), false, true); }
-            if (bye(mine())) return out([], true);
-            if (!a.straight && !a.untrue && !a.shows && !S.again1) { S.again1 = true; return out(["again"]); } /* her question wasn't answered: she asks it once more */
+            if (bye(mine())) return out(["fBye"], true);
+            if (!a.straight && !a.untrue && !a.shows && !S.again1) { S.again1 = true; return out(["dodge"]); } /* her question wasn't answered: "That isn't what I asked. Is it a new tax or not?" */
             if ((a.straight && a.shows) || S.listened || P.length >= 3) { S.nudged = true; return out(["wait"]); } /* answered and shown, and no ask */
             S.listened = true; return out([]); /* mid-answer: she listens */
           }
           var tail = join(S.mark);
-          if (argues(tail)) { S.argued = true; return out(["argue"], true); }
+          if (argues(tail)) { S.argued = true; S.askedAgain = ASK_RE.test(norm(tail)) && !ARGUE_RE.test(norm(tail)); return out(["argue"], true); }
           S.let = THANKS.test(norm(tail)) && words(norm(tail)).length > 0;
-          return out(S.let && S.straight ? ["thanks"] : [], true);
+          return out(S.let ? [S.straight ? "thanks" : "thanksDodge"] : [], true);
         },
         grade: function () {
           var a = answer5(join(0, S.phase === 1 ? S.mark : undefined), "tax", st);
-          return { straight: a.straight, shows: a.shows, ask: !!S.askedOnce || (S.phase === 0 && a.ask), untrue: S.untrue || a.untrue, untrueSaid: S.untrueSaid || a.untrueSaid, promise: a.promise, let: !!S.let && !S.argued, argued: !!S.argued, heardNo: S.phase === 1, text: join() };
+          return { straight: a.straight, shows: a.shows, ask: !!S.askedOnce || (S.phase === 0 && a.ask), untrue: S.untrue || a.untrue, untrueSaid: S.untrueSaid || a.untrueSaid, promise: a.promise, let: !!S.let && !S.argued, argued: !!S.argued, askedAgain: !!S.askedAgain, heardNo: S.phase === 1, text: join() };
         },
       },
     };
@@ -490,12 +545,12 @@ var SIGG = (function () {
   /* lesson 5's score: parts 1 to 3 count with either passerby, part 4 is scored with Pat */
   function score5(ben, pat) {
     var untrue = ben.untrue || (pat && pat.untrue) || null, hits = [(ben.straight || !!(pat && pat.straight)) && !untrue, ben.shows || !!(pat && pat.shows), ben.ask || !!(pat && pat.ask), !!(pat && pat.let)];
-    return { hits: hits, n: hits.filter(Boolean).length, alt: [!!untrue, false, false, false], vague: [false, false, false, !(pat && pat.argued)], untrue: untrue, untrueSaid: (ben.untrue ? ben.untrueSaid : pat && pat.untrue ? pat.untrueSaid : "") || "", promise: ben.promise || !!(pat && pat.promise), from: ben.from, text: [ben.text, pat ? pat.text : ""].filter(Boolean).join(" ") };
+    return { hits: hits, n: hits.filter(Boolean).length, alt: [!!untrue, false, false, !!(pat && pat.askedAgain)], vague: [false, false, false, !(pat && pat.argued)], untrue: untrue, untrueSaid: (ben.untrue ? ben.untrueSaid : pat && pat.untrue ? pat.untrueSaid : "") || "", promise: ben.promise || !!(pat && pat.promise), from: ben.from, text: [ben.text, pat ? pat.text : ""].filter(Boolean).join(" ") };
   }
   /* lesson 2's score: the best of the openers, with "said sorry" told apart from "asked for a minute" */
   function score2(tries) {
     var k = best(tries), pick = k >= 0 ? k : (function () { var b = -1; tries.forEach(function (x, i) { if (x && (b < 0 || x.n >= tries[b].n)) b = i; }); return b; })(), g = tries[pick] || { hits: [false, false, false, false], n: 0 };
-    return { hits: g.hits.slice(), n: g.n, pick: pick, alt: [false, false, false, sorry(g)], untrue: g.untrue || null, promise: !!g.promise, text: g.text || "" };
+    return { hits: g.hits.slice(), n: g.n, pick: pick, alt: (g.alt || [false, !!g.topicOnly, false, sorry(g)]).slice(), vague: (g.vague || [false, false, false, false]).slice(), untrue: g.untrue || null, promise: !!g.promise, text: g.text || "" };
   }
   function sorry(g) { return !!(g && g.timeSaid && /sorry|pardon|apolog|excuse|bother/.test(g.timeSaid)); }
   /* the musts a scored try missed, as part numbers from 0 */

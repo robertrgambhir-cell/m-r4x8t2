@@ -91,14 +91,20 @@ function fillUp() {
 }
 function cap(who, text, cls) { var c = $("#capts"); if (!c) return null; var el = c.querySelector(".capt." + (cls || "them").split(" ")[0]); if (!el) el = document.createElement("div"); if (c.lastChild !== el) c.appendChild(el); el.className = "capt " + (cls || "them"); el.innerHTML = (who ? "<b>" + esc(who) + "</b>" : "") + q(text); return el; }
 function nameOf(who) { return who === "coach" ? "Coach" : who === "you" ? "You" : canvasser(who) ? CAST[who].name : SH.passerby; }
+/* what a line does in the picture: the canvasser holds up the top funders sheet (sheet) or the board again (board), a passerby
+   slows down, turns with an earbud out, takes the pen or walks off */
 function act(who, a) {
-  var p = $("#p-" + who); if (!p || !a) return;
-  if (a === "slow") { p.classList.remove("walk"); expr(who, "warm"); }
-  else if (a === "turn") { p.classList.remove("walk"); expr(who, "surprised"); setTimeout(function () { expr(who, "neutral"); }, 1400); var b = p.querySelector(".bud-r"); if (b) b.classList.add("hid"); }
-  else if (a === "go") { p.classList.add("walk"); p.classList.add("off-r"); }
-  else if (a === "pen") expr(who, "warm");
+  if (!a) return;
+  if (a === "sheet") return showAlt(who, "sheet", true);
+  if (a === "board") return showAlt(who, "sheet", false);
+  var p = $("#p-" + who); if (!p) return;
+  if (a === "slow") p.classList.remove("walk");
+  else if (a === "turn") { p.classList.remove("walk"); showAlt(who, "turn", true); }
+  else if (a === "go") { p.classList.add("walk"); p.classList.add("gone"); }
+  else if (a === "pen") showAlt(who, "pen", true);
 }
-function enter(who) { var p = $("#p-" + who); if (p) { p.classList.remove("off-l"); } return wait(FAST ? 0 : 850); }
+/* the passerby walks in over the storefront; stop: they stop walking once they're there */
+function enter(who, stop) { var p = $("#p-" + who); if (p) p.classList.remove("off"); return wait(FAST ? 0 : 1300).then(function () { if (stop && p) p.classList.remove("walk"); }); }
 function sources() {
   var sh = document.createElement("div"), was = $("#tag").textContent; sh.className = "sheet";
   sh.innerHTML = '<div role="dialog" aria-label="Sources"><h2>Sources</h2><ul>' + (L.sources || []).map(function (g) { var link = function (n, u) { return '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + q(n) + '</a>'; }; return '<li>' + q(g[0]) + ': ' + (typeof g[1] === "string" ? g[1].split(/(\{[^|}]+\|[^}]+\})/).map(function (x) { var m = x.match(/^\{([^|}]+)\|([^}]+)\}$/); return m ? link(m[1], m[2]) : q(x); }).join("") : g[1].map(function (s) { return link(s[0], s[1]); }).join(", ") + (g[2] ? ", " + q(g[2]) : "")) + '</li>'; }).join("") + '</ul><p class="fine">The coach and the passersby are AI voices. The Neighborhood Libraries Act, Libraries for All and every person here are made up for practice.</p><button class="btn ghost" id="shx">Close</button></div>';
@@ -110,13 +116,18 @@ function saidBlock(t) { t = tidy(t).replace(/'/g, "’"); return t && t.length <
 function missedLine(p, g, i) { return g.alt && g.alt[i] && p.missedAlt ? p.missedAlt : p.missed; }
 /* a missed part, as a row. Where the script's "missed" line wouldn't be true of what happened (the paid line came late, a no was
    met with "Hmm."), the row is the part's own name under "Watch for", the 1st try card's words. */
-function fixRow(p, g, i) { return g.vague && g.vague[i] && !(g.alt && g.alt[i] && p.missedAlt) ? row("fix", p.name, SH.try1.watch) : row("fix", missedLine(p, g, i)); }
+function fixRow(p, g, i) { return g.vague && g.vague[i] && !(g.alt && g.alt[i] && p.missedAlt) ? (p.missedVague ? row("fix", p.missedVague) : row("fix", p.name, SH.try1.watch)) : row("fix", missedLine(p, g, i)); }
 /* something untrue, or a promise: what was said, the true words, and (on a scored try) one more time */
 function fixBlock(g, again) {
-  var more = again ? '<div class="cl2">One more time.</div>' : "";
-  if (g.promise && !g.untrue) return '<div class="callout must"><b class="cl">' + q(SH.promise) + '</b>' + more + '</div>';
-  var truth = LN === 2 ? ME.label.charAt(0).toUpperCase() + ME.label.slice(1) + "." : g.untrue === "volunteer" ? ME.paid : ME.two;
-  return '<div class="callout must"><b class="cl">' + q(SH.untrue) + '</b>' + (g.untrueSaid ? '<div class="xo no">' + ICON.x + '<span>“' + esc(g.untrueSaid) + '”</span></div>' : "") + '<div class="xo ok">' + ICON.ok + '<span>“' + q(truth) + '”</span></div>' + more + '</div>';
+  if (g.promise && !g.untrue) return '<div class="callout must"><b class="cl">' + q(SH.promise) + '</b></div>';
+  var truth = LN === 2 ? ME.opener : g.untrue === "volunteer" ? ME.paid : ME.two;
+  return '<div class="callout must"><b class="cl">' + q(SH.untrue) + '</b>' + (g.untrueSaid ? '<div class="xo no">' + ICON.x + '<span>“' + esc(g.untrueSaid) + '”</span></div>' : "") + '<div class="xo ok">' + ICON.ok + '<span>“' + q(truth) + '”</span></div>' + (again ? '<div class="cl2">' + q(SH.untrueSay) + '</div>' : "") + '</div>';
+}
+
+/* the coach says what a card that gives one more try shows: the untrue card, a promise, or the must */
+function sayFix(g, mustPart) {
+  var r = RUN, SAY = DATA.say || {}, ln = g && g.promise && !g.untrue ? SAY.promise : g && g.untrue ? SAY.untrue : mustPart && mustPart.mustSay;
+  if (ln) wait(350).then(function () { if (r === RUN) sayLine(ln, r); });
 }
 
 /* ---------------- talking with a passerby ---------------- */
@@ -172,11 +183,11 @@ function talk(cfg) {
       else if (k === "@hint") cap("Coach", cfg.hint || "", "note");
       else if (k === "@look") { act(who, "turn"); await wait(600); } /* they slow and look over, and wait for the rest */
       else if (k === "@go") { act(who, "go"); await wait(700); }
-      else { var ln = k === "again" ? cfg.opens : cfg.replies[k]; if (!ln) continue; act(who, ln.act); /* "again": their own question, asked once more */ cap(nameOf(who), ln.text, "them"); await sayLine(ln, r); if (k === cfg.hintAfter) cap("Coach", cfg.hint || "", "note"); }
+      else { var ln = k === "again" ? cfg.opens : cfg.replies[k]; if (!ln) continue; act(who, ln.act); /* "again": their own question, asked once more */ cap(nameOf(who), ln.text, "them"); await sayLine(ln, r); if (cfg.hintAfter && cfg.hintAfter.split("|").indexOf(k) >= 0) cap("Coach", cfg.hint || "", "note"); }
     }
   }
   show(kick(cfg.st) + (cfg.set ? '<p class="sub">' + q(cfg.set) + '</p>' : "") +
-    '<div class="ft" id="panel">' + sceneStore() + sceneOne(who, cfg.walk ? "off-l walk" : "") + whoDiv(who) +
+    '<div class="ft" id="panel">' + sceneOne(who, cfg.walk ? "off walk" : "", cfg.pic) + whoDiv(who) +
     '<div class="dock' + (cfg.line ? " haspet" : "") + '"><div class="capts" id="capts"></div>' + (cfg.line ? pet(fill, petOpts) : "") + micHtml() + '</div></div>', cfg.tag);
   top({});
   $("#mic").onclick = function (e) { e.stopPropagation(); if (!SR) { typedOn(function (v) { if (M.busy) return; M.used = true; heard(v); }); return; } if (M.rec) { M.rec.stop(); return; } if (M.busy) return; start(false); };
@@ -184,7 +195,7 @@ function talk(cfg) {
   M.busy = true; micState("wait", "");
   (async function () {
     /* the passerby walks up while the coach says so, over the storefront: never a blank panel (Robert, Nov 19) */
-    var arrive = cfg.walk ? wait(FAST ? 0 : 450).then(function () { if (r === RUN) return enter(who); }) : null;
+    var arrive = cfg.walk ? wait(FAST ? 0 : 450).then(function () { if (r === RUN) return enter(who, LN !== 2); }) : null; /* lesson 2's passersby are walking past until something stops them */
     if (cfg.coach) { cap("Coach", cfg.coach.text, "them"); await sayLine(cfg.coach, r); }
     if (r !== RUN) return;
     if (arrive) await arrive;
@@ -197,7 +208,9 @@ function talk(cfg) {
 
 /* ---------------- the views ---------------- */
 var VIEW = {};
-function coverPic() { return sceneTwo("lena", LN === 1 ? "ines" : LN === 2 ? "ben" : LN === 3 ? "tanya" : LN === 4 ? "anika" : "hank", ""); } /* the lesson's picture: on its cover and on its last screen */
+function coverWho() { return LN === 1 ? "ines" : LN === 2 ? "ben" : LN === 3 ? "tanya" : LN === 4 ? "anika" : "hank"; }
+function coverName() { return "two-lena-" + coverWho(); }
+function coverPic() { return sceneTwo("lena", coverWho(), ""); } /* the lesson's picture: on its cover and on its last screen */
 function vCover() {
   S.step = -1; top({});
   show('<span class="drive" role="img" aria-label="Libraries for All, the Neighborhood Libraries Act petition drive"><b>' + esc(ST.drive.name) + '</b><small>' + esc(ST.drive.measure) + ' · petition drive</small></span>' +
@@ -208,8 +221,8 @@ function vCover() {
   /* the lesson's voices load while the cover is read */
   (function walk(x) { if (!x || typeof x !== "object") return; if (x.clip) fetchClip(x.clip); Object.keys(x).forEach(function (k) { walk(x[k]); }); })(L.steps);
   /* and its pictures: everyone it shows, the two-person scenes, the storefront and the four places to stand */
-  var pics = ["store", "spot-sit", "spot-stand", "spot-doorway", "spot-side"];
-  L.steps.forEach(function (st) { var by = st.by || "lena"; (st.scenes || []).concat(st.people || [], [st]).forEach(function (x) { if (x && x.who) { pics.push(x.who); pics.push("two-" + (x.by || by) + "-" + x.who); } });
+  var pics = ["spot-sit", "spot-stand", "spot-doorway", "spot-side", coverName()];
+  L.steps.forEach(function (st) { var by = st.by || "lena"; (st.scenes || []).concat(st.people || [], [st]).forEach(function (x) { if (x && x.who) { pics.push(x.who); pics.push("two-" + (x.by || by) + "-" + x.who); if (x.pic) { pics.push(x.pic); pics.push("two-" + (x.by || by) + "-" + x.pic); } } });
     JSON.stringify(st, function (k, v) { if (k === "pic" && v && v.who) pics.push(v.who); if (k === "pic" && v && v.two) pics.push("two-" + v.two[0] + "-" + v.two[1]); if (k === "face" && typeof v === "string") pics.push(v); return v; }); });
   preloadPics(pics);
 }
@@ -217,12 +230,12 @@ function vCover() {
 /* Your 1st try: never scored. Then the card: what you did, and what to watch for. */
 VIEW.try1 = function (st) {
   if (S.sub === 1) return vTry1Card(st);
-  talk({ st: st, key: LN + "." + st.who, who: st.who, coach: st.coach, opens: st.opens, replies: st.replies, walk: st.walk, line: st.line, opener: LN === 2, tag: "a",
+  talk({ st: st, key: LN + "." + st.who, who: st.who, pic: st.pic, coach: st.coach, opens: st.opens, replies: st.replies, walk: st.walk, line: st.line, opener: LN === 2, tag: "a",
     onEnd: function (T) { var g = T.grade(); S.try1 = { hits: g.hits, said: g.quote || T.pieces.join(" "), g: g }; S.perfect1 = g.hits.every(Boolean); go(S.step, 1); } });
 };
 function vTry1Card(st) {
   var t = S.try1 || { hits: [false, false, false, false], said: "", g: {} }, n = t.hits.filter(Boolean).length;
-  var h = n === 4 ? SH.try1.all : n === 0 ? SH.try1.none : SH.try1.some.replace("{n}", n).replace("{m}", 4 - n);
+  var h = n === 4 ? SH.try1.all : n === 0 ? SH.try1.none : n === 3 ? SH.try1.one : SH.try1.some.replace("{n}", n).replace("{m}", 4 - n);
   top({ result: true });
   var fx = t.g && (t.g.untrue || t.g.promise); /* the card then shows the untrue words itself, so "You said" would say them twice */
   show(kick(st) + '<h1>' + q(h) + '</h1><div class="fill"><div class="panel short" data-who="' + st.who + '">' + sceneFace(st.who) + whoDiv(st.who) + '</div>' + (fx ? "" : saidBlock(t.said)) +
@@ -237,26 +250,26 @@ VIEW.hear = function (st) {
   var r = RUN, sc0 = st.scenes[0];
   top({ pp: true });
   show(kick(st) + '<div class="panel" id="panel"></div>' + (sc0.line ? pet(sc0.line, {}) : "") +
-    '<div class="lbl">' + q(SH.listen) + '</div><ul class="rows" id="parts">' + L.parts.map(function (p) { return row("off", p.name); }).join("") + '</ul>' + foot(btn(nextLabel(), "go", "ghost")), "");
-  $("#go").onclick = nextStep;
+    '<div class="lbl">' + q(SH.listen) + '</div><ul class="rows" id="parts">' + L.parts.map(function (p) { return row("off", p.name); }).join("") + '</ul>' + foot(btn(nextLabel(), "go", "ghost")) + (st.sources ? '<button class="link" id="src">' + q(SH.sources) + '</button>' : ""), "");
+  $("#go").onclick = nextStep; if ($("#src")) $("#src").onclick = sources;
   $("#panel").onclick = function () { stopSound(); };
   playScenes(st, "lena").then(function (ok) { if (!ok || r !== RUN) return; noPause(); if ($("#go")) $("#go").classList.remove("ghost"); });
 };
 /* plays a watched scene: who speaks, what happens on screen, then the coach's ticks */
 async function playScenes(st, by) {
   var r = RUN, fill = {};
-  function setScene(sc) { var p = $("#panel"); if (st.labels) p.classList.add("lab"); p.innerHTML = sceneStore() + sceneTwo(by, sc.who, sc.stopped ? "" : "off-l walk") + '<div class="capts" id="capts"></div>' + (st.labels ? '<div class="labels" id="labels">' + st.labels.map(function (l) { return '<span>' + q(l) + '</span>'; }).join("") + '</div>' : ""); }
+  function setScene(sc) { var p = $("#panel"); if (st.labels) p.classList.add("lab"); p.innerHTML = sceneTwo(by, sc.who, sc.stopped ? "" : "off walk", sc.pic) + '<div class="capts" id="capts"></div>' + (st.labels ? '<div class="labels" id="labels">' + st.labels.map(function (l) { return '<span>' + q(l) + '</span>'; }).join("") + '</div>' : ""); }
   function redraw(o) { var p = $("#pet"); if (p) p.outerHTML = pet(fill, o || {}); fitHw(); }
   setScene(st.scenes[0]);
   /* the first scene comes in while the coach talks, over the storefront, so the panel is never blank (Robert, Nov 19) */
-  var first = st.scenes[0].stopped ? null : wait(FAST ? 0 : 450).then(function () { if (r === RUN) return enter(st.scenes[0].who); });
+  var first = st.scenes[0].stopped ? null : wait(FAST ? 0 : 450).then(function () { if (r === RUN) return enter(st.scenes[0].who, true); });
   if (st.coach) { cap("Coach", st.coach.text, "them"); if (!(await sayLine(st.coach, r))) return false; }
   for (var i = 0; i < st.scenes.length; i += 1) {
     var sc = st.scenes[i]; if (i) setScene(sc);
-    if (!sc.stopped) { await (i === 0 && first ? first : enter(sc.who)); if (r !== RUN) return false; }
+    if (!sc.stopped) { await (i === 0 && first ? first : enter(sc.who, true)); if (r !== RUN) return false; }
     for (var j = 0; j < sc.lines.length; j += 1) {
       var ln = sc.lines[j], lab = $("#labels");
-      if (ln.act === "sheet" || ln.act === "board") { var pr = document.querySelector("#p-" + ln.who + " .prop." + ln.act); if (pr) pr.classList.remove("hid"); var scn = document.querySelector("#panel .ph.two"); if (scn) scn.classList.add(ln.act); } else if (ln.act) act(ln.who === by ? sc.who : ln.who, ln.act);
+      if (ln.act === "sheet" || ln.act === "board") act(ln.who, ln.act); else if (ln.act) act(ln.who === by ? sc.who : ln.who, ln.act); /* a canvasser's goodbye sends the passerby off */
       if (ln.label != null && lab) lab.children[ln.label].classList.add("on");
       if (ln.glow) redraw({ glow: ln.glow });
       if (ln.fill) { Object.assign(fill, ln.fill); redraw({ fresh: Object.keys(ln.fill) }); }
@@ -279,7 +292,8 @@ async function playScenes(st, by) {
 /* once the answer is on screen the picture gives it room; a sliver of a picture is no picture, so then it goes */
 function shrinkPic() { var f = $(".fill"), pg = $(".fill > .panel.grow"); if (!f || !pg) return; f.classList.add("answered"); requestAnimationFrame(function () { if (pg.getBoundingClientRect().height < 76) { pg.style.display = "none"; fillUp(); } else fitPic(); }); }
 /* a person's picture that takes the room that is left: in a short strip the face is framed whole, in a tall one the person is */
-function fitPic() { var pg = $(".fill > .panel[data-who]"); if (!pg) return; var h = pg.getBoundingClientRect().height, close = h < 150, who = pg.getAttribute("data-who"); if (pg.getAttribute("data-close") === String(close)) return; pg.setAttribute("data-close", String(close)); var s = pg.querySelector(".ph, svg"); if (s) { s.outerHTML = close ? sceneFace(who) : sceneOne(who, ""); place(); } }
+function fitPic() { var pg = $(".fill > .panel[data-who]"); if (!pg) return; var h = pg.getBoundingClientRect().height, close = h < 150, who = pg.getAttribute("data-who");
+  if (h > 0 && pg.classList.contains("short") && (h < 100 || h < pg.getBoundingClientRect().width * 0.42)) { pg.style.display = "none"; return; } /* a strip that can't show the face down to the mouth is no picture */ if (pg.getAttribute("data-close") === String(close)) return; pg.setAttribute("data-close", String(close)); var s = pg.querySelector(".ph, svg"); if (s) { s.outerHTML = close ? sceneFace(who) : sceneOne(who, ""); place(); } }
 /* taps: the question, the options, and the coach's line that opens with the right answer */
 VIEW.taps = function (st) {
   var r = RUN, k = S.sub, Q = st.qs[k], last = k === st.qs.length - 1, lt = "ABC";
@@ -338,12 +352,13 @@ VIEW.spot = function (st) {
 
 /* Your 2nd try: the ready beat, then each passerby, then (lessons 3 to 5) a must that gives one more try */
 VIEW.try2 = function (st) {
+  if (practicing() && st.people.length > 1) st = Object.assign({}, st, { people: st.people.slice(0, 1) }); /* a practice round has one passerby */
   var sub = S.sub;
   if (sub === 0) return vReady(st, st.coach, function () { S.people = []; S.redo = {}; S.keep0 = null; S.retried = false; go(S.step, 1); });
   if (sub === 90) return vAgain(st);
   var k = Math.floor((sub - 1) / 2), P = st.people[k], card = (sub - 1) % 2 === 1, own = LN === 2 || (LN === 3 && k === 0), again = (S.redo && S.redo[k]) || S.retried ? "2" : "";
   if (card) return vChecks(st, k, "abcdefgh"[sub] + again);
-  talk({ st: st, key: LN + "." + P.who, who: P.who, coach: P.coach, set: P.set, opens: P.opens, replies: P.replies, walk: P.walk, line: P.line, fill: P.fill, hint: P.hint, opener: LN === 2 || (LN === 3 && k === 0), tag: ("abcdefgh"[sub] || "") + again, again: !!S.retried,
+  talk({ st: st, key: LN + "." + P.who, who: P.who, pic: P.pic, coach: P.coach, set: P.set, opens: P.opens, replies: P.replies, walk: P.walk, line: P.line, fill: P.fill, hint: P.hint, opener: LN === 2 || (LN === 3 && k === 0), tag: ("abcdefgh"[sub] || "") + again, again: !!S.retried,
     onEnd: function (T) {
       var g = T.grade(); if (!g.quote) g.quote = T.pieces.join(" ");
       if (LN === 3 && k === 0) { g.musts = SIGG.mustsMissed(3, g.hits); if (S.keep0) { g = better(S.keep0, g); S.keep0 = null; } }
@@ -355,11 +370,11 @@ VIEW.try2 = function (st) {
     } });
 };
 /* the ready beat: one line on what happens next, the lesson's heads-up line and Ready. Nothing graded starts without this tap. */
-function vReady(st, coach, onReady, extra, sub, result) {
+function vReady(st, coach, onReady, extra, sub, result, label) {
   var r = RUN;
   top(result ? { result: true } : {});
-  var up = st.who || (st.people && st.people[0] && st.people[0].who), named = up && coach && CAST[up] && IMG[up]; /* the coach's line is about who comes next, so the picture shows them (with no name tag) */
-  show(kick(st) + (named ? '<div class="panel cap" data-who="' + up + '">' + sceneOne(up, "") + whoDiv(up) + '</div>' : '<div class="panel cap">' + sceneStore() + '</div>') + (extra || "") + (coach ? '<div class="coach q3">' + q(coach.text) + '</div>' : "") + (L.headsUp ? '<div class="callout">' + q(L.headsUp) + '</div>' : "") + foot(btn(SH.ready, "go")), sub || "a");
+  var up = st.who || (st.people && st.people[0] && st.people[0].who), upPic = st.pic || (st.people && st.people[0] && st.people[0].pic), named = up && coach && CAST[up] && IMG[up]; /* the coach's line is about who comes next, so the picture shows them (with no name tag) */
+  show(kick(st) + (named ? '<div class="panel cap" data-who="' + up + '">' + sceneOne(up, "", upPic) + whoDiv(up) + '</div>' : '<div class="panel cap">' + sceneStore() + '</div>') + (extra || "") + (coach ? '<div class="coach q3">' + q(coach.text) + '</div>' : "") + (L.headsUp ? '<div class="callout">' + q(L.headsUp) + '</div>' : "") + foot(btn(label || st.ready || SH.ready, "go")), sub || "a");
   $("#go").onclick = function () { audio(); onReady(); };
   if (coach) sayLine(coach, r);
 }
@@ -377,8 +392,8 @@ function vChecks(st, k, sub) {
   show(kick(st) + '<div class="fill">' + (small ? '<div class="nextp" style="margin:0">' + face(P.who) + '<span>' + q(SH.passerby) + '</span></div>' : '<div class="panel short" data-who="' + P.who + '">' + sceneFace(P.who) + whoDiv(P.who) + '' + (st.people.length > 2 ? '<div class="who r">' + (k + 1) + " of " + st.people.length + '</div>' : "") + '</div>') + (again ? "" : saidBlock(g.quote)) +
     '<ul class="rows">' + L.parts.map(function (p, i) { return g.hits[i] ? row("on", p.done) : fixRow(p, g, i); }).join("") + '</ul>' +
     (voidTry ? fixBlock(g, redo) : "") + oneMore + (again && L.headsUp ? '<div class="callout">' + q(L.headsUp) + '</div>' : "") + (!again && P.from && g.from ? '<div class="from">' + ICON.ok + '<span>' + q(P.from) + '</span></div>' : "") + '</div>' +
-    (up ? '<div class="nextp">' + face(up.who) + '<span>' + q(SH.upNext) + '</span></div>' : "") + foot(btn(redo || again || nextP ? SH.ready : nextLabel(), "go")), sub);
-  expr(P.who, g.hits.filter(Boolean).length >= 3 ? "warm" : "neutral");
+    (up ? '<div class="nextp">' + face(up.who) + '<span>' + q(up.up || "") + '</span></div>' : "") + foot(btn(redo || again ? SH.tryAgain : nextP ? (nextP.upBtn || SH.ready) : nextLabel(), "go")), sub);
+  if (redo) sayFix(g); else if (again) sayFix(g.untrue || g.promise ? g : null, g.untrue || g.promise ? null : L.parts[g.musts[0]]);
   $("#go").onclick = function () {
     if (redo) { S.redo[k] = true; return go(S.step, S.sub - 1); } /* lesson 2: an untrue opener gets one more try with the same passerby */
     if (again) { S.retried = true; S.keep0 = g; S.score = g; audio(); return go(S.step, 1); } /* lesson 3: a missed must gets one more try before Luis */
@@ -397,8 +412,10 @@ function scoreNow(st) {
   return s;
 }
 function better(a, b) { if (!a) return b; if (!b) return a; var am = (a.musts || []).length + (a.untrue || a.promise ? 1 : 0), bm = (b.musts || []).length + (b.untrue || b.promise ? 1 : 0); return b.n > a.n || (b.n === a.n && bm <= am) ? b : a; }
+function practicing() { return !!(S.practice || PRACTICE); }
 function try2Done(st) {
   var s = scoreNow(st), again = LN !== 2 && (s.untrue || s.promise || s.musts.length);
+  if (practicing()) return vPracticeEnd(st, s);
   if (LN === 2 || !again || S.retried) {
     var best = S.retried && LN !== 3 ? better(S.score, s) : s; /* the better score stands */
     best.open = again ? (s.musts.length ? s.musts : SIGG.mustsMissed(LN, [false, false, false, false]).slice(0, 1)) : [];
@@ -410,7 +427,8 @@ function try2Done(st) {
 }
 function vAgain(st) {
   var s = S.score, i = (s.musts || [])[0];
-  vReady(st, null, function () { S.people = []; go(S.step, 1); }, s.untrue || s.promise ? fixBlock(s, true) : '<div class="callout must"><b class="cl" style="margin:0">' + q(L.parts[i].must) + '</b></div>', "r", true);
+  vReady(st, null, function () { S.people = []; go(S.step, 1); }, s.untrue || s.promise ? fixBlock(s, true) : '<div class="callout must"><b class="cl" style="margin:0">' + q(L.parts[i].must) + '</b></div>', "r", true, SH.tryAgain);
+  sayFix(s.untrue || s.promise ? s : null, s.untrue || s.promise ? null : L.parts[i]);
 }
 
 /* the feedback card (three blocks), then the lesson end */
@@ -438,7 +456,7 @@ function vFeedback(st, s, onNext, label, sub, extra) {
     (who && !(still && extra) ? '<div class="panel short" data-who="' + who + '">' + sceneFace(who) + whoDiv(who) + '</div>' : "") + (LN === 2 ? saidBlock(s.quote) : "") +
     (done.length ? '<div><div class="lbl">' + q(SH.blocks[0]) + '</div><ul class="rows">' + done.join("") + '</ul></div>' : "") +
     (fix.length ? '<div><div class="lbl">' + q(SH.blocks[1]) + '</div><ul class="rows">' + fix.join("") + '</ul></div>' : "") +
-    (still ? '<div>' + still + '</div>' : '<div><div class="lbl">' + q(SH.blocks[2]) + '</div><div class="tip">' + q(t < 0 ? L.tipAll : L.parts[t].tip) + '</div></div>') +
+    (still ? '<div>' + still + '</div>' : '<div><div class="lbl">' + q(SH.blocks[2]) + '</div><div class="tip">' + q(t < 0 ? L.tipAll : t === 0 && L.parts[0].tipPaid && S.people[0] && !S.people[0].straight ? L.parts[0].tipPaid : L.parts[t].tip) + '</div></div>') +
     from.map(function (f) { return '<div class="from">' + ICON.ok + '<span>' + q(f) + '</span></div>'; }).join("") + (extra || "") + '</div>' + foot(btn(label, "go")), sub);
   if (who) expr(who, n >= 3 ? "warm" : "neutral");
   $("#go").onclick = onNext;
@@ -454,13 +472,23 @@ function vLessonEnd(st) {
     (finish ? '<div><h1 class="lg" style="margin:0">' + q(anyOpen ? SH.ready5wait : SH.ready5) + '</h1><p class="course">' + q(SH.course) + '</p></div>'
       : '<div class="nx"><div class="lbl" style="margin:0">' + q(SH.end.whats) + '</div><p>' + q(SH.end.lead) + '</p><ol>' + SH.titles.map(function (t, i) { return i < LN ? "" : '<li class="' + (i === LN ? "lit" : "") + '"><i>' + (i + 1) + '</i><span>' + q(t) + (i === LN ? ' <em>' + q(SH.end.tomorrow) + '</em>' : "") + '</span></li>'; }).join("") + '</ol></div>') +
     '<div>' + (open || (finish && anyOpen) ? mustNote(open ? LN : other, musts) : "") + '<p class="shift">' + q(L.nextShift) + '</p>' + (L.endExtra ? '<p class="shift sm">' + q(L.endExtra) + '</p>' : "") + '</div></div>' +
-    (finish && anyOpen ? foot(btn(other === LN ? SH.next.try2 : "Next: lesson " + other + "’s 2nd try", "prac")) + '<button class="link" id="go">' + q(SH.done) + '</button>' : foot(btn(SH.done, "go"))), LN === 1 ? "" : "b");
+    ((finish && anyOpen) || open ? foot(btn(SH.practiceBtn, "prac")) + '<button class="link" id="go">' + q(SH.done) + '</button>' : foot(btn(SH.done, "go"))), LN === 1 ? "" : "b");
   var ep = $(".fill > .panel.end"); if (ep && ep.getBoundingClientRect().height < 104) { ep.style.display = "none"; fillUp(); } /* a sliver of a picture is no picture */
   $("#go").onclick = function () { go(-1); };
-  if ($("#prac")) $("#prac").onclick = function () { if (other === LN) { S.retried = false; go(prevIndex(), 0); } else location.href = "?l=" + other + "&practice&at=" + (try2At(other) + 1) + ".0"; };
+  if ($("#prac")) $("#prac").onclick = function () { var n = open ? LN : other; if (n === LN) { S.retried = false; S.practice = true; go(prevIndex(), 0); } else location.href = "?l=" + n + "&practice&at=" + (try2At(n) + 1) + ".0" + (qs.has("preview") ? "&preview" : ""); };
   requestAnimationFrame(function () { setTimeout(function () { var a = $(".ring-arc"); if (a) a.setAttribute("stroke-dashoffset", a.getAttribute("data-to")); }, 250); });
+}
+/* the practice round's end: "You passed [the step]." or, after a miss, the tip and the same round for next time */
+function vPracticeEnd(st, s) {
+  var musts = saved().must || {}, open = musts[LN] && musts[LN].length ? musts[LN] : SIGG.mustsMissed(LN, [false, false, false, false]).slice(0, 1), p = L.parts[open[0]] || L.parts[0];
+  var passed = open.every(function (k) { return s.hits[k]; }) && !s.untrue && !s.promise, step = p.step ? p.step.charAt(0).toLowerCase() + p.step.slice(1) : "";
+  if (passed) { delete musts[LN]; save({ must: musts }); } else { musts[LN] = open; save({ must: musts }); }
+  S.practice = false; S.done[S.step] = true; top({ result: true });
+  show(kick(st) + '<div class="fill"><div class="panel grow end">' + coverPic() + '</div>' + (passed ? '<h1 class="lg" style="margin:0">' + q(SH.passed.replace("{step}", step)) + '</h1>'
+    : '<div><div class="lbl">' + q(SH.blocks[2]) + '</div><div class="tip">' + q(s.untrue || s.promise ? (s.promise && !s.untrue ? SH.promise : SH.untrue) : p.tip) + '</div></div><div>' + mustNote(LN, musts) + '</div>') + '</div>' + foot(btn(SH.done, "go")), "p");
+  $("#go").onclick = function () { go(-1); };
 }
 function prevIndex() { for (var i = 0; i < L.steps.length; i += 1) if (L.steps[i].kind === "try2") return i; return 0; }
 function try2At(n) { var s = DATA.lessons[n].steps; for (var i = 0; i < s.length; i += 1) if (s[i].kind === "try2") return i; return 0; }
 /* the step still to practice, in the script's own words for it (its must sentence), then "Practice this before your next shift." */
-function mustNote(n, musts) { var i = (musts[n] || [])[0], p = DATA.lessons[n] && DATA.lessons[n].parts[i], m = p && p.must ? p.must.replace(/ One more time\.$/, "") : ""; return '<p class="shift" style="color:var(--red)">' + (m ? q(m) + " " : "") + q(SH.practice) + '</p>'; }
+function mustNote(n, musts) { var i = (musts[n] || [])[0], p = DATA.lessons[n] && DATA.lessons[n].parts[i]; return p && p.step ? '<p class="shift" style="color:var(--red)">' + q(SH.practice.replace("{step}", p.step)) + '</p>' : ""; }
