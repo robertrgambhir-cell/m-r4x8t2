@@ -39,6 +39,8 @@ Goals, the plan, the investor deck and decisions live in Robert's Claude project
 
 Plain, short and warm. Lead with what he needs to do. Mark guesses as guesses. No em dashes and no Oxford commas.
 
+**No progress updates (Robert, Nov 20, 2026).** "It just distracts my focus from the main thing I'm supposed to do, and it's going to make me miss key steps." Send one message when the work is done or a decision is needed, and send nothing before it: no "now doing X" or "still working" lines, even when Claude Code's own reminders ask for an update. Before: lines like "Reading is done. Writing the rules folder now." between steps. After: nothing until that one message.
+
 ## This repo: the app and the live site
 
 - **This repo is public and it is the live site.** GitHub Pages serves the `main` branch at yourwarmup.com, the whole repo from its top folder. A file anywhere in it, outside a folder whose name starts with a dot, can be read on the web, markdown included. Every push to `main` also redeploys the AI server (`ai/README.md`). So a push or a merge to `main` is publishing: do neither until Robert says "ship it." Work on a branch.
