@@ -79,9 +79,27 @@ export const SIG_SHARED = {
 };
 
 /* Deepgram Aura-2 speakers, one per person. The coach is the trainings' narrator. */
+/* Nov 19 (Robert picked these after a side-by-side, playbook rule 68): ElevenLabs voices, "el:<voice id>:<speed>", at 0.88 speed.
+   Coach Chris, Lena Jessica, Rico Will, Ben Eric, Tanya and Pat Matilda, Dwayne Brian, Hank Bill, Soo-jin, Ines and Joan Bella,
+   Kayla Laura, Luis Liam, Marisol and Anika Sarah, Bob Roger, Karim Adam. A shared voice is never used twice in one lesson. */
 export const SIG_VOICES = {
-  coach: "orpheus", lena: "asteria", rico: "atlas", ben: "apollo", tanya: "andromeda", dwayne: "mars", hank: "pluto", soojin: "athena",
-  kayla: "luna", luis: "aries", marisol: "thalia", ines: "helena", bob: "saturn", anika: "hera", joan: "vesta", karim: "arcas", pat: "harmonia",
+  coach: "el:iP95p4xoKVk53GoZ742B:0.88",
+  lena: "el:cgSgspJ2msm6clMCkdW9:0.88",
+  rico: "el:bIHbv24MWmeRgasZH58o:0.88",
+  ben: "el:cjVigY5qzO86Huf0OWal:0.88",
+  tanya: "el:XrExE9yKIg1WjnnlVkGX:0.88",
+  dwayne: "el:nPczCjzI2devNBz1zQrb:0.88",
+  hank: "el:pqHfZKP75CvOlQylNhV4:0.88",
+  soojin: "el:hpp4J3VqNfWAUOO0d1Us:0.88",
+  kayla: "el:FGY2WhTYpPnrIDTdsKH5:0.88",
+  luis: "el:TX3LPaxmHKxFdv7VOQHJ:0.88",
+  marisol: "el:EXAVITQu4vr4xnSDxMaL:0.88",
+  ines: "el:hpp4J3VqNfWAUOO0d1Us:0.88",
+  bob: "el:CwhRBWXzGAHq8TQ4Fs17:0.88",
+  anika: "el:EXAVITQu4vr4xnSDxMaL:0.88",
+  joan: "el:hpp4J3VqNfWAUOO0d1Us:0.88",
+  karim: "el:pNInz6obpgDQGcFmaJgB:0.88",
+  pat: "el:XrExE9yKIg1WjnnlVkGX:0.88",
 };
 
 /* the cast keeps the same facts in every lesson; every name and address is invented */
