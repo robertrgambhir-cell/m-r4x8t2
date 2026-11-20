@@ -50,7 +50,9 @@ var foot = function (html) { return '<div class="foot">' + html + '</div>'; };
 var btn = function (label, id, cls) { return '<button class="btn' + (cls ? " " + cls : "") + '" id="' + id + '">' + q(label) + '</button>'; };
 var row = function (cls, text, small) { return '<li class="' + cls + '"><span class="ck">' + (cls === "fix" ? ICON.dot : ICON.ok) + '</span><span>' + (small ? '<small>' + q(small) + '</small>' : "") + q(text) + '</span></li>'; };
 var why = function (right, text, plain) { return '<div class="why' + (plain ? " plain" : "") + '"><span class="dot' + (right ? "" : " no") + '">' + (right ? ICON.ok : ICON.dot) + '</span><span>' + q(text) + '</span></div>'; };
-var whoTag = function (who) { var c = CAST[who]; return esc((c.full || c.name) + (c.age ? ", " + c.age : "")); };
+/* a picture's name tag says only what the learner knows: a canvasser's first name, never a passerby's name or age (Robert, Nov 19) */
+var whoTag = function (who) { return canvasser(who) ? esc(CAST[who].name) : ""; };
+var whoDiv = function (who) { var t = whoTag(who); return t ? '<div class="who">' + t + '</div>' : ""; };
 function show(html, sub) { $("#scr").innerHTML = html; tag(sub); fillUp(); fitPic(); place(); fitHw(); }
 /* fill: a screen with room to spare grows its words and pictures together, up to FILL_MAX times their size, until the room is
    used (playbook A50: content scaled to fill the screen, no blank bands). The main button keeps its size. A screen whose
@@ -88,7 +90,7 @@ function fillUp() {
   scr.style.removeProperty("--k");
 }
 function cap(who, text, cls) { var c = $("#capts"); if (!c) return null; var el = c.querySelector(".capt." + (cls || "them").split(" ")[0]); if (!el) el = document.createElement("div"); if (c.lastChild !== el) c.appendChild(el); el.className = "capt " + (cls || "them"); el.innerHTML = (who ? "<b>" + esc(who) + "</b>" : "") + q(text); return el; }
-function nameOf(who) { return who === "coach" ? "Coach" : who === "you" ? "You" : CAST[who].name; }
+function nameOf(who) { return who === "coach" ? "Coach" : who === "you" ? "You" : canvasser(who) ? CAST[who].name : SH.passerby; }
 function act(who, a) {
   var p = $("#p-" + who); if (!p || !a) return;
   if (a === "slow") { p.classList.remove("walk"); expr(who, "warm"); }
@@ -153,7 +155,7 @@ function talk(cfg) {
     if (SIGG.misheard(text, cfg.opener && !T.pieces.length)) { var y = $("#capts .capt.you"); if (y && y.classList.contains("live")) y.remove(); micState("idle", "<b>" + q(SH.misheard) + "</b>"); return; }
     cap("You", tidy(text).replace(/'/g, "’"), "you"); M.busy = true;
     var res = T.hear(text);
-    micState("wait", res.say.some(function (k) { return k.charAt(0) !== "@"; }) ? "<b>" + esc(CAST[who].name) + " is answering.</b>" : "");
+    micState("wait", res.say.some(function (k) { return k.charAt(0) !== "@"; }) ? "<b>" + esc(SH.answering[CAST[who].g === "f" ? "f" : "m"]) + "</b>" : "");
     replies(res.say).then(function () { if (r !== RUN) return; if (res.end) { micState("wait", ""); wait(650).then(function () { if (r === RUN) cfg.onEnd(T); }); } else your(false); });
   }
   async function replies(list) {
@@ -170,21 +172,23 @@ function talk(cfg) {
       else if (k === "@hint") cap("Coach", cfg.hint || "", "note");
       else if (k === "@look") { act(who, "turn"); await wait(600); } /* they slow and look over, and wait for the rest */
       else if (k === "@go") { act(who, "go"); await wait(700); }
-      else { var ln = k === "again" ? cfg.opens : cfg.replies[k]; if (!ln) continue; act(who, ln.act); /* "again": their own question, asked once more */ cap(CAST[who].name, ln.text, "them"); await sayLine(ln, r); if (k === cfg.hintAfter) cap("Coach", cfg.hint || "", "note"); }
+      else { var ln = k === "again" ? cfg.opens : cfg.replies[k]; if (!ln) continue; act(who, ln.act); /* "again": their own question, asked once more */ cap(nameOf(who), ln.text, "them"); await sayLine(ln, r); if (k === cfg.hintAfter) cap("Coach", cfg.hint || "", "note"); }
     }
   }
   show(kick(cfg.st) + (cfg.set ? '<p class="sub">' + q(cfg.set) + '</p>' : "") +
-    '<div class="ft" id="panel">' + sceneOne(who, cfg.walk ? "off-l walk" : "") + '<div class="who">' + whoTag(who) + '</div>' +
+    '<div class="ft" id="panel">' + sceneStore() + sceneOne(who, cfg.walk ? "off-l walk" : "") + whoDiv(who) +
     '<div class="dock' + (cfg.line ? " haspet" : "") + '"><div class="capts" id="capts"></div>' + (cfg.line ? pet(fill, petOpts) : "") + micHtml() + '</div></div>', cfg.tag);
   top({});
   $("#mic").onclick = function (e) { e.stopPropagation(); if (!SR) { typedOn(function (v) { if (M.busy) return; M.used = true; heard(v); }); return; } if (M.rec) { M.rec.stop(); return; } if (M.busy) return; start(false); };
   $("#panel").onclick = function (e) { if (e.target.closest && e.target.closest(".dock")) return; if (!M.rec) stopSound(); };
   M.busy = true; micState("wait", "");
   (async function () {
+    /* the passerby walks up while the coach says so, over the storefront: never a blank panel (Robert, Nov 19) */
+    var arrive = cfg.walk ? wait(FAST ? 0 : 450).then(function () { if (r === RUN) return enter(who); }) : null;
     if (cfg.coach) { cap("Coach", cfg.coach.text, "them"); await sayLine(cfg.coach, r); }
     if (r !== RUN) return;
-    if (cfg.walk) await enter(who);
-    if (cfg.opens) { cap(CAST[who].name, cfg.opens.text, "them"); await sayLine(cfg.opens, r); }
+    if (arrive) await arrive;
+    if (cfg.opens) { cap(nameOf(who), cfg.opens.text, "them"); await sayLine(cfg.opens, r); }
     if (r !== RUN) return;
     your(true);
   })();
@@ -221,7 +225,7 @@ function vTry1Card(st) {
   var h = n === 4 ? SH.try1.all : n === 0 ? SH.try1.none : SH.try1.some.replace("{n}", n).replace("{m}", 4 - n);
   top({ result: true });
   var fx = t.g && (t.g.untrue || t.g.promise); /* the card then shows the untrue words itself, so "You said" would say them twice */
-  show(kick(st) + '<h1>' + q(h) + '</h1><div class="fill"><div class="panel short" data-who="' + st.who + '">' + sceneFace(st.who) + '<div class="who">' + whoTag(st.who) + '</div></div>' + (fx ? "" : saidBlock(t.said)) +
+  show(kick(st) + '<h1>' + q(h) + '</h1><div class="fill"><div class="panel short" data-who="' + st.who + '">' + sceneFace(st.who) + whoDiv(st.who) + '</div>' + (fx ? "" : saidBlock(t.said)) +
     '<ul class="rows">' + L.parts.map(function (p, i) { return t.hits[i] ? row("on", p.done) : row("off", p.name, SH.try1.watch); }).join("") + '</ul>' +
     (t.g && (t.g.untrue || t.g.promise) ? fixBlock(t.g, false) : "") + '</div>' + foot(btn(nextLabel(), "go")), "b");
   expr(st.who, n >= 3 ? "warm" : "neutral");
@@ -241,13 +245,15 @@ VIEW.hear = function (st) {
 /* plays a watched scene: who speaks, what happens on screen, then the coach's ticks */
 async function playScenes(st, by) {
   var r = RUN, fill = {};
-  function setScene(sc) { var p = $("#panel"); if (st.labels) p.classList.add("lab"); p.innerHTML = sceneTwo(by, sc.who, sc.stopped ? "" : "off-l walk") + '<div class="capts" id="capts"></div>' + (st.labels ? '<div class="labels" id="labels">' + st.labels.map(function (l) { return '<span>' + q(l) + '</span>'; }).join("") + '</div>' : ""); }
+  function setScene(sc) { var p = $("#panel"); if (st.labels) p.classList.add("lab"); p.innerHTML = sceneStore() + sceneTwo(by, sc.who, sc.stopped ? "" : "off-l walk") + '<div class="capts" id="capts"></div>' + (st.labels ? '<div class="labels" id="labels">' + st.labels.map(function (l) { return '<span>' + q(l) + '</span>'; }).join("") + '</div>' : ""); }
   function redraw(o) { var p = $("#pet"); if (p) p.outerHTML = pet(fill, o || {}); fitHw(); }
   setScene(st.scenes[0]);
+  /* the first scene comes in while the coach talks, over the storefront, so the panel is never blank (Robert, Nov 19) */
+  var first = st.scenes[0].stopped ? null : wait(FAST ? 0 : 450).then(function () { if (r === RUN) return enter(st.scenes[0].who); });
   if (st.coach) { cap("Coach", st.coach.text, "them"); if (!(await sayLine(st.coach, r))) return false; }
   for (var i = 0; i < st.scenes.length; i += 1) {
     var sc = st.scenes[i]; if (i) setScene(sc);
-    if (!sc.stopped) { await enter(sc.who); if (r !== RUN) return false; }
+    if (!sc.stopped) { await (i === 0 && first ? first : enter(sc.who)); if (r !== RUN) return false; }
     for (var j = 0; j < sc.lines.length; j += 1) {
       var ln = sc.lines[j], lab = $("#labels");
       if (ln.act === "sheet" || ln.act === "board") { var pr = document.querySelector("#p-" + ln.who + " .prop." + ln.act); if (pr) pr.classList.remove("hid"); var scn = document.querySelector("#panel .ph.two"); if (scn) scn.classList.add(ln.act); } else if (ln.act) act(ln.who === by ? sc.who : ln.who, ln.act);
@@ -278,7 +284,7 @@ function fitPic() { var pg = $(".fill > .panel[data-who]"); if (!pg) return; var
 VIEW.taps = function (st) {
   var r = RUN, k = S.sub, Q = st.qs[k], last = k === st.qs.length - 1, lt = "ABC";
   /* what the question is about, above the options: a person, the sheet it describes or the line it's about. It takes the room that is left. */
-  var pic = !Q.pic ? "" : Q.pic.who ? '<div class="panel grow" data-who="' + Q.pic.who + '">' + sceneOne(Q.pic.who, "") + '<div class="who">' + whoTag(Q.pic.who) + '</div></div>'
+  var pic = !Q.pic ? "" : Q.pic.who ? '<div class="panel grow" data-who="' + Q.pic.who + '">' + sceneOne(Q.pic.who, "") + whoDiv(Q.pic.who) + '</div>'
     : Q.pic.two ? '<div class="panel grow">' + sceneTwo(Q.pic.two[0], Q.pic.two[1], "") + '</div>'
     : Q.pic.sheet ? '<div class="panel grow paper">' + sceneSheet(Q.pic.sheet, Q.pic.day) + '</div>'
     : Q.pic.line ? '<div class="picpet">' + pet(Q.pic.line, { top: false, glow: Q.pic.glow, sheet: true }) + '</div>' : "";
@@ -352,8 +358,8 @@ VIEW.try2 = function (st) {
 function vReady(st, coach, onReady, extra, sub, result) {
   var r = RUN;
   top(result ? { result: true } : {});
-  var up = st.who || (st.people && st.people[0] && st.people[0].who), named = up && coach && CAST[up] && coach.text.indexOf(CAST[up].name) >= 0 && IMG[up]; /* "Marisol is walking up." shows Marisol */
-  show(kick(st) + (named ? '<div class="panel cap" data-who="' + up + '">' + sceneOne(up, "") + '<div class="who">' + whoTag(up) + '</div></div>' : '<div class="panel cap">' + sceneStore() + '</div>') + (extra || "") + (coach ? '<div class="coach q3">' + q(coach.text) + '</div>' : "") + (L.headsUp ? '<div class="callout">' + q(L.headsUp) + '</div>' : "") + foot(btn(SH.ready, "go")), sub || "a");
+  var up = st.who || (st.people && st.people[0] && st.people[0].who), named = up && coach && CAST[up] && IMG[up]; /* the coach's line is about who comes next, so the picture shows them (with no name tag) */
+  show(kick(st) + (named ? '<div class="panel cap" data-who="' + up + '">' + sceneOne(up, "") + whoDiv(up) + '</div>' : '<div class="panel cap">' + sceneStore() + '</div>') + (extra || "") + (coach ? '<div class="coach q3">' + q(coach.text) + '</div>' : "") + (L.headsUp ? '<div class="callout">' + q(L.headsUp) + '</div>' : "") + foot(btn(SH.ready, "go")), sub || "a");
   $("#go").onclick = function () { audio(); onReady(); };
   if (coach) sayLine(coach, r);
 }
@@ -368,10 +374,10 @@ function vChecks(st, k, sub) {
   top({ result: true });
   /* with the untrue words and the true ones on the card there is no room for the big picture: her face and name stay, small */
   var small = again && (g.untrue || g.promise);
-  show(kick(st) + '<div class="fill">' + (small ? '<div class="nextp" style="margin:0">' + face(P.who) + '<span>' + whoTag(P.who) + '</span></div>' : '<div class="panel short" data-who="' + P.who + '">' + sceneFace(P.who) + '<div class="who">' + whoTag(P.who) + '</div>' + (st.people.length > 2 ? '<div class="who r">' + (k + 1) + " of " + st.people.length + '</div>' : "") + '</div>') + (again ? "" : saidBlock(g.quote)) +
+  show(kick(st) + '<div class="fill">' + (small ? '<div class="nextp" style="margin:0">' + face(P.who) + '<span>' + q(SH.passerby) + '</span></div>' : '<div class="panel short" data-who="' + P.who + '">' + sceneFace(P.who) + whoDiv(P.who) + '' + (st.people.length > 2 ? '<div class="who r">' + (k + 1) + " of " + st.people.length + '</div>' : "") + '</div>') + (again ? "" : saidBlock(g.quote)) +
     '<ul class="rows">' + L.parts.map(function (p, i) { return g.hits[i] ? row("on", p.done) : fixRow(p, g, i); }).join("") + '</ul>' +
     (voidTry ? fixBlock(g, redo) : "") + oneMore + (again && L.headsUp ? '<div class="callout">' + q(L.headsUp) + '</div>' : "") + (!again && P.from && g.from ? '<div class="from">' + ICON.ok + '<span>' + q(P.from) + '</span></div>' : "") + '</div>' +
-    (up ? '<div class="nextp">' + face(up.who) + '<span>' + whoTag(up.who) + '</span></div>' : "") + foot(btn(redo || again || nextP ? SH.ready : nextLabel(), "go")), sub);
+    (up ? '<div class="nextp">' + face(up.who) + '<span>' + q(SH.upNext) + '</span></div>' : "") + foot(btn(redo || again || nextP ? SH.ready : nextLabel(), "go")), sub);
   expr(P.who, g.hits.filter(Boolean).length >= 3 ? "warm" : "neutral");
   $("#go").onclick = function () {
     if (redo) { S.redo[k] = true; return go(S.step, S.sub - 1); } /* lesson 2: an untrue opener gets one more try with the same passerby */
@@ -429,7 +435,7 @@ function vFeedback(st, s, onNext, label, sub, extra) {
   var still = (s.untrue && !(LN === 5 || LN === 2)) || (s.promise && LN !== 2) ? fixBlock(s, false) : "";
   top({ result: true });
   show(kick(LN === 1 ? st : "Feedback") + '<h1 class="scoreh">' + n + ' of 4</h1><div class="fill">' +
-    (who && !(still && extra) ? '<div class="panel short" data-who="' + who + '">' + sceneFace(who) + '<div class="who">' + whoTag(who) + '</div></div>' : "") + (LN === 2 ? saidBlock(s.quote) : "") +
+    (who && !(still && extra) ? '<div class="panel short" data-who="' + who + '">' + sceneFace(who) + whoDiv(who) + '</div>' : "") + (LN === 2 ? saidBlock(s.quote) : "") +
     (done.length ? '<div><div class="lbl">' + q(SH.blocks[0]) + '</div><ul class="rows">' + done.join("") + '</ul></div>' : "") +
     (fix.length ? '<div><div class="lbl">' + q(SH.blocks[1]) + '</div><ul class="rows">' + fix.join("") + '</ul></div>' : "") +
     (still ? '<div>' + still + '</div>' : '<div><div class="lbl">' + q(SH.blocks[2]) + '</div><div class="tip">' + q(t < 0 ? L.tipAll : L.parts[t].tip) + '</div></div>') +

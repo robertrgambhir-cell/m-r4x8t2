@@ -75,6 +75,9 @@ export const SIG_SHARED = {
   ready5: "You're table-ready.",
   ready5wait: "One step to go before you're table-ready.",
   course: "Right person. True words. Their own hand. One good look.",
+  passerby: "Passerby",
+  upNext: "Up next",
+  answering: { m: "He's answering.", f: "She's answering." },
   titles: ["How to spot a signature that counts", "How to stop a passerby", "How to ask for the signature", "How to make every line count", "How to answer a hard question"],
 };
 

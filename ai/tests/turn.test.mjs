@@ -94,15 +94,20 @@ r = await g("s=kevin_intro&k=0"); ok(r.status === 404, "a scenario without narra
   const N = SIG_NARRATION.sig.narration, lines = sigVoiceLines();
   r = await g("s=sig&k=0"); ok(r.status === 200 && r.headers.get("content-type") === "audio/mpeg" && voiceCalls[voiceCalls.length - 1].text === N[0] && voiceCalls[voiceCalls.length - 1].speaker === "orpheus", "a signature lesson's coach line is read in the narrator's voice");
   const lena = lines.find((x) => x.who === "lena"), t = N.indexOf(lena.say);
-  r = await g("s=sig&k=" + t + "&voice=" + SIG_VOICES.lena); ok(r.status === 200 && voiceCalls[voiceCalls.length - 1].speaker === SIG_VOICES.lena && /registered to vote in L\.A\. County\?$/.test(voiceCalls[voiceCalls.length - 1].text), "Lena's opener is read in her own voice, with the county said the way a voice says it");
+  const DG = "asteria"; /* Nov 19: the course is recorded ahead of time in ElevenLabs voices; the server still reads a line in a Deepgram voice for the recording tool */
+  r = await g("s=sig&k=" + t + "&voice=" + DG); ok(r.status === 200 && voiceCalls[voiceCalls.length - 1].speaker === DG && /registered to vote in L\.A\. County\?$/.test(voiceCalls[voiceCalls.length - 1].text), "Lena's opener is read in her own voice, with the county said the way a voice says it");
   r = await g("s=sig&k=" + N.length); ok(r.status === 404, "no signature line past the end");
   /* 165-16: the recording tool can ask for another take of a line; it is still that line in that voice */
-  r = await g("s=sig&k=" + t + "&voice=" + SIG_VOICES.lena + "&take=2"); ok(r.status === 200 && voiceCalls[voiceCalls.length - 1].speaker === SIG_VOICES.lena && voiceCalls[voiceCalls.length - 1].text === N[t], "another take of a line is the same line in the same voice");
+  r = await g("s=sig&k=" + t + "&voice=" + DG + "&take=2"); ok(r.status === 200 && voiceCalls[voiceCalls.length - 1].speaker === DG && voiceCalls[voiceCalls.length - 1].text === N[t], "another take of a line is the same line in the same voice");
   r = await g("s=sig&k=0&take=99"); ok(r.status === 200 && voiceCalls[voiceCalls.length - 1].text === N[0], "a take past nine is still the line");
   r = await g("s=constructor&k=0"); ok(r.status === 404, "only a real lesson id is read");
   r = await g("s=sig2&k=0"); ok(r.status === 404, "the old lesson 2 list is gone");
   ok(N.length > 100 && N.every((x) => typeof x === "string" && x.length > 1 && x.length < 400 && !/[{}\u2014]/.test(x)) && lines.every((x) => N.includes(x.say)), "every signature line is filled, short and has no em dash");
-  ok(lines.every((x) => SIG_VOICES[x.who] && x.voice === SIG_VOICES[x.who]) && new Set(Object.values(SIG_VOICES)).size === Object.keys(SIG_VOICES).length, "every line has a speaker, and no two people share a voice");
+  /* Nov 19 (playbook rule 68): a voice can come back in another lesson, never for two people in one lesson, and the coach's voice is the coach's alone */
+  const byLesson = {}; lines.forEach((x) => { (byLesson[x.n] = byLesson[x.n] || {})[x.who] = x.voice; });
+  const oneEach = Object.values(byLesson).every((m) => new Set(Object.values(m)).size === Object.keys(m).length);
+  const coachOwn = Object.keys(SIG_VOICES).every((w) => w === "coach" || SIG_VOICES[w] !== SIG_VOICES.coach);
+  ok(lines.every((x) => SIG_VOICES[x.who] && x.voice === SIG_VOICES[x.who]) && oneEach && coachOwn, "every line has a speaker, no two people in one lesson share a voice, and the coach's voice is the coach's alone");
   ok(N.filter((x) => x.includes(SIG_SETTINGS.countySay)).length >= 5 && !N.some((x) => x.includes("LA County")), "the county comes from the firm settings");
 }
 /* version 165: Sofia's 1st intro streams like Kevin's 2nd, graded on the same items, and lesson 1's doors stop at four lines */

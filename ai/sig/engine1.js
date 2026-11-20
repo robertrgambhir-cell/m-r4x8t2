@@ -166,14 +166,18 @@ var IMG = DATA.img || {};
 function imgUrl(n) { return "img/" + n + ".webp"; }
 function layers(name, v, sfx) { return '<img class="b" src="' + imgUrl(name + (sfx || "")) + '" alt="" decoding="async">' + (v || []).map(function (k) { return '<img class="v v-' + k + '" src="' + imgUrl(name + "-" + k + (sfx || "")) + '" alt="" decoding="async">'; }).join(""); }
 function pv(name) { return (IMG[name] && IMG[name].v) || []; }
+/* Show and say only what the learner would know (Nov 19, Robert's note; playbook A-rule): a canvasser is known by first name.
+   A passerby is a stranger, with no name or age, until their name is written on a petition line. */
+function canvasser(who) { return !!CAST[who] && !CAST[who].full; }
+function someone(who) { return canvasser(who) ? CAST[who].name : CAST[who].g === "f" ? "A woman" : "A man"; }
 /* one person, framed from the waist up, outside Westside Market: the video call, a tap screen's picture, a portrait */
-function sceneOne(who, cls) { return '<div class="ph one p ' + (cls || "") + '" id="p-' + who + '" data-img="' + who + '" role="img" aria-label="' + esc(CAST[who].full || CAST[who].name) + ' outside Westside Market"><div class="bobber">' + layers(who, pv(who)) + '</div></div>'; }
+function sceneOne(who, cls) { return '<div class="ph one p ' + (cls || "") + '" id="p-' + who + '" data-img="' + who + '" role="img" aria-label="' + esc(someone(who)) + ' outside Westside Market"><div class="bobber">' + layers(who, pv(who)) + '</div></div>'; }
 /* a canvasser and a passerby, for the parts you watch. Coming in, the scene fades in; it carries the passerby's id */
-function sceneTwo(by, who, cls) { var n = "two-" + by + "-" + who; return '<div class="ph two p ' + (cls || "") + '" id="p-' + who + '" data-img="' + n + '" role="img" aria-label="' + esc(CAST[by].name + " and " + (CAST[who].full || CAST[who].name)) + ' outside Westside Market"><div class="bobber">' + layers(n, pv(n)) + '</div></div>'; }
+function sceneTwo(by, who, cls) { var n = "two-" + by + "-" + who; return '<div class="ph two p ' + (cls || "") + '" id="p-' + who + '" data-img="' + n + '" role="img" aria-label="' + esc(CAST[by].name + " and " + (canvasser(who) ? CAST[who].name : someone(who).toLowerCase())) + ' outside Westside Market"><div class="bobber">' + layers(n, pv(n)) + '</div></div>'; }
 /* the storefront with nobody in it yet, for the beat before a try */
 function sceneStore() { return '<div class="ph shop" role="img" aria-label="Westside Market, with your table out front">' + layers("store") + '</div>'; }
 /* the same person as a small picture on a card: the face, framed whole */
-function sceneFace(who) { var v = pv(who).filter(function (k) { return k === "warm"; }); return '<div class="ph close" id="p-' + who + '" role="img" aria-label="' + esc(CAST[who].full || CAST[who].name) + '">' + layers(who, v, "-close") + '</div>'; }
+function sceneFace(who) { var v = pv(who).filter(function (k) { return k === "warm"; }); return '<div class="ph close" id="p-' + who + '" role="img" aria-label="' + esc(someone(who)) + '">' + layers(who, v, "-close") + '</div>'; }
 function face(who) { return '<img class="av" src="' + imgUrl(who + "-av") + '" alt="" decoding="async">'; }
 /* frame each picture: object-fit cover, shifted so the face (or the faces) sit near the top third, never past an edge */
 function frameOf(el) {

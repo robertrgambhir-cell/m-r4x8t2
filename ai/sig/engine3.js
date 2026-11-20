@@ -23,7 +23,7 @@ VIEW.sort = function (st) {
     $("#go").onclick = nextStep; sayLine(st.after, r); return;
   }
   var C = st.cards[k];
-  show(kick(st) + (k === 0 ? '<div class="coach" id="coach">' + q(st.coach.text) + '</div>' : "") + '<div class="count">' + (k + 1) + " of " + n + '</div><div class="fill"><div class="panel grow" data-who="' + C.face + '">' + sceneOne(C.face, "") + '<div class="who">' + whoTag(C.face) + '</div></div><p class="sctext">' + q(C.text) + '</p>' +
+  show(kick(st) + (k === 0 ? '<div class="coach" id="coach">' + q(st.coach.text) + '</div>' : "") + '<div class="count">' + (k + 1) + " of " + n + '</div><div class="fill"><div class="panel grow" data-who="' + C.face + '">' + sceneOne(C.face, "") + '<div class="who">' + esc(CAST[C.face].full || CAST[C.face].name) + '</div></div><p class="sctext">' + q(C.text) + '</p>' +
     '<div class="opts row" id="opts">' + st.buttons.map(function (b, i) { return '<button class="opt" data-i="' + i + '"><span style="flex:1">' + q(b) + '</span></button>'; }).join("") + '</div><div id="why"></div></div><div id="ft"></div>', "abcdef"[k]);
   if (k === 0) sayLine(st.coach, r);
   fitPic();
