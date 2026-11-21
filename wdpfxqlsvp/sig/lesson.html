@@ -110,6 +110,12 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.08; letter-spacing: -0.01
 .coach { flex: none; margin: 10px 2px 0; font: 400 calc(16 * var(--u))/1.4 "Figtree"; color: var(--ink-2); text-wrap: pretty; min-height: calc(2 * 1.4 * 16 * var(--u)); }
 .coach.q3 { min-height: calc(3 * 1.4 * 16 * var(--u)); }
 .coach.dim { opacity: .4; }
+/* the coach in writing (?coach=text): its words look as they do on a ready screen, and the only other change is that a caption from the
+   coach is a note, not a speech bubble, since nobody is talking. Over a tap question the coach's line comes first. The 1st try's ready
+   screen frames the view from above on the walker, who starts near its top. */
+.coachw { flex: none; margin: 8px 2px 2px; font: 400 calc(16 * var(--u))/1.4 "Figtree"; color: var(--ink-2); text-wrap: pretty; }
+html.textc .capt.cw { background: var(--soft); border: 1px solid var(--line); border-radius: 12px; box-shadow: none; }
+.panel.walktop .ph.air img { object-position: 50% 5%; }
 .hint { flex: none; margin: 10px 2px 0; font: 700 calc(15 * var(--u))/1.35 "Figtree"; color: var(--ink); }
 /* a conversation is a FaceTime call: the person fills a card, as the door-knocking lessons' door does, the latest line from each
    side sits over the chest, never the face, and the talk button sits under the card */
@@ -1036,6 +1042,22 @@ var BEATTEST = qs.has("beat"); /* tests: the Part N of 4 screens show even in fa
 /* the small screen number ("Sig 2.4") shows only with ?tags (version 8, Robert, Nov 20, 3:51 PM: "We don't want that little number
    there. I don't know what that means.") It stays in the page, hidden, for the build's own checks. */
 var TAGS = qs.has("tags"); if (TAGS) document.documentElement.classList.add("tags");
+/* the coach in writing (?coach=text, Robert's test, Nov 21: "the only time you ever hear a voice is for an AI voter"): the coach's
+   lines show on screen and are never heard, so the only voices are the people in the scene. A line waits as long as it takes to read
+   (700 ms and 270 ms a word, at least 1.4 s), its clock stops while the lesson is paused, and a tap anywhere but a button moves on.
+   Without the flag the coach talks, as before. */
+var TEXTC = qs.get("coach") === "text", READ = null;
+if (TEXTC) document.documentElement.classList.add("textc");
+function readWait(text, r) {
+  var n = String(text || "").split(/\s+/).filter(Boolean).length, need = FAST ? HOLD : Math.max(1400, 700 + n * 270), got = 0, last = Date.now();
+  return new Promise(function (ok) {
+    var t = setInterval(function () { var now = Date.now(); if (!PAUSED) got += now - last; last = now; if (got >= need || r !== RUN) end(); }, FAST ? 5 : 50);
+    function end() { clearInterval(t); if (READ === end) READ = null; ok(r === RUN); }
+    if (READ) READ(); READ = end;
+  });
+}
+/* a tap that isn't on a button ends the written line and does nothing else, so it never also skips the next person's words */
+if (TEXTC) document.addEventListener("click", function (e) { if (!READ || (e.target.closest && e.target.closest("button, a, input, textarea, select, [data-box]"))) return; e.stopPropagation(); READ(); }, true);
 var FAST = qs.has("fast"), HOLD = Math.max(10, parseInt(qs.get("fast"), 10) || 10); /* tests: no sound, no waiting. fast=300 holds each spoken line 300 ms so a test sees every caption */
 var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 var $ = function (s) { return document.querySelector(s); };
@@ -1091,13 +1113,14 @@ function audio() {
 }
 function fetchClip(clip) { if (clip && !RAW[clip]) RAW[clip] = fetch("audio/" + clip + ".mp3").then(function (r) { if (!r.ok) throw new Error("clip"); return r.arrayBuffer(); }).catch(function () { return null; }); return RAW[clip] || Promise.resolve(null); }
 function clipBuf(clip) { if (!BUF[clip]) BUF[clip] = fetchClip(clip).then(function (ab) { if (!ab) return null; return new Promise(function (res) { try { audio().decodeAudioData(ab.slice(0), res, function () { res(null); }); } catch (e) { res(null); } }); }); return BUF[clip]; }
-function stopSound() { var p = playing; playing = []; p.forEach(function (x) { try { x.s.onended = null; x.s.stop(); } catch (e) {} x.done(false); }); try { speechSynthesis.cancel(); } catch (e) {} lip(null); }
+function stopSound() { if (READ) READ(); var p = playing; playing = []; p.forEach(function (x) { try { x.s.onended = null; x.s.stop(); } catch (e) {} x.done(false); }); try { speechSynthesis.cancel(); } catch (e) {} lip(null); }
 function playBuf(buf) { return new Promise(function (res) { var a = audio(), s = a.createBufferSource(), rec = { s: s, done: res }; s.buffer = buf; s.connect(OUT); s.onended = function () { playing = playing.filter(function (x) { return x !== rec; }); res(true); }; s.start(); playing.push(rec); }); }
 function ttsSay(text) { return new Promise(function (res) { try { var u = new SpeechSynthesisUtterance(text); u.rate = 1.02; u.onend = function () { res(true); }; u.onerror = function () { res(false); }; speechSynthesis.speak(u); } catch (e) { setTimeout(function () { res(false); }, 1200); } }); }
 function level() { if (!AN) return 0; var d = new Uint8Array(AN.fftSize); AN.getByteTimeDomainData(d); var s = 0; for (var i = 0; i < d.length; i += 1) { var v = (d[i] - 128) / 128; s += v * v; } return Math.sqrt(s / d.length); }
 /* say one line of the script: its recorded clip (the phone's own voice only if the clip can't be had), with the speaker's mouth moving */
 function sayLine(line, r) {
   if (!line) return Promise.resolve(true);
+  if (TEXTC && line.who === "coach") return readWait(line.text, r); /* written, never heard (in fast mode too, so the checks see it) */
   if (FAST) return new Promise(function (ok) { setTimeout(function () { ok(r === RUN); }, HOLD); });
   return clipBuf(line.clip).then(function (buf) {
     if (r !== RUN) return false;
@@ -1344,7 +1367,7 @@ function go(step, sub) {
   S.seen[step] = true;
   var st = L.steps[step], from = L.steps[prev];
   if (!S.sub && L.phases && (!FAST || BEATTEST) && (prev < 0 || (step > prev && from && from.ph !== st.ph))) {
-    if (st.kind === "try2" || st.kind === "say") S.partOver = st.ph; /* its first screen waits for a tap: Part N of 4 shows over it, as in the door-knocking lessons */
+    if (st.kind === "try2" || st.kind === "say" || (TEXTC && st.kind === "try1")) S.partOver = st.ph; /* its first screen waits for a tap: Part N of 4 shows over it, as in the door-knocking lessons */
     else return vBeat(st.ph, function () { VIEW[st.kind](st); });
   }
   VIEW[st.kind](st);
@@ -1437,7 +1460,7 @@ function fillUp() {
   for (lo = Math.floor(lo * 100) / 100; lo > 1.005; lo -= 0.03) { scr.style.setProperty("--k", lo.toFixed(3)); if (!over()) return; }
   scr.style.removeProperty("--k");
 }
-function cap(who, text, cls) { var c = $("#capts"); if (!c) return null; var el = c.querySelector(".capt." + (cls || "them").split(" ")[0]); if (!el) el = document.createElement("div"); if (c.lastChild !== el) c.appendChild(el); el.className = "capt " + (cls || "them"); el.innerHTML = (who ? "<b>" + esc(who) + "</b>" : "") + q(text); return el; }
+function cap(who, text, cls) { if (TEXTC && who === "Coach" && (cls || "them") === "them") cls = "them cw"; var c = $("#capts"); if (!c) return null; var el = c.querySelector(".capt." + (cls || "them").split(" ")[0]); if (!el) el = document.createElement("div"); if (c.lastChild !== el) c.appendChild(el); el.className = "capt " + (cls || "them"); el.innerHTML = (who ? "<b>" + esc(who) + "</b>" : "") + q(text); return el; }
 function nameOf(who) { return who === "coach" ? "Coach" : who === "you" ? "You" : canvasser(who) ? SH.canvasser : SH.passerby; }
 /* what a line does in the picture: the canvasser holds up the top funders sheet (sheet) or the board again (board), a passerby
    slows down, turns with an earbud out, takes the pen or walks off */
@@ -1706,7 +1729,7 @@ function talk(cfg) {
     '<div class="ft" id="panel" data-stage="' + (wk ? "air" : "face") + '">' + sceneOne(who, cfg.walk ? "off walk" : "", cfg.pic) + (wk ? sceneWalk(who, wk) : "") + whoDiv(who) +
     '<div class="dock' + (cfg.line ? " haspet" : "") + '"><div class="capts" id="capts"></div>' + (cfg.line ? pet(fill, petOpts) : "") + '</div></div>' + micHtml(), cfg.tag);
   top({});
-  $("#mic").onclick = function (e) { e.stopPropagation(); if (!SR) { typedOn(function (v) { if (M.busy) return; M.used = true; heard(v); }); if (W) W.liven(); return; } if (M.rec) { M.rec.stop(); return; } if (M.busy) return; start(false); };
+  $("#mic").onclick = function (e) { e.stopPropagation(); if (!SR) { typedOn(function (v) { if (M.busy) return; M.used = true; heard(v); }); if (W) W.liven(); return; } if (M.rec) { M.rec.stop(); return; } if (M.busy) { if (READ) READ(); return; } start(false); };
   $("#panel").onclick = function (e) { if (e.target.closest && e.target.closest(".dock")) return; if (!M.rec) stopSound(); };
   $("#panel").addEventListener("input", function (e) { if (W) { W.held = !!(e.target && e.target.value && e.target.value.trim()); W.talk(); } }); /* typing (a browser that can't listen) is talking: words in the box are heard before they walk on */
   M.busy = true; micState("wait", "");
@@ -1744,7 +1767,7 @@ function vCover() {
     (saved().must && saved().must[LN] ? mustNote(LN, saved().must).replace(' style="color:var(--red)"', "") : "") + foot(btn(L.start || SH.start, "start")), "");
   $("#start").onclick = function () { audio(); go(0, 0); };
   /* the lesson's voices load while the cover is read */
-  (function walk(x) { if (!x || typeof x !== "object") return; if (x.clip) fetchClip(x.clip); Object.keys(x).forEach(function (k) { walk(x[k]); }); })(L.steps);
+  (function walk(x) { if (!x || typeof x !== "object") return; if (x.clip && !(TEXTC && x.who === "coach")) fetchClip(x.clip); Object.keys(x).forEach(function (k) { walk(x[k]); }); })(L.steps);
   /* and its pictures: everyone it shows, the two-person scenes, the storefront and the four places to stand */
   var pics = ["spot-sit", "spot-stand", "spot-doorway", "spot-side", "walkway", coverName()];
   L.steps.forEach(function (st) { (st.scenes || []).concat(st.people || [], [st]).forEach(function (x) { if (x && x.who) { pics.push(x.who); var wk = walkable(x.who, x.pic); if (wk) { pics.push("w-" + wk); pics.push("aerial-" + wk); } if (x.pic) pics.push(x.pic); } });
@@ -1755,7 +1778,9 @@ function vCover() {
 /* Your 1st try: never scored. Then the card: what you did, and what to watch for. */
 VIEW.try1 = function (st) {
   if (S.sub === 1) return vTry1Card(st);
-  talk({ st: st, key: LN + "." + st.who, who: st.who, pic: st.pic, coach: st.coach, opens: st.opens, replies: st.replies, walk: st.walk, line: st.line, opener: LN === 2, tag: "a",
+  /* with the coach in writing, the 1st try starts like the 2nd: read what to do on its own screen (Sig N.1r), then tap to start the talk */
+  if (TEXTC && S.sub !== 2) return vReady(st, st.coach, function () { go(S.step, 2); }, "", "r", false, SH.start);
+  talk({ st: st, key: LN + "." + st.who, who: st.who, pic: st.pic, coach: TEXTC ? null : st.coach, opens: st.opens, replies: st.replies, walk: st.walk, line: st.line, opener: LN === 2, tag: "a",
     onEnd: function (T) { var g = T.grade(); S.try1 = { hits: g.hits, said: g.quote || T.pieces.join(" "), g: g }; S.perfect1 = g.hits.every(Boolean) && !g.walked; go(S.step, 1); } });
 };
 function vTry1Card(st) {
@@ -1871,7 +1896,7 @@ VIEW.taps = function (st) {
     ? '<div class="pics" id="opts">' + Q.pics.map(function (p, i) { return '<button class="pic" data-i="' + i + '" aria-label="' + lt[i] + ". " + esc(Q.alt[i]) + '"><span class="lt">' + lt[i] + '</span>' + PICS[p]() + '</button>'; }).join("") + '</div>'
     : '<div class="opts' + (Q.row && Q.opts.length > 2 ? " tall" : Q.row ? " row" : "") + '" id="opts">' + Q.opts.map(function (o, i) { return '<button class="opt' + (Q.quote ? " qt" : "") + '" data-i="' + i + '">' + (Q.row ? "" : '<span class="lt">' + lt[i] + '</span>') + '<span>' + (Q.quote ? "“" + q(o) + "”" : q(o)) + '</span></button>'; }).join("") + '</div>';
   top({});
-  show('<h1>' + q(Q.ask) + '</h1><div class="fill">' + pic + p20 + opts + '<div id="why"></div></div><div id="ft"></div>', st.qs.length > 1 ? "abcd"[k] : ""); /* one header: the question (version 8) */
+  show((TEXTC && k === 0 && st.coach ? '<p class="coachw">' + q(st.coach.text) + '</p>' : "") + '<h1>' + q(Q.ask) + '</h1><div class="fill">' + pic + p20 + opts + '<div id="why"></div></div><div id="ft"></div>', st.qs.length > 1 ? "abcd"[k] : ""); /* one header: the question (version 8) */
   if (k === 0 && st.coach) sayLine(st.coach, r);
   fitPic();
   [].forEach.call(document.querySelectorAll("#opts button"), function (b) {
@@ -1945,13 +1970,15 @@ function vReady(st, coach, onReady, extra, sub, result, label) {
   /* someone who will walk up shows from above, small and far down the sidewalk, as their walk-up starts (version 8, rule 37c: never
      their face before they come); someone already stopped shows face to face */
   var p0 = st.people ? st.people[0] : st, wk = named && p0 && (p0.walk || st.kind === "say") ? walkable(up, upPic) : null;
-  show(kick(st) + (wk ? '<div class="panel cap" data-stage="air">' + sceneOne(up, "off walk", upPic) + sceneWalk(up, wk) + '</div>' : named ? '<div class="panel cap" data-who="' + up + '">' + sceneOne(up, "", upPic) + whoDiv(up) + '</div>' : '<div class="panel cap">' + sceneStore() + '</div>') + (extra || "") + (coach ? '<div class="coach q3">' + q(coach.text) + '</div>' : "") + (L.headsUp ? '<div class="callout">' + q(L.headsUp) + '</div>' : "") + foot(btn(label || st.ready || SH.ready, "go")), sub || "a");
-  $("#go").onclick = function () { audio(); onReady(); };
+  show(kick(st) + (wk ? '<div class="panel cap' + (st.kind === "try1" ? " walktop" : "") + '" data-stage="air">' + sceneOne(up, "off walk", upPic) + sceneWalk(up, wk) + '</div>' : named ? '<div class="panel cap" data-who="' + up + '">' + sceneOne(up, "", upPic) + whoDiv(up) + '</div>' : '<div class="panel cap">' + sceneStore() + '</div>') + (extra || "") + (coach ? '<div class="coach q3">' + q(coach.text) + '</div>' : "") + (L.headsUp && st.kind !== "try1" ? '<div class="callout">' + q(L.headsUp) + '</div>' : "") + foot(btn(label || st.ready || SH.ready, "go")), sub || "a");
+  var hold = null; /* the 1st try's ready screen (coach in writing): while Part 1 of 4 shows, a tap on Start only clears it */
+  $("#go").onclick = function () { if (hold && hold()) return; audio(); onReady(); };
   var part = S.partOver; S.partOver = null;
   if (part != null) { /* Part N of 4 over the screen for a moment, with the button in view under it; then the coach */
     var g = $("#go"), sc = $("#scr"); sc.insertAdjacentHTML("beforeend", beatHtml(part, true));
     var bt = $("#beat"), gr = g.getBoundingClientRect(), sr = sc.getBoundingClientRect(); bt.style.bottom = Math.max(0, sr.bottom - gr.top + 12) + "px";
     var gone = false, off = function () { if (gone || r !== RUN) return; gone = true; bt.remove(); if (coach) sayLine(coach, r); };
+    if (st.kind === "try1") hold = function () { if (gone) return false; off(); return true; };
     bt.onclick = off; setTimeout(off, FAST ? 250 : 2400);
     return;
   }
@@ -2052,7 +2079,7 @@ function vLessonEnd(st) {
     ((finish && anyOpen) || open ? foot(btn(SH.practiceBtn, "prac")) + '<button class="link" id="go">' + q(SH.done) + '</button>' : foot(btn(SH.done, "go"))), LN === 1 ? "" : "b");
   var ep = $(".panel.end"); if (ep && ep.getBoundingClientRect().height < 104) { ep.style.display = "none"; fillUp(); } /* a sliver of a picture is no picture */
   $("#go").onclick = function () { go(-1); };
-  if ($("#prac")) $("#prac").onclick = function () { var n = open ? LN : other; if (n === LN) { S.retried = false; S.practice = true; go(prevIndex(), 0); } else location.href = "?l=" + n + "&practice&at=" + (try2At(n) + 1) + ".0" + (qs.has("preview") ? "&preview" : ""); };
+  if ($("#prac")) $("#prac").onclick = function () { var n = open ? LN : other; if (n === LN) { S.retried = false; S.practice = true; go(prevIndex(), 0); } else location.href = "?l=" + n + "&practice&at=" + (try2At(n) + 1) + ".0" + (qs.has("preview") ? "&preview" : "") + (TEXTC ? "&coach=text" : "") + (TAGS ? "&tags" : ""); };
 }
 /* the practice round's end: "You passed [the step]." or, after a miss, the tip and the same round for next time */
 function vPracticeEnd(st, s) {
@@ -2156,7 +2183,7 @@ VIEW.stop = function (st) {
 VIEW.lines = function (st) {
   var r = RUN + 0, k = S.sub, X = st.lines[k], last = k === st.lines.length - 1;
   top({});
-  show('<h1 class="lineh">Line ' + X.tag + (st.ask ? ': ' + q(st.ask.charAt(0).toLowerCase() + st.ask.slice(1)) : "") + '</h1><div id="pw" class="psheet">' + pet(X.fill, { tap: true, big: true, note: X.note, sheet: true }) + '</div>' +
+  show((TEXTC && k === 0 && st.coach ? '<p class="coachw">' + q(st.coach.text) + '</p>' : "") + '<h1 class="lineh">Line ' + X.tag + (st.ask ? ': ' + q(st.ask.charAt(0).toLowerCase() + st.ask.slice(1)) : "") + '</h1><div id="pw" class="psheet">' + pet(X.fill, { tap: true, big: true, note: X.note, sheet: true }) + '</div>' +
     '<div class="fill"><div class="opts" id="opts"><button class="opt" id="okb"><span style="flex:1;text-align:center">' + q(st.ok) + '</span></button></div><div id="why"></div></div><div id="ft"></div>', "abcd"[k]);
   if (k === 0) sayLine(st.coach, r);
   var done = false, pick = function (key) {
@@ -2220,7 +2247,7 @@ if (!OPEN) { $("#top").style.display = "none"; $("#tag").textContent = ""; $("#s
 else if (!LN) vCard();
 else if (qs.has("at")) { var at0 = qs.get("at").split("."); S.step = -1; go(Math.max(0, Math.min(L.steps.length - 1, (parseInt(at0[0], 10) || 1) - 1)), parseInt(at0[1], 10) || 0); }
 else go(-1);
-window.__sgBusy = function () { return playing.length > 0; };
+window.__sgBusy = function () { return playing.length > 0 || !!READ; };
 window.__sg = { S: S, go: go, L: L, LN: LN, time: function () { var now = performance.now(), ms = Object.assign({}, TM.ms); if (TM.at >= 0) ms[TM.at] = (ms[TM.at] || 0) + now - TM.t0; return ms; }, run: function () { return RUN; }, M: M };
 
 })();

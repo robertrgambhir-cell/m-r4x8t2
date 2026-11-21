@@ -9,6 +9,22 @@ var BEATTEST = qs.has("beat"); /* tests: the Part N of 4 screens show even in fa
 /* the small screen number ("Sig 2.4") shows only with ?tags (version 8, Robert, Nov 20, 3:51 PM: "We don't want that little number
    there. I don't know what that means.") It stays in the page, hidden, for the build's own checks. */
 var TAGS = qs.has("tags"); if (TAGS) document.documentElement.classList.add("tags");
+/* the coach in writing (?coach=text, Robert's test, Nov 21: "the only time you ever hear a voice is for an AI voter"): the coach's
+   lines show on screen and are never heard, so the only voices are the people in the scene. A line waits as long as it takes to read
+   (700 ms and 270 ms a word, at least 1.4 s), its clock stops while the lesson is paused, and a tap anywhere but a button moves on.
+   Without the flag the coach talks, as before. */
+var TEXTC = qs.get("coach") === "text", READ = null;
+if (TEXTC) document.documentElement.classList.add("textc");
+function readWait(text, r) {
+  var n = String(text || "").split(/\s+/).filter(Boolean).length, need = FAST ? HOLD : Math.max(1400, 700 + n * 270), got = 0, last = Date.now();
+  return new Promise(function (ok) {
+    var t = setInterval(function () { var now = Date.now(); if (!PAUSED) got += now - last; last = now; if (got >= need || r !== RUN) end(); }, FAST ? 5 : 50);
+    function end() { clearInterval(t); if (READ === end) READ = null; ok(r === RUN); }
+    if (READ) READ(); READ = end;
+  });
+}
+/* a tap that isn't on a button ends the written line and does nothing else, so it never also skips the next person's words */
+if (TEXTC) document.addEventListener("click", function (e) { if (!READ || (e.target.closest && e.target.closest("button, a, input, textarea, select, [data-box]"))) return; e.stopPropagation(); READ(); }, true);
 var FAST = qs.has("fast"), HOLD = Math.max(10, parseInt(qs.get("fast"), 10) || 10); /* tests: no sound, no waiting. fast=300 holds each spoken line 300 ms so a test sees every caption */
 var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 var $ = function (s) { return document.querySelector(s); };
@@ -64,13 +80,14 @@ function audio() {
 }
 function fetchClip(clip) { if (clip && !RAW[clip]) RAW[clip] = fetch("audio/" + clip + ".mp3").then(function (r) { if (!r.ok) throw new Error("clip"); return r.arrayBuffer(); }).catch(function () { return null; }); return RAW[clip] || Promise.resolve(null); }
 function clipBuf(clip) { if (!BUF[clip]) BUF[clip] = fetchClip(clip).then(function (ab) { if (!ab) return null; return new Promise(function (res) { try { audio().decodeAudioData(ab.slice(0), res, function () { res(null); }); } catch (e) { res(null); } }); }); return BUF[clip]; }
-function stopSound() { var p = playing; playing = []; p.forEach(function (x) { try { x.s.onended = null; x.s.stop(); } catch (e) {} x.done(false); }); try { speechSynthesis.cancel(); } catch (e) {} lip(null); }
+function stopSound() { if (READ) READ(); var p = playing; playing = []; p.forEach(function (x) { try { x.s.onended = null; x.s.stop(); } catch (e) {} x.done(false); }); try { speechSynthesis.cancel(); } catch (e) {} lip(null); }
 function playBuf(buf) { return new Promise(function (res) { var a = audio(), s = a.createBufferSource(), rec = { s: s, done: res }; s.buffer = buf; s.connect(OUT); s.onended = function () { playing = playing.filter(function (x) { return x !== rec; }); res(true); }; s.start(); playing.push(rec); }); }
 function ttsSay(text) { return new Promise(function (res) { try { var u = new SpeechSynthesisUtterance(text); u.rate = 1.02; u.onend = function () { res(true); }; u.onerror = function () { res(false); }; speechSynthesis.speak(u); } catch (e) { setTimeout(function () { res(false); }, 1200); } }); }
 function level() { if (!AN) return 0; var d = new Uint8Array(AN.fftSize); AN.getByteTimeDomainData(d); var s = 0; for (var i = 0; i < d.length; i += 1) { var v = (d[i] - 128) / 128; s += v * v; } return Math.sqrt(s / d.length); }
 /* say one line of the script: its recorded clip (the phone's own voice only if the clip can't be had), with the speaker's mouth moving */
 function sayLine(line, r) {
   if (!line) return Promise.resolve(true);
+  if (TEXTC && line.who === "coach") return readWait(line.text, r); /* written, never heard (in fast mode too, so the checks see it) */
   if (FAST) return new Promise(function (ok) { setTimeout(function () { ok(r === RUN); }, HOLD); });
   return clipBuf(line.clip).then(function (buf) {
     if (r !== RUN) return false;

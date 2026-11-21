@@ -110,6 +110,12 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.08; letter-spacing: -0.01
 .coach { flex: none; margin: 10px 2px 0; font: 400 calc(16 * var(--u))/1.4 "Figtree"; color: var(--ink-2); text-wrap: pretty; min-height: calc(2 * 1.4 * 16 * var(--u)); }
 .coach.q3 { min-height: calc(3 * 1.4 * 16 * var(--u)); }
 .coach.dim { opacity: .4; }
+/* the coach in writing (?coach=text): its words look as they do on a ready screen, and the only other change is that a caption from the
+   coach is a note, not a speech bubble, since nobody is talking. Over a tap question the coach's line comes first. The 1st try's ready
+   screen frames the view from above on the walker, who starts near its top. */
+.coachw { flex: none; margin: 8px 2px 2px; font: 400 calc(16 * var(--u))/1.4 "Figtree"; color: var(--ink-2); text-wrap: pretty; }
+html.textc .capt.cw { background: var(--soft); border: 1px solid var(--line); border-radius: 12px; box-shadow: none; }
+.panel.walktop .ph.air img { object-position: 50% 5%; }
 .hint { flex: none; margin: 10px 2px 0; font: 700 calc(15 * var(--u))/1.35 "Figtree"; color: var(--ink); }
 /* a conversation is a FaceTime call: the person fills a card, as the door-knocking lessons' door does, the latest line from each
    side sits over the chest, never the face, and the talk button sits under the card */

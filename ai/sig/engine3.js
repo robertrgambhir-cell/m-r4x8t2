@@ -85,7 +85,7 @@ VIEW.stop = function (st) {
 VIEW.lines = function (st) {
   var r = RUN + 0, k = S.sub, X = st.lines[k], last = k === st.lines.length - 1;
   top({});
-  show('<h1 class="lineh">Line ' + X.tag + (st.ask ? ': ' + q(st.ask.charAt(0).toLowerCase() + st.ask.slice(1)) : "") + '</h1><div id="pw" class="psheet">' + pet(X.fill, { tap: true, big: true, note: X.note, sheet: true }) + '</div>' +
+  show((TEXTC && k === 0 && st.coach ? '<p class="coachw">' + q(st.coach.text) + '</p>' : "") + '<h1 class="lineh">Line ' + X.tag + (st.ask ? ': ' + q(st.ask.charAt(0).toLowerCase() + st.ask.slice(1)) : "") + '</h1><div id="pw" class="psheet">' + pet(X.fill, { tap: true, big: true, note: X.note, sheet: true }) + '</div>' +
     '<div class="fill"><div class="opts" id="opts"><button class="opt" id="okb"><span style="flex:1;text-align:center">' + q(st.ok) + '</span></button></div><div id="why"></div></div><div id="ft"></div>', "abcd"[k]);
   if (k === 0) sayLine(st.coach, r);
   var done = false, pick = function (key) {
@@ -149,5 +149,5 @@ if (!OPEN) { $("#top").style.display = "none"; $("#tag").textContent = ""; $("#s
 else if (!LN) vCard();
 else if (qs.has("at")) { var at0 = qs.get("at").split("."); S.step = -1; go(Math.max(0, Math.min(L.steps.length - 1, (parseInt(at0[0], 10) || 1) - 1)), parseInt(at0[1], 10) || 0); }
 else go(-1);
-window.__sgBusy = function () { return playing.length > 0; };
+window.__sgBusy = function () { return playing.length > 0 || !!READ; };
 window.__sg = { S: S, go: go, L: L, LN: LN, time: function () { var now = performance.now(), ms = Object.assign({}, TM.ms); if (TM.at >= 0) ms[TM.at] = (ms[TM.at] || 0) + now - TM.t0; return ms; }, run: function () { return RUN; }, M: M };
