@@ -32,8 +32,8 @@ function noPause() { var p = $("#pp"); if (p) p.remove(); } /* nothing is playin
 function micAbort() { if (M.rec) { try { M.rec.abort(); } catch (e) {} M.rec = null; } M.busy = false; }
 function go(step, sub) {
   var prev = S.step;
-  RUN += 1; stopSound(); micAbort(); PAUSED = false; if (AC && AC.state === "suspended") AC.resume();
-  var sh = $(".sheet"); if (sh) sh.remove();
+  RUN += 1; stopSound(); micAbort(); PAUSED = false; MICLAB = null; if (AC && AC.state === "suspended") AC.resume();
+  var sh = $(".sheet"); if (sh) sh.remove(); var gs = $("#gsheet"); if (gs) gs.remove();
   var now = performance.now(); if (TM.at >= 0) TM.ms[TM.at] = (TM.ms[TM.at] || 0) + now - TM.t0; TM.at = step; TM.t0 = now;
   if (step > S.step && S.step >= 0) S.done[S.step] = true;
   S.step = step; S.sub = sub || 0;
@@ -41,7 +41,7 @@ function go(step, sub) {
   S.seen[step] = true;
   var st = L.steps[step], from = L.steps[prev];
   if (!S.sub && L.phases && (!FAST || BEATTEST) && (prev < 0 || (step > prev && from && from.ph !== st.ph))) {
-    if (st.kind === "try2" || st.kind === "say" || (TEXTC && st.kind === "try1")) S.partOver = st.ph; /* its first screen waits for a tap: Part N of 4 shows over it, as in the door-knocking lessons */
+    if (st.kind === "try2" || st.kind === "say" || st.kind === "try1" || st.kind === "hear") S.partOver = st.ph; /* its first screen opens on a sheet that waits for a tap (rule 49a): Part N of 4 shows over it first, as in the door-knocking lessons */
     else return vBeat(st.ph, function () { VIEW[st.kind](st); });
   }
   VIEW[st.kind](st);
@@ -64,7 +64,7 @@ function vBeat(k, then) {
 function back() {
   var k = S.step < 0 ? "" : L.steps[S.step].kind;
   if (S.sub > 0 && (k === "taps" || k === "sort" || k === "lines") && S.sub < 50) return go(S.step, S.sub - 1);
-  if (S.sub > 0) return go(S.step, 0);
+  if (S.sub > 0 && k !== "spot") return go(S.step, 0); /* Catch the mistake's "Hear it again" (sub 1) is the same screen: back goes to the step before */
   var i = S.step - 1; while (i >= 0 && !S.seen[i]) i -= 1;
   var p = i >= 0 ? L.steps[i] : null;
   go(i, p && p.kind === "taps" ? p.qs.length - 1 : p && p.kind === "lines" ? p.lines.length - 1 : 0);
@@ -134,7 +134,8 @@ function fillUp() {
   for (lo = Math.floor(lo * 100) / 100; lo > 1.005; lo -= 0.03) { scr.style.setProperty("--k", lo.toFixed(3)); if (!over()) return; }
   scr.style.removeProperty("--k");
 }
-function cap(who, text, cls) { if (TEXTC && who === "Coach" && (cls || "them") === "them") cls = "them cw"; var c = $("#capts"); if (!c) return null; var el = c.querySelector(".capt." + (cls || "them").split(" ")[0]); if (!el) el = document.createElement("div"); if (c.lastChild !== el) c.appendChild(el); el.className = "capt " + (cls || "them"); el.innerHTML = (who ? "<b>" + esc(who) + "</b>" : "") + q(text); return el; }
+/* guidance has no speaker's name (rule 68b, Robert, Nov 21, 2026, 12:56 PM: "We don't need to introduce or create a mental model of the coach") */
+function cap(who, text, cls) { if (who === "Coach") { who = ""; if (TEXTC && (cls || "them") === "them") cls = "them cw"; } var c = $("#capts"); if (!c) return null; var el = c.querySelector(".capt." + (cls || "them").split(" ")[0]); if (!el) el = document.createElement("div"); if (c.lastChild !== el) c.appendChild(el); el.className = "capt " + (cls || "them"); el.innerHTML = (who ? "<b>" + esc(who) + "</b>" : "") + q(text); return el; }
 function nameOf(who) { return who === "coach" ? "Coach" : who === "you" ? "You" : canvasser(who) ? SH.canvasser : SH.passerby; }
 /* what a line does in the picture: the canvasser holds up the top funders sheet (sheet) or the board again (board), a passerby
    slows down, turns with an earbud out, takes the pen or walks off */
@@ -156,38 +157,50 @@ function fgSheet(on) {
   else if (!on && f) { f.classList.remove("on"); setTimeout(function () { if (f.parentNode) f.remove(); }, 450); }
 }
 /* the passerby comes up (version 8): the view from above, then down the sidewalk toward you, then face to face. stage() switches
-   what the picture shows; glide() walks them closer, u from a to b over ms */
+   what the picture shows. Rule 54b (Robert, Nov 21, 2026, 12:56 PM: "he's coming at you quite fast ... he should also not be walking so
+   fast here"): every walk-up takes about five seconds, AIR_S from above, then POV_S down the sidewalk at a walking pace that slows over
+   the last steps, as anyone's does who is about to be greeted. */
+var AIR_S = 1.4, POV_S = 3.6;
 function stage(k) { var p = $("#panel"); if (p) p.setAttribute("data-stage", k); }
-function glide(who, a, b, ms, r) {
-  return new Promise(function (done) {
-    if (FAST) { walkAt(who, b); return done(r === RUN); }
-    var t0 = performance.now();
-    (function f(t) { if (r !== RUN) return done(false); if (PAUSED) { t0 += 16; return requestAnimationFrame(f); } var e = Math.min(1, (t - t0) / ms); walkAt(who, a + (b - a) * e); if (e < 1) requestAnimationFrame(f); else done(true); })(t0);
+/* how far down the sidewalk they've come at time t (0 to 1 of the walk): a steady walk, slowing to about a third over the last 30% */
+function paceU(t) { t = Math.max(0, Math.min(1, t)); var V = 1 / 0.895, d = t - 0.7; return Math.min(1, t <= 0.7 ? V * t : V * (0.7 + d - 7 / 6 * d * d)); }
+/* a wait whose clock stops while the lesson is paused */
+function holdFor(ms, r) {
+  return new Promise(function (ok) {
+    if (FAST || ms <= 0) return ok(r === RUN);
+    var got = 0, last = performance.now(), t = setInterval(function () { var now = performance.now(); if (!PAUSED) got += now - last; last = now; if (got >= ms || r !== RUN) { clearInterval(t); ok(r === RUN); } }, 40);
   });
 }
-function zoomIn(who, ms) { var im = $("#air-" + who + " img"); if (!im || FAST) return; im.style.transition = "transform " + ms + "ms ease-in"; requestAnimationFrame(function () { im.style.transform = "scale(1.9)"; }); }
-/* the first part of a walk-up, while the coach talks: from above, then down the sidewalk, to about halfway */
-function walkIn(who, ms, r) {
-  if (!$("#pov-" + who)) return Promise.resolve(true);
-  var air = Math.max(900, ms * 0.42);
-  stage("air"); zoomIn(who, air + 400); walkAt(who, 0);
-  return wait(air).then(function () { if (r !== RUN) return false; stage("pov"); return glide(who, 0, 0.55, Math.max(600, ms - air), r); });
+/* the view from above closes in on the canvasser's spot as the walk-up starts: f from 0 to 1 over AIR_S, set by the walk-up's own
+   clock, so a pause stops it too (the outside review, Nov 21). 1.6 at most, so a small phone keeps the passerby in the frame. */
+var CALMV = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+function zoomAt(who, f) { var im = $("#air-" + who + " img"); if (!im || FAST || CALMV) return; f = Math.max(0, Math.min(1, f)); im.style.transition = "none"; im.style.transform = "scale(" + (1 + 0.6 * f * f).toFixed(4) + ")"; }
+/* a whole walk-up with nobody to wait for (Hear it done, Catch the mistake, lessons 1 and 3): from above, down the sidewalk, then
+   face to face. stop: they stand still once they're in front of you. */
+function approach(who, r, stop) {
+  var p = $("#p-" + who);
+  var here = function (ok) { if (!ok || r !== RUN) return false; if (p) { p.classList.add("here"); p.classList.remove("off"); if (stop) p.classList.remove("walk"); } stage("face"); return holdFor(300, r); };
+  if (!$("#pov-" + who)) { if (p) p.classList.remove("off"); return holdFor(1300, r).then(function (ok) { if (ok && stop && p) p.classList.remove("walk"); return ok; }); }
+  stage("air"); zoomAt(who, 0); walkAt(who, 0);
+  return new Promise(function (res) { /* from above, the zoom keeping the walk-up's clock */
+    if (FAST) return res(r === RUN);
+    var e = 0, last = performance.now();
+    (function f() { if (r !== RUN) return res(false); var now = performance.now(); if (!PAUSED) e += Math.min(0.1, (now - last) / 1000); last = now; zoomAt(who, e / AIR_S); if (e < AIR_S) requestAnimationFrame(f); else res(true); })();
+  }).then(function (ok) {
+    if (!ok) return false;
+    stage("pov");
+    return new Promise(function (res) {
+      if (FAST) { walkAt(who, 1); return res(true); }
+      var e = 0, last = performance.now();
+      (function f() { if (r !== RUN) return res(false); var now = performance.now(); if (!PAUSED) e += Math.min(0.1, (now - last) / 1000); last = now; var u = paceU(e / POV_S); walkAt(who, u); if (u < 1) requestAnimationFrame(f); else res(true); })();
+    });
+  }).then(here);
 }
-/* the rest of the walk-up, then face to face */
-function walkTo(who, ms, r) {
-  if (!$("#pov-" + who)) return Promise.resolve(true);
-  stage("pov");
-  return glide(who, 0.55, 1, Math.max(500, ms), r).then(function (ok) { if (r !== RUN) return false; var p = $("#p-" + who); if (p) { p.classList.add("here"); p.classList.remove("off"); } stage("face"); return wait(FAST ? 0 : 420).then(function () { return r === RUN; }); });
-}
-/* a walk-up with no line to time it by: the whole way in ms */
-function enter(who, stop, ms) {
-  var p = $("#p-" + who), r = RUN;
-  if ($("#pov-" + who)) return walkIn(who, (ms || 2600) * 0.6, r).then(function () { return walkTo(who, (ms || 2600) * 0.4, r); }).then(function () { if (stop && p) p.classList.remove("walk"); });
-  if (p) p.classList.remove("off"); return wait(FAST ? 0 : 1300).then(function () { if (stop && p) p.classList.remove("walk"); });
-}
-function sources() {
+/* a screen's sources sheet: that screen's facts only, the one best source for each (rule 46, Robert, Nov 21, 2026, 12:56 PM: "we want
+   just our one best source ... the tenth best adds nothing to it. It only dilutes attention from the main best ones.") */
+function sources(rows) {
   var sh = document.createElement("div"), was = $("#tag").textContent; sh.className = "sheet";
-  sh.innerHTML = '<div role="dialog" aria-label="Sources"><h2>Sources</h2><ul>' + (L.sources || []).map(function (g) { var link = function (n, u) { return '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + q(n) + '</a>'; }; return '<li>' + q(g[0]) + ': ' + (typeof g[1] === "string" ? g[1].split(/(\{[^|}]+\|[^}]+\})/).map(function (x) { var m = x.match(/^\{([^|}]+)\|([^}]+)\}$/); return m ? link(m[1], m[2]) : q(x); }).join("") : g[1].map(function (s) { return link(s[0], s[1]); }).join(", ") + (g[2] ? ", " + q(g[2]) : "")) + '</li>'; }).join("") + '</ul><p class="fine">The coach and the passersby are AI voices. The Neighborhood Libraries Act, Libraries for All and every person here are made up for practice.</p><button class="btn ghost" id="shx">Close</button></div>';
+  sh.innerHTML = '<div role="dialog" aria-label="Sources"><h2>Sources</h2><ul>' + (Array.isArray(rows) ? rows : L.sources || []).map(function (g) { var link = function (n, u) { return '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + q(n) + '</a>'; }; return '<li>' + q(g[0]) + ': ' + (typeof g[1] === "string" ? g[1].split(/(\{[^|}]+\|[^}]+\})/).map(function (x) { var m = x.match(/^\{([^|}]+)\|([^}]+)\}$/); return m ? link(m[1], m[2]) : q(x); }).join("") : g[1].map(function (s) { return link(s[0], s[1]); }).join(", ") + (g[2] ? ", " + q(g[2]) : "")) + '</li>'; }).join("") + '</ul><p class="fine">The passersby and the canvassers are AI voices. The Neighborhood Libraries Act, Libraries for All and every person here are made up for practice.</p><button class="btn ghost" id="shx">Close</button></div>';
   $("#app").appendChild(sh); $("#tag").textContent = was + "s"; $("#tag").className = "tag onpic";
   sh.addEventListener("click", function (e) { if (e.target === sh || e.target.id === "shx") { sh.remove(); $("#tag").textContent = was; $("#tag").className = "tag"; } });
 }
@@ -217,6 +230,10 @@ function sayFix(g, mustPart) {
 /* ---------------- talking with a passerby ---------------- */
 /* cfg: { st, key, who, coach, set, opens, replies, walk, line, fill, hint, hintAfter, opener, tag, onEnd(T) } */
 function talkLabel() { return TOUCH ? SH.talk : SH.talkClick; }
+/* the talk button says what to do now (rule 54b, Robert, Nov 21, 2026, 12:56 PM: "You should design it so it's very intuitive when you
+   should say 'click to start talking'"): while someone walks up it's off and says to wait, and as they reach you it turns on with
+   "Tap and say hi". After your first words it's "Tap to talk" again. */
+var MICLAB = null;
 var TOUCH = !!(window.matchMedia && matchMedia("(pointer: coarse)").matches) || "ontouchstart" in window;
 function micHtml() { return '<div class="mic" id="microw"><div class="mict" id="mict"></div><button class="micb wait" id="mic" aria-label="' + esc(talkLabel()) + '"><span class="md" aria-hidden="true">' + ICON.mic + '</span><span class="ml" id="micl">' + q(talkLabel()) + '</span></button></div>'; }
 /* a browser that can't listen: the box appears only after the mic is tapped */
@@ -227,7 +244,7 @@ function typedOn(onSend) {
   if (!FAST) $("#say").focus();
 }
 function micState(k, html) {
-  var b = $("#mic"), t = $("#mict"), l = $("#micl"), lab = k === "on" ? SH.micDone : talkLabel();
+  var b = $("#mic"), t = $("#mict"), l = $("#micl"), lab = k === "on" ? SH.micDone : MICLAB || talkLabel();
   if (b) { b.className = "micb" + (k === "idle" ? " pulse" : k === "on" ? " on" : " wait"); b.setAttribute("aria-label", lab); }
   if (l) l.textContent = lab;
   liveCard(k === "on"); /* while it listens, the live card: the green mic, the moving bars and your words */
@@ -262,30 +279,26 @@ function micErr(c) { return c === "denied" ? "<b>The microphone is off for this 
    long and they're past you: "Oh, sorry, I'm busy. Have a good day." said in view, and on they go. Stopped and left waiting, they
    say "Okay, bye now." The coach never counts down (rule 7a): the street does. x is where they are, in widths of the picture: 0 is
    in front of you; the face is in full view from about -0.3 to 0.3. */
-function walker(who, inSecs) {
+function walker(who) {
   var p = $("#p-" + who), pt = p && (p.querySelector(".pt.walker") || p.querySelector(".pt")); if (!pt) return null;
-  var k = FAST ? 8 : 1, last = 0, X0 = -0.62, X1 = -0.25, vin = (X1 - X0) / Math.max(1.75, inSecs || 0); /* in view as the coach describes them, face clear when the coach stops */
-  /* version 8: a walker with the walk-up pictures comes from above and down the sidewalk first (u from 0 to 1), then face to face at X1.
-     The view from above takes the first part of the coach's line; by its end they're halfway up the walk. After that they keep a steady
-     pace, about two and a half seconds to reach you, whether or not you've started talking: the chance to start is fleeting. */
-  var pov = !!$("#pov-" + who), T = Math.max(1.75, inSecs || 0), AIR = Math.max(0.9, T * 0.42), t0 = 0;
+  var k = FAST ? 8 : 1, last = 0, X0 = -0.62, X1 = -0.25, vin = (X1 - X0) / 1.75;
+  /* a walker with the walk-up pictures comes from above and down the sidewalk first (u from 0 to 1, rule 54b's calm pace), then face to
+     face at X1, where the talk button turns on. From there they keep a slow pace until you start, and a walking one after. */
+  var pov = !!$("#pov-" + who), e = 0, arrived = null, atFace = new Promise(function (res) { arrived = res; });
   var w = { x: pov ? X1 : X0, u: pov ? 0 : 1, slow: 1, state: "in", live: false, held: false, speaking: false, talkAt: 0, graceTo: 0, dead: false, out: false, onPass: null, onWait: null, r: RUN };
   p.classList.add("walking");
   var put = function () { pt.style.transform = "translateX(" + (w.x * (p.clientWidth || 360)).toFixed(1) + "px) scale(" + (1 - 0.08 * Math.min(1, Math.abs(w.x))).toFixed(3) + ")"; };
   put();
-  if (pov) { stage("air"); zoomIn(who, AIR * 1000 / k + 400); walkAt(who, 0); }
-  function face() { w.u = 1; p.classList.remove("off"); stage("face"); }
+  if (pov) { stage("air"); zoomAt(who, 0); walkAt(who, 0); }
+  function face() { w.u = 1; p.classList.remove("off"); stage("face"); arrived(); }
   function frame(t) {
     if (w.dead || w.r !== RUN || !pt.isConnected) return;
     var dt = last ? Math.min(0.1, (t - last) / 1000) : 0; last = t;
     if (!PAUSED && dt) {
       var now = performance.now(), talking = w.held || now - w.talkAt < 900 || (w.speaking && now - w.talkAt < 3000); /* held: words heard and not yet answered */
       if (w.u < 1) { /* still walking up the sidewalk toward you */
-        if (!t0) t0 = now;
-        var e = (now - t0) / 1000 * k;
-        if (w.state === "in") { if (e >= AIR) { stage("pov"); w.u = Math.min(0.55, 0.55 * (e - AIR) / Math.max(0.6, T - AIR)); } }
-        else if (w.state === "say" || w.state === "leave") w.u = 1;
-        else { stage("pov"); w.u = Math.min(1, Math.max(w.u, 0.2) + dt * k / 2.4); }
+        if (w.state === "say" || w.state === "leave") w.u = 1;
+        else { e += dt * k; if (e >= AIR_S) { stage("pov"); w.u = paceU((e - AIR_S) / POV_S); } else zoomAt(who, e / AIR_S); }
         walkAt(who, w.u);
         if (w.u >= 1) face();
       } else if (w.state === "in") w.x = Math.min(X1, w.x + vin * k * dt);
@@ -304,7 +317,7 @@ function walker(who, inSecs) {
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-  w.arrive = function () { if (pov) return Promise.resolve(); p.classList.remove("off"); return wait(FAST ? 0 : 1300); };
+  w.arrive = function () { if (pov) return atFace; p.classList.remove("off"); return wait(FAST ? 0 : 1300); }; /* they're in front of you */
   w.go = function () { if (w.state === "in") w.state = "walk"; }; /* you can talk now: they keep walking */
   w.grace = function (ms) { w.graceTo = Math.max(w.graceTo, performance.now() + ms / k); };
   w.liven = function () { if (!w.live) { w.live = true; w.grace(1500); } }; /* your mic is on (or your typing box): the street's clock runs */
@@ -345,6 +358,7 @@ function talk(cfg) {
   }
   function heard(text) {
     if (r !== RUN) return;
+    MICLAB = null;
     if (W) { W.held = false; if (W.out) { if (text && !SIGG.misheard(text, false)) { youCap(text); T.hear(text); } return brushOff(); } } /* a word that came in as they passed still counts on the card */
     if (SIGG.misheard(text, cfg.opener && !T.pieces.length)) { micState("idle", "<b>" + q(SH.misheard) + "</b>");
       if (W) { W.grace(2500); if (M.used && !FAST) setTimeout(function () { if (r === RUN && !M.rec && !M.busy) start(true); }, 1200); } /* the app missed it, not the passerby: a moment more, and the mic reopens */
@@ -403,22 +417,27 @@ function talk(cfg) {
     '<div class="ft" id="panel" data-stage="' + (wk ? "air" : "face") + '">' + sceneOne(who, cfg.walk ? "off walk" : "", cfg.pic) + (wk ? sceneWalk(who, wk) : "") + whoDiv(who) +
     '<div class="dock' + (cfg.line ? " haspet" : "") + '"><div class="capts" id="capts"></div>' + (cfg.line ? pet(fill, petOpts) : "") + '</div></div>' + micHtml(), cfg.tag);
   top({});
-  $("#mic").onclick = function (e) { e.stopPropagation(); if (!SR) { typedOn(function (v) { if (M.busy) return; M.used = true; heard(v); }); if (W) W.liven(); return; } if (M.rec) { M.rec.stop(); return; } if (M.busy) { if (READ) READ(); return; } start(false); };
+  $("#mic").onclick = function (e) { e.stopPropagation(); if (M.rec) { M.rec.stop(); return; } if (M.busy) { if (READ) READ(); return; } /* off while they walk up or answer (rule 54b), with or without speech recognition */
+    if (!SR) { typedOn(function (v) { if (M.busy) return; M.used = true; heard(v); }); if (W) W.liven(); return; } start(false); };
   $("#panel").onclick = function (e) { if (e.target.closest && e.target.closest(".dock")) return; if (!M.rec) stopSound(); };
-  $("#panel").addEventListener("input", function (e) { if (W) { W.held = !!(e.target && e.target.value && e.target.value.trim()); W.talk(); } }); /* typing (a browser that can't listen) is talking: words in the box are heard before they walk on */
+  $("#microw").addEventListener("input", function (e) { if (W) { W.held = !!(e.target && e.target.value && e.target.value.trim()); W.talk(); } }); /* typing (a browser that can't listen) is talking: words in the box are heard before they walk on. The box lives in #microw (the outside review, Nov 21: it listened on #panel, so typing never counted) */
+  MICLAB = cfg.walk ? (CAST[who] && CAST[who].g === "f" ? SH.waitClose.f : SH.waitClose.m) : null; /* off while they walk up (rule 54b) */
   M.busy = true; micState("wait", "");
   (async function () {
-    /* the passerby walks up while the coach says so, over the storefront: never a blank panel (Robert, Nov 19) */
-    W = LN === 2 && cfg.walk && (!FAST || WALKTEST) ? walker(who, (cfg.coach && cfg.coach.dur ? cfg.coach.dur : 0) + 0.45) : null; /* lesson 2's passersby are walking past until something stops them */
+    /* what to do comes first, on a sheet (rules 16 and 49a): the walk-up starts when it's closed */
+    if (cfg.sheet && !(await guide(cfg.sheet))) return;
+    if (r !== RUN) return;
+    W = LN === 2 && cfg.walk && (!FAST || WALKTEST) ? walker(who) : null; /* lesson 2's passersby are walking past until something stops them */
     if (W) {
       W.onPass = function () { if (r !== RUN) return; W.out = true; if (M.rec) M.rec.stop(); else brushOff(); }; /* past you, and silent: no opener landed */
       W.onWait = function () { if (r !== RUN) return; micAbort(); M.busy = true; micState("wait", ""); leaveWith(cfg.replies && cfg.replies.fBye, false); }; /* stopped, then left waiting: "Okay, bye now." */
     }
-    var ms = ((cfg.coach && cfg.coach.dur) || 2.6) * 1000;
-    var arrive = W ? wait(FAST ? 0 : 450).then(function () { if (r === RUN) return W.arrive(); }) : cfg.walk ? wait(FAST ? 0 : 200).then(function () { if (r === RUN) return enter(who, LN !== 2, ms); }) : null;
+    var arrive = W ? W.arrive() : cfg.walk ? approach(who, r, LN !== 2) : null;
     if (cfg.coach) { cap("Coach", cfg.coach.text, "them"); await sayLine(cfg.coach, r); }
     if (r !== RUN) return;
     if (arrive) await arrive;
+    if (r !== RUN) return;
+    MICLAB = cfg.opener ? (TOUCH ? SH.sayHi : SH.sayHiClick) : null; /* they're here: the button turns on, and says what to do (rule 54b) */
     if (cfg.opens) { cap(nameOf(who), cfg.opens.text, "them"); await sayLine(cfg.opens, r); }
     if (r !== RUN) return;
     your(true);
@@ -438,7 +457,7 @@ function vCover() {
   show('<span class="drive" role="img" aria-label="Libraries for All, the Neighborhood Libraries Act petition drive"><b>' + esc(ST.drive.name) + '</b><small>' + esc(ST.drive.measure) + ' · petition drive</small></span>' +
     '<h1 class="lg" style="margin-top:18px">' + q(L.title) + '</h1><div class="meta"><span>Lesson ' + LN + ' of 5 · 5 minutes</span></div>' +
     '<div class="panel cap">' + coverPic() + '</div>' +
-    (saved().must && saved().must[LN] ? mustNote(LN, saved().must).replace(' style="color:var(--red)"', "") : "") + foot(btn(L.start || SH.start, "start")), "");
+    (saved().must && saved().must[LN] ? mustNote(LN, saved().must).replace(' style="color:var(--red)"', "") : "") + foot(btn(L.start || SH.startLesson.replace("{n}", LN), "start")), "");
   $("#start").onclick = function () { audio(); go(0, 0); };
   /* the lesson's voices load while the cover is read */
   (function walk(x) { if (!x || typeof x !== "object") return; if (x.clip && !(TEXTC && x.who === "coach")) fetchClip(x.clip); Object.keys(x).forEach(function (k) { walk(x[k]); }); })(L.steps);
@@ -449,102 +468,86 @@ function vCover() {
   preloadPics(pics);
 }
 
-/* Your 1st try: never scored. Then the card: what you did, and what to watch for. */
+/* Your 1st try: never scored. It opens on its sheet, what to do and Start (rules 16 and 49a), and the talk starts when that's closed.
+   Then the card: what you did, and what to watch for. */
 VIEW.try1 = function (st) {
   if (S.sub === 1) return vTry1Card(st);
-  /* with the coach in writing, the 1st try starts like the 2nd: read what to do on its own screen (Sig N.1r), then tap to start the talk */
-  if (TEXTC && S.sub !== 2) return vReady(st, st.coach, function () { go(S.step, 2); }, "", "r", false, SH.start);
-  talk({ st: st, key: LN + "." + st.who, who: st.who, pic: st.pic, coach: TEXTC ? null : st.coach, opens: st.opens, replies: st.replies, walk: st.walk, line: st.line, opener: LN === 2, tag: "a",
-    onEnd: function (T) { var g = T.grade(); S.try1 = { hits: g.hits, said: g.quote || T.pieces.join(" "), g: g }; S.perfect1 = g.hits.every(Boolean) && !g.walked; go(S.step, 1); } });
+  talk({ st: st, key: LN + "." + st.who, who: st.who, pic: st.pic, sheet: S.sub === 0 ? { text: st.coach.text, coach: st.coach, label: SH.start } : null, opens: st.opens, replies: st.replies, walk: st.walk, line: st.line, opener: LN === 2, tag: "a",
+    onEnd: function (T) { var g = T.grade(); S.try1 = { hits: g.hits, said: g.quote || T.pieces.join(" "), g: g, who: st.who }; S.perfect1 = g.hits.every(Boolean) && !g.walked; go(S.step, 1); } });
 };
 function vTry1Card(st) {
   var t = S.try1 || { hits: [false, false, false, false], said: "", g: {} }, n = t.hits.filter(Boolean).length;
   var h = t.g && t.g.walked ? SH.try1.walked : n === 4 ? SH.try1.all : n === 0 ? SH.try1.none : n === 3 ? SH.try1.one : SH.try1.some.replace("{n}", n).replace("{m}", 4 - n);
   top({ result: true });
   var fx = t.g && (t.g.untrue || t.g.promise); /* the card then shows the untrue words itself, so "You said" would say them twice */
-  show('<h1>' + q(h) + '</h1><div class="fill"><div class="panel short" data-who="' + st.who + '">' + sceneFace(st.who) + '</div>' + (fx ? "" : saidBlock(t.said)) +
+  /* the picture, what you said, then the score right over its four parts (rule 21, Robert, Nov 21, 2026, 12:56 PM: "we should have all of
+     that content and messaging in the same surface area of the app") */
+  show('<div class="fill"><div class="panel short" data-who="' + st.who + '">' + sceneFace(st.who) + '</div>' + (fx ? "" : saidBlock(t.said)) + '<h1 class="scl">' + q(h) + '</h1>' +
     '<ul class="rows">' + L.parts.map(function (p, i) { return t.hits[i] ? row("on", p.done) : t.g && t.g.walked && namedMiss(p, t.g, i) ? row("off", namedMiss(p, t.g, i)) : row("off", p.name, SH.try1.watch); }).join("") + '</ul>' +
     (t.g && (t.g.untrue || t.g.promise) ? fixBlock(t.g, false) : "") + '</div>' + foot(btn(nextLabel(), "go")), "b");
   expr(st.who, n >= 3 ? "warm" : "neutral");
   $("#go").onclick = nextStep;
 }
 
-/* Hear it done: the four parts named first, each ticked as it lands, with its why. A second example is its own screen inside the step,
-   with a short card first, and its button names it (version 8, Robert, Nov 20, 3:51 PM: "we can't just immediately go from the first
-   'Hear it done' into the second 'Hear it done' without some interstitial ... You're still in the 'Hear it done.' You're seeing a
-   different scenario"). The scene is the canvasser's view: the passerby walks up, and the canvasser never shows. The main button is
-   filled from the start ("the button is not colored, so it's not like the clear call to action"). */
+/* Hear it done (rule 13, Robert, Nov 21, 2026, 12:56 PM): a sheet says whom to listen to and for what ("Example 1 of 2" when the step
+   has two, rule 13a); when it's closed the scene plays alone, from the canvasser's view, and each part shows up ticked as she does it;
+   then the why and the button (rule 49a: "You don't need to know the button ... You don't even need to know the four things"). Nothing
+   is listed before it happens. A tap on the scene skips ahead. A second example is its own screen inside the step. */
 VIEW.hear = function (st) {
-  var r = RUN, n = st.scenes.length, k = Math.min(S.sub || 0, n - 1), sc = st.scenes[k], last = k === n - 1;
+  var r = RUN, n = st.scenes.length, k = Math.min(S.sub || 0, n - 1), sc = st.scenes[k], last = k === n - 1, intro = k === 0 ? st.coach : sc.intro;
   top({ pp: true });
   var label = last ? nextLabel() : SH.nth.replace("{step}", lc(L.phases[st.ph])).replace("{n}", k + 2).replace("{m}", n);
-  show('<h1>' + q(k === 0 ? SH.listen : sc.head || SH.listen) + '</h1>' + scenePanel(sc) + (sc.line ? pet(sc.line, {}) : "") +
-    (sc.ticks ? '<ul class="rows" id="parts">' + L.parts.map(function (p) { return row("off", p.name); }).join("") + '</ul>' : "") +
-    foot(btn(label, "go")) + (st.sources ? '<button class="link" id="src">' + q(SH.sources) + '</button>' : ""), n > 1 ? "abcd"[k] : "");
-  $("#go").onclick = function () { if (last) nextStep(); else go(S.step, k + 1); };
-  if ($("#src")) $("#src").onclick = sources;
+  var parts = sc.ticks ? '<ul class="rows heard" id="parts">' + sc.ticks.map(function (t) { return '<li class="on pend"><span class="ck">' + ICON.ok + '</span><span>' + q(t.text) + '</span></li>'; }).join("") + '</ul>' : "";
+  /* the parts' rows keep their room (each shows as it lands); the picture has the rest while the scene plays */
+  show('<h1>' + q(sc.head || "") + '</h1>' + scenePanel(sc) + (sc.line ? pet(sc.line, {}) : "") + parts + '<div id="why"></div><div id="ft"></div>', n > 1 ? "abcd"[k] : "");
   $("#panel").onclick = function () { stopSound(); };
-  (k > 0 && sc.intro ? exampleCard(k + 1, n, sc.intro, r) : Promise.resolve(true))
-    .then(function (ok) { return ok && r === RUN ? playScene(sc, { coach: k === 0 ? st.coach : null, by: "lena" }) : false; })
-    .then(function (ok) { if (ok && r === RUN) noPause(); });
+  guide({ k: n > 1 ? SH.exampleOf.replace("{n}", k + 1).replace("{m}", n) : "", text: intro.text, coach: intro, label: st.play || SH.play })
+    .then(function (ok) { return ok && r === RUN ? playScene(sc, { by: st.by || "lena", noAfter: true }) : false; })
+    .then(function (ok) {
+      if (!ok || r !== RUN) return;
+      noPause();
+      if (sc.after) $("#why").innerHTML = '<div class="callout true take">' + q(sc.after.text) + '</div>'; /* the why, set apart from the parts (no tick of its own) */
+      $("#ft").innerHTML = foot(btn(label, "go")) + (st.sources ? '<button class="link" id="src">' + q(SH.sources) + '</button>' : "");
+      var pn = $("#panel"); if (pn && pn.getBoundingClientRect().height < 118) { pn.style.display = "none"; fillUp(); } /* the scene is over: a sliver of a picture is no picture */
+      $("#go").onclick = function () { if (last) nextStep(); else go(S.step, k + 1); };
+      if ($("#src")) $("#src").onclick = function () { sources(st.sources); };
+      if (sc.after && !TEXTC) sayLine(sc.after, r);
+    });
 };
-/* a second example inside a step: its own short card over the screen while the coach says what's different. It isn't a Part N of 4
-   screen: no ring, just the step's name and "Example 2 of 2". A tap skips it. */
-function exampleCard(n, m, line, r) {
-  $("#scr").insertAdjacentHTML("beforeend", '<div class="excard" id="excard" role="status"><div><b>' + q(SH.exampleOf.replace("{n}", n).replace("{m}", m)) + '</b><p>' + q(line.text) + '</p></div></div>');
-  var card = $("#excard"), done = false;
-  return new Promise(function (res) {
-    var off = function () { if (done) return; done = true; if (card.parentNode) card.remove(); res(r === RUN); };
-    card.onclick = function () { stopSound(); off(); };
-    sayLine(line, r).then(function () { return wait(FAST ? 0 : 300); }).then(off);
-  });
-}
+/* a part of Hear it done lands: its row shows, ticked */
+function landTick(i) { var li = $("#parts") && $("#parts").children[i]; if (li && li.classList.contains("pend")) { li.classList.remove("pend"); li.classList.add("tick"); } }
 /* a watched scene's picture: the passerby face to face, and for one who walks up, the views from above and down the sidewalk */
 function scenePanelInner(sc, labels) { var wk = sc.stopped ? null : walkable(sc.who, sc.pic); return sceneOne(sc.who, sc.stopped ? "" : "off walk", sc.pic) + (wk ? sceneWalk(sc.who, wk) : "") + '<div class="capts" id="capts"></div>' + (labels ? '<div class="labels" id="labels">' + labels.map(function (l) { return '<span>' + q(l) + '</span>'; }).join("") + '</div>' : ""); }
 function scenePanel(sc, labels) { var wk = sc.stopped ? null : walkable(sc.who, sc.pic); return '<div class="panel' + (labels ? " lab" : "") + '" id="panel" data-stage="' + (wk ? "air" : "face") + '">' + scenePanelInner(sc, labels) + '</div>'; }
-/* one watched scene, from the canvasser's view: the passerby walks up while the coach talks (from above, then down the sidewalk), the
-   canvasser's first words come as they walk the last steps, and the rest is face to face, the canvasser's words as captions. Then the
-   coach's ticks and the why. */
+/* one watched scene, from the canvasser's view: the passerby walks up (from above, then down the sidewalk) and the canvasser says hi
+   as they reach her (rule 54b), then the rest face to face, the canvasser's words as captions. A part of Hear it done lands where its
+   words end in the line (tick.at), timed by the line's length, or at once when the line is skipped. */
 async function playScene(sc, o) {
-  var r = RUN, fill = {}, by = o.by || "lena", wk = !sc.stopped && !!$("#pov-" + sc.who), coach = o.coach, first = null;
+  var r = RUN, fill = {}, by = o.by || "lena", coach = o.coach;
   function redraw(x) { var p = $("#pet"); if (p) p.outerHTML = pet(fill, x || {}); fitHw(); }
-  if (!sc.stopped) first = wk ? walkIn(sc.who, coach && coach.dur ? coach.dur * 1000 : 2200, r) : wait(FAST ? 0 : 450).then(function () { if (r === RUN) return enter(sc.who, true); });
   if (coach) { cap("Coach", coach.text, "them"); if (!(await sayLine(coach, r))) return false; }
-  if (first) { await first; if (r !== RUN) return false; }
+  if (!sc.stopped) { if (!(await approach(sc.who, r, false))) return false; }
   for (var j = 0; j < sc.lines.length; j += 1) {
     var ln = sc.lines[j], lab = $("#labels");
     if (ln.act === "sheet" || ln.act === "board") act(ln.who, ln.act); else if (ln.act) act(ln.who === by ? sc.who : ln.who, ln.act); /* a canvasser's goodbye sends the passerby off */
     if (ln.label != null && lab) lab.children[ln.label].classList.add("on");
     if (ln.glow) redraw({ glow: ln.glow });
     if (ln.fill) { Object.assign(fill, ln.fill); redraw({ fresh: Object.keys(ln.fill) }); }
-    var walking = j === 0 && wk ? (canvasser(ln.who) ? walkTo(sc.who, Math.min((ln.dur || 2.4) * 850, 1700), r) : walkTo(sc.who, 500, r)) : null; /* the canvasser's opener as they walk the last steps, at a walking pace (rule 69a), then face to face for the rest */
-    if (walking && !canvasser(ln.who)) { await walking; walking = null; if (r !== RUN) return false; }
     cap(nameOf(ln.who), ln.text, "them");
-    if (!(await sayLine(ln, r))) return false;
-    if (walking) { await walking; if (r !== RUN) return false; }
+    var mine = [], dur = (ln.dur || 2.4) * 1000, lands = [];
+    (sc.ticks || []).forEach(function (t, i) { if (t.line === j) mine.push(i); });
+    SKIPPED = false;
+    var started = function () { lands = mine.map(function (i) { var t = sc.ticks[i], at = t.at ? ln.text.indexOf(t.at) : -1, f = at >= 0 ? (at + t.at.length) / ln.text.length : 1; return holdFor(dur * f + (t.late || 0), r).then(function (ok) { if (ok) landTick(i); }); }); };
+    if (!(await sayLine(ln, r, started))) return false;
+    if (SKIPPED || !lands.length) mine.forEach(landTick); /* skipped with a tap (paused or not): its parts land now */
+    else await Promise.all(lands);
+    if (r !== RUN) return false;
     if (ln.fillAfter) { var ks = Object.keys(ln.fillAfter); for (var k = 0; k < ks.length; k += 1) { fill[ks[k]] = ln.fillAfter[ks[k]]; redraw({ fresh: [ks[k]] }); await wait(650); if (r !== RUN) return false; } }
     await wait(ln.pauseAfter || 180); if (r !== RUN) return false;
   }
-  for (var t = 0; sc.ticks && t < sc.ticks.length; t += 1) {
-    var li = $("#parts") && $("#parts").children[t]; if (li) li.className = "on tick";
-    cap("Coach", sc.ticks[t].text, "them");
-    if (!(await sayLine(sc.ticks[t], r))) return false;
-    await wait(200); if (r !== RUN) return false;
-  }
-  if (sc.after) { cap("Coach", sc.after.text, "them"); if (!(await sayLine(sc.after, r))) return false; }
+  if (sc.after && !o.noAfter) { cap("Coach", sc.after.text, "them"); if (!(await sayLine(sc.after, r))) return false; }
   return true;
 }
-/* plays a set of scenes on a screen whose picture is empty (#panel): Catch the mistake's, and lesson 1's whole stop */
-async function playScenes(st, by) {
-  for (var i = 0; i < st.scenes.length; i += 1) {
-    var sc = st.scenes[i], p = $("#panel"), wk = sc.stopped ? null : walkable(sc.who, sc.pic);
-    if (st.labels) p.classList.add("lab");
-    p.innerHTML = scenePanelInner(sc, st.labels); p.setAttribute("data-stage", wk ? "air" : "face"); place();
-    if (!(await playScene(sc, { coach: i === 0 ? st.coach : null, by: by }))) return false;
-  }
-  return true;
-}
-
 /* once the answer is on screen the picture gives it room; a sliver of a picture is no picture, so then it goes */
 function shrinkPic() { var f = $(".fill"), pg = $(".fill > .panel.grow"); if (!f || !pg) return; f.classList.add("answered"); requestAnimationFrame(function () { if (pg.getBoundingClientRect().height < 76) { pg.style.display = "none"; fillUp(); } else fitPic(); }); }
 /* a person's picture that takes the room that is left: in a short strip the face is framed whole, in a tall one the person is */
@@ -560,10 +563,11 @@ VIEW.taps = function (st) {
     : Q.pic.two ? '<div class="panel grow">' + sceneTwo(Q.pic.two[0], Q.pic.two[1], "") + '</div>'
     : Q.pic.sheet ? '<div class="panel grow paper">' + sceneSheet(Q.pic.sheet, Q.pic.day) + '</div>'
     : Q.pic.line ? '<div class="picpet">' + pet(Q.pic.line, { top: false, glow: Q.pic.glow, sheet: true }) + '</div>' : "";
-  /* the stop-rate question (version 8, Robert: "just bad UX"): the answer shows on a row of 20 passersby, the ones who stop in green */
-  var p20 = Q.of20 ? '<div class="p20" id="p20" role="img" aria-label="20 passersby">' + new Array(21).join('<i>' + PERSON + '</i>') + '</div>' : "";
+  /* the stop-rate question (version 8, Robert: "just bad UX"): the answer shows on a row of 20 passersby, the ones who stop in green.
+     They come with the answer, never before it (rule 49b, Robert, Nov 21, 2026, 12:56 PM: "I thought that's what I'm supposed to do"). */
+  var p20 = "";
   var opts = Q.of20
-    ? '<div class="opts row pct" id="opts">' + Q.opts.map(function (o, i) { return '<button class="opt" data-i="' + i + '"><span>' + q(o) + '</span></button>'; }).join("") + '</div>'
+    ? '<div class="opts tall pct" id="opts">' + Q.opts.map(function (o, i) { return '<button class="opt" data-i="' + i + '"><span>' + q(o) + '</span></button>'; }).join("") + '</div>'
     : Q.tally
     ? '<div class="opts row tallies" id="opts">' + Q.opts.map(function (o, i) { return '<button class="opt" data-i="' + i + '"><span class="tn">' + q(o) + '</span>' + tally(Q.tally[i][0], Q.tally[i][1], o + ": " + Q.tally[i][0] + " signatures, " + Q.tally[i][1] + " count") + '</button>'; }).join("") + '</div>'
     : Q.pics
@@ -580,62 +584,100 @@ VIEW.taps = function (st) {
       [].forEach.call(box.children, function (x, j) { x.classList.add(j === Q.right ? "right" : j === i ? (guess ? "picked" : "wrong") : "faded"); x.disabled = true; });
       var c = $("#coach"); if (c) c.remove();
       $("#why").innerHTML = why(i === Q.right, Q.after.text);
-      if (Q.of20) { var on = Q.of20[Q.right], ps = $("#p20").children; for (var j = 0; j < ps.length; j += 1) ps[j].className = j < Math.floor(on) ? "stop" : j < on ? "stop half" : "walk"; $("#p20").classList.add("done"); }
+      if (Q.of20) { box.className = "opts row pct done"; var on = Q.of20[Q.right]; box.insertAdjacentHTML("afterend", '<div class="p20 done" id="p20" role="img" aria-label="' + esc(SH.of20.replace("{n}", on)) + '">' + new Array(21).join('<i>' + PERSON + '</i>') + '</div>'); var ps = $("#p20").children; for (var j = 0; j < ps.length; j += 1) ps[j].className = j < Math.floor(on) ? "stop" : j < on ? "stop half" : "walk"; }
       shrinkPic();
       /* the next question's button: inside Catch the mistake, the step and its number ("Next: catch the mistake, 2 of 3", version 8) */
       var nx = last ? nextLabel() : labelTo(S.step, k + 1); if (!last && nx.indexOf(", " ) < 0) nx = "Next: " + lc(st.name) + ", " + (k + 2) + " of " + st.qs.length;
       $("#ft").innerHTML = foot(btn(nx, "go")) + (Q.sources ? '<button class="link" id="src">' + q(SH.sources) + '</button>' : "");
       $("#go").onclick = function () { last ? nextStep() : go(S.step, k + 1); };
-      if ($("#src")) $("#src").onclick = sources;
+      if ($("#src")) $("#src").onclick = function () { sources(Q.sources); };
       sayLine(Q.after, RUN);
     };
   });
 };
 
-/* Catch the mistake: one planted mistake. It ends on the tap and its answer; nothing is said out loud there. */
+/* Catch the mistake: one planted mistake. Its guidance comes on a sheet and the scene starts when that's closed (rule 49a); "Hear it
+   again" plays it with no sheet. It ends on the tap and its answer; nothing is said out loud there. */
 VIEW.spot = function (st) {
-  var r = RUN;
+  var r = RUN, sc = { who: st.who, stopped: st.stopped, lines: st.lines }, again = S.sub === 1;
   top({ pp: true });
-  show('<h1 id="sh">' + q(st.head || SH.spotHead) + '</h1><div class="fill" id="sf"><div class="panel" id="panel"></div><div id="ask"></div></div><div id="ft"></div>', "");
+  show('<h1 id="sh">' + q(st.head || SH.spotHead) + '</h1><div class="fill" id="sf">' + scenePanel(sc) + '<div id="ask"></div></div><div id="ft"></div>', "");
   $("#panel").onclick = function () { stopSound(); };
-  playScenes({ coach: st.coach, scenes: [{ who: st.who, stopped: st.stopped, lines: st.lines }] }, st.by).then(function (ok) {
+  (again ? Promise.resolve(true) : guide({ text: st.coach.text, coach: st.coach, label: st.play || SH.play })).then(function (ok) { return ok && r === RUN ? playScene(sc, { by: st.by }) : false; }).then(function (ok) {
     if (!ok || r !== RUN) return;
     noPause(); $("#panel").classList.add("short"); var cp = $("#capts"); if (cp) cp.innerHTML = "";
     $("#sh").innerHTML = q(st.ask); /* the screen's one header becomes the question */
     $("#ask").innerHTML = '<div class="opts two" id="opts">' + st.opts.map(function (o, i) { return '<button class="opt" data-i="' + i + '"><span>' + q(o) + '</span></button>'; }).join("") + '</div><div id="why"></div>';
-    var again = '<button class="link" id="again">' + q(SH.hearAgain) + '</button>';
-    $("#ft").innerHTML = again; /* centered under the options (version 8, Robert: "center-aligned underneath the buttons") */
-    $("#again").onclick = function () { go(S.step, 0); };
+    var hearAgain = '<button class="link" id="again">' + q(SH.hearAgain) + '</button>';
+    $("#ft").innerHTML = hearAgain; /* centered under the options (version 8, Robert: "center-aligned underneath the buttons") */
+    $("#again").onclick = function () { go(S.step, 1); };
     [].forEach.call(document.querySelectorAll("#opts button"), function (b) {
       b.onclick = function () {
         var i = +b.getAttribute("data-i"), box = $("#opts"); if (box.classList.contains("done")) return; box.classList.add("done");
         [].forEach.call(box.children, function (x, j) { x.classList.add(j === st.right ? "right" : j === i ? "wrong" : "faded"); x.disabled = true; });
         $("#why").innerHTML = why(i === st.right, st.after, true);
-        $("#ft").innerHTML = foot(btn(nextLabel(), "go")) + again; $("#go").onclick = nextStep; $("#again").onclick = function () { go(S.step, 0); };
+        $("#ft").innerHTML = foot(btn(nextLabel(), "go")) + hearAgain; $("#go").onclick = nextStep; $("#again").onclick = function () { go(S.step, 1); };
       };
     });
   });
 };
 
-/* Your 2nd try: the ready beat, then each passerby, then (lessons 3 to 5) a must that gives one more try */
+/* Your 2nd try: its first passerby's talk opens on the sheet, the line about them, the lesson's heads-up and Start (rules 16 and 49a);
+   then each passerby, and (lessons 3 to 5) a must that gives one more try. Sub 0 is that first talk with its sheet; passerby k's talk is
+   sub 2k + 1 (the first one again, after a card, with no sheet) and their card is sub 2k + 2. */
 VIEW.try2 = function (st) {
   if (practicing() && st.people.length > 1) st = Object.assign({}, st, { people: st.people.slice(0, 1) }); /* a practice round has one passerby */
   var sub = S.sub;
-  if (sub === 0) return vReady(st, st.coach, function () { S.people = []; S.redo = {}; S.keep0 = null; S.retried = false; go(S.step, 1); });
   if (sub === 90) return vAgain(st);
-  var k = Math.floor((sub - 1) / 2), P = st.people[k], card = (sub - 1) % 2 === 1, own = LN === 2 || (LN === 3 && k === 0), again = (S.redo && S.redo[k]) || S.retried ? "2" : "";
+  if (sub === 0) { S.people = []; S.redo = {}; S.keep0 = null; S.retried = false; }
+  var k = sub === 0 ? 0 : Math.floor((sub - 1) / 2), P = st.people[k], card = sub > 0 && (sub - 1) % 2 === 1, own = LN === 2 || (LN === 3 && k === 0), again = (S.redo && S.redo[k]) || S.retried ? "2" : "", ts = 2 * k + 1;
+  if (!P) return try2Done(st);
   if (card) return vChecks(st, k, "abcdefgh"[sub] + again);
-  talk({ st: st, key: LN + "." + P.who, who: P.who, pic: P.pic, coach: P.coach, set: P.set, opens: P.opens, replies: P.replies, walk: P.walk, line: P.line, fill: P.fill, hint: P.hint, opener: LN === 2 || (LN === 3 && k === 0), tag: ("abcdefgh"[sub] || "") + again, again: !!S.retried,
+  var sheet = sub === 0 ? { text: st.coach.text, coach: st.coach, extra: L.headsUp ? '<div class="callout">' + q(L.headsUp) + '</div>' : "", label: practicing() ? SH.practiceBtn : st.ready || SH.ready }
+    : !own && k > 0 && P.intro ? { text: P.intro, label: P.introBtn || P.upBtn } : null; /* no card came between, so a sheet says who's next (rule 16) */
+  talk({ st: st, key: LN + "." + P.who, who: P.who, pic: P.pic, sheet: sheet, coach: P.coach, set: P.set, opens: P.opens, replies: P.replies, walk: P.walk, line: P.line, fill: P.fill, hint: P.hint, opener: LN === 2 || (LN === 3 && k === 0), tag: ("abcdefgh"[ts] || "") + again, again: !!S.retried,
     onEnd: function (T) {
       var g = T.grade(); if (!g.quote) g.quote = T.pieces.join(" ");
       if (LN === 3 && k === 0) { g.musts = SIGG.mustsMissed(3, g.hits); if (S.keep0) { g = better(S.keep0, g); S.keep0 = null; } }
       S.people[k] = g;
-      if (own) return go(S.step, sub + 1);
+      if (own) return go(S.step, ts + 1);
       if (LN === 5 && g.untrue && !S.retried) return try2Done(st);
-      if (k + 1 < st.people.length) return go(S.step, sub + 2);
+      if (k + 1 < st.people.length) return go(S.step, ts + 2);
       try2Done(st);
     } });
 };
+/* guidance (rule 49a, Robert, Nov 21, 2026, 12:56 PM: "an overlay that comes from the bottom up ... by clicking on some button there,
+   you exit out of it, and it begins the interaction"): one message and one button on a sheet over the screen, and what it introduces
+   starts when the button is tapped. o: { k (a short title over the message, "Example 1 of 2"), text, extra (html under it: the
+   heads-up), label, coach (the line, which the talking coach reads aloud with ?coach=voice) }. On a step's first screen, Part N of 4
+   shows over it first, as in the door-knocking lessons; a tap on the button then only clears that. */
+function guide(o) {
+  var r = RUN, app = $("#app");
+  return new Promise(function (res) {
+    if (!app) return res(false);
+    var old = $("#gsheet"); if (old) old.remove();
+    var el = document.createElement("div"); el.className = "gsheet"; el.id = "gsheet";
+    el.innerHTML = '<div class="gs" role="dialog" aria-label="' + esc(o.k || o.label) + '">' + (o.k ? '<b class="gs-k">' + q(o.k) + '</b>' : "") + '<p class="gs-t">' + q(o.text) + '</p>' + (o.extra || "") + '<button class="btn" id="go">' + q(o.label) + '</button></div>';
+    app.appendChild(el);
+    var part = S.partOver, bt = null, clear = true, talkNow = function () { if (!TEXTC && o.coach) sayLine(o.coach, r); };
+    S.partOver = null;
+    if (part != null) {
+      clear = false;
+      $("#scr").insertAdjacentHTML("beforeend", beatHtml(part, true)); bt = $("#beat");
+      var gs = el.querySelector(".gs"), sr = $("#scr").getBoundingClientRect(), ar = app.getBoundingClientRect(); bt.style.bottom = Math.max(0, sr.bottom - (ar.bottom - gs.offsetHeight) + 10) + "px"; /* where the sheet ends up, not where its slide starts */
+      var off = function () { if (clear || r !== RUN) return; clear = true; if (bt.parentNode) bt.remove(); talkNow(); };
+      bt.onclick = off; setTimeout(off, FAST ? 250 : 2400);
+    } else talkNow();
+    var b = el.querySelector("#go");
+    b.onclick = function (e) {
+      e.stopPropagation();
+      if (!clear) { bt.onclick(); return; } /* Part N of 4 is still up: this tap only clears it */
+      audio(); stopSound(); b.removeAttribute("id"); el.classList.add("down");
+      setTimeout(function () { if (el.parentNode) el.remove(); }, FAST ? 0 : 300);
+      res(r === RUN);
+    };
+  });
+}
 /* the ready beat: one line on what happens next, the lesson's heads-up line and Ready. Nothing graded starts without this tap. */
 function vReady(st, coach, onReady, extra, sub, result, label) {
   var r = RUN;
@@ -671,7 +713,8 @@ function vChecks(st, k, sub) {
   var small = again && (g.untrue || g.promise);
   /* one header (version 8): how this one went. Who comes next is named by the button alone (Robert: "You can just have that be in the button") */
   var gn = g.hits.filter(Boolean).length;
-  show('<h1>' + q(gn === 4 ? SH.score.all : SH.score.some.replace("{n}", gn)) + '</h1><div class="fill">' + (small ? '<div class="nextp" style="margin:0">' + face(P.who) + '<span>' + q(SH.passerby) + '</span></div>' : '<div class="panel short" data-who="' + P.who + '">' + sceneFace(P.who) + (st.people.length > 2 ? '<div class="who r">' + q(SH.passerby) + " " + (k + 1) + " of " + st.people.length + '</div>' : "") + '</div>') + (again ? "" : saidBlock(g.quote)) +
+  var scoreH = '<h1 class="scl">' + q(gn === 4 ? SH.score.all : SH.score.some.replace("{n}", gn)) + '</h1>'; /* the score right over its four parts (rule 21) */
+  show('<div class="fill">' + (small ? '<div class="nextp" style="margin:0">' + face(P.who) + '<span>' + q(SH.passerby) + '</span></div>' : '<div class="panel short" data-who="' + P.who + '">' + sceneFace(P.who) + '</div>') + (again ? "" : saidBlock(g.quote)) + scoreH +
     '<ul class="rows">' + L.parts.map(function (p, i) { return g.hits[i] ? row("on", p.done) : fixRow(p, g, i); }).join("") + '</ul>' +
     (voidTry ? fixBlock(g, redo) : "") + oneMore + (again && L.headsUp ? '<div class="callout">' + q(L.headsUp) + '</div>' : "") + '</div>' +
     foot(btn(redo || again ? SH.tryAgain : nextP ? (nextP.upBtn || SH.ready) : nextLabel(), "go")), sub);
@@ -715,9 +758,31 @@ function vAgain(st) {
 
 /* the feedback card, then the lesson end */
 VIEW.end = function (st) {
-  if (S.sub === 0 && LN !== 1) return vFeedback(st, S.score, function () { go(S.step, 1); }, "Finish lesson " + LN, "a");
+  if (S.sub === 0 && LN !== 1) return vGrew(st);
   vLessonEnd(st);
 };
+/* How you grew (rule 19, Robert, Nov 21, 2026, 12:56 PM: "what we really want to show is momentum, so people keep using this ... compare
+   and contrast your first try to your second try ... show growth and improvement"), as the door-knocking lessons end: an honest
+   headline, the 1st try and the best 2nd try side by side with their scores, then the 2nd try's four parts right under them (rule 21),
+   the ones added since the 1st try marked New, and the one tip. */
+var NUMW = ["no", "one", "two", "three", "four"];
+var ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h14m-5-5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function vGrew(st) {
+  var s = S.score || { hits: [false, false, false, false], n: 0 }, t = S.try1, fin = "Finish lesson " + LN, next = function () { go(S.step, 1); };
+  if (!t) return vFeedback(st, s, next, fin, "a");
+  var G = SH.grew, a = t.hits.filter(Boolean).length, b = s.hits.filter(Boolean).length, gained = [0, 1, 2, 3].filter(function (i) { return s.hits[i] && !t.hits[i]; });
+  var head = a === 4 && b === 4 ? G.both : b > a ? G.added.replace("{n}", NUMW[gained.length]).replace("{s}", gained.length === 1 ? "" : "s") : b === a ? G.same.replace("{n}", b) : G.drop.replace("{a}", a).replace("{b}", b);
+  var tp = SIGG.tipFor(s.hits), still = (s.untrue && !(LN === 5 || LN === 2)) || (s.promise && LN !== 2) ? fixBlock(s, false) : "";
+  var tip = tp < 0 || still ? "" : tp === 0 && L.parts[0].tipPaid && S.people[0] && !S.people[0].straight ? L.parts[0].tipPaid : L.parts[tp].tip;
+  var up = b > a || (a === 4 && b === 4), sub = a === 4 && b === 4 ? G.bothSub : b > a ? (b === 4 ? G.allSub : G.addedSub) : tip ? G.keepSub : G.keepSubNoTip; /* a tie or a drop looks plain: no green, no bigger face */
+  var w1 = t.who || (L.steps[0] && L.steps[0].who), w2 = s.who || w1;
+  var col = function (who, lab, n, now) { return '<div class="gcol' + (now ? " now" : "") + '">' + (who ? face(who) : "") + '<span>' + q(lab) + '<b>' + q(SH.score.of.replace("{n}", n)) + '</b></span></div>'; };
+  top({ result: true });
+  show('<h1>' + q(head) + '</h1><p class="sub">' + q(sub) + '</p><div class="fill"><div class="grew' + (up ? "" : " flat") + '" role="img" aria-label="' + esc(G.first + ", " + a + " of 4. " + G.second + ", " + b + " of 4.") + '">' + col(w1, G.first, a) + '<span class="garrow">' + ARROW + '</span>' + col(w2, G.second, b, up) + '</div>' +
+    '<ul class="rows">' + L.parts.map(function (p, i) { return (s.hits[i] ? row("on", p.done).replace(/<\/span><\/li>$/, gained.indexOf(i) >= 0 ? ' <em class="chip">' + q(G.chip) + '</em></span></li>' : "</span></li>") : fixRow(p, s, i)) + (i === tp && tip ? '<li class="tipline"><span><b>' + q(SH.tipLead) + '</b> ' + q(tip) + '</span></li>' : ""); }).join("") + '</ul>' +
+    (still ? '<div>' + still + '</div>' : "") + '</div>' + foot(btn(fin, "go")), "a");
+  $("#go").onclick = next;
+}
 /* version 8 (Robert, Nov 20, 3:51 PM: "you're saying and showing I got 3 out of 4. If you could just do that in one way, that would be
    great. If you have a tip, I think it needs to be shorter. I don't think you need the 'from lesson 1, you let her go.'"): the header
    says the score, the four parts follow in their fixed order, and one short tip sits under the part to fix. No "What you did right"
@@ -729,8 +794,8 @@ function vFeedback(st, s, onNext, label, sub, extra) {
   var still = (s.untrue && !(LN === 5 || LN === 2)) || (s.promise && LN !== 2) ? fixBlock(s, false) : "";
   var tip = t < 0 || still ? "" : t === 0 && L.parts[0].tipPaid && S.people[0] && !S.people[0].straight ? L.parts[0].tipPaid : L.parts[t].tip;
   top({ result: true });
-  show('<h1>' + q(n === 4 ? SH.score.all : SH.score.some.replace("{n}", n)) + '</h1><div class="fill">' +
-    (who && !(still && extra) ? '<div class="panel short" data-who="' + who + '">' + sceneFace(who) + '</div>' : "") +
+  show('<div class="fill">' +
+    (who && !(still && extra) ? '<div class="panel short" data-who="' + who + '">' + sceneFace(who) + '</div>' : "") + '<h1 class="scl">' + q(n === 4 ? SH.score.all : SH.score.some.replace("{n}", n)) + '</h1>' + /* the score right over its parts (rule 21) */
     '<ul class="rows">' + L.parts.map(function (p, i) { return (s.hits[i] ? row("on", p.done) : fixRow(p, s, i)) + (i === t && tip ? '<li class="tipline"><span><b>' + q(SH.tipLead) + '</b> ' + q(tip) + '</span></li>' : ""); }).join("") + '</ul>' +
     (still ? '<div>' + still + '</div>' : "") + (extra || "") + '</div>' + foot(btn(label, "go")), sub);
   if (who) expr(who, n >= 3 ? "warm" : "neutral");
@@ -744,7 +809,7 @@ function vLessonEnd(st) {
   var open = S.mustOpen && S.mustOpen.length, musts = saved().must || {}, anyOpen = Object.keys(musts).length > 0;
   if (st.finish) save({ fin: true });
   var finish = st.finish || (PRACTICE && saved().fin), other = +Object.keys(musts)[0] || 0; /* a practice round reached from lesson 5's end finishes like lesson 5 */
-  var tomorrow = SH.titles[LN] ? SH.end.tomorrow.replace("{next}", lc(SH.titles[LN])) : "";
+  var tomorrow = L.next || (SH.titles[LN] ? SH.end.tomorrow.replace("{next}", lc(SH.titles[LN])) : ""); /* rule 19: "Tomorrow: what to say once they stop." */
   S.done[S.step] = true; top({ result: true });
   show('<h1 class="lg">' + q(finish ? (anyOpen ? SH.ready5wait : SH.ready5) : SH.end.done.replace("{n}", LN)) + '</h1>' +
     '<p class="endline">' + q(finish ? SH.course : L.endExtra || tomorrow) + '</p>' +

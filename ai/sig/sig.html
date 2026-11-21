@@ -331,6 +331,32 @@ svg.close .kid { display: none; } /* a close-up of Tanya leaves her daughter out
 .sheet h2 { flex: none; font: 500 calc(22 * var(--u))/1.2 var(--head); margin: 0 0 6px; } .sheet ul { flex: 0 1 auto; min-height: 0; margin: 0; padding-left: 17px; font: 500 calc(13 * var(--u))/1.34 "Figtree"; } .sheet li { margin: calc(5 * var(--u)) 0; } .sheet a { color: var(--drive); } .sheet .fine { flex: none; font: 500 calc(12 * var(--u))/1.35 "Figtree"; color: var(--muted); margin: 8px 0 10px; }
 .sheet .btn { flex: none; min-height: 46px; }
 @keyframes fade { from { opacity: 0; } } @keyframes up { from { transform: translateY(40px); opacity: 0; } }
+/* guidance on a sheet that rises from the bottom (rule 49a): one message, one button; what it introduces starts when it's closed */
+.gsheet { position: absolute; inset: 0; z-index: 22; display: flex; flex-direction: column; justify-content: flex-end; background: linear-gradient(to top, rgba(20,18,16,.30), rgba(20,18,16,.08) 70%); animation: fade .2s ease both; }
+.gsheet .gs { background: var(--paper); border-radius: 26px 26px 0 0; padding: 22px 20px calc(env(safe-area-inset-bottom, 0px) + 18px); box-shadow: 0 -8px 30px rgba(38,35,32,.2); animation: up .32s cubic-bezier(.2,.8,.2,1) both; }
+.gsheet .gs-k { display: block; font: 500 26px/1.1 var(--head); letter-spacing: -0.01em; color: var(--ink); margin: 0 0 8px; } /* "Example 1 of 2", as the old example card's title */
+.gsheet .gs-t { margin: 0; font: 600 19px/1.38 "Figtree"; color: var(--ink); text-wrap: pretty; }
+.gsheet .callout { margin-top: 14px; font-size: 16px; }
+.gsheet .btn { display: block; width: 100%; margin-top: 18px; }
+#top { position: relative; z-index: 24; } /* the step bar and Back stay usable over a sheet (rule 56: always) */
+.gsheet.down { opacity: 0; transition: opacity .28s ease; pointer-events: none; }
+.gsheet.down .gs { animation: none; transform: translateY(100%); transition: transform .28s ease-in; }
+/* Hear it done: each part's row is kept in place, unseen, until she says it (rule 13), and the button's room is kept while the scene plays */
+.rows li.pend { visibility: hidden; }
+.callout.take { margin-top: 12px; padding: 11px 14px; font: 500 calc(15 * var(--u))/1.38 "Figtree"; } /* Hear it done's why, under its parts */
+/* the score sits right over its four parts, under the picture (rule 21) */
+.fill > h1.scl { margin-top: 14px; }
+/* How you grew (rule 19): the 1st try and the 2nd side by side, with their scores */
+.grew { flex: none; display: flex; align-items: center; justify-content: center; gap: 14px; margin: 4px 0 2px; }
+.grew .gcol { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.grew img.av { width: calc(78 * var(--u)); height: calc(78 * var(--u)); border-radius: 50%; object-fit: cover; background: var(--soft); box-shadow: 0 0 0 3px var(--card), 0 0 0 4.5px var(--line); }
+.grew .gcol.now img.av { width: calc(96 * var(--u)); height: calc(96 * var(--u)); box-shadow: 0 0 0 3px var(--card), 0 0 0 5px var(--green); }
+.grew .gcol span { font: 700 calc(13 * var(--u))/1.2 "Figtree"; color: var(--muted); }
+.grew .gcol span b { display: block; margin-top: 3px; font: 800 calc(20 * var(--u))/1 "Figtree"; color: var(--ink); letter-spacing: -.01em; }
+.grew .gcol.now span b { color: var(--green-d); }
+.grew.flat .garrow { color: #B8B0A3; } /* a tie or a drop: plain, the two faces the same size */
+.grew .garrow { color: var(--green-d); width: 28px; height: 28px; flex: none; margin-bottom: 30px; } .grew .garrow svg { width: 100%; height: 100%; display: block; }
+.rows li .chip { display: inline-block; margin-left: 6px; padding: 2px 8px 3px; border-radius: 999px; background: var(--green-soft); color: var(--green-d); font: 800 calc(11.5 * var(--u))/1.3 "Figtree"; font-style: normal; letter-spacing: .02em; vertical-align: 1px; }
 /* on a laptop the lesson sits in a phone frame */
 @media (min-width: 700px) and (min-height: 480px) {
   html, body { background: #E9E4DA; }
@@ -411,11 +437,6 @@ html:not(.tags) .tag { display: none; }
 .micb.pulse .md::after { animation-delay: .8s; }
 @media (prefers-reduced-motion: reduce) { .micb.pulse .md::before, .micb.pulse .md::after { animation: none; opacity: 0; } }
 /* a second example inside a step: its own short card, not a Part N of 4 screen */
-.excard { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 24px; background: rgba(252,248,242,.9); animation: vpin .25s ease both; cursor: pointer; }
-.excard > div { width: 100%; max-width: 330px; padding: 22px 20px; border-radius: 22px; background: var(--card); box-shadow: 0 0 0 1.5px var(--line), 0 10px 30px rgba(38,35,32,.14); text-align: center; }
-.excard small { display: block; font: 700 13px/1.2 "Figtree"; color: var(--green-d); }
-.excard b { display: block; margin-top: 6px; font: 500 28px/1.1 var(--head); color: var(--ink); }
-.excard p { margin: 10px 0 0; font: 500 16px/1.4 "Figtree"; color: var(--ink-2); text-wrap: balance; }
 /* the stop-rate guess: three choices in a row, and a row of 20 passersby that shows the answer */
 .p20 { flex: 1 1 auto; min-height: 104px; display: grid; grid-template-columns: repeat(10, 1fr); align-content: center; gap: 10px 4px; margin-top: 14px; padding: 14px 10px; border-radius: 18px; background: var(--soft); }
 .p20 i { display: grid; place-items: center; }

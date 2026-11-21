@@ -46,7 +46,7 @@ for (const [n, m] of Object.entries(IMG)) {
     JSON.stringify(st, (k, v) => { if ((k === "who" || k === "face") && typeof v === "string" && SIG_CAST[v] && SIG_CAST[v].full) need.add(v); if (k === "pic" && v && v.who) need.add(v.who); return v; });
     if (typeof st.pic === "string") need.add(st.pic);
     for (const P of st.people || []) if (P.pic) need.add(P.pic);
-    for (const sc of st.scenes || []) need.add("two-" + by(st) + "-" + (sc.pic || sc.who));
+    for (const sc of st.scenes || []) need.add(sc.who); /* since version 8 a scene is the canvasser's view: the passerby alone (a pic with no picture of its own falls back to them) */
     if (st.kind === "spot") need.add("two-" + by(st) + "-" + st.who);
     if (st.kind === "stop") need.add("two-lena-" + st.who);
   }

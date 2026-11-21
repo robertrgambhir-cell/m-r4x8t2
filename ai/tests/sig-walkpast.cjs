@@ -40,6 +40,8 @@ const ok = (c, m) => { console.log((c ? "ok   " : "FAIL ") + m); if (!c) fails +
     for (let i = 0; i < 200 && !card; i += 1) {
       const s = await p.evaluate(() => ({ mic: (document.querySelector("#mic") || {}).className || "", caps: [...document.querySelectorAll("#capts .capt")].map((x) => x.innerText.replace(/\s+/g, " ")), go: (document.querySelector("#go") || {}).innerText || "", h1: (document.querySelector("h1") || {}).innerText || "", rows: [...document.querySelectorAll(".rows li")].map((x) => x.innerText.replace(/\s+/g, " ")) }));
       s.caps.forEach((x) => seen.add(x)); (await p.evaluate(() => window.__caps)).forEach((x) => seen.add(x));
+      const sheet = await p.evaluate(() => !!document.querySelector("#gsheet #go"));
+      if (sheet && ready && !tapped) { await p.evaluate(() => document.querySelector("#gsheet #go").click()); await p.waitForTimeout(60); continue; } /* the try's sheet (rule 49a): a first tap may only clear Part N of 4 */
       if (!s.mic && ready && s.go && !tapped) { await p.evaluate(() => document.querySelector("#go").click()); ready = false; await p.waitForTimeout(100); continue; }
       if (!s.mic && s.go && s.rows.length) { card = s; break; }
       if (/pulse/.test(s.mic) && !tapped) { tapped = true; await p.evaluate(() => document.querySelector("#mic").click()); }
@@ -50,9 +52,9 @@ const ok = (c, m) => { console.log((c ? "ok   " : "FAIL ") + m); if (!c) fails +
     await c.close();
     return { card, said: [...seen].join(" | "), errs };
   };
-  let r = await run("1.0", "", true); /* the 1st try starts from its ready screen (rule 68a) */ if (process.env.V) console.log(r.said);
+  let r = await run("1.0", "", true); /* the 1st try starts from its sheet (rules 16 and 49a) */ if (process.env.V) console.log(r.said);
   ok(r.card && r.said.includes(BUSY.replace("’", "'")) || r.said.includes(BUSY), "1st try, said nothing: he says the brush-off");
-  ok(r.card && r.card.h1 === "He kept walking. Start your opener as he walks up.", "1st try, said nothing: the card says he kept walking (" + (r.card && r.card.h1) + ")");
+  ok(r.card && r.card.h1 === "He kept walking. Start your opener as soon as he’s close.", "1st try, said nothing: the card says he kept walking (" + (r.card && r.card.h1) + ")"); /* version 10: the words match the talk button's ("Wait till he's close") */
   ok(r.card && r.card.rows.some((x) => /Took so long they walked on\./.test(x)), "1st try, said nothing: part 4 says they walked on");
   ok(r.card && r.card.go === "Next: hear it done", "1st try, said nothing: nothing is skipped (" + (r.card && r.card.go) + ")");
   ok(!r.errs.length, "no page errors " + r.errs.join(" "));

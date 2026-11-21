@@ -30,7 +30,18 @@ var SIGG = (function () {
   ];
   var COST = /\bfree\b|\bno (?:new |more |extra )?tax(?:es)?\b|\b(?:won't|wont|will not|doesn't|doesnt|does not|isn't going to|not going to) cost\b|\b(?:no|zero) cost\b|\bwithout (?:raising|new|any) tax(?:es)?\b|\bnot a tax\b|\bcosts? (?:you |taxpayers |anyone |anybody )?nothing\b/;
   /* a statement about being registered isn't the question */
-  var STATEMENT = /\b(?:have to be|has to be|need to be|needs to be|must be|should be|gotta be|got to be|only|if you're|if you are|if they're|who are|who's|who is|i'm|i am|we're|we are|not|looking for|for)$/;
+  var STATEMENT = /\b(?:have to be|has to be|need to be|needs to be|must be|should be|gotta be|got to be|only|if you're|if you are|if they're|who are|who's|who is|i'm|i am|we're|we are|not|looking for|for|need|needs|want|wants|require|requires|all|any)$/;
+  /* the county said without its name, right after the registered question: "in this county" (rule 27b, Robert, Nov 21, 12:56 PM).
+     "In LA" or "in Los Angeles" alone still isn't the county: the city isn't the county (Robert's Nov 18 replay, Extra 1). */
+  var LOOSE = /\b(?:this county|the county)\b/;
+  /* a question's own start just before "registered": "are you all," "you guys all," "are there any," or "any" opening a question
+     (the outside review, Nov 21): then "all" or "any" doesn't make it a statement */
+  var QCUE = /(?:\b(?:are|r|is|were) )?\b(?:you|ya|u|y'all|yall|you all|you guys|you folks|you two|you both|anyone|anybody|everyone|either of you)(?: (?:a|an|all|both|currently|already|still|guys|folks))*$|\b(?:are|is) there (?:any|anyone|anybody)$/;
+  function statement(before, last4, t, at) {
+    if (QCUE.test(before)) return false;
+    if (/\bany$/.test(before) && /^[^?]{0,80}\?/.test(t.slice(at))) return false; /* "Any registered voters in LA County here?": "any" with a "?" to come */
+    return STATEMENT.test(before) || /\b(?:have|has|need|needs|must|should|got|gotta) to be$|\bonly(?: [a-z']+){0,2}$/.test(last4);
+  }
   var MID = /\b(?:um+|uh+|uhm|er+|erm|hmm+|ah|and|but|so|or|because|cause|i|i'?m|i am|my|me|we|we'?re|our|the|a|an|to|for|with|of|in|on|at|about|from|like|just|that|this|is|are|was|am|be|it'?s|you|your|who|what|if|then|also|really|very|here|registered|vote|la|los|angeles|library|longer|hi|hello|hey)$/i;
   var esc = function (s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); };
 
@@ -39,7 +50,12 @@ var SIGG = (function () {
     return String(s == null ? "" : s).toLowerCase()
       .replace(/[‘’ʼ`]/g, "'").replace(/[“”]/g, '"').replace(/&/g, " and ")
       .replace(/\bl\.\s?a\.?(?=[\s,.!?]|$)/g, "la").replace(/\bl a(?= county\b)/g, "la")
-      .replace(/[^a-z0-9'? ]+/g, " ").replace(/\?/g, " ? ").replace(/(^|\s)'+|'+(?=\s|$)/g, "$1").replace(/\s+/g, " ").trim();
+      .replace(/[^a-z0-9'? ]+/g, " ").replace(/\?/g, " ? ").replace(/(^|\s)'+|'+(?=\s|$)/g, "$1").replace(/\s+/g, " ").trim()
+      /* the registered question asked as a voter question (rule 27b, Nov 21): "Are you an LA County voter?", "Are you a voter in LA
+         County?", "Do you vote in LA County?" read as "are you registered to vote in ..." */
+      .replace(/\b(are|r) (you|ya|u)(?: (?:a|an))? (la county|los angeles county|los angeles|la) voters?\b/g, "$1 $2 registered to vote in $3")
+      .replace(/\b(are|r) (you|ya|u) (?:a|an) voters? (?=(?:here |out here )?in\b)/g, "$1 $2 registered to vote ")
+      .replace(/\bdo (you|ya|u) vote (?=(?:here |out here )?in\b)/g, "are $1 registered to vote ");
   }
   var words = function (t) { return t ? t.split(" ").filter(function (w) { return w && w !== "?"; }) : []; };
   var real = function (t) { return words(t).filter(function (w) { return !FILLER.test(w); }); };
@@ -76,16 +92,20 @@ var SIGG = (function () {
     var re = /\bregist(?:er|ered|ration)\b/g, cre = countyRe(st), m, best = null;
     while ((m = re.exec(t))) {
       var before = t.slice(0, m.index).trim(), last4 = before.split(" ").slice(-4).join(" ");
-      if (STATEMENT.test(before) || /\b(?:have|has|need|needs|must|should|got|gotta) to be$|\bonly(?: [a-z']+){0,2}$/.test(last4)) continue; /* "you have to be registered", "only registered voters count" */
+      if (statement(before, last4, t, m.index)) continue; /* "you have to be registered", "only registered voters count" */
       var start = m.index, cue = before.match(/(?:\b(?:are|r|is|were) )?(?:\b(?:you|ya|u|y'all|yall|you all|you guys|you folks|you two|you both|anyone|anybody|everyone|either of you)\b)(?: (?:a|an|all|both|currently|already|still|guys|folks))*$/);
       if (cue) start = before.length - cue[0].length;
       var after = t.slice(m.index + m[0].length), end = m.index + m[0].length;
       var tail = after.match(/^(?: (?:to vote|voters?|voting|to vote here|here))+/);
       if (tail) end += tail[0].length;
-      /* the county, within a few words after "registered ..." or just before the question */
-      var county = false, cm = cre.exec(t.slice(end));
-      if (cm && t.slice(end, end + cm.index).trim().split(" ").filter(Boolean).length <= 5 && t.slice(end, end + cm.index).indexOf("?") < 0) { county = true; end = end + cm.index + cm[0].length; }
-      else { var pre = t.slice(0, start), pm = pre.match(new RegExp("(?:\\bin )?" + cre.source + "(?: [a-z']+){0,2} ?$")); if (pm) { county = true; start = pre.length - pm[0].length; } }
+      /* the county, within a few words after "registered ..." (a "?" between only when the county follows at once: "Are you registered
+         to vote? In LA County?"), said in full or loosely ("in LA," "in Los Angeles," "in this county"), or just before the question */
+      /* past a "?", "this county" never counts, and the county's name only as the question's own end: "Are you registered to vote? In
+         LA County?" (the outside review, Nov 21: "Are you registered to vote? The county checks every line." isn't the question) */
+      var county = false, rest = t.slice(end), gapOk = function (x, loose) { if (!x) return false; var gap = rest.slice(0, x.index), n = gap.trim().split(" ").filter(Boolean).length; if (gap.indexOf("?") < 0) return n <= 8; return !loose && /\?\s*(?:in\s*)?$/.test(gap) && gap.split("?").length === 2; };
+      var cm = [[cre.exec(rest), false], [LOOSE.exec(rest), true]].filter(function (x) { return gapOk(x[0], x[1]); }).map(function (x) { return x[0]; }).sort(function (a, b) { return a.index - b.index; })[0];
+      if (cm) { county = true; end = end + cm.index + cm[0].length; }
+      else { var pre = t.slice(0, start), pm = pre.match(new RegExp("(?:\\bin )?" + cre.source + "(?: [a-z']+){0,2} ?$")); if (pm && !/\b(?:with|from|for|at|of|by) $/.test(pre.slice(0, pre.length - pm[0].length))) { county = true; start = pre.length - pm[0].length; } }
       var q = { at: start, end: end, county: county };
       if (!best || (q.county && !best.county)) best = q;
     }
@@ -142,7 +162,9 @@ var SIGG = (function () {
     var hits = [g > 0, sentence && !untrue && !long, !!(q && q.county), timeAt < 0 && ws.length > 0]; /* part 4 is about what you leave out, so it counts only once you've said something (a passerby who walked past a silent canvasser) */
     return {
       hits: hits, n: hits.filter(Boolean).length, text: String(text || "").trim(), norm: t,
-      greet: g > 0, topic: topic, sentence: sentence, hours: sentence, topicOnly: topicOnly, long: long, explWords: explWords, untrue: untrue, untrueSaid: um, promise: promise,
+      greet: g > 0, topic: topic, sentence: sentence, hours: sentence, topicOnly: topicOnly, long: long,
+      /* signatures or a petition came up, so a passerby can offer to sign (rule 37e, Robert, Nov 21, 12:56 PM: "I didn't ask her to sign anything") */
+      sig: /\bsignatures?\b|\bsign(?:ing|ed)?\b|\bpetitions?\b|\b(?:put|add|write) (?:down )?your name\b/.test(t), explWords: explWords, untrue: untrue, untrueSaid: um, promise: promise,
       alt: [false, topicOnly, false, sorryFirst], /* the second "missed" lines: only the topic, and an apology first */
       /* missed in a way no missed line describes: it ran long or wasn't true (the untrue card says that), or a sorry after the question */
       vague: [false, topic && !topicOnly && (long || !!untrue), false, sorryWord && !sorryFirst],
@@ -196,6 +218,8 @@ var SIGG = (function () {
   /* a goodbye ends a conversation at once (playbook A4): no extra turn, no question tacked on */
   var BYE_RE = /\b(?:good ?)?bye\b|\bsee (?:you|ya)\b|\btake care\b|\bhave a (?:good|great|nice|wonderful|lovely|blessed) (?:one|day|night|evening|afternoon|morning|weekend)\b|\bnever ?mind\b|\bthanks anyway\b|\bforget it\b/;
   function bye(text) { return BYE_RE.test(norm(text)); }
+  /* inside a talk: the canvasser's latest words ask them to sign ("Would you sign?", "Want to put your name on it?") */
+  var SIGN_ASK = /\b(?:will|would|can|could|wanna|want to|like to|care to|willing to|ready to|happy to) (?:you )?(?:sign|put your name|add your name)\b|\b(?:will|would|can|could) you (?:please )?(?:sign|put your name|add your name)\b|\bsign (?:this|here|it|the petition|our petition|a petition)\b.{0,20}\?|\bwant to sign\b/;
   /* the words around a match, as the canvasser said them: two before and three after, so a card can show what was untrue */
   function around(t, m, raw) {
     if (!m) return "";
@@ -216,7 +240,7 @@ var SIGG = (function () {
     var re = /\bregist(?:er|ered|ration)\b/g, m, out = [];
     while ((m = re.exec(t))) {
       var before = t.slice(0, m.index).trim(), last4 = before.split(" ").slice(-4).join(" ");
-      if (STATEMENT.test(before) || /\b(?:have|has|need|needs|must|should|got|gotta) to be$|\bonly(?: [a-z']+){0,2}$/.test(last4)) continue;
+      if (statement(before, last4, t, m.index)) continue;
       out.push([m.index, m.index + m[0].length]);
     }
     return out;
@@ -345,7 +369,7 @@ var SIGG = (function () {
     var CAP = 4, P = [], S = { pieces: P, said: [], end: false, phase: 0, asked: false }, join = function (a, b) { return P.slice(a || 0, b).join(" "); };
     /* more: the passerby has just said or done something the canvasser gets to answer, even past the fourth line */
     var out = function (say, end, more) { S.said = S.said.concat(say); if (end || (P.length >= CAP && !more)) S.end = true; return { say: say, end: S.end }; };
-    var mine = function () { return P[P.length - 1] || ""; }, saidK = function (k) { return S.said.indexOf(k) >= 0; };
+    var mine = function () { return P[P.length - 1] || ""; }, saidK = function (k) { return S.said.indexOf(k) >= 0; }, asksSign = function () { var x = norm(mine()); return SIGN_ASK.test(x) || ASK_RE.test(x); };
     /* the fallback lines: a hello or small talk gets one back (once each), a push to sign gets "I'll think about it." */
     var hello = function () { var f = fallback(mine()); return f && !saidK(f) ? out([f]) : null; }; /* said once: after that a bare hello is nothing new */
     /* does this piece add to the ask: being paid, the funders, what it does, how it's paid for, or what it is */
@@ -384,10 +408,12 @@ var SIGG = (function () {
         hear: function () {
           var g = grade(join(), st);
           if (g.first === "time") return out(["time"], true);
+          if (bye(mine()) && (saidK("stop") || S.libbed || S.asked)) return out(["fBye"], true); /* a goodbye gets one back, first (the outside review, Nov 21) */
+          if (g.topic && !g.regAsked && asksSign()) return out(["sure"], true); /* asked to sign, and told what for: he signs (the card still says he wasn't asked about LA County) */
           /* asked if he's registered: he says so. Told what it's for too, he'll sign, and that ends it; not told, he asks what this is,
              and the next words either tell him ("Sure, I'll sign.") or don't (he heads off with a kind word) */
-          if (g.regAsked && !saidK("stop")) return g.topic ? out(["stop", "sure"], true) : out(["stop", "other"]);
-          if (saidK("stop")) return out([g.topic ? "sure" : "fGo"], true);
+          if (g.regAsked && !saidK("stop")) return g.topic && g.sig ? out(["stop", "sure"], true) : g.topic ? (S.libbed ? out(["stop"]) : (S.libbed = true, out(["stop", "lib"]))) : out(["stop", "other"]);
+          if (saidK("stop")) return g.topic && g.sig ? out(["sure"], true) : g.topic && !S.libbed ? (S.libbed = true, out(["lib"])) : out(["fGo"], true); /* "Sure, I'll sign" only once signing came up (rule 37e) */
           if (bye(mine())) return out(["fBye"], true);
           var hi = hello(); if (hi) return hi;
           if (PRESS_RE.test(norm(mine())) && !saidK("fPush")) return out(["fPush"]);
@@ -401,8 +427,10 @@ var SIGG = (function () {
       "2.stop": { /* Soo-jin and Luis. Asked with no word on what it's for, they answer and then ask: "Yes, I am." "Sorry, what's this for?" */
         hear: function () {
           var g = grade(join(), st);
-          if (S.said.indexOf("stop") >= 0) return out([g.topic ? "sure" : "fGo"], true); /* asked what it's for: told, they'll sign; not told, they go kindly */
-          if (g.regAsked && (g.topic || S.asked || S.libbed)) return out(["stop", g.topic ? "sure" : "fGo"], true);
+          if (bye(mine()) && (S.said.indexOf("stop") >= 0 || S.libbed || S.asked)) return out(["fBye"], true); /* a goodbye gets one back, first */
+          if (g.topic && !g.regAsked && asksSign()) return out(["sure"], true); /* asked to sign, and told what for: they sign */
+          if (S.said.indexOf("stop") >= 0) return g.topic && g.sig ? out(["sure"], true) : g.topic && !S.libbed ? (S.libbed = true, out(["lib"])) : out(["fGo"], true); /* asked what it's for: told and asked to sign, they'll sign; not told, they go kindly */
+          if (g.regAsked && (g.topic || S.asked || S.libbed)) return g.topic && g.sig ? out(["stop", "sure"], true) : g.topic ? (S.libbed ? out(["stop"]) : (S.libbed = true, out(["stop", "lib"]))) : out(["stop", "fGo"], true); /* "Sure, I'll sign" only once signing came up (rule 37e); told what it's for, they answer and wait for the ask */
           if (!g.regAsked && bye(mine())) return out(["fBye"], true);
           if (!g.regAsked) { var hi = hello(); if (hi) return hi; }
           if (g.regAsked) { S.asked = true; return out(["stop", "other"]); }

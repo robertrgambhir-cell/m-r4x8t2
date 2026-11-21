@@ -87,3 +87,34 @@ export const LET_GO = [
   ["It doesn't matter, just sign here.", false],
   ["Are you sure?", false],
 ];
+
+/* rule 27b (Robert, Nov 21, 2026, 12:56 PM: "the AI voice accuracy thing is that it needs to be 99%+ accurate"): ways a canvasser
+   asks the registered question with the county, which all count, and lines that don't ask it with the county */
+export const REG_COUNTS = [
+  /* the outside review, Nov 21: "all" or "any" inside a question */
+  "Are you all registered to vote in LA County?", "Are you guys all registered to vote in LA County?", "Any registered voters in LA County here?", "Are there any registered LA County voters here?",
+  "Are you registered to vote in LA County?", "Are you registered to vote in Los Angeles County?", "Are you registered to vote in L.A. County?",
+  "Are you registered to vote in L A County?",   "Are you registered in LA County?", "Are you registered here in LA County?", "Are you registered to vote here in Los Angeles County?",
+  "Are you a registered voter in LA County?", "Are you a registered LA County voter?", "Are you an LA County voter?",
+  "Are you a voter in LA County?", "Do you vote in LA County?", "Are you registered to vote in this county?",
+  "Are you registered in the county?", "You registered to vote in LA County?", "Are you registered to vote in the county of Los Angeles?",
+  "Are you registered to vote? In LA County?", "Are you registered to vote in LA County by chance?", "Are you by chance registered to vote in LA County?",
+  "Are you currently registered to vote in LA County?", "Are you registered to vote at your address in LA County?",
+  "Would you happen to be registered to vote in LA County?",   "And are you registered to vote in LA County?", "Are you registered to vote around here, in LA County?",
+  "Are you registered to vote in Los Angeles county, and do you love libraries?", "Are you registered to vote in Los Angeles County and are you a lover of libraries?",
+  "are you registered to vote in ella county", "are you registered to vote in el a county", "are you registered to vote in elay county",
+  "are you registered to vote in l.a county", "Registered to vote in LA County?",
+  "You're registered in LA County, right?", "You a registered voter in LA County?",   "Are you registered in Los Angeles County to vote?", "Are you guys registered to vote in LA County?", "Are you registered to vote out here in LA County?",
+  "Are you registered to vote in the city or county of Los Angeles?", "Are you a Los Angeles County voter?",
+  "Do you vote here in LA County?", "Are you registered to vote in LA County, by any chance?", "Are you, um, registered to vote in LA County?",
+  "Are you registered, uh, to vote in LA County?", "Are you registered to vote in LA County at all?",
+];
+export const REG_NOT = [ /* no county named, "in LA" alone (the city), or no question */
+  /* the outside review, Nov 21: the county past a "?" that isn't the question's, or someone's employer */
+  "Are you registered to vote? The county checks every line.", "Are you registered to vote? I'm with LA County libraries.", "I'm with LA County libraries. Are you registered to vote?",
+  "Any registered LA County voter can sign this.",
+  "Are you registered to vote?", "Only registered voters in LA County can sign.", "You have to be registered in LA County.",
+  "Do you live in LA County?", "Do you vote?", "I'm registered in LA County.", "We need registered voters in LA County.",
+  "Are you registered to vote in Los Angeles?", "Are you registered to vote in LA?", "Are you a registered voter here in Los Angeles?", "Are you registered to vote in L.A.?",
+  "Are you registered to vote in the LA area?", "Are you registered to vote here in LA?", "Are you registered to vote here in Los Angeles?",
+];

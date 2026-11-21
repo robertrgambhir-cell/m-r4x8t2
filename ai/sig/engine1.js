@@ -92,18 +92,20 @@ function audio() {
 }
 function fetchClip(clip) { if (clip && !RAW[clip]) RAW[clip] = fetch("audio/" + clip + ".mp3").then(function (r) { if (!r.ok) throw new Error("clip"); return r.arrayBuffer(); }).catch(function () { return null; }); return RAW[clip] || Promise.resolve(null); }
 function clipBuf(clip) { if (!BUF[clip]) BUF[clip] = fetchClip(clip).then(function (ab) { if (!ab) return null; return new Promise(function (res) { try { audio().decodeAudioData(ab.slice(0), res, function () { res(null); }); } catch (e) { res(null); } }); }); return BUF[clip]; }
-function stopSound() { if (READ) READ(); var p = playing; playing = []; p.forEach(function (x) { try { x.s.onended = null; x.s.stop(); } catch (e) {} x.done(false); }); try { speechSynthesis.cancel(); } catch (e) {} lip(null); }
+var SKIPPED = false; /* a line was cut off by a tap (Hear it done's parts then land at once) */
+function stopSound() { if (READ) READ(); var p = playing; playing = []; if (p.length) SKIPPED = true; p.forEach(function (x) { try { x.s.onended = null; x.s.stop(); } catch (e) {} x.done(false); }); try { speechSynthesis.cancel(); } catch (e) {} lip(null); }
 function playBuf(buf) { return new Promise(function (res) { var a = audio(), s = a.createBufferSource(), rec = { s: s, done: res }; s.buffer = buf; s.connect(OUT); s.onended = function () { playing = playing.filter(function (x) { return x !== rec; }); res(true); }; s.start(); playing.push(rec); }); }
 function ttsSay(text) { return new Promise(function (res) { try { var u = new SpeechSynthesisUtterance(text); u.rate = 1.02; u.onend = function () { res(true); }; u.onerror = function () { res(false); }; speechSynthesis.speak(u); } catch (e) { setTimeout(function () { res(false); }, 1200); } }); }
 function level() { if (!AN) return 0; var d = new Uint8Array(AN.fftSize); AN.getByteTimeDomainData(d); var s = 0; for (var i = 0; i < d.length; i += 1) { var v = (d[i] - 128) / 128; s += v * v; } return Math.sqrt(s / d.length); }
 /* say one line of the script: its recorded clip (the phone's own voice only if the clip can't be had), with the speaker's mouth moving */
-function sayLine(line, r) {
+function sayLine(line, r, onStart) { /* onStart: called as the voice starts (Hear it done's parts are timed from it) */
   if (!line) return Promise.resolve(true);
   if (TEXTC && line.who === "coach") return readWait(line.text, r); /* written, never heard (in fast mode too, so the checks see it) */
   if (FAST) return new Promise(function (ok) { setTimeout(function () { ok(r === RUN); }, HOLD); });
   return clipBuf(line.clip).then(function (buf) {
     if (r !== RUN) return false;
     lip(line.who);
+    if (onStart) onStart();
     return (buf ? playBuf(buf) : ttsSay(line.text)).then(function () { if (r === RUN) lip(null); return r === RUN; }); /* a tap that skips the line still moves on */
   });
 }
@@ -211,7 +213,7 @@ function walkAt(who, u) {
   /* the steps keep time with the ground covered (outside review, Nov 21): about two a second at a walk, fewer when they slow, none
      when they stand, so they never step in place or glide. The legs switch as the body is highest (the bob's top). */
   var now = performance.now(), g = el.__g || (el.__g = { p: 0, t: now, u: u }), dt = Math.min(0.1, (now - g.t) / 1000), v = dt > 0 ? Math.abs(u - g.u) / dt : 0;
-  g.t = now; g.u = u; if (v > 0) g.p += dt * 1.8 * Math.max(0.5, Math.min(1.25, v / 0.42));
+  g.t = now; g.u = u; if (v > 0) g.p += dt * 1.8 * Math.max(0.5, Math.min(1.25, v / 0.31)); /* 0.31: rule 54b's calm walk-up (POV_S), about two steps a second */
   el.setAttribute("data-step", Math.floor(g.p + 0.5) % 2 ? "b" : "a");
   var gt = wk.querySelector(".gait"); if (gt) gt.style.transform = "translateY(" + (-1.1 * Math.pow(Math.sin(Math.PI * g.p), 2)).toFixed(3) + "%)";
 }
@@ -244,9 +246,9 @@ window.__faces = function () { var out = []; [].forEach.call(document.querySelec
 function preloadPics(names) { var seen = {}, urls = {}; names.forEach(function (n) { if (!n || seen[n] || !IMG[n]) return; seen[n] = 1; var m = IMG[n]; if (m.bg) urls[m.bg] = 1; (m.parts || []).forEach(function (p) { urls[p.src] = 1; Object.keys(p.alt || {}).forEach(function (k) { urls[p.alt[k]] = 1; }); if (p.head) { urls["mo-" + p.head] = 1; urls["bl-" + p.head] = 1; } }); if (m.close) { urls[n + "-close"] = 1; urls[n + "-av"] = 1; } if (!m.parts && !m.close) urls[n] = 1; });
   Object.keys(urls).forEach(function (x) { var i = new Image(); i.decoding = "async"; i.src = imgUrl(x); }); }
 var PICS = {
-  /* behind the table, head down over a phone, while people walk past */
+  /* behind the table, sitting on the stool and watching the passersby walk up (version 10: the one difference from "stand" is sitting) */
   sit: function () { return '<img src="' + imgUrl("spot-sit") + '" alt="" decoding="async">'; },
-  /* in front of the table, board out, facing someone who is walking up */
+  /* in front of the table, board out, facing someone who is walking up; the same stool behind the table */
   stand: function () { return '<img src="' + imgUrl("spot-stand") + '" alt="" decoding="async">'; },
   /* in the middle of the doorway, with people bunched up on both sides */
   doorway: function () { return '<img src="' + imgUrl("spot-doorway") + '" alt="" decoding="async">'; },

@@ -43,10 +43,10 @@ VIEW.sort = function (st) {
 /* say it: the question to Marisol, then why you ask. This is lesson 1's scored part. */
 VIEW.say = function (st) {
   var sub = S.sub;
-  if (sub === 0) return vReady(st, st.coach, function () { S.retried = false; go(S.step, 1); });
+  if (sub === 0) S.retried = false; /* sub 0: the talk opens on its sheet (rules 16 and 49a); sub 1: one more try, no sheet */
   if (sub === 90) { vReady(st, null, function () { go(S.step, 1); }, fixBlock(S.score, true), "r", true, SH.tryAgain); sayFix(S.score); return; }
   if (sub === 2) return vFeedback(st, S.score, nextStep, nextLabel(), "c", '<div class="tip" style="background:var(--green-soft)">' + q(st.oneWay) + '</div>');
-  talk({ st: st, key: "1.marisol", who: st.who, replies: Object.assign({ ask: st.ask, askOther: st.askOther }, st.replies), walk: true, hint: st.hint, hintAfter: "ask|askOther", tag: "b",
+  talk({ st: st, key: "1.marisol", who: st.who, sheet: sub === 0 ? { text: st.coach.text, coach: st.coach, extra: L.headsUp ? '<div class="callout">' + q(L.headsUp) + '</div>' : "", label: st.ready || SH.ready } : null, replies: Object.assign({ ask: st.ask, askOther: st.askOther }, st.replies), walk: true, hint: st.hint, hintAfter: "ask|askOther", tag: "b",
     onEnd: function (T) {
       var g = T.grade(); g.musts = [];
       if ((g.promise || g.untrue) && !S.retried) { S.retried = true; S.score = g; return go(S.step, 90); } /* a promise or something untrue: one more try */
@@ -56,11 +56,12 @@ VIEW.say = function (st) {
 /* one whole stop: watch a trained canvasser do the job once, from her view, then say the two lines that are the law */
 VIEW.stop = function (st) {
   var r = RUN + 0, sub = S.sub;
-  if (sub === 0) {
+  if (sub === 0) { /* the guidance on a sheet, then the stop plays (rule 49a) */
+    var sc = { who: st.who, lines: st.lines, after: st.after };
     top({ pp: true });
-    show(kick(st) + '<div class="panel" id="panel"></div><div class="grow" style="flex:0 0 8px"></div>', "a");
+    show(kick(st) + scenePanel(sc, st.labels) + '<div class="grow" style="flex:0 0 8px"></div>', "a");
     $("#panel").onclick = function () { stopSound(); };
-    playScenes({ coach: st.coach, labels: st.labels, scenes: [{ who: st.who, lines: st.lines, after: st.after }] }, "lena").then(function (ok) { if (ok && r === RUN) go(S.step, 1); });
+    guide({ text: st.coach.text, coach: st.coach, label: st.play || SH.play }).then(function (ok) { return ok && r === RUN ? playScene(sc, { by: "lena" }) : false; }).then(function (ok) { if (ok && r === RUN) go(S.step, 1); });
     return;
   }
   var k = sub - 1, line = st.say[k], T = { n: 0 };

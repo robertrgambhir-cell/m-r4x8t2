@@ -61,6 +61,9 @@ const [,, lesson = "2", scriptName = "normal", W = "390", H = "844"] = process.a
       const ws = t.split(/\s+/); for (let k = 1; k <= ws.length; k++) { await p.evaluate((x) => window.__speak(x), ws.slice(0, k).join(" ")); await p.waitForTimeout(400); }
       log.push(st.tag + " said: " + t.slice(0, 50)); continue;
     }
+    /* a sheet (rule 49a, version 10): its words are read, then its button is tapped; the try or scene starts after it */
+    const sheet = await p.evaluate(() => { const g = document.querySelector("#gsheet #go"); return g ? document.querySelector("#gsheet .gs").innerText.replace(g.innerText, "") : null; });
+    if (sheet != null) { const n = sheet.split(/\s+/).filter(Boolean).length; readWords += n; await p.waitForTimeout(Math.max(2600, Math.round(n / 200 * 60000))); await p.waitForTimeout(1200); await p.evaluate(() => { const g = document.querySelector("#gsheet #go"); if (g) g.click(); }); await p.waitForTimeout(300); continue; }
     if (st.decl) { await read(); for (const k of decl) { await p.waitForTimeout(2000); await tap(`.decl[data-i="${k}"]`); } continue; }
     if (st.boxes || st.okb) { await read(); await p.waitForTimeout(2000); const pick = boxes.shift() || "ok"; if (pick === "ok") await tap("#okb"); else await tap(`button.box[data-box="${pick}"]`); await p.waitForTimeout(200); continue; }
     if (st.opts) { await read(); await p.waitForTimeout(2000); const pick = taps.shift(); await p.evaluate((k) => { const bs = [...document.querySelectorAll("#opts button")]; (bs[k == null ? 0 : k] || bs[0]).click(); }, pick); await p.waitForTimeout(200); continue; }
