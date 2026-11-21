@@ -33,3 +33,7 @@ From Robert's notes on lesson 2 (Nov 20, 3:51 PM; playbook rules 37c, 67 and 67b
 - **Prompts and seeds** are in `r8/jobs-*.json` (the repaints, walkers, aerial views and the sidewalk) and `r8/walk-info.json`. The lab key never goes in the repo: `gen.py` reads it from a `key` file beside it, so run it from a copy in the sandbox's lab folder.
 - **On the page.** `engine1.js` has `walkable()`, `sceneWalk()` and `walkAt()`, which scale a walker by distance down the sidewalk. `engine2.js` runs the stages (`data-stage` on the panel: `air`, then `pov`, then `face`) while the coach talks, so the passerby reaches you as you can start talking.
 
+
+## Version 9 (Nov 21, 2026): the walkers step
+
+From Robert's note (Nov 21, 12:11 PM; playbook rule 69a): the passerby slid down the sidewalk "as if he were frozen on a moving walkway." `sig-pictures/r8_gait.py <img dir>` runs after `r8_build.py` (which rewrites the manifest) and adds `w-<who>-b.webp` for each walker but the stroller: the whole picture with the other step's legs, the same legs reflected about their own center line, below the hands (below the apron or the cart's basket), with a short blend so no seam shows. Its manifest entry says where the legs start. On the page, `gait()` in `engine1.js` shows one step's picture or the other, with the first picture's top laid over both so the body never blinks, and `walkAt()` counts the steps by the ground covered and sets the bob (`data-step` on the walk-up).

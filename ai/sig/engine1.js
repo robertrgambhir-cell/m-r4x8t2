@@ -9,11 +9,12 @@ var BEATTEST = qs.has("beat"); /* tests: the Part N of 4 screens show even in fa
 /* the small screen number ("Sig 2.4") shows only with ?tags (version 8, Robert, Nov 20, 3:51 PM: "We don't want that little number
    there. I don't know what that means.") It stays in the page, hidden, for the build's own checks. */
 var TAGS = qs.has("tags"); if (TAGS) document.documentElement.classList.add("tags");
-/* the coach in writing (?coach=text, Robert's test, Nov 21: "the only time you ever hear a voice is for an AI voter"): the coach's
+/* the coach in writing (rule 68, Robert, Nov 21, 2026: "the only time you ever hear a voice is for an AI voter," tested as version B
+   and picked at 12:11 PM: "I like this version B more than version A. Can you make that change throughout the app?"): the coach's
    lines show on screen and are never heard, so the only voices are the people in the scene. A line waits as long as it takes to read
    (700 ms and 270 ms a word, at least 1.4 s), its clock stops while the lesson is paused, and a tap anywhere but a button moves on.
-   Without the flag the coach talks, as before. */
-var TEXTC = qs.get("coach") === "text", READ = null, CALM = 0;
+   ?coach=voice brings back the talking coach, only to compare. */
+var TEXTC = qs.get("coach") !== "voice", READ = null, CALM = 0;
 if (TEXTC) document.documentElement.classList.add("textc");
 function readWait(text, r) {
   var n = String(text || "").split(/\s+/).filter(Boolean).length, need = FAST ? HOLD : Math.max(1400, 700 + n * 270), got = 0, last = Date.now();
@@ -186,7 +187,16 @@ function walkable(who, pic) { var k = pic && IMG["w-" + pic] ? pic : who; return
 function sceneWalk(who, k) {
   var a = IMG["aerial-" + k].at || [0.5, 0.63];
   return '<div class="ph air" id="air-' + who + '" role="img" aria-label="Westside Market from above: the table out front, and ' + esc(someone(who).toLowerCase()) + ' walking up the sidewalk"><img src="' + imgUrl("aerial-" + k) + '" alt="" decoding="async" style="transform-origin:' + (a[0] * 100).toFixed(1) + '% ' + (a[1] * 100).toFixed(1) + '%"></div>' +
-    '<div class="ph pov" id="pov-' + who + '" data-k="' + k + '" role="img" aria-label="' + esc(someone(who)) + ' walking toward you down the sidewalk"><img class="bg" src="' + imgUrl("walkway") + '" alt="" decoding="async"><div class="wk"><img src="' + imgUrl("w-" + k) + '" alt="" decoding="async"></div></div>';
+    '<div class="ph pov" id="pov-' + who + '" data-k="' + k + '" role="img" aria-label="' + esc(someone(who)) + ' walking toward you down the sidewalk"><img class="bg" src="' + imgUrl("walkway") + '" alt="" decoding="async"><div class="wk">' + gait(k) + '</div></div>';
+}
+/* a walker's feet step (rule 69a, Robert, Nov 21, 2026, 12:11 PM: "he's just kind of sliding down the street ... as if he were frozen
+   on a moving walkway"): the two steps' pictures (w-<who> and w-<who>-b, ai/tools/sig-pictures/r8_gait.py) take turns, and the first
+   picture's top lies over both, so the body never blinks. walkAt() sets which step shows and the bob. */
+function gait(k) {
+  var b = IMG["w-" + k + "-b"], src = imgUrl("w-" + k);
+  if (!b) return '<div class="gait"><img src="' + src + '" alt="" decoding="async"></div>';
+  var top = (100 - b.split * 100 - 0.6).toFixed(2);
+  return '<div class="gait"><img class="ga" src="' + src + '" alt="" decoding="async"><img class="gb" src="' + imgUrl("w-" + k + "-b") + '" alt="" decoding="async"><img class="g0" src="' + src + '" alt="" decoding="async" style="clip-path:inset(0 0 ' + top + '% 0)"></div>';
 }
 /* where a walker is on the sidewalk, u from 0 (far down the walk) to 1 (in front of you): they keep a steady pace, so they grow
    slowly at first and quickly at the end, as anyone walking toward you does */
@@ -198,6 +208,12 @@ function walkAt(who, u) {
   var fx = (m.far[0] + (m.near[0] - m.far[0]) * qq) * m.w, fy = (m.far[1] + (m.near[1] - m.far[1]) * qq) * m.h, h = 1060 * z1 / z, w = h * f.w / f.h;
   wk.style.width = (w * s).toFixed(1) + "px"; wk.style.height = (h * s).toFixed(1) + "px";
   wk.style.transform = "translate(" + (ox + fx * s - w * s / 2).toFixed(1) + "px," + (oy + fy * s - h * s).toFixed(1) + "px)";
+  /* the steps keep time with the ground covered (outside review, Nov 21): about two a second at a walk, fewer when they slow, none
+     when they stand, so they never step in place or glide. The legs switch as the body is highest (the bob's top). */
+  var now = performance.now(), g = el.__g || (el.__g = { p: 0, t: now, u: u }), dt = Math.min(0.1, (now - g.t) / 1000), v = dt > 0 ? Math.abs(u - g.u) / dt : 0;
+  g.t = now; g.u = u; if (v > 0) g.p += dt * 1.8 * Math.max(0.5, Math.min(1.25, v / 0.42));
+  el.setAttribute("data-step", Math.floor(g.p + 0.5) % 2 ? "b" : "a");
+  var gt = wk.querySelector(".gait"); if (gt) gt.style.transform = "translateY(" + (-1.1 * Math.pow(Math.sin(Math.PI * g.p), 2)).toFixed(3) + "%)";
 }
 /* the storefront with nobody in it yet */
 function sceneStore() { return '<div class="ph shop" data-img="store" role="img" aria-label="Westside Market, with your table out front"><div class="fr"><img class="bg" src="' + imgUrl("store") + '" alt="" decoding="async"></div></div>'; }

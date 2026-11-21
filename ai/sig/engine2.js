@@ -444,7 +444,7 @@ function vCover() {
   (function walk(x) { if (!x || typeof x !== "object") return; if (x.clip && !(TEXTC && x.who === "coach")) fetchClip(x.clip); Object.keys(x).forEach(function (k) { walk(x[k]); }); })(L.steps);
   /* and its pictures: everyone it shows, the two-person scenes, the storefront and the four places to stand */
   var pics = ["spot-sit", "spot-stand", "spot-doorway", "spot-side", "walkway", coverName()];
-  L.steps.forEach(function (st) { (st.scenes || []).concat(st.people || [], [st]).forEach(function (x) { if (x && x.who) { pics.push(x.who); var wk = walkable(x.who, x.pic); if (wk) { pics.push("w-" + wk); pics.push("aerial-" + wk); } if (x.pic) pics.push(x.pic); } });
+  L.steps.forEach(function (st) { (st.scenes || []).concat(st.people || [], [st]).forEach(function (x) { if (x && x.who) { pics.push(x.who); var wk = walkable(x.who, x.pic); if (wk) { pics.push("w-" + wk); pics.push("w-" + wk + "-b"); pics.push("aerial-" + wk); } if (x.pic) pics.push(x.pic); } });
     JSON.stringify(st, function (k, v) { if (k === "pic" && v && v.who) pics.push(v.who); if (k === "pic" && v && v.two) pics.push("two-" + v.two[0] + "-" + v.two[1]); if (k === "face" && typeof v === "string") pics.push(v); return v; }); });
   preloadPics(pics);
 }
@@ -517,7 +517,7 @@ async function playScene(sc, o) {
     if (ln.label != null && lab) lab.children[ln.label].classList.add("on");
     if (ln.glow) redraw({ glow: ln.glow });
     if (ln.fill) { Object.assign(fill, ln.fill); redraw({ fresh: Object.keys(ln.fill) }); }
-    var walking = j === 0 && wk ? (canvasser(ln.who) ? walkTo(sc.who, (ln.dur || 2.4) * 850, r) : walkTo(sc.who, 500, r)) : null; /* the canvasser's opener as they reach you */
+    var walking = j === 0 && wk ? (canvasser(ln.who) ? walkTo(sc.who, Math.min((ln.dur || 2.4) * 850, 1700), r) : walkTo(sc.who, 500, r)) : null; /* the canvasser's opener as they walk the last steps, at a walking pace (rule 69a), then face to face for the rest */
     if (walking && !canvasser(ln.who)) { await walking; walking = null; if (r !== RUN) return false; }
     cap(nameOf(ln.who), ln.text, "them");
     if (!(await sayLine(ln, r))) return false;
@@ -753,7 +753,7 @@ function vLessonEnd(st) {
     ((finish && anyOpen) || open ? foot(btn(SH.practiceBtn, "prac")) + '<button class="link" id="go">' + q(SH.done) + '</button>' : foot(btn(SH.done, "go"))), LN === 1 ? "" : "b");
   var ep = $(".panel.end"); if (ep && ep.getBoundingClientRect().height < 104) { ep.style.display = "none"; fillUp(); } /* a sliver of a picture is no picture */
   $("#go").onclick = function () { go(-1); };
-  if ($("#prac")) $("#prac").onclick = function () { var n = open ? LN : other; if (n === LN) { S.retried = false; S.practice = true; go(prevIndex(), 0); } else location.href = "?l=" + n + "&practice&at=" + (try2At(n) + 1) + ".0" + (qs.has("preview") ? "&preview" : "") + (TEXTC ? "&coach=text" : "") + (TAGS ? "&tags" : ""); };
+  if ($("#prac")) $("#prac").onclick = function () { var n = open ? LN : other; if (n === LN) { S.retried = false; S.practice = true; go(prevIndex(), 0); } else location.href = "?l=" + n + "&practice&at=" + (try2At(n) + 1) + ".0" + (qs.has("preview") ? "&preview" : "") + (TEXTC ? "" : "&coach=voice") + (TAGS ? "&tags" : ""); };
 }
 /* the practice round's end: "You passed [the step]." or, after a miss, the tip and the same round for next time */
 function vPracticeEnd(st, s) {

@@ -110,7 +110,7 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.08; letter-spacing: -0.01
 .coach { flex: none; margin: 10px 2px 0; font: 400 calc(16 * var(--u))/1.4 "Figtree"; color: var(--ink-2); text-wrap: pretty; min-height: calc(2 * 1.4 * 16 * var(--u)); }
 .coach.q3 { min-height: calc(3 * 1.4 * 16 * var(--u)); }
 .coach.dim { opacity: .4; }
-/* the coach in writing (?coach=text): its words look as they do on a ready screen, and the only other change is that a caption from the
+/* the coach in writing (rule 68a; ?coach=voice brings back the talking coach, only to compare): its words look as they do on a ready screen, and the only other change is that a caption from the
    coach is a note, not a speech bubble, since nobody is talking. Over a tap question the coach's line comes first. The 1st try's ready
    screen frames the view from above on the walker, who starts near its top. */
 .coachw { flex: none; margin: 8px 2px 2px; font: 400 calc(16 * var(--u))/1.4 "Figtree"; color: var(--ink-2); text-wrap: pretty; }
@@ -368,12 +368,17 @@ html:not(.tags) .tag { display: none; }
 .ph.air img, .ph.pov img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; display: block; }
 .ph.air img { will-change: transform; }
 .ph.pov .wk { position: absolute; left: 0; top: 0; will-change: transform; }
-.ph.pov .wk img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; animation: walkph .56s ease-in-out infinite; }
+.ph.pov .wk .gait { position: absolute; inset: 0; will-change: transform; }
+.ph.pov .wk img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+/* the steps (rule 69a): walkAt() sets data-step; the first picture's top (.g0) lies over both steps' pictures */
+.ph.pov .wk .gb { opacity: 0; } .ph.pov[data-step="b"] .wk .gb { opacity: 1; } .ph.pov[data-step="b"] .wk .ga { opacity: 0; }
 [data-stage="air"] > .ph.air { opacity: 1; }
 [data-stage="pov"] > .ph.pov { opacity: 1; }
 [data-stage="air"] > .who, [data-stage="pov"] > .who { opacity: 0; }
 .ph.one.here .pt.walker { transition: opacity .45s ease; }
-@media (prefers-reduced-motion: reduce) { .ph.pov .wk img { animation: none; } .ph.air img { transition: none !important; } }
+/* less motion asked for: no walk-up down the sidewalk at all (a still figure sliding is what rule 69a rules out); the view from above
+   stays until they're face to face */
+@media (prefers-reduced-motion: reduce) { [data-stage="pov"] > .ph.pov { opacity: 0 !important; } [data-stage="pov"] > .ph.air { opacity: 1 !important; } .ph.air img { transition: none !important; } }
 /* the canvasser's top funders sheet, held up from the bottom corner (the canvasser never shows) */
 .fgs { position: absolute; left: 10px; bottom: 26%; width: 38%; z-index: 2; transform: translateY(40%) rotate(-5deg); opacity: 0; transition: transform .4s ease, opacity .4s ease; filter: drop-shadow(0 6px 14px rgba(38,35,32,.28)); pointer-events: none; }
 .fgs.on { transform: translateY(0) rotate(-5deg); opacity: 1; }

@@ -38,7 +38,7 @@ const [,, lesson = "2", scriptName = "normal", W = "390", H = "844"] = process.a
   const b = await L.launch(); const c = await L.ctx(b, { w: +W, h: +H, dpr: 1 });
   const p = await c.newPage(); const errs = []; p.on("pageerror", (e) => errs.push(String(e).slice(0, 300)));
   const srv = process.env.BASE ? null : await serve(), base = process.env.BASE || `http://127.0.0.1:${srv.address().port}/wdpfxqlsvp/sig/`;
-  await p.goto(`${base}index.html?preview&l=${lesson}${process.env.Q ? "&" + process.env.Q : ""}`, { waitUntil: "load" }); /* Q adds to the link, e.g. Q=coach=text */
+  await p.goto(`${base}index.html?preview&l=${lesson}${process.env.Q ? "&" + process.env.Q : ""}`, { waitUntil: "load" }); /* Q adds to the link, e.g. Q=coach=voice */
   await p.waitForSelector("#start", { timeout: 8000 });
   const say = SCRIPTS[lesson][scriptName].slice(), taps = (SCRIPTS[lesson][scriptName === "normal" ? "tapsNormal" : "taps"] || []).slice(), boxes = (SCRIPTS[lesson][scriptName === "normal" ? "boxesNormal" : "boxes"] || []).slice(), decl = SCRIPTS[lesson][scriptName === "normal" ? "declNormal" : "decl"] || [1, 2];
   const tap = (sel) => p.evaluate((s) => { const e = document.querySelector(s); if (e) e.click(); }, sel);

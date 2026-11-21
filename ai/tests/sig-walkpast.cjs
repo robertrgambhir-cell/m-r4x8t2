@@ -50,13 +50,13 @@ const ok = (c, m) => { console.log((c ? "ok   " : "FAIL ") + m); if (!c) fails +
     await c.close();
     return { card, said: [...seen].join(" | "), errs };
   };
-  let r = await run("1.0", ""); if (process.env.V) console.log(r.said);
+  let r = await run("1.0", "", true); /* the 1st try starts from its ready screen (rule 68a) */ if (process.env.V) console.log(r.said);
   ok(r.card && r.said.includes(BUSY.replace("’", "'")) || r.said.includes(BUSY), "1st try, said nothing: he says the brush-off");
   ok(r.card && r.card.h1 === "He kept walking. Start your opener as he walks up.", "1st try, said nothing: the card says he kept walking (" + (r.card && r.card.h1) + ")");
   ok(r.card && r.card.rows.some((x) => /Took so long they walked on\./.test(x)), "1st try, said nothing: part 4 says they walked on");
   ok(r.card && r.card.go === "Next: hear it done", "1st try, said nothing: nothing is skipped (" + (r.card && r.card.go) + ")");
   ok(!r.errs.length, "no page errors " + r.errs.join(" "));
-  r = await run("1.0", OPENER);
+  r = await run("1.0", OPENER, true);
   ok(r.card && r.said.includes("Yeah, I’m registered.") && r.said.includes("Sure, I’ll sign."), "1st try, the opener at once: he stops");
   ok(r.card && !r.said.includes(BUSY), "1st try, the opener at once: no brush-off");
   ok(r.card && /all four/.test(r.card.h1), "1st try, the opener at once: all four (" + (r.card && r.card.h1) + ")");
@@ -65,7 +65,7 @@ const ok = (c, m) => { console.log((c ? "ok   " : "FAIL ") + m); if (!c) fails +
   ok(r.card && r.said.includes(BUSY), "2nd try, said nothing: she says the brush-off");
   ok(r.card && r.card.rows.some((x) => /Took so long they walked on\./.test(x)), "2nd try, said nothing: part 4 says they walked on");
   ok(!r.errs.length, "no page errors " + r.errs.join(" "));
-  r = await run("1.0", OPENER, false, { atX: 0.12, gap: 250 });
+  r = await run("1.0", OPENER, true, { atX: 0.12, gap: 250 });
   ok(r.card && r.said.includes("Yeah, I’m registered.") && r.said.includes("Sure, I’ll sign.") && !r.said.includes(BUSY), "1st try, the opener begun late and said slowly: still heard, he stops");
   ok(!r.errs.length, "no page errors " + r.errs.join(" "));
   r = await run("6.0", "Hi there! This petition is for longer library hours.", true);
