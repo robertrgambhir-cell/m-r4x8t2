@@ -851,7 +851,7 @@ export { logConvo, readLog };
    POST /lab/form?model=... passes a multipart form through to a model that takes one (reference pictures). The answer is
    the model's own bytes: a picture or a sound when it made one, otherwise its JSON. /lab/eleven?path=/v1/... passes a
    request through to ElevenLabs. Robert approved the lab on Nov 19, 9:58 AM PT. */
-const LAB_KEY_SHA = "db9bde0846bde8b6e25cac74a1e039b8de6a742f10e49f1b740027d3a4c94c24";
+const LAB_KEY_SHA = "a035ae947034f09a30bc366148d417edb9ffbd8dc176e13d87a58c9f40e9bda9";
 async function lab(env, req, url, route, h) {
   if ((await sha256hex(req.headers.get("x-lab-key") || "")) !== LAB_KEY_SHA) throw new HttpError(404, "not_found");
   const ai = env.AI || env.API;
