@@ -123,7 +123,7 @@ export const SIG_SHARED = {
    never used twice in one lesson, and the coach's voice is the coach's alone. Nov 21 (version 10, Robert, 12:56 PM, on Soo-jin: "Her voice is
    very strange. We need to make it much more human"): the voice she shared with Ines and Joan (Bella) goes. Soo-jin is Carol ("Relatable,
    Real, Likeable Gran"), Ines is Eryn ("Genuine, Friendly and Natural") and Joan is Jane Hackett, ElevenLabs library voices made for
-   conversation, at 0.9 speed. Soo-jin's has samples for Robert to pick by ear. */
+   conversation, at 0.9 speed. Robert picked Carol for Soo-jin from four samples by ear (Nov 21, 3:35 PM: "Pick Carol 1"). */
 export const SIG_VOICES = {
   coach: "el:bRlp5mUWs01wX4H4oW4X:0.9",
   lena: "el:cgSgspJ2msm6clMCkdW9:0.88",
