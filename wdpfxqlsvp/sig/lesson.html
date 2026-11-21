@@ -1181,6 +1181,27 @@ function fetchClip(clip) { if (clip && !RAW[clip]) RAW[clip] = fetch("audio/" + 
 function clipBuf(clip) { if (!BUF[clip]) BUF[clip] = fetchClip(clip).then(function (ab) { if (!ab) return null; return new Promise(function (res) { try { audio().decodeAudioData(ab.slice(0), res, function () { res(null); }); } catch (e) { res(null); } }); }); return BUF[clip]; }
 var SKIPPED = false; /* a line was cut off by a tap (Hear it done's parts then land at once) */
 function stopSound() { if (READ) READ(); var p = playing; playing = []; if (p.length) SKIPPED = true; p.forEach(function (x) { try { x.s.onended = null; x.s.stop(); } catch (e) {} x.done(false); }); try { speechSynthesis.cancel(); } catch (e) {} lip(null); }
+/* live replies (playbook rule 37f; Robert, Nov 21, 2026, 2:11 PM: "Build live replies next. I agree with your one change: whether the
+   passerby stops or keeps walking stays tied to how good my opener was"): the grader decides what a passerby does, as always, and the
+   AI server writes their words to what the learner said, in their own voice (POST /sig/reply). Anything that doesn't come back in time,
+   or comes back as {fallback}, plays the scripted line. ?live=off keeps the scripted lines, only to compare. */
+var LIVE = !FAST && qs.get("live") !== "off";
+function liveFetch(o, ms) {
+  if (!LIVE) return Promise.resolve(null);
+  return new Promise(function (res) {
+    var done = false, end = function (x) { if (!done) { done = true; res(x); } }, t = setTimeout(function () { end(null); }, ms);
+    fetch(AI_URL + "/sig/reply", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(o) })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (!j || !j.text || !j.audio || done) return null;
+        var bin = atob(j.audio), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i += 1) u[i] = bin.charCodeAt(i);
+        return new Promise(function (ok) { try { audio().decodeAudioData(u.buffer, function (buf) { ok({ text: j.text, buf: buf }); }, function () { ok(null); }); } catch (e) { ok(null); } });
+      })
+      .catch(function () { return null; })
+      .then(function (x) { clearTimeout(t); end(x); });
+  });
+}
+function playLive(who, lv, r) { lip(who); return playBuf(lv.buf).then(function () { if (r === RUN) lip(null); return r === RUN; }); }
 function playBuf(buf) { return new Promise(function (res) { var a = audio(), s = a.createBufferSource(), rec = { s: s, done: res }; s.buffer = buf; s.connect(OUT); s.onended = function () { playing = playing.filter(function (x) { return x !== rec; }); res(true); }; s.start(); playing.push(rec); }); }
 function ttsSay(text) { return new Promise(function (res) { try { var u = new SpeechSynthesisUtterance(text); u.rate = 1.02; u.onend = function () { res(true); }; u.onerror = function () { res(false); }; speechSynthesis.speak(u); } catch (e) { setTimeout(function () { res(false); }, 1200); } }); }
 function level() { if (!AN) return 0; var d = new Uint8Array(AN.fftSize); AN.getByteTimeDomainData(d); var s = 0; for (var i = 0; i < d.length; i += 1) { var v = (d[i] - 128) / 128; s += v * v; } return Math.sqrt(s / d.length); }
@@ -1744,7 +1765,7 @@ function walker(who) {
   return w;
 }
 function talk(cfg) {
-  var r = RUN, T = SIGG.talk(cfg.key, cfg.again ? Object.assign({}, ST, { again: true }) : ST), who = cfg.who, fill = Object.assign({}, cfg.line || {});
+  var r = RUN, T = SIGG.talk(cfg.key, cfg.again ? Object.assign({}, ST, { again: true }) : ST), who = cfg.who, fill = Object.assign({}, cfg.line || {}), convo = []; /* convo: what's been said, for live replies */
   var petOpts = { top: false }, W = null; /* W: a walking passerby (lesson 2) */
   function redrawPet(o) { var p = $("#pet"); if (p) p.outerHTML = pet(fill, Object.assign({}, petOpts, o || {})); fitHw(); }
   function your(first) {
@@ -1775,7 +1796,14 @@ function talk(cfg) {
     youCap(text); M.busy = true;
     var res = T.hear(text);
     micState("wait", ""); /* their answer shows on the picture as they say it */
-    replies(res.say).then(function () {
+    convo.push({ who: "you", text: text });
+    /* the grader has decided what they do; their words are written live to what was said (rule 37f), or the script's if they don't come in time */
+    var keys = res.say.filter(function (k) { return k.charAt(0) !== "@" && k !== "again" && cfg.replies && cfg.replies[k]; });
+    if (keys.length && LIVE && W) W.held = true; /* they wait for their own words, as anyone does before answering */
+    (keys.length && LIVE ? liveFetch({ lesson: LN, who: who, said: text, history: convo.slice(-9, -1), keys: keys }, 4500) : Promise.resolve(null)).then(function (lv) {
+      if (r !== RUN) return; if (W) W.held = false;
+      return replies(res.say, lv);
+    }).then(function () {
       if (r !== RUN) return;
       if (!res.end) return your(false);
       var close = closing(res.say, text);
@@ -1804,7 +1832,8 @@ function talk(cfg) {
     if (slowFirst) W.say(); else W.leave();
     (ln ? (act(who, ln.act), cap(nameOf(who), ln.text, "them"), sayLine(ln, r)) : Promise.resolve()).then(function () { if (r === RUN) W.leave(); return wait(FAST ? 0 : 1200); }).then(function () { if (r === RUN) { W.end(); cfg.onEnd(T); } });
   }
-  async function replies(list) {
+  async function replies(list, lv) { /* lv: their live words for this answer (rule 37f), said once in place of the scripted lines */
+    var usedLive = false;
     for (var i = 0; i < list.length; i += 1) {
       if (r !== RUN) return;
       var k = list[i];
@@ -1818,7 +1847,13 @@ function talk(cfg) {
       else if (k === "@hint") cap("Coach", cfg.hint || "", "note");
       else if (k === "@look") { if (W) W.react(k); act(who, "turn"); await wait(600); } /* they slow and look over, and wait for the rest */
       else if (k === "@go") { if (W) W.react(k); act(who, "go"); await wait(700); }
-      else { var ln = k === "again" ? cfg.opens : cfg.replies[k]; if (!ln) continue; if (W) W.react(k); act(who, ln.act); /* "again": their own question, asked once more */ cap(nameOf(who), ln.text, "them"); await sayLine(ln, r); if (cfg.hintAfter && cfg.hintAfter.split("|").indexOf(k) >= 0) cap("Coach", cfg.hint || "", "note"); }
+      else {
+        var ln = k === "again" ? cfg.opens : cfg.replies[k]; if (!ln) continue; if (W) W.react(k); act(who, ln.act); /* "again": their own question, asked once more */
+        if (lv && k !== "again") { if (!usedLive) { usedLive = true; cap(nameOf(who), lv.text, "them"); convo.push({ who: "them", text: lv.text }); await playLive(who, lv, r); } } /* what they do still follows each decided reply (above); their words are said once */
+        else { cap(nameOf(who), ln.text, "them"); convo.push({ who: "them", text: ln.text }); await sayLine(ln, r); }
+        if (r !== RUN) return;
+        if (cfg.hintAfter && cfg.hintAfter.split("|").indexOf(k) >= 0) cap("Coach", cfg.hint || "", "note");
+      }
     }
   }
   var wk = cfg.walk ? walkable(who, cfg.pic) : null; /* version 8: a passerby who walks up comes from above and down the sidewalk */
@@ -1847,7 +1882,7 @@ function talk(cfg) {
     if (arrive) await arrive;
     if (r !== RUN) return;
     MICLAB = cfg.opener ? (TOUCH ? SH.sayHi : SH.sayHiClick) : null; /* they're here: the button turns on, and says what to do (rule 54b) */
-    if (cfg.opens) { cap(nameOf(who), cfg.opens.text, "them"); await sayLine(cfg.opens, r); }
+    if (cfg.opens) { cap(nameOf(who), cfg.opens.text, "them"); convo.push({ who: "them", text: cfg.opens.text }); await sayLine(cfg.opens, r); }
     if (r !== RUN) return;
     your(true);
   })();

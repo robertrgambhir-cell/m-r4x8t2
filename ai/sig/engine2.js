@@ -335,7 +335,7 @@ function walker(who) {
   return w;
 }
 function talk(cfg) {
-  var r = RUN, T = SIGG.talk(cfg.key, cfg.again ? Object.assign({}, ST, { again: true }) : ST), who = cfg.who, fill = Object.assign({}, cfg.line || {});
+  var r = RUN, T = SIGG.talk(cfg.key, cfg.again ? Object.assign({}, ST, { again: true }) : ST), who = cfg.who, fill = Object.assign({}, cfg.line || {}), convo = []; /* convo: what's been said, for live replies */
   var petOpts = { top: false }, W = null; /* W: a walking passerby (lesson 2) */
   function redrawPet(o) { var p = $("#pet"); if (p) p.outerHTML = pet(fill, Object.assign({}, petOpts, o || {})); fitHw(); }
   function your(first) {
@@ -366,7 +366,14 @@ function talk(cfg) {
     youCap(text); M.busy = true;
     var res = T.hear(text);
     micState("wait", ""); /* their answer shows on the picture as they say it */
-    replies(res.say).then(function () {
+    convo.push({ who: "you", text: text });
+    /* the grader has decided what they do; their words are written live to what was said (rule 37f), or the script's if they don't come in time */
+    var keys = res.say.filter(function (k) { return k.charAt(0) !== "@" && k !== "again" && cfg.replies && cfg.replies[k]; });
+    if (keys.length && LIVE && W) W.held = true; /* they wait for their own words, as anyone does before answering */
+    (keys.length && LIVE ? liveFetch({ lesson: LN, who: who, said: text, history: convo.slice(-9, -1), keys: keys }, 4500) : Promise.resolve(null)).then(function (lv) {
+      if (r !== RUN) return; if (W) W.held = false;
+      return replies(res.say, lv);
+    }).then(function () {
       if (r !== RUN) return;
       if (!res.end) return your(false);
       var close = closing(res.say, text);
@@ -395,7 +402,8 @@ function talk(cfg) {
     if (slowFirst) W.say(); else W.leave();
     (ln ? (act(who, ln.act), cap(nameOf(who), ln.text, "them"), sayLine(ln, r)) : Promise.resolve()).then(function () { if (r === RUN) W.leave(); return wait(FAST ? 0 : 1200); }).then(function () { if (r === RUN) { W.end(); cfg.onEnd(T); } });
   }
-  async function replies(list) {
+  async function replies(list, lv) { /* lv: their live words for this answer (rule 37f), said once in place of the scripted lines */
+    var usedLive = false;
     for (var i = 0; i < list.length; i += 1) {
       if (r !== RUN) return;
       var k = list[i];
@@ -409,7 +417,13 @@ function talk(cfg) {
       else if (k === "@hint") cap("Coach", cfg.hint || "", "note");
       else if (k === "@look") { if (W) W.react(k); act(who, "turn"); await wait(600); } /* they slow and look over, and wait for the rest */
       else if (k === "@go") { if (W) W.react(k); act(who, "go"); await wait(700); }
-      else { var ln = k === "again" ? cfg.opens : cfg.replies[k]; if (!ln) continue; if (W) W.react(k); act(who, ln.act); /* "again": their own question, asked once more */ cap(nameOf(who), ln.text, "them"); await sayLine(ln, r); if (cfg.hintAfter && cfg.hintAfter.split("|").indexOf(k) >= 0) cap("Coach", cfg.hint || "", "note"); }
+      else {
+        var ln = k === "again" ? cfg.opens : cfg.replies[k]; if (!ln) continue; if (W) W.react(k); act(who, ln.act); /* "again": their own question, asked once more */
+        if (lv && k !== "again") { if (!usedLive) { usedLive = true; cap(nameOf(who), lv.text, "them"); convo.push({ who: "them", text: lv.text }); await playLive(who, lv, r); } } /* what they do still follows each decided reply (above); their words are said once */
+        else { cap(nameOf(who), ln.text, "them"); convo.push({ who: "them", text: ln.text }); await sayLine(ln, r); }
+        if (r !== RUN) return;
+        if (cfg.hintAfter && cfg.hintAfter.split("|").indexOf(k) >= 0) cap("Coach", cfg.hint || "", "note");
+      }
     }
   }
   var wk = cfg.walk ? walkable(who, cfg.pic) : null; /* version 8: a passerby who walks up comes from above and down the sidewalk */
@@ -438,7 +452,7 @@ function talk(cfg) {
     if (arrive) await arrive;
     if (r !== RUN) return;
     MICLAB = cfg.opener ? (TOUCH ? SH.sayHi : SH.sayHiClick) : null; /* they're here: the button turns on, and says what to do (rule 54b) */
-    if (cfg.opens) { cap(nameOf(who), cfg.opens.text, "them"); await sayLine(cfg.opens, r); }
+    if (cfg.opens) { cap(nameOf(who), cfg.opens.text, "them"); convo.push({ who: "them", text: cfg.opens.text }); await sayLine(cfg.opens, r); }
     if (r !== RUN) return;
     your(true);
   })();

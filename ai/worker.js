@@ -17,7 +17,7 @@
 
 import { SCENARIOS, publicScenario } from "./scenarios.js";
 import { NARRATOR } from "./scenarios-issues.js";
-import { SIG_NARRATION } from "./sig/content.js"; /* the signature course's spoken lines (Nov 18, 2026) */
+import { SIG_NARRATION, SIG_LESSONS, SIG_CAST, SIG_VOICES, SIG_VOICE_SETTINGS, SIG_SETTINGS, sigFill } from "./sig/content.js"; /* the signature course's spoken lines (Nov 18, 2026), and since Nov 21 its passersby for live replies (POST /sig/reply) */
 import { isAdmin, isLearnerRoute, learnerRoute, LearnerError } from "./learner.js"; /* phase 1: progress, events, admin views */
 
 const DEFAULTS = {
@@ -34,7 +34,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "165-17"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "165-18"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -721,6 +721,98 @@ async function narrate(env, c, url, h, ip) {
   return new Response(bytes, { status: 200, headers: { "content-type": "audio/mpeg", "cache-control": "public, max-age=86400", "x-cache": "miss", ...h } });
 }
 
+/* ---------------- Nov 21, 2026: live replies for the signature course's passersby (POST /sig/reply; playbook rule 37f) ----------------
+   Robert, 12:56 PM PT: "have the AI say whatever it thinks it would naturally say without it knowing how it's supposed to react," with
+   "an ever-growing list of things it can't say from the feedback we give it." His pick, 2:11 PM: "Build live replies next. I agree with
+   your one change: whether the passerby stops or keeps walking stays tied to how good my opener was." So the page's grader still decides
+   what a passerby does (its reply keys, as always), and this writes the words: in the passerby's own voice, to what the learner actually
+   said. It knows who the passerby is and what was said, never the lesson's goals or parts. Only the five lessons' passersby and only
+   their decided replies; the words are checked before they're spoken (SIG_NEVER, sigLiveCheck), and anything off sends back
+   {fallback} so the page plays the scripted line. */
+const SIG_PEOPLE = (() => {
+  const out = {};
+  for (const n of Object.keys(SIG_LESSONS)) for (const st of SIG_LESSONS[n].steps) {
+    const add = (p, extra) => { if (p && p.who && p.replies && SIG_CAST[p.who] && SIG_CAST[p.who].full) out[n + "." + p.who] = { n: +n, who: p.who, note: String(p.note || "").replace(/^Stage note, art only:\s*/, ""), replies: Object.assign({}, extra || {}, p.replies), opens: p.opens ? p.opens.text : "" }; };
+    if (st.kind === "say") add(st, { ask: st.ask, askOther: st.askOther }); else add(st);
+    (st.people || []).forEach((p) => add(p));
+  }
+  return out;
+})();
+/* the list of things a passerby never says (voter-rules.md and playbook part A4), growing with each note */
+const SIG_NEVER = [
+  "Never agree to sign, or say you will, unless the decision says you sign (rule 37e).",
+  "Never say whether you're registered unless the canvasser asked or the decision says it (rule 37b).",
+  "Answer a question you were asked before anything else; a yes-or-no question gets yes, no or \"I'm not sure\" first, never \"Not really\" (rules 37d and 37e).",
+  "Never ask about things the canvasser couldn't know, like when the polls open or what other people think.",
+  "No pet names: never dear, honey, hon, sweetie or sweetheart (rule 39c).",
+  "Never promise anything and never say what the county will do.",
+  "Never step out of character: no talk of practice, lines, turns, scripts, AI or this conversation.",
+  "Never be rude or mock the canvasser; a no is polite and short.",
+  "At most two short sentences, 25 words in all, the way people talk on a sidewalk.",
+];
+const SIG_SYSTEM = [
+  "You are a passerby on the sidewalk outside Westside Market in Los Angeles. A paid canvasser at a small table is gathering signatures for a petition drive called Libraries for All, for a ballot measure called the Neighborhood Libraries Act. It would fund longer evening and weekend hours at branch libraries, paid for by a new state tax on digital ad sales.",
+  "Write only the next thing the passerby says out loud: plain spoken words, no quotation marks, no stage directions, no name labels.",
+  "What the passerby does now is already decided, and you never change it: you get the decision and the gist of what they'd say. Say it the way this person would, in their own words, so it fits what the canvasser just said: answer what they asked, react to what they actually said, and keep every fact and the decision in the gist.",
+  "Things a passerby never says:",
+  ...SIG_NEVER.map((x) => "- " + x),
+].join("\n");
+/* what the decision means for where they are: the same groups the page's walker uses */
+function sigMotion(keys) {
+  if (keys.some((k) => /^(time|busy|fBye|bye|fGo|fDone|go|argue|thanks|thanksDodge|good|dodge)$/.test(k))) return "You're leaving: you say this as you go.";
+  if (keys.some((k) => /^(stop|lib|not|sure|yes|reg|what|dbl|nodbl|wait|ask|ask0|self|set|oops|there|straight|paid|noask|no1|no2|signed|again|agree|other|askOther)$/.test(k))) return "You've stopped to talk.";
+  return "";
+}
+const SIGNS = /\b(i'?ll sign|i will sign|where do i sign|let me sign|sign me up|count me in|i'?ll do it|happy to sign|i can sign)\b/;
+const NOT_REG = /\b(not registered|i'?m not\b|no,? i'?m not)/;
+/* the live words keep the decision: signing only when it was decided (the scripted line says so, or the passerby takes the pen) */
+function sigLiveCheck(planned, live, decidedSign) {
+  const p = planned.toLowerCase(), l = live.toLowerCase();
+  if (!l || l.length > 220 || l.split(/\s+/).length > 34) return "length";
+  if (SIGNS.test(l) && !SIGNS.test(p) && !decidedSign) return "signs_unasked";
+  if (SIGNS.test(p) && !/\bsign/.test(l)) return "sign_lost";
+  if (NOT_REG.test(p) && !NOT_REG.test(l)) return "registered_flip";
+  if (!NOT_REG.test(p) && /\bnot registered\b/.test(l)) return "registered_flip";
+  if (/\b(yes, i am|i'?m registered|yeah, i'?m registered)\b/.test(p) && !/\b(yes|yeah|yep|i am|registered)\b/.test(l)) return "registered_lost";
+  if (!/\bregistered\b|\bi am\b|yes, i am/.test(p) && /\bregistered\b/.test(l) && !NOT_REG.test(p)) return "registered_unasked";
+  if (/\b(dear|honey|hon|sweetie|sweetheart)\b/.test(l)) return "pet_name";
+  if (/\b(a\.?i\.?|artificial|language model|practice|role ?play|script|my line|this conversation)\b/.test(l)) return "character";
+  return "";
+}
+function b64(u8) { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); }
+async function sigVoice(env, who, text) {
+  const m = String(SIG_VOICES[who] || "").match(/^el:([A-Za-z0-9]+):([\d.]+)$/);
+  if (!m || !env.ELEVENLABS_API_KEY) throw new HttpError(503, "no_voice", "The voice isn't connected on the server.");
+  const say = String(text).split(SIG_SETTINGS.county).join(SIG_SETTINGS.countySay);
+  const r = await fetch("https://api.elevenlabs.io/v1/text-to-speech/" + m[1] + "?output_format=mp3_44100_64", { method: "POST", headers: { "xi-api-key": env.ELEVENLABS_API_KEY, "content-type": "application/json", accept: "audio/mpeg" },
+    body: JSON.stringify({ text: say, model_id: "eleven_multilingual_v2", voice_settings: Object.assign({}, SIG_VOICE_SETTINGS.rest, { speed: +m[2] }) }) });
+  if (!r.ok) throw new HttpError(r.status === 429 ? 429 : 502, r.status === 429 ? "voice_limit" : "voice_error", "The voice didn't answer.");
+  return new Uint8Array(await r.arrayBuffer());
+}
+async function sigReply(env, c, body, h, ip, t0) {
+  const lesson = Number(body && body.lesson), who = String((body && body.who) || ""), P = SIG_PEOPLE[lesson + "." + who];
+  if (!P) throw new HttpError(400, "unknown_passerby");
+  const keys = (Array.isArray(body.keys) ? body.keys : []).map(String).filter((k) => P.replies[k]).slice(0, 4);
+  if (!keys.length) throw new HttpError(400, "no_reply");
+  const said = String((body && body.said) || "").replace(/\s+/g, " ").trim().slice(0, 600);
+  const hist = (Array.isArray(body.history) ? body.history : []).slice(-10).map((x) => (x && x.who === "you" ? "Canvasser: " : "You: ") + String((x && x.text) || "").replace(/\s+/g, " ").slice(0, 300));
+  const planned = keys.map((k) => sigFill(P.replies[k].text, SIG_SETTINGS)).join(" ");
+  await checkRate(env, ip, "voter", c.voterPerHour);
+  await checkBudget(env, c);
+  const user = "Who you are: " + (P.note || SIG_CAST[who].name) + ".\n" + (hist.length ? "The talk so far:\n" + hist.join("\n") + "\n" : "") + "The canvasser just said: \"" + said + "\"\n" +
+    "Decided: " + (sigMotion(keys) + " ").trim() + "\nThe gist of what you say (keep its facts and its decision; use your own words): \"" + planned + "\"\nWhat you say:";
+  let txt = "";
+  await claudeStream(env, c, { model: c.voterModel, system: SIG_SYSTEM, user, maxTokens: 90, timeout: 6000 }, (t) => { txt += t; });
+  txt = txt.replace(/\s+/g, " ").trim().replace(/^["“']+|["”']+$/g, "").replace(/^(passerby|you|me|soo-jin|[a-z]+):\s*/i, "");
+  const bad = sigLiveCheck(planned, txt, keys.some((k) => P.replies[k].act === "pen"));
+  const turns = (Array.isArray(body.history) ? body.history : []).slice(-10).map((x) => ({ who: x && x.who === "you" ? "canvasser" : who, text: String((x && x.text) || "") })).concat([{ who: "canvasser", text: said }]);
+  if (bad) { console.log(JSON.stringify({ route: "/sig/reply", who, keys, bad, said: said.slice(0, 120), live: txt.slice(0, 160), ms: Date.now() - t0 })); await logConvo(env, ip, { route: "/sig/reply", scen: "sig" + lesson + "." + who, turns, keys, planned, live: txt, fallback: bad, ms: Date.now() - t0 }); return json({ fallback: bad }, 200, h); }
+  const audio = await sigVoice(env, who, txt);
+  console.log(JSON.stringify({ route: "/sig/reply", who, keys, ms: Date.now() - t0, chars: txt.length }));
+  await logConvo(env, ip, { route: "/sig/reply", scen: "sig" + lesson + "." + who, turns, keys, planned, say: txt, ms: Date.now() - t0 }); /* kept 30 days for test runs, as /turn's are */
+  return json({ text: txt, audio: b64(audio), ms: Date.now() - t0 }, 200, h);
+}
+
 /* ---------------- the server ---------------- */
 function cors(origin, c) {
   const ok = origin && c.origins.includes(origin);
@@ -817,6 +909,11 @@ export default {
       if (route === "/log" && req.method === "GET") return await readLog(env, url, h); /* version 165-2 */
       if (route.startsWith("/lab/")) return await lab(env, req, url, route, h);
       if (route === "/narrate" && req.method === "GET") return await narrate(env, c, url, h, req.headers.get("cf-connecting-ip") || "local");
+      if (route === "/sig/reply" && req.method === "POST") { /* Nov 21: a signature passerby's live reply (playbook rule 37f) */
+        if (!c.origins.includes(origin)) throw new HttpError(403, "origin", "This page isn't allowed to use the practice AI.");
+        let sb; try { sb = await req.json(); } catch (e) { throw new HttpError(400, "bad_json"); }
+        return await sigReply(env, c, sb, h, req.headers.get("cf-connecting-ip") || "local", t0);
+      }
       if (req.method !== "POST" || (route !== "/voter" && route !== "/coach" && route !== "/speak" && route !== "/turn" && route !== "/tidy")) throw new HttpError(404, "not_found");
       if (!c.origins.includes(origin)) throw new HttpError(403, "origin", "This page isn't allowed to use the practice AI.");
       const ip = req.headers.get("cf-connecting-ip") || "local";

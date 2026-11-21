@@ -94,6 +94,27 @@ function fetchClip(clip) { if (clip && !RAW[clip]) RAW[clip] = fetch("audio/" + 
 function clipBuf(clip) { if (!BUF[clip]) BUF[clip] = fetchClip(clip).then(function (ab) { if (!ab) return null; return new Promise(function (res) { try { audio().decodeAudioData(ab.slice(0), res, function () { res(null); }); } catch (e) { res(null); } }); }); return BUF[clip]; }
 var SKIPPED = false; /* a line was cut off by a tap (Hear it done's parts then land at once) */
 function stopSound() { if (READ) READ(); var p = playing; playing = []; if (p.length) SKIPPED = true; p.forEach(function (x) { try { x.s.onended = null; x.s.stop(); } catch (e) {} x.done(false); }); try { speechSynthesis.cancel(); } catch (e) {} lip(null); }
+/* live replies (playbook rule 37f; Robert, Nov 21, 2026, 2:11 PM: "Build live replies next. I agree with your one change: whether the
+   passerby stops or keeps walking stays tied to how good my opener was"): the grader decides what a passerby does, as always, and the
+   AI server writes their words to what the learner said, in their own voice (POST /sig/reply). Anything that doesn't come back in time,
+   or comes back as {fallback}, plays the scripted line. ?live=off keeps the scripted lines, only to compare. */
+var LIVE = !FAST && qs.get("live") !== "off";
+function liveFetch(o, ms) {
+  if (!LIVE) return Promise.resolve(null);
+  return new Promise(function (res) {
+    var done = false, end = function (x) { if (!done) { done = true; res(x); } }, t = setTimeout(function () { end(null); }, ms);
+    fetch(AI_URL + "/sig/reply", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(o) })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (!j || !j.text || !j.audio || done) return null;
+        var bin = atob(j.audio), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i += 1) u[i] = bin.charCodeAt(i);
+        return new Promise(function (ok) { try { audio().decodeAudioData(u.buffer, function (buf) { ok({ text: j.text, buf: buf }); }, function () { ok(null); }); } catch (e) { ok(null); } });
+      })
+      .catch(function () { return null; })
+      .then(function (x) { clearTimeout(t); end(x); });
+  });
+}
+function playLive(who, lv, r) { lip(who); return playBuf(lv.buf).then(function () { if (r === RUN) lip(null); return r === RUN; }); }
 function playBuf(buf) { return new Promise(function (res) { var a = audio(), s = a.createBufferSource(), rec = { s: s, done: res }; s.buffer = buf; s.connect(OUT); s.onended = function () { playing = playing.filter(function (x) { return x !== rec; }); res(true); }; s.start(); playing.push(rec); }); }
 function ttsSay(text) { return new Promise(function (res) { try { var u = new SpeechSynthesisUtterance(text); u.rate = 1.02; u.onend = function () { res(true); }; u.onerror = function () { res(false); }; speechSynthesis.speak(u); } catch (e) { setTimeout(function () { res(false); }, 1200); } }); }
 function level() { if (!AN) return 0; var d = new Uint8Array(AN.fftSize); AN.getByteTimeDomainData(d); var s = 0; for (var i = 0; i < d.length; i += 1) { var v = (d[i] - 128) / 128; s += v * v; } return Math.sqrt(s / d.length); }

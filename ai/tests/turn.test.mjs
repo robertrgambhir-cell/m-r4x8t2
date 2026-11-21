@@ -108,7 +108,7 @@ r = await g("s=kevin_intro&k=0"); ok(r.status === 404, "a scenario without narra
   const oneEach = Object.values(byLesson).every((m) => new Set(Object.values(m)).size === Object.keys(m).length);
   const coachOwn = Object.keys(SIG_VOICES).every((w) => w === "coach" || SIG_VOICES[w] !== SIG_VOICES.coach);
   ok(lines.every((x) => SIG_VOICES[x.who] && x.voice === SIG_VOICES[x.who]) && oneEach && coachOwn, "every line has a speaker, no two people in one lesson share a voice, and the coach's voice is the coach's alone");
-  ok(N.filter((x) => x.includes(SIG_SETTINGS.countySay)).length >= 4 && !N.some((x) => x.includes("LA County")), "the county comes from the firm settings");
+  ok(N.filter((x) => x.includes(SIG_SETTINGS.countySay)).length >= 3 && !N.some((x) => x.includes("LA County")), "the county comes from the firm settings"); /* 3 since version 10: Hear it done's parts are shown, not spoken */
 }
 /* version 165: Sofia's 1st intro streams like Kevin's 2nd, graded on the same items, and lesson 1's doors stop at four lines */
 {
