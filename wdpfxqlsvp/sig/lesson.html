@@ -1046,7 +1046,7 @@ var TAGS = qs.has("tags"); if (TAGS) document.documentElement.classList.add("tag
    lines show on screen and are never heard, so the only voices are the people in the scene. A line waits as long as it takes to read
    (700 ms and 270 ms a word, at least 1.4 s), its clock stops while the lesson is paused, and a tap anywhere but a button moves on.
    Without the flag the coach talks, as before. */
-var TEXTC = qs.get("coach") === "text", READ = null;
+var TEXTC = qs.get("coach") === "text", READ = null, CALM = 0;
 if (TEXTC) document.documentElement.classList.add("textc");
 function readWait(text, r) {
   var n = String(text || "").split(/\s+/).filter(Boolean).length, need = FAST ? HOLD : Math.max(1400, 700 + n * 270), got = 0, last = Date.now();
@@ -1056,8 +1056,19 @@ function readWait(text, r) {
     if (READ) READ(); READ = end;
   });
 }
-/* a tap that isn't on a button ends the written line and does nothing else, so it never also skips the next person's words */
-if (TEXTC) document.addEventListener("click", function (e) { if (!READ || (e.target.closest && e.target.closest("button, a, input, textarea, select, [data-box]"))) return; e.stopPropagation(); READ(); }, true);
+/* with the coach silent, the people in the scene are the only sound, and the first thing a phone plays can come after the mic has been
+   on (in A the coach talks first). A guess, after Robert's Nov 21 note that a passerby's words showed but weren't heard on his phone:
+   so every tap but the mic's wakes the sound with a blip nobody can hear, as the coach's voice does in A. */
+function blip() { try { var a = audio(), b = a.createBuffer(1, Math.ceil(a.sampleRate * 0.12), a.sampleRate), d = b.getChannelData(0); for (var i = 0; i < d.length; i += 1) d[i] = 1e-4; var s = a.createBufferSource(); s.buffer = b; s.connect(a.destination); s.start(); } catch (e) {} }
+/* a tap that isn't on a button ends the written line and does nothing else, and for a moment after, another tap can't cut off the
+   person who talks next */
+if (TEXTC) document.addEventListener("click", function (e) {
+  var btn = e.target.closest ? e.target.closest("button, a, input, textarea, select, [data-box]") : null;
+  if (!(btn && btn.id === "mic") && !(M && M.rec)) blip(); /* never while the mic is open */
+  if (btn) return;
+  if (READ) { e.stopPropagation(); READ(); CALM = Date.now() + 900; return; }
+  if (Date.now() < CALM) e.stopPropagation();
+}, true);
 var FAST = qs.has("fast"), HOLD = Math.max(10, parseInt(qs.get("fast"), 10) || 10); /* tests: no sound, no waiting. fast=300 holds each spoken line 300 ms so a test sees every caption */
 var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 var $ = function (s) { return document.querySelector(s); };
@@ -1107,7 +1118,7 @@ var wait = function (ms) { return new Promise(function (r) { setTimeout(r, FAST 
 var AC = null, OUT = null, AN = null, RAW = {}, BUF = {}, playing = [], lipEl = null, PAUSED = false;
 function audio() {
   if (!AC) { var C = window.AudioContext || window.webkitAudioContext; AC = new C(); OUT = AC.createGain(); AN = AC.createAnalyser(); AN.fftSize = 512; OUT.connect(AN); AN.connect(AC.destination); }
-  if (AC.state === "suspended" && !PAUSED) AC.resume();
+  if ((AC.state === "suspended" || AC.state === "interrupted") && !PAUSED) AC.resume(); /* "interrupted": Safari's word for a context the phone stopped (the mic, a call) */
   try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
   return AC;
 }
