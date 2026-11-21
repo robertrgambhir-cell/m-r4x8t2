@@ -3,27 +3,28 @@
 VIEW.cards = function (st) {
   var r = RUN + 0;
   top({ pp: true });
-  show(kick(st) + '<div class="coach q3" id="coach">' + q(st.coach.text) + '</div><div class="checks4" id="stack">' + st.cards.map(function (c, i) { var m = c.text.match(/^(\d)\. (.*)$/); return '<div class="cardq">' + CHECK_PICS[i] + '<span><i>' + m[1] + '</i>' + q(m[2]) + '</span></div>'; }).join("") + '</div>' + foot(btn(nextLabel(), "go", "ghost")), "");
+  show(kick(st) + '<div class="coach q3" id="coach">' + q(st.coach.text) + '</div><div class="checks4" id="stack">' + st.cards.map(function (c, i) { var m = c.text.match(/^(\d)\. (.*)$/); return '<div class="cardq">' + CHECK_PICS[i] + '<span><i>' + m[1] + '</i>' + q(m[2]) + '</span></div>'; }).join("") + '</div>' + foot(btn(nextLabel(), "go")), "");
   $("#go").onclick = nextStep;
   (async function () {
     if (!(await sayLine(st.coach, r))) return;
     for (var i = 0; i < st.cards.length; i += 1) { $("#stack").children[i].classList.add("on"); if (!(await sayLine(st.cards[i], r))) return; await wait(150); }
     $("#coach").innerHTML = q(st.after.text);
     if (!(await sayLine(st.after, r))) return;
-    $("#go").classList.remove("ghost");
+    noPause(); /* nothing left to play */
   })();
 };
-/* sort five lines: Counts or Thrown out, with the reason after each tap */
+/* sort five lines: Counts or Thrown out, with the reason after each tap. The card's words name the signer, as the county reads the voter
+   record (B3); the picture carries no name tag and its count sits on it, as on a 2nd try's card (version 8: no name tags, no eyebrows) */
 VIEW.sort = function (st) {
   var r = RUN + 0, k = S.sub, n = st.cards.length;
   top({});
   if (k >= n) {
     var out = st.cards.filter(function (c) { return c.right === 1; });
-    show(kick(st) + '<div class="fill"><div class="quad">' + out.map(function (c) { return '<div class="panel">' + sceneOne(c.face, "") + '<div class="who">' + esc(CAST[c.face].name) + '</div></div>'; }).join("") + '</div><div class="coach q3" style="font-size:calc(19 * var(--u))">' + q(st.after.text) + '</div></div>' + foot(btn(nextLabel(), "go")), "abcdefgh"[n]); /* the screen after the last card: Sig 1.3f with five cards */
+    show(kick(st) + '<div class="fill"><div class="quad">' + out.map(function (c) { return '<div class="panel">' + sceneOne(c.face, "") + '</div>'; }).join("") + '</div><div class="coach q3" style="font-size:calc(19 * var(--u))">' + q(st.after.text) + '</div></div>' + foot(btn(nextLabel(), "go")), "abcdefgh"[n]); /* the screen after the last card: Sig 1.3f with five cards */
     $("#go").onclick = nextStep; sayLine(st.after, r); return;
   }
   var C = st.cards[k];
-  show(kick(st) + (k === 0 ? '<div class="coach" id="coach">' + q(st.coach.text) + '</div>' : "") + '<div class="count">' + (k + 1) + " of " + n + '</div><div class="fill"><div class="panel grow" data-who="' + C.face + '">' + sceneOne(C.face, "") + '<div class="who">' + esc(CAST[C.face].full || CAST[C.face].name) + '</div></div><p class="sctext">' + q(C.text) + '</p>' + (st.ask ? '<div class="sqq">' + q(st.ask) + '</div>' : "") +
+  show(kick(st) + (k === 0 ? '<div class="coach" id="coach">' + q(st.coach.text) + '</div>' : "") + '<div class="fill"><div class="panel grow" data-who="' + C.face + '">' + sceneOne(C.face, "") + '<div class="who r">Line ' + (k + 1) + " of " + n + '</div></div><p class="sctext">' + q(C.text) + '</p>' + (st.ask ? '<div class="sqq">' + q(st.ask) + '</div>' : "") +
     '<div class="opts row" id="opts">' + st.buttons.map(function (b, i) { return '<button class="opt" data-i="' + i + '"><span style="flex:1">' + q(b) + '</span></button>'; }).join("") + '</div><div id="why"></div></div><div id="ft"></div>', "abcdef"[k]);
   if (k === 0) sayLine(st.coach, r);
   fitPic();
@@ -34,7 +35,7 @@ VIEW.sort = function (st) {
       var c = $("#coach"); if (c) c.remove();
       $("#why").innerHTML = why(i === C.right, C.why, true);
       shrinkPic();
-      $("#ft").innerHTML = foot(btn(k + 1 < n ? "Next line" : st.last || "Next", "go"));
+      $("#ft").innerHTML = foot(btn(k + 1 < n ? "Next: line " + (k + 2) + " of " + n : st.last || nextLabel(), "go")); /* a button names what comes next (version 8) */
       $("#go").onclick = function () { go(S.step, k + 1); };
     };
   });
@@ -52,7 +53,7 @@ VIEW.say = function (st) {
       S.score = g; go(S.step, 2); /* the one more try is the one that stands: a promise or an untrue line can't be averaged away */
     } });
 };
-/* one whole stop: watch Lena do the job once, then say the two lines that are the law */
+/* one whole stop: watch a trained canvasser do the job once, from her view, then say the two lines that are the law */
 VIEW.stop = function (st) {
   var r = RUN + 0, sub = S.sub;
   if (sub === 0) {
@@ -64,7 +65,7 @@ VIEW.stop = function (st) {
   }
   var k = sub - 1, line = st.say[k], T = { n: 0 };
   top({});
-  show(kick(st) + '<div class="panel" id="panel">' + sceneTwo("lena", st.who, "") + '</div><div class="sayq"><small>' + q(st.sayLead) + '</small>“' + q(line) + '”</div><div class="coach" id="coach" style="min-height:0"></div>' + micHtml() + '<div id="ft"></div>', "bc"[k]);
+  show('<div class="panel" id="panel">' + sceneOne(st.who, "") + '</div><div class="sayq"><small>' + q(st.sayLead) + '</small>“' + q(line) + '”</div><div class="coach" id="coach" style="min-height:0"></div>' + micHtml() + '<div id="ft"></div>', "bc"[k]);
   var finish = function (text) {
     if (SIGG.misheard(text)) { micState("idle", "<b>" + q(SH.misheard) + "</b>"); return; }
     /* "Say each one once": the line has to be the line. Something untrue gets "Said something that isn't true." and the line
@@ -78,13 +79,13 @@ VIEW.stop = function (st) {
     $("#coach").innerHTML = q(st.done.text);
     sayLine(st.done, r).then(function () { if (r !== RUN) return; $(".mic").style.display = "none"; $("#ft").innerHTML = foot(btn(nextLabel(), "go")); $("#go").onclick = nextStep; });
   };
-  if ($("#mic")) { micState("idle"); $("#mic").onclick = function () { if (!SR) { typedOn(finish); return; } if (M.rec) { M.rec.stop(); return; } audio(); stopSound(); micState("on"); M.rec = listen({ onWords: function (t) { var m = $("#mict"); if (m) m.innerHTML = "<b>Listening.</b> " + esc(t); }, onDone: function (t) { M.rec = null; if (r === RUN) finish(t); }, onError: function (c) { M.rec = null; if (r === RUN) micState("idle", micErr(c)); } }); }; }
+  if ($("#mic")) { micState("idle"); $("#mic").onclick = function () { if (!SR) { typedOn(finish); return; } if (M.rec) { M.rec.stop(); return; } audio(); stopSound(); micState("on"); M.rec = listen({ onStart: function () { if (r === RUN) liveGo(); }, onWords: function (t) { if (r === RUN) liveWords(t); }, onDone: function (t) { M.rec = null; if (r === RUN) finish(t); }, onError: function (c) { M.rec = null; if (r === RUN) micState("idle", micErr(c)); } }); }; }
 };
 /* check four lines: tap the box that gets the line thrown out, or Good to go */
 VIEW.lines = function (st) {
   var r = RUN + 0, k = S.sub, X = st.lines[k], last = k === st.lines.length - 1;
   top({});
-  show(kick(st) + (k === 0 ? '<div class="coach q3" id="coach">' + q(st.coach.text) + '</div>' : "") + '<div class="count">Line ' + X.tag + (st.ask ? '. ' + q(st.ask) : "") + '</div><div id="pw" class="psheet">' + pet(X.fill, { tap: true, big: true, note: X.note, sheet: true }) + '</div>' +
+  show('<h1 class="lineh">Line ' + X.tag + (st.ask ? ': ' + q(st.ask.charAt(0).toLowerCase() + st.ask.slice(1)) : "") + '</h1><div id="pw" class="psheet">' + pet(X.fill, { tap: true, big: true, note: X.note, sheet: true }) + '</div>' +
     '<div class="fill"><div class="opts" id="opts"><button class="opt" id="okb"><span style="flex:1;text-align:center">' + q(st.ok) + '</span></button></div><div id="why"></div></div><div id="ft"></div>', "abcd"[k]);
   if (k === 0) sayLine(st.coach, r);
   var done = false, pick = function (key) {
@@ -94,7 +95,7 @@ VIEW.lines = function (st) {
     $("#okb").classList.add(X.right === "ok" ? "right" : key === "ok" ? "wrong" : "faded"); $("#okb").disabled = true; $("#opts").classList.add("done");
     var c = $("#coach"); if (c) c.remove();
     $("#why").innerHTML = why(key === X.right, X.why, true);
-    $("#ft").innerHTML = foot(btn(last ? nextLabel() : "Next line", "go")); $("#go").onclick = function () { last ? nextStep() : go(S.step, k + 1); };
+    $("#ft").innerHTML = foot(btn(last ? nextLabel() : labelTo(S.step, k + 1), "go")); $("#go").onclick = function () { last ? nextStep() : go(S.step, k + 1); };
   };
   $("#pw").onclick = function (e) { var b = e.target.closest ? e.target.closest("[data-box]") : null; if (b) pick(b.getAttribute("data-box")); };
   $("#okb").onclick = function () { pick("ok"); };
@@ -103,7 +104,8 @@ VIEW.lines = function (st) {
 VIEW.decl = function (st) {
   var r = RUN + 0, sel = [];
   top({});
-  show(kick(st) + '<div class="coach q3" id="coach">' + q(st.coach.text) + '</div><h1 style="font-size:calc(19 * var(--u))">' + q(st.ask) + '</h1><div class="opts decls" id="opts">' +
+  /* one header, the question, with the coach's words under it while they play (version 8: one header per screen) */
+  show('<h1>' + q(st.ask) + '</h1><p class="sub coachsub" id="coach">' + q(st.coach.text) + '</p><div class="opts decls" id="opts">' +
     st.cards.map(function (c, i) { return '<button class="decl" data-i="' + i + '">' + declPic(["own", "blank", "other"][i]) + '<span>' + q(c) + '</span></button>'; }).join("") + '</div><div class="fill"><div id="why"></div></div><div id="ft"></div>', "");
   sayLine(st.coach, r);
   [].forEach.call(document.querySelectorAll(".decl"), function (b) {

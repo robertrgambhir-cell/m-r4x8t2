@@ -68,7 +68,7 @@ const [,, lesson = "2", scriptName = "normal", W = "390", H = "844"] = process.a
       /* wait for any voice that is still talking, read what's new, then tap */
       /* words that were just spoken aloud were heard, not read: only silent text takes reading time */
       let heard = st.kind === "hear" || st.kind === "cards" || st.kind === "stop";
-      for (let k = 0; k < 400; k++) { const busy = await p.evaluate(() => !!(window.__sg && window.__sgBusy && window.__sgBusy())); if (!busy) break; heard = true; await p.waitForTimeout(100); }
+      for (let k = 0; k < 400; k++) { const busy = await p.evaluate(() => !!(window.__sg && window.__sgBusy && window.__sgBusy()) || !!document.querySelector("#pp")); /* version 8: the main button is filled from the start, so a scene still playing (its pause button showing) is waited out too */ if (!busy) break; heard = true; await p.waitForTimeout(100); }
       if (heard) { (await lines()).forEach((l) => seenLines.add(l)); } else await read();
       await p.waitForTimeout(1200); await tap("#go"); await p.waitForTimeout(300); continue;
     }

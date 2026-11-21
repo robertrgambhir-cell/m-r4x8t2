@@ -106,7 +106,7 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.08; letter-spacing: -0.01
 .capt.you b { color: #FFFFFF; }
 .capt.you.live { background: #4A453F; }
 .capt.note { align-self: center; background: rgba(255,253,249,.95); color: var(--ink-2); font: 600 calc(13.5 * var(--u))/1.3 "Figtree"; text-align: center; }
-.capt.note b { font: 700 calc(13.5 * var(--u))/1.3 "Figtree"; } .capt.note b::after { content: none; } /* a note is one message, not a speaker */
+.capt.note b { font: 700 calc(13.5 * var(--u))/1.3 "Figtree"; } .capt.note b::after { content: ": "; } /* a note with a speaker says who ("Coach: Tell her why."); a note without one has no label */
 .coach { flex: none; margin: 10px 2px 0; font: 400 calc(16 * var(--u))/1.4 "Figtree"; color: var(--ink-2); text-wrap: pretty; min-height: calc(2 * 1.4 * 16 * var(--u)); }
 .coach.q3 { min-height: calc(3 * 1.4 * 16 * var(--u)); }
 .coach.dim { opacity: .4; }
@@ -182,7 +182,7 @@ h1.lg { font-size: calc(30 * var(--u)); line-height: 1.08; letter-spacing: -0.01
 .rows li small { display: block; font: 800 calc(10.5 * var(--u))/1 "Figtree"; letter-spacing: .06em; text-transform: uppercase; color: #9B9389; margin-bottom: 3px; }
 .rows li.tick { animation: pop .35s ease both; } @keyframes pop { 50% { transform: scale(1.03); } }
 .said { flex: none; margin: 12px 0 0; padding: 10px 14px; border-left: 4px solid var(--line); font: 500 calc(15 * var(--u))/1.38 "Figtree"; color: var(--ink-2); }
-.said b { font: 800 calc(10.5 * var(--u))/1 "Figtree"; letter-spacing: .06em; text-transform: uppercase; color: #9B9389; display: block; margin-bottom: 4px; }
+.said b { font-weight: 700; color: var(--ink); } .said b::after { content: " "; } /* "You said “...”" in one line, not a small label over it (version 8: no eyebrows) */
 .said.sm { font-size: calc(14 * var(--u)); line-height: 1.3; }
 .scoreh { font: 600 calc(36 * var(--u))/1 "Newsreader", Georgia, serif; letter-spacing: -0.01em; margin-top: 6px; }
 .tip { flex: none; margin: 8px 0 0; padding: 11px 14px; border-radius: 14px; background: var(--soft); font: 600 calc(15.5 * var(--u))/1.38 "Figtree"; text-wrap: pretty; }
@@ -350,6 +350,75 @@ svg.close .kid { display: none; } /* a close-up of Tanya leaves her daughter out
 @media (min-width: 700px) and (max-height: 690px) { :root { --u0: .84px; } }
 @media (min-width: 700px) and (max-height: 620px) { :root { --u0: .78px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
+
+/* ---- version 8 (Robert's notes on lesson 2, Nov 20, 3:51 PM) ---- */
+/* the screen number shows only with ?tags ("We don't want that little number there") */
+html:not(.tags) .tag { display: none; }
+/* a quiet link sits centered under the buttons ("center-aligned underneath the buttons") */
+.link { display: block; margin: 10px auto 0; text-align: center; align-self: center; }
+#ft > .link, #scr > .link { margin-left: auto; margin-right: auto; }
+/* a passerby who walks up: from above, then down the sidewalk toward you, then face to face. #panel[data-stage] picks the view. */
+.ph.air, .ph.pov { z-index: 1; opacity: 0; transition: opacity .45s ease; pointer-events: none; background: #E9E1D2; }
+.ph.air img, .ph.pov img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; display: block; }
+.ph.air img { will-change: transform; }
+.ph.pov .wk { position: absolute; left: 0; top: 0; will-change: transform; }
+.ph.pov .wk img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; animation: walkph .56s ease-in-out infinite; }
+[data-stage="air"] > .ph.air { opacity: 1; }
+[data-stage="pov"] > .ph.pov { opacity: 1; }
+[data-stage="air"] > .who, [data-stage="pov"] > .who { opacity: 0; }
+.ph.one.here .pt.walker { transition: opacity .45s ease; }
+@media (prefers-reduced-motion: reduce) { .ph.pov .wk img { animation: none; } .ph.air img { transition: none !important; } }
+/* the canvasser's top funders sheet, held up from the bottom corner (the canvasser never shows) */
+.fgs { position: absolute; left: 10px; bottom: 26%; width: 38%; z-index: 2; transform: translateY(40%) rotate(-5deg); opacity: 0; transition: transform .4s ease, opacity .4s ease; filter: drop-shadow(0 6px 14px rgba(38,35,32,.28)); pointer-events: none; }
+.fgs.on { transform: translateY(0) rotate(-5deg); opacity: 1; }
+.fgs > * { display: block; width: 100%; height: auto; }
+/* the live talk card, as the door-knocking lessons have it: a big mic, gray while it starts and green once it listens, bars that move
+   while your words come in, and the words. Over the bottom of the picture, where the captions go while it shows. */
+.tlive { display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: center; padding: 12px 14px 12px 12px; border-radius: 22px; background: var(--card); box-shadow: 0 0 0 1.5px var(--line), 0 6px 24px rgba(0,0,0,.18); animation: vpin .3s ease both; }
+@keyframes vpin { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+#microw > .tlive { margin-bottom: 2px; box-shadow: 0 0 0 1.5px var(--line); }
+.dock:has(> .tlive) > .capts { display: none; }
+.tlive .tl-mic { position: relative; width: 64px; height: 64px; border-radius: 50%; background: #A69E92; color: #FFFDF9; display: grid; place-items: center; transition: background .3s; }
+.tlive.live .tl-mic { background: var(--green); }
+.tlive .tl-mic svg { width: 28px; height: 28px; }
+.tlive .tl-pulse { position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--green); opacity: 0; pointer-events: none; }
+.tlive.live .tl-pulse { animation: tlpulse 1.6s ease-out infinite; } .tlive.live .tl-pulse.p2 { animation-delay: .8s; }
+@keyframes tlpulse { from { transform: scale(1); opacity: .9; } to { transform: scale(1.75); opacity: 0; } }
+.tlive.go .tl-mic { animation: tlgo .5s cubic-bezier(.34,1.4,.4,1) both; } @keyframes tlgo { 0% { transform: scale(.85); } 60% { transform: scale(1.12); } 100% { transform: scale(1); } }
+.tlive .tl-wave { display: flex; align-items: center; gap: 4px; height: 26px; }
+.tlive .tl-wave i { display: block; width: 4px; height: 6px; border-radius: 2px; background: var(--green); opacity: .45; }
+.tlive.talking .tl-wave i { opacity: 1; animation: tlwave .8s ease-in-out infinite; }
+.tlive .tl-wave i:nth-child(3n+2) { animation-delay: .15s; } .tlive .tl-wave i:nth-child(3n) { animation-delay: .3s; } .tlive .tl-wave i:nth-child(4n) { animation-delay: .45s; }
+@keyframes tlwave { 0%, 100% { height: 6px; } 50% { height: 24px; } }
+.tlive .tl-said { margin: 4px 0 0; font: 700 calc(16.5 * var(--u))/1.3 "Figtree"; color: var(--green-d); max-height: 6.5em; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
+.tlive .tl-said:empty::before { content: attr(data-live); }
+.tlive.warm .tl-said:empty::before { content: attr(data-warm); color: var(--muted); }
+.tlive.go .tl-said:empty::before { content: attr(data-go); }
+@media (prefers-reduced-motion: reduce) { .tlive .tl-pulse, .tlive.talking .tl-wave i, .tlive.go .tl-mic { animation: none; } }
+/* your turn to talk: the button's green mic rings, so it's plain what to tap */
+.micb.pulse .md::before, .micb.pulse .md::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--green); animation: tlpulse 1.6s ease-out infinite; }
+.micb.pulse .md::after { animation-delay: .8s; }
+@media (prefers-reduced-motion: reduce) { .micb.pulse .md::before, .micb.pulse .md::after { animation: none; opacity: 0; } }
+/* a second example inside a step: its own short card, not a Part N of 4 screen */
+.excard { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 24px; background: rgba(252,248,242,.9); animation: vpin .25s ease both; cursor: pointer; }
+.excard > div { width: 100%; max-width: 330px; padding: 22px 20px; border-radius: 22px; background: var(--card); box-shadow: 0 0 0 1.5px var(--line), 0 10px 30px rgba(38,35,32,.14); text-align: center; }
+.excard small { display: block; font: 700 13px/1.2 "Figtree"; color: var(--green-d); }
+.excard b { display: block; margin-top: 6px; font: 500 28px/1.1 var(--head); color: var(--ink); }
+.excard p { margin: 10px 0 0; font: 500 16px/1.4 "Figtree"; color: var(--ink-2); text-wrap: balance; }
+/* the stop-rate guess: three choices in a row, and a row of 20 passersby that shows the answer */
+.p20 { flex: 1 1 auto; min-height: 104px; display: grid; grid-template-columns: repeat(10, 1fr); align-content: center; gap: 10px 4px; margin-top: 14px; padding: 14px 10px; border-radius: 18px; background: var(--soft); }
+.p20 i { display: grid; place-items: center; }
+.p20 svg { width: 100%; max-width: 28px; height: auto; fill: #C9C1B4; transition: fill .3s ease; }
+.p20.done i.stop svg { fill: var(--green); } .p20.done i.half svg { fill: #9ED9BB; } .p20.done i.walk svg { fill: #D8D1C5; }
+.opts.row.pct .opt { padding: calc(18 * var(--u)) 4px; font: 600 calc(21 * var(--u))/1.05 var(--head); }
+/* the feedback card's one short tip, under the part to fix */
+.rows li.tipline { margin: -2px 0 2px 32px; padding: 9px 12px; border-radius: 12px; background: var(--soft); font: 500 calc(14.5 * var(--u))/1.36 "Figtree"; color: var(--ink); text-wrap: pretty; }
+.rows li.tipline b { font-weight: 800; }
+.tip b { font-weight: 800; }
+/* the lesson end: one message, then Done for today */
+.endline { flex: none; margin: 8px 0 0; font: 500 calc(17 * var(--u))/1.4 "Figtree"; color: var(--ink-2); text-wrap: balance; }
+h1.lineh { font-size: calc(19 * var(--u)); }
+.coachsub { flex: none; margin: 8px 0 0; font: 500 calc(15.5 * var(--u))/1.4 "Figtree"; color: var(--ink-2); text-wrap: pretty; }
 </style>
 </head>
 <body>

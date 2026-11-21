@@ -2,7 +2,7 @@
    (claude/signature-curriculum-claude-v4.md, section 3), the extra replays Robert asked for on Nov 18, and each passerby's
    side of a try. Run: node ai/tests/sig-grade.test.mjs */
 import { SIGG } from "../sig/grade.mjs";
-import { SIG_SETTINGS, SIG_MEASURE, SIG_LESSONS } from "../sig/content.js";
+import { SIG_SETTINGS, SIG_MEASURE, SIG_LESSONS, sigVoiceLines } from "../sig/content.js";
 import { REPLAYS, THREE, HEARD, LET_GO } from "./sig2-replays.mjs";
 
 const ST = Object.assign({}, SIG_SETTINGS, { label: SIG_MEASURE.label });
@@ -10,14 +10,16 @@ let pass = 0, fail = 0;
 const ok = (c, name) => { if (c) pass += 1; else { fail += 1; console.log("FAIL " + name); } };
 const bits = (h) => h.map((x) => (x ? 1 : 0)).join("");
 const run = (key, pieces, st) => { const t = SIGG.talk(key, st || ST), said = []; for (const p of pieces) { if (t.end) break; said.push(t.hear(p).say.join("+") || "-"); } return { t, said: said.join(" / "), g: t.grade() }; };
-const OPENER = "Hi there! This petition is for longer library hours. Are you registered to vote in LA County?";
+const OPENER = "Hi there! I'm collecting signatures for a ballot measure to keep libraries open later. Are you registered to vote in LA County?"; /* the course's own opener since version 8 */
+const OPENER7 = "Hi there! This petition is for longer library hours. Are you registered to vote in LA County?"; /* version 7's, still a good opener */
 
 /* ---------------- lesson 2 ---------------- */
 for (const r of REPLAYS) {
   const g = SIGG.grade(r.say, ST);
   ok(bits(g.hits) === r.parts.join(""), `L2 ${r.id}: ${bits(g.hits)} for "${r.say}"`);
   ok((g.untrue || "") === (r.untrue || ""), `L2 ${r.id}: untrue ${g.untrue}`);
-  const ben = run("2.ben", [r.say]).said, want = g.first === "time" ? "time" : g.regAsked ? "stop" : g.topic ? "lib" : "other";
+  /* version 8: asked if he's registered and told what it's for, he says so and that he'll sign, which ends the talk; asked but not told, he asks what this is */
+  const ben = run("2.ben", [r.say]).said, want = g.first === "time" ? "time" : g.regAsked ? (g.topic ? "stop+sure" : "stop+other") : g.topic ? "lib" : "other";
   ok(ben === want, `L2 ${r.id}: Ben says ${ben}, wanted ${want}`);
 }
 for (const h of HEARD) ok(bits(SIGG.grade(h.say, ST).hits) === h.parts.join(""), `L2 heard: "${h.say}"`);
@@ -33,20 +35,20 @@ for (const [say, want] of LET_GO) ok(SIGG.letGo(say) === want, `L2 Kayla: "${say
   ok(SIGG.score2([SIGG.grade("Hi! Do you have a minute? This petition is for longer library hours. Are you registered to vote in LA County?", ST)]).alt[3] === false, "L2 a request for time gets 'Asked for a minute.'");
 }
 /* the passersby answer what was said */
-ok(run("2.ben", [OPENER]).said === "stop", "L2 Ben stops for the opener");
+ok(run("2.ben", [OPENER]).said === "stop+sure" && run("2.ben", [OPENER7]).said === "stop+sure", "L2 Ben stops for the opener and closes the talk himself (v8)");
 ok(run("2.ben", ["Hi! Do you have a minute?"]).said === "time", "L2 Ben keeps walking when asked for a minute");
-ok(run("2.ben", ["Hi there! This petition is for longer library hours!", "Are you registered to vote in LA County?"]).said === "lib / stop", "L2 Ben, told only what it's for, asks what you need, then answers the registered question (v5)");
-ok(run("2.ben", ["Hi there! This petition is for longer library hours!", "It's about the library.", "More"]).said === "lib / @go", "L2 Ben asks once what you need and walks on when the registered question never comes (v5)");
-ok(run("2.ben", ["Hi, how's it going?", "Are you registered to vote?"]).said === "fSmall / stop" && run("2.ben", ["Hey there.", "Um, hi.", "So.", "Okay."]).said === "fHi / other / other / @go", "L2 Ben says hello back once, asks what this is, asks once more after a dodge, then walks on");
-ok(run("2.ben", ["Are you registered to vote?"]).said === "stop", "L2 Ben answers the registered question even with nothing else");
+ok(run("2.ben", ["Hi there! This petition is for longer library hours!", "Are you registered to vote in LA County?"]).said === "lib / stop+sure", "L2 Ben, told only what it's for, asks what you need, then answers the registered question (v5)");
+ok(run("2.ben", ["Hi there! This petition is for longer library hours!", "It's about the library.", "More"]).said === "lib / fGo", "L2 Ben asks once what you need and walks on with a kind word when the registered question never comes (v5, v8)");
+ok(run("2.ben", ["Hi, how's it going?", "Are you registered to vote?"]).said === "fSmall / stop+other" && run("2.ben", ["Hey there.", "Um, hi.", "So.", "Okay."]).said === "fHi / other / other / fGo", "L2 Ben says hello back once, asks what this is, asks once more after a dodge, then walks on with a kind word");
+ok(run("2.ben", ["Are you registered to vote?"]).said === "stop+other", "L2 Ben answers the registered question even with nothing else, then asks what this is");
 ok(bits(run("2.ben", ["Hi there! This petition is for longer library hours!", "Are you registered to vote in LA County?"]).g.hits) === "1111", "L2 an opener in two pieces is scored as one try");
-ok(run("2.soojin", [OPENER]).said === "stop" && run("2.luis", [OPENER]).said === "stop", "L2 Soo-jin and Luis stop for a full opener");
+ok(run("2.soojin", [OPENER]).said === "stop+sure" && run("2.luis", [OPENER]).said === "stop+sure", "L2 Soo-jin and Luis stop for a full opener and close the talk themselves");
 ok(run("2.soojin", ["Are you registered to vote in LA County?"]).said === "stop+other", "L2 Soo-jin answers the question first, then asks what it's for");
-ok(run("2.soojin", ["Are you registered to vote in LA County?", "This petition is for longer library hours."]).said === "stop+other / -", "L2 Soo-jin doesn't answer twice");
+ok(run("2.soojin", ["Are you registered to vote in LA County?", "This petition is for longer library hours."]).said === "stop+other / sure", "L2 Soo-jin doesn't answer twice, and told what it's for, says she'll sign");
 ok(run("2.soojin", ["Hi there! This petition is for longer library hours."]).said === "lib", "L2 Soo-jin doesn't say she's registered when nobody asked; told what it's for, she asks what you need (v5)");
-ok(run("2.soojin", ["Hi there! This petition is for longer library hours.", "Are you registered to vote in LA County?"]).said === "lib / stop", "L2 Soo-jin stops once the question comes");
-ok(run("2.luis", ["Library hours. You registered?"]).said === "stop" && run("2.luis", ["Hi! Do you like the library?", "Are you registered to vote?"]).said === "lib / stop", "L2 Luis answers the question he's asked");
-ok(run("2.soojin", ["Hi there! How are you today?"]).said === "fSmall" && run("2.soojin", ["Do you have a minute?", "Please?", "Hmm."]).said === "other / other / @go", "L2 told nothing, Soo-jin asks what it's for, once more after a dodge, then walks on");
+ok(run("2.soojin", ["Hi there! This petition is for longer library hours.", "Are you registered to vote in LA County?"]).said === "lib / stop+sure", "L2 Soo-jin stops once the question comes");
+ok(run("2.luis", ["Library hours. You registered?"]).said === "stop+sure" && run("2.luis", ["Hi! Do you like the library?", "Are you registered to vote?"]).said === "lib / stop+sure", "L2 Luis answers the question he's asked");
+ok(run("2.soojin", ["Hi there! How are you today?"]).said === "fSmall" && run("2.soojin", ["Do you have a minute?", "Please?", "Hmm."]).said === "other / other / fGo", "L2 told nothing, Soo-jin asks what it's for, once more after a dodge, then walks on with a kind word");
 { const k = run("2.kayla", ["Do you have a minute?", "It's about the library."]); ok(k.said === "@look / lib" && k.g.asked === false && k.g.from === false, "L2 Kayla doesn't say she isn't registered until she's asked; told what it's about, she asks what you need"); }
 { const k = run("2.kayla", ["Hi there! This petition is for longer library hours.", "Are you registered to vote in LA County?", "No problem. Have a good one!"]); ok(k.said === "lib / not / bye" && bits(k.g.hits) === "1111" && k.g.from === true && /County\?$/.test(k.g.quote), "L2 Kayla: an opener in two pieces is one opener, and she answers once she's asked"); }
 ok(SIGG.letGo("Do you want to register?") === false && SIGG.letGo("Okay. Have a good one!") === true, "L2 letting her go takes a thank-you or a goodbye");
@@ -173,7 +175,7 @@ ok(run("5.hank", ["Yes, it's a new state tax on digital ad sales."]).said === "s
 ok(SIGG.misheard("") && SIGG.misheard("um uh") && SIGG.misheard("the", true) && !SIGG.misheard("Yes.") && !SIGG.misheard("Hi", true) && !SIGG.misheard("Okay."), "misheard speech isn't a try, and one real word is an answer");
 ok(SIGG.pauseMs("Hi there") === 2800 && SIGG.pauseMs("Hi there longer library hours are you registered to vote in LA") === 2800 && SIGG.pauseMs("Hi I'm um") === 2800 && SIGG.pauseMs(OPENER) === 1200 && SIGG.pauseMs("It has to be in your handwriting") === 1200, "a passerby waits 1.2 seconds after a finished line and 2.8 mid-thought or under three words");
 { const t = SIGG.talk("3.tanya", ST); let n = 0; for (let i = 0; i < 9 && !t.end; i += 1) { t.hear("It funds longer hours."); n += 1; } ok(n <= 4, "a try is over after four of the canvasser's lines at most"); }
-for (const n of [1, 2, 3, 4, 5]) ok(SIG_LESSONS[n].parts.length === 4 && SIG_LESSONS[n].parts.every((p) => p.name && p.done && p.missed && p.tip) && SIG_LESSONS[n].steps.reduce((a, s) => a + s.secs, 0) === { 1: 303, 2: 287, 3: 309, 4: 307, 5: 297 }[n], `lesson ${n} has four parts with done, missed and tip lines, and version 5's seconds`);
+for (const n of [1, 2, 3, 4, 5]) ok(SIG_LESSONS[n].parts.length === 4 && SIG_LESSONS[n].parts.every((p) => p.name && p.done && p.missed && p.tip) && SIG_LESSONS[n].steps.reduce((a, s) => a + s.secs, 0) === { 1: 303, 2: 287, 3: 309, 4: 309, 5: 298 }[n], `lesson ${n} has four parts with done, missed and tip lines, and version 8's seconds`);
 ok([SIG_LESSONS[3].parts[0], SIG_LESSONS[3].parts[1], SIG_LESSONS[4].parts[2], SIG_LESSONS[5].parts[0]].every((p) => /(?: is|that's) a must\. Try it once more\.$/.test(p.must) && p.step) && !SIG_LESSONS[1].parts.some((p) => p.must) && !SIG_LESSONS[2].parts.some((p) => p.must), "the musts are lesson 3's parts 1 and 2, lesson 4's part 3 and lesson 5's part 1");
 
 /* ---------------- Nov 18, after the outside review of lessons 1, 3, 4 and 5: a try said one sentence at a time, a goodbye,
@@ -193,7 +195,7 @@ const WHY = "Only registered voters count, and the county checks every line.";
 { const m = run("3.marisol", [OPENER, PAID, TWO, DBL, ASK]); ok(m.said === "reg / - / - / dbl / yes" && bits(m.g.hits) === "1111" && m.g.from === true, "L3 the ask said one sentence at a time: she listens, and all four parts count"); }
 { const m = run("3.marisol", [OPENER + " " + [PAID, TWO, DBL, ASK].join(" ")]); ok(m.said === "reg+dbl+yes" && bits(m.g.hits) === "1111" && m.g.from === true, "L3 the opener and the whole ask in one breath"); }
 { const m = run("3.marisol", [OPENER, "I'm paid to gather signatures, and here are the top funders.", "It funds longer evening and weekend hours at branch libraries, and it's paid for by a new state tax on digital ad sales."]); ok(m.said === "reg / - / -" && !m.t.end, "L3 three lines in, with the ask still to come: the stop isn't over"); }
-{ const m = run("3.marisol", [OPENER, "How's your day going?", "Um, so."]); ok(m.said === "reg / - / wait" && !m.t.end, "L3 small talk gets a beat before she asks what you need"); }
+{ const m = run("3.marisol", [OPENER7, "How's your day going?", "Um, so."]); ok(m.said === "reg / - / wait" && !m.t.end, "L3 small talk gets a beat before she asks what you need"); }
 { const m = run("3.marisol", [OPENER, "Oh, never mind. Thanks anyway, bye!"]); ok(m.said === "reg / fBye" && m.t.end, "L3 a goodbye ends Marisol's stop with no question tacked on"); }
 { const m = run("3.marisol", ["Hi there! This petition is for longer library hours."]); ok(m.said === "lib" && !m.t.end, "L3 Marisol doesn't say she's registered before she is asked; told what it's for, she asks what you need (v5)"); }
 { const m = run("3.marisol", [OPENER, [PAID, TWO, DBL].join(" "), "You have to sign."]); ok(m.said === "reg / dbl / fPush" && bits(m.g.hits) === "1110" && m.g.vague[3] === true, "L3 told she has to sign: \"I'd rather decide for myself\", and the part is \"Pushed her to sign\""); }
@@ -266,9 +268,9 @@ ok(run("2.ben", ["Come on, just sign it."]).said === "fPush" && run("2.luis", ["
 {
   const TOP = "Hi there! This petition is for longer library hours.", REG = "Are you registered to vote in LA County?";
   const PAID = "I'm paid to gather signatures, and here are this month's top funders.", TWO = "It funds longer evening and weekend hours at branch libraries, and it's paid for by a new state tax on digital ad sales.";
-  ok(run("2.ben", ["Hi! Do you vote?", "This petition is for longer library hours.", REG]).said === "other / lib / stop", "review 1: Ben asks what this is, hears what it's for, asks what you need, then answers the question");
+  ok(run("2.ben", ["Hi! Do you vote?", "This petition is for longer library hours.", REG]).said === "other / lib / stop+sure", "review 1: Ben asks what this is, hears what it's for, asks what you need, then answers the question");
   ok(run("2.ben", ["Hi!", "What's up?", TOP]).said === "fHi / other / lib", "review 1: Ben doesn't walk off once he's told what it's for");
-  ok(run("2.soojin", ["Hi! Do you vote?", "It's for longer library hours.", REG]).said === "other / lib / stop" && run("2.luis", ["Hi! Got a sec?", "It's for longer library hours.", REG]).said.endsWith("lib / stop"), "review 1: Soo-jin and Luis stay for the question after asking what this is");
+  ok(run("2.soojin", ["Hi! Do you vote?", "It's for longer library hours.", REG]).said === "other / lib / stop+sure" && run("2.luis", ["Hi! Got a sec?", "It's for longer library hours.", REG]).said.endsWith("lib / stop+sure"), "review 1: Soo-jin and Luis stay for the question after asking what this is");
   ok(run("2.kayla", ["Hi, how are you?", "I'm good.", TOP]).said === "fSmall / @look / lib", "review 1: Kayla asks what you need once she hears what it's for");
   { const m = run("3.marisol", [TOP, REG, PAID, TWO, "Have you signed this one already?", "Will you sign to put it on the ballot?"]); ok(/yes$/.test(m.said) && m.g.hits[3], "review 2: an opener in two pieces leaves the ask its four lines in lesson 3 (" + m.said + ")"); }
   ok(run("1.marisol", [TOP, "It keeps branches open evenings."]).said === "lib / -" && run("1.marisol", ["Hi, how are you?", "Good."]).said === "fSmall / -" && run("1.marisol", ["Do you have a minute?"]).said === "-", "review 3 and 10: she says she votes only when asked about voting; anything else, she waits");
@@ -297,6 +299,26 @@ ok(run("2.ben", ["Come on, just sign it."]).said === "fPush" && run("2.luis", ["
   ok(SIG_LESSONS[2].steps[1].scenes[1].lines[1].text === "No, I'm not.", "v6: Dwayne answers like a person");
   [1, 2, 3, 4, 5].forEach((n) => { const L = SIG_LESSONS[n]; ok(L.phases.length === 4 && L.steps.every((s) => s.ph >= 0 && s.ph <= 3) && L.steps.every((s, i) => i === 0 || s.ph >= L.steps[i - 1].ph), "v6: lesson " + n + " has four named steps, in order"); });
   ok(SIG_LESSONS[2].phases.join("|") === "Your 1st try|Hear it done|Catch the mistake|Your 2nd try" && SIG_LESSONS[1].phases.join("|") === "How it counts|Sort and guess|Say it|A whole stop", "v6: the four names");
+}
+
+
+/* ---------------- version 8 (Robert's notes on lesson 2, Nov 20, 3:51 PM) ---------------- */
+{
+  const REG = "Are you registered to vote in LA County?", H = (x) => bits(SIGG.grade(x, ST).hits);
+  /* "How are you?" and its cousins are a hello, and "increasing the number of hours" names the hours (openers like his 2nd try) */
+  ok(H("Hi, how are you doing today? I'm collecting signatures for increasing the number of hours the library is open. " + REG) === "1111", "v8: \"how are you doing today\" is a hello and \"increasing the number of hours\" is the hours");
+  ok(H("How's it going? I'm collecting signatures to increase library hours. " + REG) === "1111" && H("Hey, how you doing? We're collecting signatures to keep the library open later. You registered to vote in LA County?") === "1111", "v8: \"how's it going\" and \"how you doing\" are hellos");
+  /* the opener Robert gave as the way a canvasser talks, and the course's own: neither runs long */
+  ok(H("Hi, I'm collecting signatures to help us extend library hours later into the evening. " + REG) === "1111" && H(OPENER) === "1111", "v8: Robert's example opener and the course's own opener count, and neither runs long");
+  ok(H("It's about the number of hours. " + REG) === "0011", "v8: \"the number of hours\" with no change named isn't the hours");
+  /* the other person always closes a talk, kindly (Robert: "always have the other person end the conversation") */
+  const ends = (key, pieces) => { const r = run(key, pieces); return r.t.end ? r.said.split(" / ").pop() : "(open)"; };
+  ok(["Hi.", "Um.", "So.", "Okay."].length && /fGo$/.test(ends("2.ben", ["Hey there.", "Um, hi.", "So.", "Okay."])) && /fGo$/.test(ends("2.soojin", ["Do you have a minute?", "Please?", "Hmm."])), "v8: a talk going nowhere ends with the passerby's kind goodbye");
+  ok(/sure$/.test(ends("2.ben", [OPENER])) && /sure$/.test(ends("2.luis", [OPENER])), "v8: a good opener ends with the passerby saying they'll sign");
+  /* a yes-or-no question gets yes, no or "I'm not sure", so no spoken line in the course says "Not really" (Robert: "That sort of
+     answer isn't an answer the AI can or should say") */
+  const spoken = sigVoiceLines().filter((x) => x.who !== "coach");
+  ok(spoken.length > 100 && spoken.every((x) => !/\bnot really\b/i.test(x.text)), "v8: no passerby answers a yes-or-no question with \"Not really\"");
 }
 
 console.log(`sig-grade: ${pass} pass, ${fail} fail`);

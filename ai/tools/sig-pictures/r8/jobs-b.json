@@ -1,0 +1,458 @@
+[
+{
+"name": "walk-soojin-1",
+"w": 768,
+"h": 1344,
+"seed": 101,
+"refs": [
+"q/picks-v2/soojin.jpg"
+],
+"prompt": "Image 1 shows Soo-jin. Draw the same woman, the same face, gray hair in a short bob and sage green cardigan, a canvas tote bag on her shoulder, light gray trousers and flat shoes, now full length from the top of the head to the shoes, walking straight toward the viewer mid-stride on a plain flat warm light beige background (#F4EEE5) with nothing else on it, arms natural, looking ahead with a calm, friendly face. The whole figure fits inside the picture with a little space above the head and below the shoes. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "aerial-soojin-1",
+"w": 768,
+"h": 1344,
+"seed": 201,
+"refs": [
+"r8/store.jpg",
+"q/picks-v2/soojin.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen from high above across the street, as if from a second-floor window about 30 feet up, looking down at the store front and the wide light concrete sidewalk in front of it: the brown roof, the front window full of orange crates and the glass door. On the sidewalk next to the door stands a small purple folding table, and beside it a canvasser in a purple t-shirt and a purple cap, seen small from above and from behind, so the face doesn't show. Far down the sidewalk to the left, the person from image 2, an older woman with gray hair in a short bob, a sage green cardigan and a canvas tote bag, walks along the sidewalk toward the table, small, full length. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture. No text or letters anywhere, no sign words."
+},
+{
+"name": "walk-soojin-2",
+"w": 768,
+"h": 1344,
+"seed": 102,
+"refs": [
+"q/picks-v2/soojin.jpg"
+],
+"prompt": "Image 1 shows Soo-jin. Draw the same woman, the same face, gray hair in a short bob and sage green cardigan, a canvas tote bag on her shoulder, light gray trousers and flat shoes, now full length from the top of the head to the shoes, walking straight toward the viewer mid-stride on a plain flat warm light beige background (#F4EEE5) with nothing else on it, arms natural, looking ahead with a calm, friendly face. The whole figure fits inside the picture with a little space above the head and below the shoes. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "aerial-soojin-2",
+"w": 768,
+"h": 1344,
+"seed": 202,
+"refs": [
+"r8/store.jpg",
+"q/picks-v2/soojin.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen from high above across the street, as if from a second-floor window about 30 feet up, looking down at the store front and the wide light concrete sidewalk in front of it: the brown roof, the front window full of orange crates and the glass door. On the sidewalk next to the door stands a small purple folding table, and beside it a canvasser in a purple t-shirt and a purple cap, seen small from above and from behind, so the face doesn't show. Far down the sidewalk to the left, the person from image 2, an older woman with gray hair in a short bob, a sage green cardigan and a canvas tote bag, walks along the sidewalk toward the table, small, full length. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture. No text or letters anywhere, no sign words."
+},
+{
+"name": "walk-kayla-1",
+"w": 768,
+"h": 1344,
+"seed": 101,
+"refs": [
+"q/picks-v2/kayla.jpg"
+],
+"prompt": "Image 1 shows Kayla. Draw the same young woman, the same face, long dark hair, mustard yellow top and small white earbuds in both ears, blue jeans and white sneakers, her hands free, now full length from the top of the head to the shoes, walking straight toward the viewer mid-stride on a plain flat warm light beige background (#F4EEE5) with nothing else on it, arms natural, looking ahead with a calm, friendly face. The whole figure fits inside the picture with a little space above the head and below the shoes. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "aerial-kayla-1",
+"w": 768,
+"h": 1344,
+"seed": 201,
+"refs": [
+"r8/store.jpg",
+"q/picks-v2/kayla.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen from high above across the street, as if from a second-floor window about 30 feet up, looking down at the store front and the wide light concrete sidewalk in front of it: the brown roof, the front window full of orange crates and the glass door. On the sidewalk next to the door stands a small purple folding table, and beside it a canvasser in a purple t-shirt and a purple cap, seen small from above and from behind, so the face doesn't show. Far down the sidewalk to the left, the person from image 2, a young woman with long dark hair and a mustard yellow top, walks along the sidewalk toward the table, small, full length. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture. No text or letters anywhere, no sign words."
+},
+{
+"name": "walk-kayla-2",
+"w": 768,
+"h": 1344,
+"seed": 102,
+"refs": [
+"q/picks-v2/kayla.jpg"
+],
+"prompt": "Image 1 shows Kayla. Draw the same young woman, the same face, long dark hair, mustard yellow top and small white earbuds in both ears, blue jeans and white sneakers, her hands free, now full length from the top of the head to the shoes, walking straight toward the viewer mid-stride on a plain flat warm light beige background (#F4EEE5) with nothing else on it, arms natural, looking ahead with a calm, friendly face. The whole figure fits inside the picture with a little space above the head and below the shoes. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "aerial-kayla-2",
+"w": 768,
+"h": 1344,
+"seed": 202,
+"refs": [
+"r8/store.jpg",
+"q/picks-v2/kayla.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen from high above across the street, as if from a second-floor window about 30 feet up, looking down at the store front and the wide light concrete sidewalk in front of it: the brown roof, the front window full of orange crates and the glass door. On the sidewalk next to the door stands a small purple folding table, and beside it a canvasser in a purple t-shirt and a purple cap, seen small from above and from behind, so the face doesn't show. Far down the sidewalk to the left, the person from image 2, a young woman with long dark hair and a mustard yellow top, walks along the sidewalk toward the table, small, full length. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture. No text or letters anywhere, no sign words."
+},
+{
+"name": "walk-luis-1",
+"w": 768,
+"h": 1344,
+"seed": 101,
+"refs": [
+"q/picks-v2/luis.jpg"
+],
+"prompt": "Image 1 shows Luis. Draw the same man, the same face and short black hair, a white t-shirt under a dark gray kitchen apron, black trousers and black shoes, now full length from the top of the head to the shoes, walking straight toward the viewer mid-stride on a plain flat warm light beige background (#F4EEE5) with nothing else on it, arms natural, looking ahead with a calm, friendly face. The whole figure fits inside the picture with a little space above the head and below the shoes. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "aerial-luis-1",
+"w": 768,
+"h": 1344,
+"seed": 201,
+"refs": [
+"r8/store.jpg",
+"q/picks-v2/luis.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen from high above across the street, as if from a second-floor window about 30 feet up, looking down at the store front and the wide light concrete sidewalk in front of it: the brown roof, the front window full of orange crates and the glass door. On the sidewalk next to the door stands a small purple folding table, and beside it a canvasser in a purple t-shirt and a purple cap, seen small from above and from behind, so the face doesn't show. Far down the sidewalk to the left, the person from image 2, a young man in a white t-shirt and a dark kitchen apron, walks along the sidewalk toward the table, small, full length. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture. No text or letters anywhere, no sign words."
+},
+{
+"name": "walk-luis-2",
+"w": 768,
+"h": 1344,
+"seed": 102,
+"refs": [
+"q/picks-v2/luis.jpg"
+],
+"prompt": "Image 1 shows Luis. Draw the same man, the same face and short black hair, a white t-shirt under a dark gray kitchen apron, black trousers and black shoes, now full length from the top of the head to the shoes, walking straight toward the viewer mid-stride on a plain flat warm light beige background (#F4EEE5) with nothing else on it, arms natural, looking ahead with a calm, friendly face. The whole figure fits inside the picture with a little space above the head and below the shoes. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "aerial-luis-2",
+"w": 768,
+"h": 1344,
+"seed": 202,
+"refs": [
+"r8/store.jpg",
+"q/picks-v2/luis.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen from high above across the street, as if from a second-floor window about 30 feet up, looking down at the store front and the wide light concrete sidewalk in front of it: the brown roof, the front window full of orange crates and the glass door. On the sidewalk next to the door stands a small purple folding table, and beside it a canvasser in a purple t-shirt and a purple cap, seen small from above and from behind, so the face doesn't show. Far down the sidewalk to the left, the person from image 2, a young man in a white t-shirt and a dark kitchen apron, walks along the sidewalk toward the table, small, full length. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture. No text or letters anywhere, no sign words."
+},
+{
+"name": "walk-tanya-cart-1",
+"w": 768,
+"h": 1344,
+"seed": 101,
+"refs": [
+"q5/fin/tanya-cart.jpg"
+],
+"prompt": "Image 1 shows Tanya. Draw the same woman, the same face and black chin-length bob, rust-orange top and dark jeans, pushing a small shopping cart toward the viewer with her little daughter riding in the cart's seat, now full length from the top of the head to the shoes, walking straight toward the viewer mid-stride on a plain flat warm light beige background (#F4EEE5) with nothing else on it, arms natural, looking ahead with a calm, friendly face. The whole figure fits inside the picture with a little space above the head and below the shoes. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "aerial-tanya-cart-1",
+"w": 768,
+"h": 1344,
+"seed": 201,
+"refs": [
+"r8/store.jpg",
+"q5/fin/tanya-cart.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen from high above across the street, as if from a second-floor window about 30 feet up, looking down at the store front and the wide light concrete sidewalk in front of it: the brown roof, the front window full of orange crates and the glass door. On the sidewalk next to the door stands a small purple folding table, and beside it a canvasser in a purple t-shirt and a purple cap, seen small from above and from behind, so the face doesn't show. Far down the sidewalk to the left, the person from image 2, a woman in a rust-orange top pushing a shopping cart with her little daughter riding in it, walks along the sidewalk toward the table, small, full length. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture. No text or letters anywhere, no sign words."
+},
+{
+"name": "walk-tanya-cart-2",
+"w": 768,
+"h": 1344,
+"seed": 102,
+"refs": [
+"q5/fin/tanya-cart.jpg"
+],
+"prompt": "Image 1 shows Tanya. Draw the same woman, the same face and black chin-length bob, rust-orange top and dark jeans, pushing a small shopping cart toward the viewer with her little daughter riding in the cart's seat, now full length from the top of the head to the shoes, walking straight toward the viewer mid-stride on a plain flat warm light beige background (#F4EEE5) with nothing else on it, arms natural, looking ahead with a calm, friendly face. The whole figure fits inside the picture with a little space above the head and below the shoes. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "aerial-tanya-cart-2",
+"w": 768,
+"h": 1344,
+"seed": 202,
+"refs": [
+"r8/store.jpg",
+"q5/fin/tanya-cart.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen from high above across the street, as if from a second-floor window about 30 feet up, looking down at the store front and the wide light concrete sidewalk in front of it: the brown roof, the front window full of orange crates and the glass door. On the sidewalk next to the door stands a small purple folding table, and beside it a canvasser in a purple t-shirt and a purple cap, seen small from above and from behind, so the face doesn't show. Far down the sidewalk to the left, the person from image 2, a woman in a rust-orange top pushing a shopping cart with her little daughter riding in it, walks along the sidewalk toward the table, small, full length. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture. No text or letters anywhere, no sign words."
+},
+{
+"name": "walk-dwayne-1",
+"w": 768,
+"h": 1344,
+"seed": 101,
+"refs": [
+"q/picks-v2/dwayne.jpg"
+],
+"prompt": "Image 1 shows Dwayne. Draw the same man, the same face, bald head and short gray beard, olive green button-up shirt, khaki trousers and brown shoes, his hands empty, now full length from the top of the head to the shoes, walking straight toward the viewer mid-stride on a plain flat warm light beige background (#F4EEE5) with nothing else on it, arms natural, looking ahead with a calm, friendly face. The whole figure fits inside the picture with a little space above the head and below the shoes. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "aerial-dwayne-1",
+"w": 768,
+"h": 1344,
+"seed": 201,
+"refs": [
+"r8/store.jpg",
+"q/picks-v2/dwayne.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen from high above across the street, as if from a second-floor window about 30 feet up, looking down at the store front and the wide light concrete sidewalk in front of it: the brown roof, the front window full of orange crates and the glass door. On the sidewalk next to the door stands a small purple folding table, and beside it a canvasser in a purple t-shirt and a purple cap, seen small from above and from behind, so the face doesn't show. Far down the sidewalk to the left, the person from image 2, a bald man with a gray beard in an olive green shirt, walks along the sidewalk toward the table, small, full length. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture. No text or letters anywhere, no sign words."
+},
+{
+"name": "walk-dwayne-2",
+"w": 768,
+"h": 1344,
+"seed": 102,
+"refs": [
+"q/picks-v2/dwayne.jpg"
+],
+"prompt": "Image 1 shows Dwayne. Draw the same man, the same face, bald head and short gray beard, olive green button-up shirt, khaki trousers and brown shoes, his hands empty, now full length from the top of the head to the shoes, walking straight toward the viewer mid-stride on a plain flat warm light beige background (#F4EEE5) with nothing else on it, arms natural, looking ahead with a calm, friendly face. The whole figure fits inside the picture with a little space above the head and below the shoes. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "aerial-dwayne-2",
+"w": 768,
+"h": 1344,
+"seed": 202,
+"refs": [
+"r8/store.jpg",
+"q/picks-v2/dwayne.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen from high above across the street, as if from a second-floor window about 30 feet up, looking down at the store front and the wide light concrete sidewalk in front of it: the brown roof, the front window full of orange crates and the glass door. On the sidewalk next to the door stands a small purple folding table, and beside it a canvasser in a purple t-shirt and a purple cap, seen small from above and from behind, so the face doesn't show. Far down the sidewalk to the left, the person from image 2, a bald man with a gray beard in an olive green shirt, walks along the sidewalk toward the table, small, full length. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture. No text or letters anywhere, no sign words."
+},
+{
+"name": "walk-hank-1",
+"w": 768,
+"h": 1344,
+"seed": 101,
+"refs": [
+"q/picks-v2/hank.jpg"
+],
+"prompt": "Image 1 shows Hank. Draw the same older man, the same face, thin white hair and wire-rimmed glasses, brown canvas jacket, gray trousers and brown shoes, a folded newspaper tucked under one arm, now full length from the top of the head to the shoes, walking straight toward the viewer mid-stride on a plain flat warm light beige background (#F4EEE5) with nothing else on it, arms natural, looking ahead with a calm, friendly face. The whole figure fits inside the picture with a little space above the head and below the shoes. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "aerial-hank-1",
+"w": 768,
+"h": 1344,
+"seed": 201,
+"refs": [
+"r8/store.jpg",
+"q/picks-v2/hank.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen from high above across the street, as if from a second-floor window about 30 feet up, looking down at the store front and the wide light concrete sidewalk in front of it: the brown roof, the front window full of orange crates and the glass door. On the sidewalk next to the door stands a small purple folding table, and beside it a canvasser in a purple t-shirt and a purple cap, seen small from above and from behind, so the face doesn't show. Far down the sidewalk to the left, the person from image 2, an older man with white hair and glasses in a brown canvas jacket, a newspaper under his arm, walks along the sidewalk toward the table, small, full length. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture. No text or letters anywhere, no sign words."
+},
+{
+"name": "walk-hank-2",
+"w": 768,
+"h": 1344,
+"seed": 102,
+"refs": [
+"q/picks-v2/hank.jpg"
+],
+"prompt": "Image 1 shows Hank. Draw the same older man, the same face, thin white hair and wire-rimmed glasses, brown canvas jacket, gray trousers and brown shoes, a folded newspaper tucked under one arm, now full length from the top of the head to the shoes, walking straight toward the viewer mid-stride on a plain flat warm light beige background (#F4EEE5) with nothing else on it, arms natural, looking ahead with a calm, friendly face. The whole figure fits inside the picture with a little space above the head and below the shoes. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "aerial-hank-2",
+"w": 768,
+"h": 1344,
+"seed": 202,
+"refs": [
+"r8/store.jpg",
+"q/picks-v2/hank.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen from high above across the street, as if from a second-floor window about 30 feet up, looking down at the store front and the wide light concrete sidewalk in front of it: the brown roof, the front window full of orange crates and the glass door. On the sidewalk next to the door stands a small purple folding table, and beside it a canvasser in a purple t-shirt and a purple cap, seen small from above and from behind, so the face doesn't show. Far down the sidewalk to the left, the person from image 2, an older man with white hair and glasses in a brown canvas jacket, a newspaper under his arm, walks along the sidewalk toward the table, small, full length. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture. No text or letters anywhere, no sign words."
+},
+{
+"name": "walk-marisol-1",
+"w": 768,
+"h": 1344,
+"seed": 101,
+"refs": [
+"q/picks-v2/marisol.jpg"
+],
+"prompt": "Image 1 shows Marisol. Draw the same woman, the same face and dark brown bob, teal hospital scrubs top and pants with a plain blank white badge, white sneakers, now full length from the top of the head to the shoes, walking straight toward the viewer mid-stride on a plain flat warm light beige background (#F4EEE5) with nothing else on it, arms natural, looking ahead with a calm, friendly face. The whole figure fits inside the picture with a little space above the head and below the shoes. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "aerial-marisol-1",
+"w": 768,
+"h": 1344,
+"seed": 201,
+"refs": [
+"r8/store.jpg",
+"q/picks-v2/marisol.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen from high above across the street, as if from a second-floor window about 30 feet up, looking down at the store front and the wide light concrete sidewalk in front of it: the brown roof, the front window full of orange crates and the glass door. On the sidewalk next to the door stands a small purple folding table, and beside it a canvasser in a purple t-shirt and a purple cap, seen small from above and from behind, so the face doesn't show. Far down the sidewalk to the left, the person from image 2, a woman in teal hospital scrubs, walks along the sidewalk toward the table, small, full length. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture. No text or letters anywhere, no sign words."
+},
+{
+"name": "walk-marisol-2",
+"w": 768,
+"h": 1344,
+"seed": 102,
+"refs": [
+"q/picks-v2/marisol.jpg"
+],
+"prompt": "Image 1 shows Marisol. Draw the same woman, the same face and dark brown bob, teal hospital scrubs top and pants with a plain blank white badge, white sneakers, now full length from the top of the head to the shoes, walking straight toward the viewer mid-stride on a plain flat warm light beige background (#F4EEE5) with nothing else on it, arms natural, looking ahead with a calm, friendly face. The whole figure fits inside the picture with a little space above the head and below the shoes. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "aerial-marisol-2",
+"w": 768,
+"h": 1344,
+"seed": 202,
+"refs": [
+"r8/store.jpg",
+"q/picks-v2/marisol.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen from high above across the street, as if from a second-floor window about 30 feet up, looking down at the store front and the wide light concrete sidewalk in front of it: the brown roof, the front window full of orange crates and the glass door. On the sidewalk next to the door stands a small purple folding table, and beside it a canvasser in a purple t-shirt and a purple cap, seen small from above and from behind, so the face doesn't show. Far down the sidewalk to the left, the person from image 2, a woman in teal hospital scrubs, walks along the sidewalk toward the table, small, full length. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture. No text or letters anywhere, no sign words."
+},
+{
+"name": "walk-ines-stroller-1",
+"w": 768,
+"h": 1344,
+"seed": 101,
+"refs": [
+"q5/out/ines-stroller-2.jpg"
+],
+"prompt": "Image 1 shows Ines. Draw the same woman, the same face and long brown hair, mauve top and dark jeans, pushing a navy blue baby stroller toward the viewer, now full length from the top of the head to the shoes, walking straight toward the viewer mid-stride on a plain flat warm light beige background (#F4EEE5) with nothing else on it, arms natural, looking ahead with a calm, friendly face. The whole figure fits inside the picture with a little space above the head and below the shoes. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "aerial-ines-stroller-1",
+"w": 768,
+"h": 1344,
+"seed": 201,
+"refs": [
+"r8/store.jpg",
+"q5/out/ines-stroller-2.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen from high above across the street, as if from a second-floor window about 30 feet up, looking down at the store front and the wide light concrete sidewalk in front of it: the brown roof, the front window full of orange crates and the glass door. On the sidewalk next to the door stands a small purple folding table, and beside it a canvasser in a purple t-shirt and a purple cap, seen small from above and from behind, so the face doesn't show. Far down the sidewalk to the left, the person from image 2, a woman in a mauve top pushing a navy blue baby stroller, walks along the sidewalk toward the table, small, full length. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture. No text or letters anywhere, no sign words."
+},
+{
+"name": "walk-ines-stroller-2",
+"w": 768,
+"h": 1344,
+"seed": 102,
+"refs": [
+"q5/out/ines-stroller-2.jpg"
+],
+"prompt": "Image 1 shows Ines. Draw the same woman, the same face and long brown hair, mauve top and dark jeans, pushing a navy blue baby stroller toward the viewer, now full length from the top of the head to the shoes, walking straight toward the viewer mid-stride on a plain flat warm light beige background (#F4EEE5) with nothing else on it, arms natural, looking ahead with a calm, friendly face. The whole figure fits inside the picture with a little space above the head and below the shoes. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "aerial-ines-stroller-2",
+"w": 768,
+"h": 1344,
+"seed": 202,
+"refs": [
+"r8/store.jpg",
+"q5/out/ines-stroller-2.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen from high above across the street, as if from a second-floor window about 30 feet up, looking down at the store front and the wide light concrete sidewalk in front of it: the brown roof, the front window full of orange crates and the glass door. On the sidewalk next to the door stands a small purple folding table, and beside it a canvasser in a purple t-shirt and a purple cap, seen small from above and from behind, so the face doesn't show. Far down the sidewalk to the left, the person from image 2, a woman in a mauve top pushing a navy blue baby stroller, walks along the sidewalk toward the table, small, full length. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture. No text or letters anywhere, no sign words."
+},
+{
+"name": "pose-sit-1",
+"w": 768,
+"h": 1344,
+"seed": 301,
+"refs": [
+"q/picks-v2/lena.jpg"
+],
+"prompt": "Image 1 shows a canvasser. Draw the same young Black woman with dark brown skin and a long black ponytail, in a plain purple t-shirt, dark jeans and white sneakers, full length from the top of the head to the shoes, sitting on a plain wooden stool, slouched, looking down at a phone held in both hands, not noticing anyone, on a plain flat warm light beige background (#F4EEE5) with nothing else on it. The whole figure fits inside the picture with space around it. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "pose-sit-2",
+"w": 768,
+"h": 1344,
+"seed": 302,
+"refs": [
+"q/picks-v2/lena.jpg"
+],
+"prompt": "Image 1 shows a canvasser. Draw the same young Black woman with dark brown skin and a long black ponytail, in a plain purple t-shirt, dark jeans and white sneakers, full length from the top of the head to the shoes, sitting on a plain wooden stool, slouched, looking down at a phone held in both hands, not noticing anyone, on a plain flat warm light beige background (#F4EEE5) with nothing else on it. The whole figure fits inside the picture with space around it. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "pose-stand-1",
+"w": 768,
+"h": 1344,
+"seed": 301,
+"refs": [
+"q/picks-v2/lena.jpg"
+],
+"prompt": "Image 1 shows a canvasser. Draw the same young Black woman with dark brown skin and a long black ponytail, in a plain purple t-shirt, dark jeans and white sneakers, full length from the top of the head to the shoes, standing up straight, holding a clipboard and a pen, turned three-quarters to the right with a warm smile, looking toward someone walking up on her right, on a plain flat warm light beige background (#F4EEE5) with nothing else on it. The whole figure fits inside the picture with space around it. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "pose-stand-2",
+"w": 768,
+"h": 1344,
+"seed": 302,
+"refs": [
+"q/picks-v2/lena.jpg"
+],
+"prompt": "Image 1 shows a canvasser. Draw the same young Black woman with dark brown skin and a long black ponytail, in a plain purple t-shirt, dark jeans and white sneakers, full length from the top of the head to the shoes, standing up straight, holding a clipboard and a pen, turned three-quarters to the right with a warm smile, looking toward someone walking up on her right, on a plain flat warm light beige background (#F4EEE5) with nothing else on it. The whole figure fits inside the picture with space around it. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "pose-stand-left-1",
+"w": 768,
+"h": 1344,
+"seed": 301,
+"refs": [
+"q/picks-v2/lena.jpg"
+],
+"prompt": "Image 1 shows a canvasser. Draw the same young Black woman with dark brown skin and a long black ponytail, in a plain purple t-shirt, dark jeans and white sneakers, full length from the top of the head to the shoes, standing up straight, holding a clipboard and a pen, turned three-quarters to the left with a warm smile, looking toward someone on her left, on a plain flat warm light beige background (#F4EEE5) with nothing else on it. The whole figure fits inside the picture with space around it. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "pose-stand-left-2",
+"w": 768,
+"h": 1344,
+"seed": 302,
+"refs": [
+"q/picks-v2/lena.jpg"
+],
+"prompt": "Image 1 shows a canvasser. Draw the same young Black woman with dark brown skin and a long black ponytail, in a plain purple t-shirt, dark jeans and white sneakers, full length from the top of the head to the shoes, standing up straight, holding a clipboard and a pen, turned three-quarters to the left with a warm smile, looking toward someone on her left, on a plain flat warm light beige background (#F4EEE5) with nothing else on it. The whole figure fits inside the picture with space around it. Same simple 1950s cartoon style as image 1: flat colors, simple stylized shapes, the warm palette and the light printed texture, small almond eyes with a little white and a catchlight, a closed-mouth smile with no teeth showing, ordinary adult proportions, never a caricature. No shadow on the ground, no text or letters anywhere."
+},
+{
+"name": "spotplate-table-1",
+"w": 1024,
+"h": 768,
+"seed": 401,
+"refs": [
+"r8/store.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen straight on from across the sidewalk at eye level, a little wider so the whole front shows: the brown roof, the front window full of orange crates on the left and a single glass door on the right, the wide light concrete sidewalk in front. On the sidewalk in front of the window stands a small folding table covered with a plain purple cloth, with an empty wooden stool behind it, and nobody at the table. Two shoppers, a woman in a green dress and a man in a tan jacket, walk along the sidewalk from the right side toward the table, small and full length, chatting. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture, simple friendly faces. No text or letters anywhere, no sign words."
+},
+{
+"name": "spotplate-table-2",
+"w": 1024,
+"h": 768,
+"seed": 402,
+"refs": [
+"r8/store.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen straight on from across the sidewalk at eye level, a little wider so the whole front shows: the brown roof, the front window full of orange crates on the left and a single glass door on the right, the wide light concrete sidewalk in front. On the sidewalk in front of the window stands a small folding table covered with a plain purple cloth, with an empty wooden stool behind it, and nobody at the table. Two shoppers, a woman in a green dress and a man in a tan jacket, walk along the sidewalk from the right side toward the table, small and full length, chatting. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture, simple friendly faces. No text or letters anywhere, no sign words."
+},
+{
+"name": "spotplate-table-3",
+"w": 1024,
+"h": 768,
+"seed": 403,
+"refs": [
+"r8/store.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen straight on from across the sidewalk at eye level, a little wider so the whole front shows: the brown roof, the front window full of orange crates on the left and a single glass door on the right, the wide light concrete sidewalk in front. On the sidewalk in front of the window stands a small folding table covered with a plain purple cloth, with an empty wooden stool behind it, and nobody at the table. Two shoppers, a woman in a green dress and a man in a tan jacket, walk along the sidewalk from the right side toward the table, small and full length, chatting. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture, simple friendly faces. No text or letters anywhere, no sign words."
+},
+{
+"name": "spotplate-door-1",
+"w": 1024,
+"h": 768,
+"seed": 411,
+"refs": [
+"r8/store.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen straight on from across the sidewalk at eye level, a little wider so the whole front shows: the brown roof, the front window full of orange crates on the left and a single glass door on the right, the wide light concrete sidewalk in front. On the sidewalk in front of the window stands a small folding table covered with a plain purple cloth, and nobody at the table. Two shoppers carrying paper grocery bags, a woman in a green dress and a man in a tan jacket, are just walking out of the open glass door onto the sidewalk, small and full length. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture, simple friendly faces. No text or letters anywhere, no sign words."
+},
+{
+"name": "spotplate-door-2",
+"w": 1024,
+"h": 768,
+"seed": 412,
+"refs": [
+"r8/store.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen straight on from across the sidewalk at eye level, a little wider so the whole front shows: the brown roof, the front window full of orange crates on the left and a single glass door on the right, the wide light concrete sidewalk in front. On the sidewalk in front of the window stands a small folding table covered with a plain purple cloth, and nobody at the table. Two shoppers carrying paper grocery bags, a woman in a green dress and a man in a tan jacket, are just walking out of the open glass door onto the sidewalk, small and full length. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture, simple friendly faces. No text or letters anywhere, no sign words."
+},
+{
+"name": "spotplate-door-3",
+"w": 1024,
+"h": 768,
+"seed": 413,
+"refs": [
+"r8/store.jpg"
+],
+"prompt": "Use image 1 for the store and the style. Draw the same small grocery store, Westside Market, seen straight on from across the sidewalk at eye level, a little wider so the whole front shows: the brown roof, the front window full of orange crates on the left and a single glass door on the right, the wide light concrete sidewalk in front. On the sidewalk in front of the window stands a small folding table covered with a plain purple cloth, and nobody at the table. Two shoppers carrying paper grocery bags, a woman in a green dress and a man in a tan jacket, are just walking out of the open glass door onto the sidewalk, small and full length. Same simple 1950s cartoon style as image 1: flat colors, simple angular stylized shapes, the same warm palette and light printed texture, simple friendly faces. No text or letters anywhere, no sign words."
+}
+]

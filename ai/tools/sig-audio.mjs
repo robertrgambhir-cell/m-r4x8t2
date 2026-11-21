@@ -7,7 +7,8 @@
    longer on a second ask). --pace finds the clips that came out fast (over 5.4 syllables a second, in lines of 6 syllables
    or more), asks for up to three more takes of each (take=1 to 9 on the server) and keeps the one nearest 4.4 syllables a
    second, the coach's usual pace. The manifest records which take a clip is.
-   Nov 19, 8:16 PM: the coach is Frank (SIG_VOICES.coach) at sample 4's settings (SIG_VOICE_SETTINGS.coach, seed 7).
+   Nov 19, 8:16 PM: the coach is Frank (SIG_VOICES.coach), Robert's pick. Nov 20 (version 8): Frank reads looser and
+   friendlier (SIG_VOICE_SETTINGS.coach, seed 7).
    Nov 19, 2026 (Robert: "too AI-y" and "a tiny bit less fast"; playbook rule 68): a voice written "el:<voice id>:<speed>" in
    SIG_VOICES is an ElevenLabs voice, recorded through the AI server's key-locked lab (/lab/eleven; the lab key comes from
    LAB_KEY or the build sandbox's key file, never the repo). ElevenLabs takes a seed, so take N is seed N. Its pace target is
@@ -53,7 +54,7 @@ const N = SIG_NARRATION.sig.narration;
 /* one take from ElevenLabs, through the lab: "el:<voice id>:<speed>" */
 function elFetch(voice, take, say) {
   const [, id, spd] = voice.split(":");
-  /* the coach is Frank at sample 4's settings and seed (Robert's pick, Nov 19, 8:16 PM); everyone else at the cast's settings */
+  /* the coach at its own settings and seed (SIG_VOICE_SETTINGS.coach); everyone else at the cast's settings */
   const coach = voice === SIG_VOICES.coach, set = Object.assign({}, coach ? SIG_VOICE_SETTINGS.coach : SIG_VOICE_SETTINGS.rest), seed = set.seed; delete set.seed;
   const body = { text: say, model_id: EL_MODEL, voice_settings: Object.assign(set, { speed: Number(spd || 1) }) };
   if (take) body.seed = take; else if (seed) body.seed = seed;

@@ -2,7 +2,8 @@
    the street running eight times as fast (?fast&walk), that:
    1. said nothing: the man walks past, says "Oh, sorry, I'm busy. Have a good day." and the card says he kept walking, with part 4's
       "Took so long they walked on." and no skipping ahead (the button names Hear it done);
-   2. said the opener at once: he stops ("Uh, yeah, I'm registered. What's up?"), never brushes you off, and the card has all four;
+   2. said the opener at once: he stops ("Yeah, I'm registered." then, closing the talk himself, "Sure, I'll sign." since version 8),
+      never brushes you off, and the card has all four;
    3. the 2nd try's first passerby, said nothing: she walks past and her card has part 4's walked-on line;
    4. an opener begun just before he'd pass and said slowly is still heard and lands, since every line is heard first (rule 34);
    5. a passerby who stopped ("Oh, the library? What do you need?") and was left waiting says "Okay, bye now." and goes, with no
@@ -43,7 +44,7 @@ const ok = (c, m) => { console.log((c ? "ok   " : "FAIL ") + m); if (!c) fails +
       if (!s.mic && s.go && s.rows.length) { card = s; break; }
       if (/pulse/.test(s.mic) && !tapped) { tapped = true; await p.evaluate(() => document.querySelector("#mic").click()); }
       else if (/\bon\b/.test(s.mic) && say && !spoke && (!o.atX || (await p.evaluate(() => { const ph = document.querySelector(".ph.walking"), pt = ph && ph.querySelector(".pt"); return pt ? parseFloat((pt.style.transform.match(/translateX\(([-\d.]+)px/) || [])[1]) / ph.clientWidth : -9; })) >= o.atX)) { spoke = true; const ws = say.split(" "); for (let k = 1; k <= ws.length; k += 1) { await p.evaluate((x) => window.__speak(x), ws.slice(0, k).join(" ")); await p.waitForTimeout(o.gap || 40); } await p.waitForTimeout(60); await p.evaluate(() => document.querySelector("#mic").click()); }
-      await p.waitForTimeout(100);
+      await p.waitForTimeout(o.atX && !spoke ? 20 : 100); /* at eight times the street's pace he moves a tenth of the picture in 100 ms, so the late-opener case looks often enough to start at its spot */
     }
     (await p.evaluate(() => window.__caps)).forEach((x) => seen.add(x));
     await c.close();
@@ -56,7 +57,7 @@ const ok = (c, m) => { console.log((c ? "ok   " : "FAIL ") + m); if (!c) fails +
   ok(r.card && r.card.go === "Next: hear it done", "1st try, said nothing: nothing is skipped (" + (r.card && r.card.go) + ")");
   ok(!r.errs.length, "no page errors " + r.errs.join(" "));
   r = await run("1.0", OPENER);
-  ok(r.card && r.said.includes("Uh, yeah, I’m registered. What’s up?"), "1st try, the opener at once: he stops");
+  ok(r.card && r.said.includes("Yeah, I’m registered.") && r.said.includes("Sure, I’ll sign."), "1st try, the opener at once: he stops");
   ok(r.card && !r.said.includes(BUSY), "1st try, the opener at once: no brush-off");
   ok(r.card && /all four/.test(r.card.h1), "1st try, the opener at once: all four (" + (r.card && r.card.h1) + ")");
   ok(!r.errs.length, "no page errors " + r.errs.join(" "));
@@ -65,7 +66,7 @@ const ok = (c, m) => { console.log((c ? "ok   " : "FAIL ") + m); if (!c) fails +
   ok(r.card && r.card.rows.some((x) => /Took so long they walked on\./.test(x)), "2nd try, said nothing: part 4 says they walked on");
   ok(!r.errs.length, "no page errors " + r.errs.join(" "));
   r = await run("1.0", OPENER, false, { atX: 0.12, gap: 250 });
-  ok(r.card && r.said.includes("Uh, yeah, I’m registered. What’s up?") && !r.said.includes(BUSY), "1st try, the opener begun late and said slowly: still heard, he stops");
+  ok(r.card && r.said.includes("Yeah, I’m registered.") && r.said.includes("Sure, I’ll sign.") && !r.said.includes(BUSY), "1st try, the opener begun late and said slowly: still heard, he stops");
   ok(!r.errs.length, "no page errors " + r.errs.join(" "));
   r = await run("6.0", "Hi there! This petition is for longer library hours.", true);
   ok(r.card && r.said.includes("Oh, the library? What do you need?") && r.said.includes("Okay, bye now.") && !r.said.includes(BUSY), "2nd try, stopped and left waiting: \"Okay, bye now.\"");

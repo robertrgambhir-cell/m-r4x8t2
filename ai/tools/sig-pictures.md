@@ -22,3 +22,14 @@ in `wdpfxqlsvp/sig/img/`. Documents (petition lines, sheets, tallies, the county
 - **On the page:** `engine1.js` reads the manifest (DATA.img). `place()` frames each picture so the face sits near the
   top third and never past an edge. `window.__faces()` tells the screen checker where each face is, so captions never cover
   one. A person who is talking gets a pulsing mark beside their name, since a painting can't move its lips.
+
+## Version 8 (Nov 20, 2026): clean cutouts, the walk-up and where to stand
+
+From Robert's notes on lesson 2 (Nov 20, 3:51 PM; playbook rules 37c, 67 and 67b). `sig-pictures/r8_build.py <lab dir> <img dir>` runs after `q_build.py` and adds, in `wdpfxqlsvp/sig/img/`:
+
+- **Cutouts with only the person** (`p-*.webp` and their close-ups and avatars). The first cutouts kept a wedge of the store's orange crates by some people's heads, which rode along when they moved. Each portrait was repainted on plain green with FLUX.2 [dev] through the AI server's lab (`/lab/form`), and whatever the old cutout kept that the repaint shows as background was trimmed (`r8/greenmask.py`).
+- **The walk-up** (rule 37c). `walkway.webp` is the sidewalk from the canvasser's spot, with its manifest entry saying where the far end and a near walker's feet sit. `w-<who>.webp` is each walker, full length and facing you, cut out with `r8/walkcut.py`. `aerial-<who>.webp` is the view from about 30 feet up: the canvasser from above and behind at the table, and the passerby on the sidewalk, with `at` in the manifest marking the canvasser's spot for the zoom. Walkers: Ben, Soo-jin, Kayla, Luis, Tanya with her cart, Dwayne, Hank, Marisol and Ines with her stroller. Anyone else is already stopped when their scene starts.
+- **Where to stand** (rule 67). `spot-sit`, `spot-stand`, `spot-doorway` and `spot-side` are two pairs drawn from one picture each, so only the canvasser moves (`r8/spots.py`). The seated canvasser sits behind the table, on her phone.
+- **Prompts and seeds** are in `r8/jobs-*.json` (the repaints, walkers, aerial views and the sidewalk) and `r8/walk-info.json`. The lab key never goes in the repo: `gen.py` reads it from a `key` file beside it, so run it from a copy in the sandbox's lab folder.
+- **On the page.** `engine1.js` has `walkable()`, `sceneWalk()` and `walkAt()`, which scale a walker by distance down the sidewalk. `engine2.js` runs the stages (`data-stage` on the panel: `air`, then `pov`, then `face`) while the coach talks, so the passerby reaches you as you can start talking.
+

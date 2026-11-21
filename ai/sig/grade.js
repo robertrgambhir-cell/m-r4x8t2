@@ -60,6 +60,11 @@ var SIGG = (function () {
     if (["morning", "afternoon", "evening"].indexOf(a) >= 0 && ["and", "or", "hours", "library", "weekend", "weekends"].indexOf(b) >= 0) return 0; /* "evening and weekend hours" is a label, not a hello */
     if (GREET1.indexOf(a) >= 0) n = 1;
     else if (a === "good" && ["morning", "afternoon", "evening", "day"].indexOf(b) >= 0) n = 2;
+    /* "How are you?", "How's it going?", "How you doing?" are hellos too (version 8, Robert's 2nd try, Nov 20, 3:51 PM) */
+    else if (a === "how" && (b === "are" || b === "r") && ["you", "ya", "u"].indexOf(ws[i + 2]) >= 0) n = ["doing", "today"].indexOf(ws[i + 3]) >= 0 ? 4 : 3;
+    else if (a === "how" && b === "you" && ws[i + 2] === "doing") n = 3;
+    else if (a === "how's" && b === "it" && ws[i + 2] === "going") n = 3;
+    else if ((a === "how's" || (a === "how" && b === "is")) && ["your", "everything"].indexOf(a === "how" ? ws[i + 2] : b) >= 0) n = a === "how" ? 3 : 2;
     else if ((a === "high" || a === "hay" || a === "hei") && GREET_TAIL.indexOf(b) >= 0) n = 1; /* how a phone sometimes spells "hi there" */
     if (!n) return 0;
     while (GREET_TAIL.indexOf(ws[i + n]) >= 0 || GREET1.indexOf(ws[i + n]) >= 0) n += 1; /* "hi there", "hey everyone", "hi good morning" */
@@ -102,7 +107,7 @@ var SIGG = (function () {
       var s = m.index, e = s + m[0].length, first = -1, last = -1, inside = q && s >= q.at && s < q.end;
       for (var k = 0; k < ws.length; k += 1) { if (first < 0 && ws[k].at + ws[k].w.length > s) first = k; if (ws[k].at < e) last = k; }
       if (first < 0) continue;
-      if (!inside && /^(?:keep|keeps|keeping|extends?|expands?|lengthens?|stay|stays|staying)\b/.test(m[0])) return true; /* the verb is part of the match: "keep libraries open later" */
+      if (!inside && /^(?:keep|keeps|keeping|extends?|extending|expands?|expanding|lengthens?|lengthening|increas(?:e|es|ed|ing)|boost(?:s|ing)?|raise|raises|raising|adds?|adding|stay|stays|staying)\b/.test(m[0])) return true; /* the verb is part of the match: "keep libraries open later", "increasing the number of hours" */
       for (var j = Math.max(g, first - 9); j < first; j += 1) {
         if (ws[j].w === "for" && j >= first - 2) return true; /* "for longer library hours", even inside the registered question */
         if (!inQ(ws[j]) && (ws[j].w === "for" || VERB.test(ws[j].w))) return true;
@@ -131,7 +136,7 @@ var SIGG = (function () {
       if (seen <= g || FILLER.test(w) || (q && here >= q.at)) return; /* only what comes before the question counts toward "runs past about 12 words" */
       explWords += 1;
     });
-    var long = !!q && explWords > 13; /* "runs past about 12 words" before the question: one word of grace for a recognizer's extra word. With no question it can't run long before it. */
+    var long = !!q && explWords > 18; /* runs past about 17 words before the question (version 8: the course's own opener now says it's collecting signatures for a ballot measure, 12 words), one word of grace for a recognizer's extra word. With no question it can't run long before it. */
     var hoursAny = HOURS_RE.test(t), topic = libAny || hoursAny, sentence = hoursAny && hoursFor(t, q, g), topicOnly = topic && !sentence && !untrue && !long;
     var sorryWord = !!(tm && /sorry|pardon|apolog|excuse|bother/.test(tm[0])), sorryFirst = sorryWord && (!q || timeAt < q.at);
     var hits = [g > 0, sentence && !untrue && !long, !!(q && q.county), timeAt < 0 && ws.length > 0]; /* part 4 is about what you leave out, so it counts only once you've said something (a passerby who walked past a silent canvasser) */
@@ -238,7 +243,7 @@ var SIGG = (function () {
   var DBL_RE = /\b(?:have|did|haven't|didn't|had|has) (?:you|ya|u|he|she)(?: guys| already| ever| maybe| possibly)* (?:sign|signed|seen and signed)\b|\b(?:already|previously) sign(?:ed)?\b|\bsign(?:ed)? (?:this|it|that|one|the [a-z]+)(?: [a-z']+){0,3} (?:already|before|yet)\b|\bsign(?:ed)? (?:already|before)\b|\bfirst time (?:signing|seeing)\b/;
   /* the words that can sit inside "longer ... hours" (Nov 20 review: "more signatures for library hours" isn't the hours) */
   var HW = "(?:library|libraries|library's|branch|branches|evening|evenings|weekend|weekends|night|nights|and|open|opening|public|neighborhood|local|our|the|their)";
-  var HOURS_RE = new RegExp("\\b(?:longer|more|extended|extra|later|additional|added|expanded) (?:" + HW + " ){0,3}?hours\\b|\\bhours\\b(?: (?:open|a|bit|little|lot|much|each|every|day|night|at|the|library|libraries|branch|branches|stay|stays|staying|run|runs|go|goes)){0,3} (?:longer|later)\\b|\\b(?:evenings?|weekends?|nights?)\\b(?: " + HW + "){0,3}? (?:hours|open)\\b|\\bopen (?:later|longer|more|late|evenings?|weekends?|nights?|on (?:evenings|weekends|nights))\\b|\\bstay(?:s|ing)? open (?:later|longer|late|more|evenings?|weekends?|nights?)\\b|\\bkeep(?:s|ing)?\\b(?: [a-z']+){0,4}? open (?:later|longer|late|more|evenings?|weekends?|nights?)\\b|\\b(?:extends?|expands?|lengthens?)\\b(?: [a-z']+){0,4}? hours\\b");
+  var HOURS_RE = new RegExp("\\b(?:longer|more|extended|extra|later|additional|added|expanded) (?:" + HW + " ){0,3}?hours\\b|\\bhours\\b(?: (?:open|a|bit|little|lot|much|each|every|day|night|at|the|library|libraries|branch|branches|stay|stays|staying|run|runs|go|goes)){0,3} (?:longer|later)\\b|\\b(?:evenings?|weekends?|nights?)\\b(?: " + HW + "){0,3}? (?:hours|open)\\b|\\bopen (?:later|longer|more|late|evenings?|weekends?|nights?|on (?:evenings|weekends|nights))\\b|\\bstay(?:s|ing)? open (?:later|longer|late|more|evenings?|weekends?|nights?)\\b|\\bkeep(?:s|ing)?\\b(?: [a-z']+){0,4}? open (?:later|longer|late|more|evenings?|weekends?|nights?)\\b|\\b(?:extends?|extending|expands?|expanding|lengthens?|lengthening|increas(?:e|es|ed|ing)|boost(?:s|ing)?|raise|raises|raising|adds?|adding)\\b(?: [a-z']+){0,4}? hours\\b"); /* version 8: "increasing the number of hours" */
   var TAX_RE = /\btax(?:es|ed)?\b/;
   /* something untrue about the measure or about being paid, in any lesson (the scoring contract): what kind, and the words */
   function untrueOf(t, raw) {
@@ -379,29 +384,32 @@ var SIGG = (function () {
         hear: function () {
           var g = grade(join(), st);
           if (g.first === "time") return out(["time"], true);
-          if (g.regAsked) return out(["stop"], true);
+          /* asked if he's registered: he says so. Told what it's for too, he'll sign, and that ends it; not told, he asks what this is,
+             and the next words either tell him ("Sure, I'll sign.") or don't (he heads off with a kind word) */
+          if (g.regAsked && !saidK("stop")) return g.topic ? out(["stop", "sure"], true) : out(["stop", "other"]);
+          if (saidK("stop")) return out([g.topic ? "sure" : "fGo"], true);
           if (bye(mine())) return out(["fBye"], true);
           var hi = hello(); if (hi) return hi;
           if (PRESS_RE.test(norm(mine())) && !saidK("fPush")) return out(["fPush"]);
           if (g.topic && !S.libbed) { S.libbed = true; return out(["lib"]); } /* told what it's for, now or after his own question: "Oh, the library? What do you need?" (rule 37b) */
           if (S.asked && !S.asked2 && !g.topic) { S.asked2 = true; return out(["other"]); } /* a dodge: his question once more, then he moves on */
-          if (S.asked || S.libbed) return out(["@go"], true);
+          if (S.asked || S.libbed) return out(["fGo"], true);
           S.asked = true; return out(["other"]);
         },
         grade: function () { var g = grade(join(), st); g.quote = join(); return g; },
       },
-      "2.stop": { /* Soo-jin and Luis. Asked with no word on what it's for, they answer and then ask: "Yes, I am, dear." "Sorry, what's this for?" */
+      "2.stop": { /* Soo-jin and Luis. Asked with no word on what it's for, they answer and then ask: "Yes, I am." "Sorry, what's this for?" */
         hear: function () {
           var g = grade(join(), st);
-          if (S.said.indexOf("stop") >= 0) return out([], true);
-          if (g.regAsked && (g.topic || S.asked || S.libbed)) return out(["stop"], true);
+          if (S.said.indexOf("stop") >= 0) return out([g.topic ? "sure" : "fGo"], true); /* asked what it's for: told, they'll sign; not told, they go kindly */
+          if (g.regAsked && (g.topic || S.asked || S.libbed)) return out(["stop", g.topic ? "sure" : "fGo"], true);
           if (!g.regAsked && bye(mine())) return out(["fBye"], true);
           if (!g.regAsked) { var hi = hello(); if (hi) return hi; }
           if (g.regAsked) { S.asked = true; return out(["stop", "other"]); }
           if (PRESS_RE.test(norm(mine())) && !saidK("fPush")) return out(["fPush"]);
           if (g.topic && !S.libbed) { S.libbed = true; return out(["lib"]); } /* told what it's for, now or after their own question: "Oh, the library? What do you need?" */
           if (S.asked && !S.asked2 && !g.topic) { S.asked2 = true; return out(["other"]); } /* a dodge: the question once more, then they move on */
-          if (S.asked || S.libbed) return out(["@go"], true);
+          if (S.asked || S.libbed) return out(["fGo"], true);
           S.asked = true; return out(["other"]);
         },
         grade: function () { var g = grade(join(), st); g.quote = join(); return g; },
@@ -415,7 +423,7 @@ var SIGG = (function () {
           if (PRESS_RE.test(norm(mine())) && !saidK("fPush")) return out(["fPush"]);
           if (grade(join(), st).topic && !S.libbed) { S.libbed = true; return out(["lib"]); } /* told what it's for, she asks what you need (rule 37b) */
           if (!S.looked && !S.libbed) { S.looked = true; return out(["@look"]); }
-          return out(["@go"], true);
+          return out(["fGo"], true);
         },
         grade: function () { var n = S.phase === 1 ? S.mark : P.length, g = grade(join(0, n), st); g.quote = join(0, n); g.asked = S.phase === 1; g.from = S.phase === 1 && P.length > S.mark && letGo(join(S.mark)); return g; },
       },
@@ -455,7 +463,7 @@ var SIGG = (function () {
           if (bye(mine()) && !say.length) return out(["fBye"], true);
           if (say.length) return out(say, false, room);
           var allBut = g.hits[0] && g.hits[1] && g.hits[2];
-          if ((adds3(mine()) || o.greet) && !allBut) return out([], false, room);
+          if ((adds3(mine()) || (o.greet && !saidK("reg"))) && !allBut) return out([], false, room); /* a hello after she's answered is small talk: it gets her one beat (version 8: "How's your day going?" is a hello now) */
           if (allBut && !S.asked) { S.asked = true; return out(["wait"], false, room); }
           if (!S.idle) { S.idle = true; return out([], false, room); }
           if (!S.asked) { S.asked = true; return out(["wait"], false, room); }

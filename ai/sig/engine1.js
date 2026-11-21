@@ -6,6 +6,9 @@ var L = DATA.lessons[LN] || null;
 var PRACTICE = qs.has("practice"); /* a practice round on one lesson's must, opened from lesson 5's last screen */
 var WALKTEST = qs.has("walk"); /* tests: lesson 2's passersby walk past even in fast mode, eight times as fast */
 var BEATTEST = qs.has("beat"); /* tests: the Part N of 4 screens show even in fast mode */
+/* the small screen number ("Sig 2.4") shows only with ?tags (version 8, Robert, Nov 20, 3:51 PM: "We don't want that little number
+   there. I don't know what that means.") It stays in the page, hidden, for the build's own checks. */
+var TAGS = qs.has("tags"); if (TAGS) document.documentElement.classList.add("tags");
 var FAST = qs.has("fast"), HOLD = Math.max(10, parseInt(qs.get("fast"), 10) || 10); /* tests: no sound, no waiting. fast=300 holds each spoken line 300 ms so a test sees every caption */
 var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 var $ = function (s) { return document.querySelector(s); };
@@ -26,7 +29,19 @@ function curl(t) {
   return out;
 }
 var q = function (t) { return esc(curl(t)); };
-var tidy = function (t) { t = String(t || "").trim(); if (!t) return ""; t = t.charAt(0).toUpperCase() + t.slice(1); return /[.!?]$/.test(t) ? t : t + "."; }; /* a spoken line gets a capital and a period, never changed words */
+var tidy = function (t) { t = String(t || "").trim(); if (!t) return ""; if (TIDY[t]) return TIDY[t]; t = t.replace(/\bi(?=\b|')/g, "I"); t = t.charAt(0).toUpperCase() + t.slice(1); return /[.!?]$/.test(t) ? t : t + "."; }
+/* version 8 (Robert, Nov 20, 3:51 PM: "make sure the AI attempts to punctuate and capitalize things correctly and show proper
+   sentences, not just one long run-on sentence"): what the canvasser said goes to the AI server's punctuation route, the one the
+   door-knocking lessons use (/tidy, version 165-6). It adds only periods, commas, question marks, apostrophes and capitals, never a
+   word. The grader still reads the words as heard. Until the answer comes, and if it never does, the words show with a capital
+   and a period. */
+var TIDY = {}, AI_URL = "https://warmup-ai.robertrgambhir.workers.dev";
+function tidyFetch(text) {
+  var t = String(text || "").trim();
+  if (!t || TIDY[t] || FAST || /[.?!,]\s+\S/.test(t)) return Promise.resolve(TIDY[t] || null); /* already punctuated inside: a phone that punctuates. A run-on that only ends in a mark still goes (version 8, after the review) */
+  return fetch(AI_URL + "/tidy", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenario: "opener_first_try", text: t }) })
+    .then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { if (j && j.text) { TIDY[t] = j.text; return j.text; } return null; }).catch(function () { return null; });
+}; /* a spoken line gets a capital and a period, never changed words */
 var ICON = {
   back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5 8 12l6.5 7"/></svg>',
   x: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg>',
@@ -135,6 +150,27 @@ function someone(who) { return canvasser(who) ? CAST[who].name : CAST[who].g ===
 function sceneOne(who, cls, pic) { var n = pic && IMG[pic] ? pic : who; return '<div class="ph one p ' + (cls || "") + '" id="p-' + who + '" data-img="' + n + '" role="img" aria-label="' + esc(someone(who)) + ' outside Westside Market">' + picHtml(n) + '</div>'; }
 /* a canvasser and a passerby, for the parts you watch: the canvasser is there, and the passerby walks in from the right */
 function sceneTwo(by, who, cls, pic) { var n = "two-" + by + "-" + (pic || who); if (!IMG[n]) n = "two-" + by + "-" + who; return '<div class="ph two p ' + (cls || "") + '" id="p-' + who + '" data-img="' + n + '" role="img" aria-label="' + esc(CAST[by].name + " and " + (canvasser(who) ? CAST[who].name : someone(who).toLowerCase())) + ' outside Westside Market">' + picHtml(n) + '</div>'; }
+/* a passerby who walks up (version 8, Robert, Nov 20, 3:51 PM): first the view from above ("a view 30 feet from the sky, where you
+   could see where the canvasser is stationed and see the person walking"), then the canvasser's own view down the sidewalk ("the
+   vantage point of looking down a sidewalk where they are walking towards you"), then face to face. The canvasser's face never
+   shows ("we only see the pedestrian's face"). walkable(who, pic): the walker's own pictures, or null. */
+function walkable(who, pic) { var k = pic && IMG["w-" + pic] ? pic : who; return IMG["w-" + k] && IMG["aerial-" + k] && IMG.walkway ? k : null; }
+function sceneWalk(who, k) {
+  var a = IMG["aerial-" + k].at || [0.5, 0.63];
+  return '<div class="ph air" id="air-' + who + '" role="img" aria-label="Westside Market from above: the table out front, and ' + esc(someone(who).toLowerCase()) + ' walking up the sidewalk"><img src="' + imgUrl("aerial-" + k) + '" alt="" decoding="async" style="transform-origin:' + (a[0] * 100).toFixed(1) + '% ' + (a[1] * 100).toFixed(1) + '%"></div>' +
+    '<div class="ph pov" id="pov-' + who + '" data-k="' + k + '" role="img" aria-label="' + esc(someone(who)) + ' walking toward you down the sidewalk"><img class="bg" src="' + imgUrl("walkway") + '" alt="" decoding="async"><div class="wk"><img src="' + imgUrl("w-" + k) + '" alt="" decoding="async"></div></div>';
+}
+/* where a walker is on the sidewalk, u from 0 (far down the walk) to 1 (in front of you): they keep a steady pace, so they grow
+   slowly at first and quickly at the end, as anyone walking toward you does */
+function walkAt(who, u) {
+  var el = document.getElementById("pov-" + who); if (!el) return;
+  var wk = el.querySelector(".wk"), k = el.getAttribute("data-k"), m = IMG.walkway, f = IMG["w-" + k], W = el.clientWidth, Hh = el.clientHeight; if (!wk || !W || !Hh) return;
+  var s = Math.max(W / m.w, Hh / m.h), ox = (W - m.w * s) / 2, oy = (Hh - m.h * s) * 0.5;
+  var z0 = 8, z1 = 1, z = z0 - (z0 - z1) * Math.max(0, Math.min(1, u)), qq = (1 / z - 1 / z0) / (1 / z1 - 1 / z0);
+  var fx = (m.far[0] + (m.near[0] - m.far[0]) * qq) * m.w, fy = (m.far[1] + (m.near[1] - m.far[1]) * qq) * m.h, h = 1060 * z1 / z, w = h * f.w / f.h;
+  wk.style.width = (w * s).toFixed(1) + "px"; wk.style.height = (h * s).toFixed(1) + "px";
+  wk.style.transform = "translate(" + (ox + fx * s - w * s / 2).toFixed(1) + "px," + (oy + fy * s - h * s).toFixed(1) + "px)";
+}
 /* the storefront with nobody in it yet */
 function sceneStore() { return '<div class="ph shop" data-img="store" role="img" aria-label="Westside Market, with your table out front"><div class="fr"><img class="bg" src="' + imgUrl("store") + '" alt="" decoding="async"></div></div>'; }
 /* the same person as a small picture on a card: the face, framed whole */
@@ -176,7 +212,9 @@ var PICS = {
 /* handwriting always fits its box: the writing shrinks, it is never clipped */
 /* ---- pictures for the tap screens: each shows what its question is about, with no words of its own ---- */
 /* a top funders sheet and today's date. The sheet carries its real header and gray bars where the funders would be: the app never invents funders. */
+/* with no calendar day (version 8), just the sheet: the one a canvasser holds up, coming into their own view */
 function sceneSheet(month, day) {
+  if (!day) return heldSheet(month);
   var valid = ME.fundersValid + " " + month, bars = [92, 108, 124, 140].map(function (y, i) { return '<rect x="52" y="' + y + '" width="' + [112, 96, 104, 78][i] + '" height="8" rx="4" fill="#DDD6CA"/>'; }).join("");
   return '<svg viewBox="0 0 320 196" preserveAspectRatio="xMidYMid meet" role="img" aria-label="A top funders sheet that says ' + esc(valid) + ', next to a calendar page for ' + esc(day.join(" ")) + '">' +
     '<g transform="rotate(-3 110 98)"><rect x="36" y="20" width="148" height="156" rx="7" fill="#FFFEFA" stroke="#D9D2C4" stroke-width="2"/>' +
@@ -185,6 +223,12 @@ function sceneSheet(month, day) {
     '<g><rect x="212" y="46" width="84" height="100" rx="11" fill="#fff" stroke="#D9D2C4" stroke-width="2"/><path d="M212 57 a11 11 0 0 1 11 -11 h62 a11 11 0 0 1 11 11 v19 h-84 z" fill="#C4472F"/>' +
     '<text x="254" y="68" text-anchor="middle" font-family="Figtree, sans-serif" font-weight="800" font-size="11" letter-spacing="1" fill="#fff">' + esc(day[0].toUpperCase()) + '</text>' +
     '<text x="254" y="128" text-anchor="middle" font-family="Newsreader, Georgia, serif" font-weight="600" font-size="46" fill="#262320">' + esc(day[1]) + '</text></g></svg>';
+}
+function heldSheet(month) {
+  var valid = ME.fundersValid + " " + month, bars = [80, 96, 112, 128, 144].map(function (y, i) { return '<rect x="20" y="' + y + '" width="' + [112, 96, 104, 78, 90][i] + '" height="8" rx="4" fill="#DDD6CA"/>'; }).join("");
+  return '<svg viewBox="0 0 152 176" role="img" aria-label="The top funders sheet, held up: ' + esc(valid) + '"><rect x="4" y="4" width="144" height="168" rx="8" fill="#FFFEFA" stroke="#D9D2C4" stroke-width="2"/>' +
+    '<text x="76" y="30" text-anchor="middle" font-family="Figtree, sans-serif" font-weight="800" font-size="10.5" letter-spacing=".4" fill="#262320">' + esc(ME.fundersHead) + '</text>' +
+    '<rect x="16" y="40" width="120" height="24" rx="5" fill="#FCEFD9" stroke="#E08A1A" stroke-width="1.6"/><text x="76" y="56" text-anchor="middle" font-family="Figtree, sans-serif" font-weight="700" font-size="10.5" fill="#262320">' + esc(valid) + '</text>' + bars + '</svg>';
 }
 /* one canvasser's sheet for an hour: every line gathered, top to bottom, with a green check on each one that counts and a gray stroke through each one thrown out */
 function tally(n, good, label) {
