@@ -824,7 +824,7 @@ const json = (obj, status, h) => new Response(JSON.stringify(obj), { status, hea
    back. On for all testing; LOG_CONVERSATIONS = "off" in wrangler.toml turns it off once real paying customers use Warmup.
    Who is a short one-way hash of the connection, never the address. Read with GET /log?k=<read key>; only the key's hash
    lives here. */
-const LOG_KEY_SHA = "3af4b854d025565b2f6445193835f492f60059d5c7f37b8c11f3aa7ea9ea45ab";
+const LOG_KEY_SHA = "db85a54262ba9a4eecfb90439bb7d82bbd62db9fe20d0a0aa98875d9eab6282b";
 async function sha256hex(t) { const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, "0")).join(""); }
 async function logConvo(env, ip, entry) {
   if (!env.WARMUP_KV || String(env.LOG_CONVERSATIONS || "on").toLowerCase() === "off") return;
