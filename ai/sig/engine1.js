@@ -452,7 +452,7 @@ function tally(n, good, label) {
   for (var i = 0; i < n; i += 1) {
     var y = 14 + i * 15, ok = i < good;
     out += '<path d="M12 ' + (y + 4) + ' c5 -9 9 -8 9 -1 c0 6 5 -7 9 -2 c3 4 5 -4 9 -1 c4 3 6 -6 11 -1 c3 3 5 -3 8 -1" fill="none" stroke="' + (ok ? "#2A3F8F" : "#B9B1A4") + '" stroke-width="1.6" stroke-linecap="round"/>' +
-      (ok ? '<circle cx="78" cy="' + (y + 1) + '" r="5.6" fill="#35B57C"/><path d="M75.200 ' + (y + 1) + ' l2 2.2 l3.800 -4.300" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>'
+      (ok ? '<circle cx="78" cy="' + (y + 1) + '" r="5.6" fill="#16C79A"/><path d="M75.200 ' + (y + 1) + ' l2 2.2 l3.800 -4.300" fill="none" stroke="#0E2F2B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>' /* the check is Warmup's mark, not the sheet's: mint with a pine check (version 12) */
         : '<path d="M9 ' + (y + 1) + ' h54" stroke="#8E867A" stroke-width="1.4" stroke-linecap="round"/>');
   }
   return '<svg viewBox="0 0 92 ' + h + '" preserveAspectRatio="xMidYMin meet" role="img" aria-label="' + esc(label) + '"><rect x="1" y="1" width="90" height="' + (h - 2) + '" rx="7" fill="#FFFEFA" stroke="#D9D2C4" stroke-width="1.5"/>' + out + '</svg>';

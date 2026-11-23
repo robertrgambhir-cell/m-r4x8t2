@@ -63,7 +63,8 @@ if (/\(\?<[=!]/.test(html)) throw new Error("a regex lookbehind in the page: old
 if (st.county !== "LA County" && JSON.stringify(DATA.lessons).includes("LA County")) throw new Error("a county the settings didn't fill");
 fs.mkdirSync(OUT, { recursive: true });
 fs.writeFileSync(path.join(OUT, "lesson.html"), html);
-/* a small front page that loads the lesson in place, so a new build shows at once */
+/* a small front page that loads the lesson in place, so a new build shows at once. Version 12 (Robert, Nov 23, 2026): the deck look,
+   a #FBFEFD screen and the Warmup ring in mint on its #D8E8E5 track, turning while the lesson loads */
 fs.writeFileSync(path.join(OUT, "index.html"), `<!doctype html>
 <html lang="en">
 <head>
@@ -72,17 +73,17 @@ fs.writeFileSync(path.join(OUT, "index.html"), `<!doctype html>
 <meta name="robots" content="noindex, nofollow">
 <title>Warmup</title>
 <style>
-  html, body { margin: 0; height: 100%; background: #FFFFFF; }
+  html, body { margin: 0; height: 100%; background: #FBFEFD; }
   .load { height: 100%; display: grid; place-items: center; }
   .load svg { animation: spin 1.1s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) { .load svg { animation: none; } }
-  .err { font: 16px/1.5 -apple-system, system-ui, sans-serif; color: #262320; text-align: center; padding: 24px; }
+  .err { font: 16px/1.5 -apple-system, system-ui, sans-serif; color: #0E2F2B; text-align: center; padding: 24px; }
 </style>
 </head>
 <body>
 <!-- The signature course's front page: it loads the lesson (lesson.html) in place, keeping this address and its ?l= lesson number. -->
-<div class="load" id="load"><svg width="56" height="56" viewBox="0 0 84 84" aria-label="Loading"><circle cx="42" cy="42" r="32" fill="none" stroke="#E6E0D6" stroke-width="12"/><circle cx="42" cy="42" r="32" fill="none" stroke="#35B57C" stroke-width="12" stroke-linecap="round" stroke-dasharray="151 202" transform="rotate(-90 42 42)"/></svg></div>
+<div class="load" id="load"><svg width="56" height="56" viewBox="0 0 84 84" aria-label="Loading"><circle cx="42" cy="42" r="32" fill="none" stroke="#D8E8E5" stroke-width="12"/><circle cx="42" cy="42" r="32" fill="none" stroke="#16C79A" stroke-width="12" stroke-linecap="round" stroke-dasharray="151 202" transform="rotate(-90 42 42)"/></svg></div>
 <script>
 fetch("lesson.html", { cache: "no-cache" })
   .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })

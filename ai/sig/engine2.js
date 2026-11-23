@@ -201,9 +201,12 @@ function approach(who, r, stop) {
 function sources(rows) {
   var sh = document.createElement("div"), was = $("#tag").textContent; sh.className = "sheet";
   sh.innerHTML = '<div role="dialog" aria-label="Sources"><h2>Sources</h2><ul>' + (Array.isArray(rows) ? rows : L.sources || []).map(function (g) { var link = function (n, u) { return '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + q(n) + '</a>'; }; return '<li>' + q(g[0]) + ': ' + (typeof g[1] === "string" ? g[1].split(/(\{[^|}]+\|[^}]+\})/).map(function (x) { var m = x.match(/^\{([^|}]+)\|([^}]+)\}$/); return m ? link(m[1], m[2]) : q(x); }).join("") : g[1].map(function (s) { return link(s[0], s[1]); }).join(", ") + (g[2] ? ", " + q(g[2]) : "")) + '</li>'; }).join("") + '</ul><p class="fine">The passersby and the canvassers are AI voices. The Neighborhood Libraries Act, Libraries for All and every person here are made up for practice.</p><button class="btn ghost" id="shx">Close</button></div>';
-  $("#app").appendChild(sh); $("#tag").textContent = was + "s"; $("#tag").className = "tag onpic";
+  $("#app").appendChild(sh); dimFrom(sh); $("#tag").textContent = was + "s"; $("#tag").className = "tag onpic";
   sh.addEventListener("click", function (e) { if (e.target === sh || e.target.id === "shx") { sh.remove(); $("#tag").textContent = was; $("#tag").className = "tag"; } });
 }
+/* version 12 (Robert, Nov 23, 2026, 12:17 PM): a sheet's dim layer is a flat pine scrim, and it starts under the step bar, which stays
+   bright and usable over a sheet (rule 56): the bar's quiet words stay readable */
+function dimFrom(el) { var sc = $("#scr"), app = $("#app"); if (sc && app) el.style.top = Math.max(0, Math.round(sc.getBoundingClientRect().top - app.getBoundingClientRect().top)) + "px"; }
 /* what you said, shown whole or not at all: no clipped words */
 function said(t) { t = String(t || ""); Object.keys(TIDY).forEach(function (raw) { if (raw && t.indexOf(raw) >= 0) t = t.split(raw).join(TIDY[raw]); }); return tidy(t).replace(/'/g, "’"); }
 function saidBlock(t) { t = said(t); return t && t.length <= 230 ? '<div class="said' + (t.length > 110 ? " sm" : "") + '"><b>You said</b>“' + esc(t) + '”</div>' : ""; }
@@ -253,7 +256,7 @@ function micState(k, html) {
   else if (nt) nt.remove();
   if (t) t.innerHTML = html != null ? html : ""; var f = $("#typed"); if (f) { f.style.opacity = k === "wait" ? .5 : 1; $("#say").disabled = k === "wait"; } }
 /* the live card, as the door-knocking lessons have it (version 8, Robert, Nov 20, 3:51 PM: theirs "is a green button. It shows the
-   voice feature going up and down anytime it's hearing your voice"): a big mic, gray while it starts and green once it listens,
+   voice feature going up and down anytime it's hearing your voice"): a big mic, white while it starts and mint once it listens,
    bars that move while your words come in, and the words themselves. It sits over the bottom of the picture, or over the button
    on a screen with no picture, and goes when you're done; then your words show as a caption, with punctuation. */
 var talkingT = 0;
@@ -672,14 +675,14 @@ function guide(o) {
     var old = $("#gsheet"); if (old) old.remove();
     var el = document.createElement("div"); el.className = "gsheet"; el.id = "gsheet";
     el.innerHTML = '<div class="gs" role="dialog" aria-label="' + esc(o.k || o.label) + '">' + (o.k ? '<b class="gs-k">' + q(o.k) + '</b>' : "") + '<p class="gs-t">' + q(o.text) + '</p>' + (o.extra || "") + '<button class="btn" id="go">' + q(o.label) + '</button></div>';
-    app.appendChild(el);
+    app.appendChild(el); dimFrom(el);
     var part = S.partOver, bt = null, clear = true, talkNow = function () { if (!TEXTC && o.coach) sayLine(o.coach, r); };
     S.partOver = null;
     if (part != null) {
-      clear = false;
+      clear = false; el.classList.add("beaton"); /* the scrim waits while Part N of 4 shows, so its ring isn't dimmed (version 12) */
       $("#scr").insertAdjacentHTML("beforeend", beatHtml(part, true)); bt = $("#beat");
       var gs = el.querySelector(".gs"), sr = $("#scr").getBoundingClientRect(), ar = app.getBoundingClientRect(); bt.style.bottom = Math.max(0, sr.bottom - (ar.bottom - gs.offsetHeight) + 10) + "px"; /* where the sheet ends up, not where its slide starts */
-      var off = function () { if (clear || r !== RUN) return; clear = true; if (bt.parentNode) bt.remove(); talkNow(); };
+      var off = function () { if (clear || r !== RUN) return; clear = true; if (bt.parentNode) bt.remove(); el.classList.remove("beaton"); talkNow(); };
       bt.onclick = off; setTimeout(off, FAST ? 250 : 2400);
     } else talkNow();
     var b = el.querySelector("#go");
@@ -816,20 +819,38 @@ function vFeedback(st, s, onNext, label, sub, extra) {
   $("#go").onclick = onNext;
 }
 function prevTry() { for (var i = L.steps.length - 1; i >= 0; i -= 1) if (L.steps[i].kind === "try2") return L.steps[i]; return L.steps[S.step]; }
+/* the ring closes the win (version 12, Robert, Nov 23, 2026, 12:17 PM: "Yes, let's do all five of these"). The Warmup ring, drawn three
+   quarters of the way round from 12 o'clock on its track, closes to a full circle, and then a pine check takes its middle (the styles
+   time it; with less motion it is simply closed). parts: the finish line while a must is still owed shows the course's ring open
+   instead, one part per lesson from 12 o'clock, mint for a lesson passed and the track's color for one still owed (B3: the medal
+   waits until every must is passed once), with no check. */
+function winRing(parts) {
+  var R = 42.5, C = 2 * Math.PI * R;
+  if (parts) {
+    var seg = 360 / parts.length, gap = 8, pt = function (a) { a = a * Math.PI / 180; return (50 + R * Math.sin(a)).toFixed(2) + " " + (50 - R * Math.cos(a)).toFixed(2); };
+    return '<svg class="wring" viewBox="0 0 100 100" aria-hidden="true">' + parts.map(function (won, i) { var a0 = i * seg, a1 = a0 + seg - gap; return '<path d="M' + pt(a0) + ' A' + R + ' ' + R + ' 0 ' + (a1 - a0 > 180 ? 1 : 0) + ' 1 ' + pt(a1) + '" fill="none" style="stroke:var(' + (won ? "--green" : "--track") + ')" stroke-width="15"/>'; }).join("") + '</svg>';
+  }
+  return '<svg class="wring" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="' + R + '" fill="none" style="stroke:var(--track)" stroke-width="15"/>' +
+    '<circle class="wr-arc" cx="50" cy="50" r="' + R + '" fill="none" style="stroke:var(--green);--gap:' + (C / 4).toFixed(2) + '" stroke-width="15" stroke-linecap="round" stroke-dasharray="' + C.toFixed(2) + '" transform="rotate(-90 50 50)"/>' +
+    '<path class="wr-ck" d="M31 52 L44 65 L69 39" fill="none" style="stroke:var(--ink)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+/* the win: a light mint panel with the ring, the headline in pine and the line under it in deep green */
+function winPanel(head, line, parts) { return '<div class="win">' + winRing(parts) + '<h1 class="lg">' + q(head) + '</h1>' + (line ? '<p class="win-l">' + q(line) + '</p>' : "") + '</div>'; }
 /* the lesson end (version 8, Robert, Nov 20, 3:51 PM: "there are just too many things going on in this screen ... we need to edit this
    so that only the main message sticks out"): the lesson is done, one line on what comes tomorrow, its picture and Done for today.
-   After the last lesson, the finish line. A practice round still owed is said too, since it's a must. */
+   After the last lesson, the finish line. A practice round still owed is said too, since it's a must. Since version 12 the win is
+   in its panel with the ring, and what comes next (the next-day line, a practice round still owed) is on pale blue under it. */
 function vLessonEnd(st) {
   var open = S.mustOpen && S.mustOpen.length, musts = saved().must || {}, anyOpen = Object.keys(musts).length > 0;
   if (st.finish) save({ fin: true });
   var finish = st.finish || (PRACTICE && saved().fin), other = +Object.keys(musts)[0] || 0; /* a practice round reached from lesson 5's end finishes like lesson 5 */
   var tomorrow = L.next || (SH.titles[LN] ? SH.end.tomorrow.replace("{next}", lc(SH.titles[LN])) : ""); /* rule 19: "Tomorrow: what to say once they stop." */
   S.done[S.step] = true; top({ result: true });
-  show('<h1 class="lg">' + q(finish ? (anyOpen ? SH.ready5wait : SH.ready5) : SH.end.done.replace("{n}", LN)) + '</h1>' +
-    '<p class="endline">' + q(finish ? SH.course : L.endExtra || tomorrow) + '</p>' +
+  var owed = finish && anyOpen, next = finish ? "" : L.endExtra || tomorrow, note = open || owed ? mustNote(open ? LN : other, musts) : "";
+  show(winPanel(finish ? (owed ? SH.ready5wait : SH.ready5) : SH.end.done.replace("{n}", LN), finish ? SH.course : "", owed ? [1, 2, 3, 4, 5].map(function (n) { return !musts[n]; }) : null) +
+    (next || note ? '<div class="winnext">' + (next ? '<p class="endline">' + q(next) + '</p>' : "") + note + '</div>' : "") +
     '<div class="panel grow end">' + coverPic() + '</div>' + /* the lesson's picture takes the room the words leave */
-    (open || (finish && anyOpen) ? '<div>' + mustNote(open ? LN : other, musts) + '</div>' : "") +
-    ((finish && anyOpen) || open ? foot(btn(SH.practiceBtn, "prac")) + '<button class="link" id="go">' + q(SH.done) + '</button>' : foot(btn(SH.done, "go"))), LN === 1 ? "" : "b");
+    (owed || open ? foot(btn(SH.practiceBtn, "prac")) + '<button class="link" id="go">' + q(SH.done) + '</button>' : foot(btn(SH.done, "go"))), LN === 1 ? "" : "b");
   var ep = $(".panel.end"); if (ep && ep.getBoundingClientRect().height < 104) { ep.style.display = "none"; fillUp(); } /* a sliver of a picture is no picture */
   $("#go").onclick = function () { go(-1); };
   if ($("#prac")) $("#prac").onclick = function () { var n = open ? LN : other; if (n === LN) { S.retried = false; S.practice = true; go(prevIndex(), 0); } else location.href = "?l=" + n + "&practice&at=" + (try2At(n) + 1) + ".0" + (qs.has("preview") ? "&preview" : "") + (TEXTC ? "" : "&coach=voice") + (TAGS ? "&tags" : ""); };
@@ -840,7 +861,7 @@ function vPracticeEnd(st, s) {
   var passed = open.every(function (k) { return s.hits[k]; }) && !s.untrue && !s.promise, step = p.step ? p.step.charAt(0).toLowerCase() + p.step.slice(1) : "";
   if (passed) { delete musts[LN]; save({ must: musts }); } else { musts[LN] = open; save({ must: musts }); }
   S.practice = false; S.done[S.step] = true; top({ result: true });
-  show(kick(st) + '<div class="fill"><div class="panel grow end">' + coverPic() + '</div>' + (passed ? '<h1 class="lg" style="margin:0">' + q(SH.passed.replace("{step}", step)) + '</h1>'
+  show(kick(st) + '<div class="fill"><div class="panel grow end">' + coverPic() + '</div>' + (passed ? winPanel(SH.passed.replace("{step}", step), "", null) /* a round passed is a win (version 12) */
     : '<div class="tip"><b>' + q(SH.tipLead) + '</b> ' + q(s.untrue || s.promise ? (s.promise && !s.untrue ? SH.promise : SH.untrue) : p.tip) + '</div><div>' + mustNote(LN, musts) + '</div>') + '</div>' + foot(btn(SH.done, "go")), "p");
   $("#go").onclick = function () { go(-1); };
 }
