@@ -394,10 +394,10 @@ html:not(.tags) .tag { display: none; }
 .ph.air img, .ph.pov img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; display: block; }
 .ph.air img { will-change: transform; }
 .ph.pov .wk { position: absolute; left: 0; top: 0; will-change: transform; }
-.ph.pov .wk .gait { position: absolute; inset: 0; will-change: transform; }
+.ph.pov .wk .gait { position: absolute; inset: 0; }
 .ph.pov .wk img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-/* the steps (rule 69a): walkAt() sets data-step; the first picture's top (.g0) lies over both steps' pictures */
-.ph.pov .wk .gb { opacity: 0; } .ph.pov[data-step="b"] .wk .gb { opacity: 1; } .ph.pov[data-step="b"] .wk .ga { opacity: 0; }
+/* a walker without a stride (none since Nov 22): one picture, slid. Everyone else is drawn as they walk (rule 69b, STRIDE in engine1) */
+.ph.pov canvas.stride { position: absolute; inset: 0; width: 100%; height: 100%; display: block; } /* rule 69b: the walker, drawn as they walk */
 [data-stage="air"] > .ph.air { opacity: 1; }
 [data-stage="pov"] > .ph.pov { opacity: 1; }
 [data-stage="air"] > .who, [data-stage="pov"] > .who { opacity: 0; }

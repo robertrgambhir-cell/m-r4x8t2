@@ -1,3 +1,4 @@
+# RETIRED Nov 22, 2026: the page no longer shows these steps (r11_stride.py, playbook rule 69b). Kept as history.
 # r8_gait.py: the walkers' second step (Robert, Nov 21, 2026, 12:11 PM: the passerby "is just kind of sliding down the street ... as if
 # he were frozen on a moving walkway"; he wants "at least some gait of their feet walking"). Each walker's picture (w-<who>.webp) is
 # drawn mid-stride, one foot forward. Its legs, reflected about their own center line, are the other step: the other foot forward. The

@@ -207,11 +207,23 @@ var SIGG = (function () {
     if (opener && r.length === 1 && GREET1.indexOf(r[0]) < 0 && !/^librar/.test(r[0])) return true;
     return false;
   }
-  /* how long quiet has to last before a passerby answers (playbook A4): 1.2 seconds after a line that sounds finished,
-     2.8 when it stops mid-thought or is under three words. The app never cuts a canvasser off. */
+  /* how long quiet has to last before a passerby answers (playbook A4, rules 34 and 34a): 1.2 seconds after a line that sounds
+     finished, 2.8 when it could go on or is under three words. The app never cuts a canvasser off.
+     Nov 22, 2026 (Robert, on lesson 2's 1st try: "it just cut off my voice. I was still talking, unfinished."): "We're collecting
+     signatures on, uh, have something on the ballot in November to get" counted as finished after 1.2 seconds, because "get" wasn't
+     on the list. A line could go on when its last word is one that needs more after it (MID, MORE) or it ends on "to" and a verb
+     ("to get," "to keep"); only "to sign," "to help," "to talk" and the like end a thought there. When unsure, it waits. */
+  var MORE = /\b(?:get|gets|got|getting|keep|keeps|keeping|make|makes|making|have|has|had|having|give|gives|giving|put|puts|putting|need|needs|want|wants|wanted|try|tries|trying|tryna|going|gonna|wanna|gotta|let|lets|let's|ask|asking|tell|telling|bring|bringing|take|taking|show|showing|extend|extends|extending|fund|funds|funding|collect|collecting|gather|gathering|add|adds|adding|pay|pays|paying|would|could|should|might|must|than|as|some|any|every|each|more|most|its|their|his|which|where|when|how|why|there'?s|they'?re|they|he|she|was|were|been|being|extended|extra|additional|new|public|branch|neighborhood|local|statewide|state|digital|evening|weekend|ballot measure|whole|by|until|till|into|onto|through|called|will|can|open|that'?s|you'?re|we'?ll|it'?ll)$/i;
+  /* ...unless it ends the way a finished line does (the outside review, Nov 22): a greeting, a goodbye or thanks, an ask to sign */
+  var DONE_END = /\b(?:how'?s it going|how are (?:you|ya)|how (?:are )?you doing|how'?re you doing|what'?s up|good (?:morning|afternoon|evening|night)|have a (?:good|great|nice|lovely|wonderful) (?:one|day|evening|night|weekend|morning|afternoon)|thank you(?: so much| very much)?|thanks(?: so much| a lot| anyway| anyways| for stopping(?: by)?)?|(?:good ?)?bye(?: now| bye)?|take care|see (?:you|ya)(?: later| around| soon)?|you too|no problem|no worries|of course|sure|okay|ok|all good|that'?s (?:ok|okay|fine|alright)|yes (?:you|it|they|we) (?:can|will|do|does|are|is)|if you want|hear more|learn more|sign it|sign this|sign here|right here|open later|la county)$/i;
+  var TO_DONE = /\bto (?:sign|help|talk|chat|go|register|vote|wait|stop|know|meet|it)$/;
   function pauseMs(text) {
     var t = norm(text), last = t.replace(/[ ?]+$/, "");
-    return MID.test(last) || real(t).length < 3 ? 2800 : 1200;
+    if (DONE_END.test(last)) return 1200;
+    if (real(t).length < 3) return 2800;
+    if (/\?\s*$/.test(String(text)) && !HES.test(last.split(" ").pop() || "")) return 1200; /* the phone heard a question that ended */
+    var more = MID.test(last) || MORE.test(last) || (/\bto [a-z']+$/.test(last) && !TO_DONE.test(last));
+    return more ? 2800 : 1200;
   }
   function tipFor(hits) { for (var i = 0; i < 4; i += 1) if (!hits[i]) return i; return -1; }
   var at = function (re, t) { var m = re.exec(t); return m ? m.index : -1; };

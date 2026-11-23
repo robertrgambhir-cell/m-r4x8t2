@@ -151,4 +151,5 @@ else if (!LN) vCard();
 else if (qs.has("at")) { var at0 = qs.get("at").split("."); S.step = -1; go(Math.max(0, Math.min(L.steps.length - 1, (parseInt(at0[0], 10) || 1) - 1)), parseInt(at0[1], 10) || 0); }
 else go(-1);
 window.__sgBusy = function () { return playing.length > 0 || !!READ; };
-window.__sg = { S: S, go: go, L: L, LN: LN, time: function () { var now = performance.now(), ms = Object.assign({}, TM.ms); if (TM.at >= 0) ms[TM.at] = (ms[TM.at] || 0) + now - TM.t0; return ms; }, run: function () { return RUN; }, M: M };
+window.__sg = { S: S, go: go, L: L, LN: LN, time: function () { var now = performance.now(), ms = Object.assign({}, TM.ms); if (TM.at >= 0) ms[TM.at] = (ms[TM.at] || 0) + now - TM.t0; return ms; }, run: function () { return RUN; }, M: M,
+  walk: { walkAt: walkAt, sceneWalk: sceneWalk, walkable: walkable, IMG: IMG, STRIDE: STRIDE } }; /* the walk checks (tests/sig-stride.cjs) draw a walker at set points */

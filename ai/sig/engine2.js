@@ -353,7 +353,7 @@ function talk(cfg) {
       onSpeech: function (on) { if (W) { W.speaking = on; W.talk(); } },
       onWords: function (t) { if (r !== RUN) return; if (W) { W.liven(); W.held = true; W.talk(); } liveWords(t); },
       onDone: function (t) { M.rec = null; M.used = true; heard(t); },
-      onError: function (c) { M.rec = null; if (r !== RUN) return; if (auto) { micState("idle"); return; } micState("idle", micErr(c)); },
+      onError: function (c) { M.rec = null; if (W) { W.held = false; W.talk(); } if (r !== RUN) return; if (auto) { micState("idle"); return; } micState("idle", micErr(c)); }, /* a walker held by words that never came is free to go on (the outside review, Nov 22) */
     });
   }
   function heard(text) {
@@ -477,7 +477,7 @@ function vCover() {
   (function walk(x) { if (!x || typeof x !== "object") return; if (x.clip && !(TEXTC && x.who === "coach")) fetchClip(x.clip); Object.keys(x).forEach(function (k) { walk(x[k]); }); })(L.steps);
   /* and its pictures: everyone it shows, the two-person scenes, the storefront and the four places to stand */
   var pics = ["spot-sit", "spot-stand", "spot-doorway", "spot-side", "walkway", coverName()];
-  L.steps.forEach(function (st) { (st.scenes || []).concat(st.people || [], [st]).forEach(function (x) { if (x && x.who) { pics.push(x.who); var wk = walkable(x.who, x.pic); if (wk) { pics.push("w-" + wk); pics.push("w-" + wk + "-b"); pics.push("aerial-" + wk); } if (x.pic) pics.push(x.pic); } });
+  L.steps.forEach(function (st) { (st.scenes || []).concat(st.people || [], [st]).forEach(function (x) { if (x && x.who) { pics.push(x.who); var wk = walkable(x.who, x.pic); if (wk) { pics.push("w-" + wk); if (IMG["w-" + wk].stride && IMG["w-" + wk].stride.front) pics.push(IMG["w-" + wk].stride.front); pics.push("aerial-" + wk); } if (x.pic) pics.push(x.pic); } });
     JSON.stringify(st, function (k, v) { if (k === "pic" && v && v.who) pics.push(v.who); if (k === "pic" && v && v.two) pics.push("two-" + v.two[0] + "-" + v.two[1]); if (k === "face" && typeof v === "string") pics.push(v); return v; }); });
   preloadPics(pics);
 }

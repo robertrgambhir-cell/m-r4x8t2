@@ -1606,7 +1606,36 @@
 },
 "w-ben": {
 "w": 317,
-"h": 900
+"h": 900,
+"stride": {
+"step": 0.37,
+"steps": 7,
+"lift": 0.045,
+"sway": 0.01,
+"hipY": 0.47,
+"ankle": 0.045,
+"thigh": 0.54,
+"soft": 0.02,
+"heel": 0.035,
+"over": 0.01,
+"soleH": 0.2,
+"hipX": 0.044,
+"footX": 0.037,
+"wHip": 0.094,
+"wKnee": 0.075,
+"wHem": 0.068,
+"shoeW": 0.09,
+"shoeH": 0.07,
+"style": "lace",
+"color": "#251a14",
+"shade": "#0d0705",
+"shoe": "#6e2c10",
+"sole": "#2a0f05",
+"shoeHi": "#c27a4c",
+"split": 567,
+"hipCx": 159.5,
+"fade": 18
+}
 },
 "aerial-ben": {
 "w": 768,
@@ -1618,7 +1647,39 @@
 },
 "w-soojin": {
 "w": 279,
-"h": 900
+"h": 900,
+"stride": {
+"step": 0.35,
+"steps": 7,
+"lift": 0.04,
+"sway": 0.01,
+"hipY": 0.47,
+"ankle": 0.045,
+"thigh": 0.54,
+"soft": 0.02,
+"heel": 0.035,
+"over": 0.0,
+"soleH": 0.25,
+"hipX": 0.039,
+"footX": 0.032,
+"wHip": 0.084,
+"wKnee": 0.068,
+"wHem": 0.064,
+"shoeW": 0.075,
+"shoeH": 0.048,
+"style": "flat",
+"crop": 0.78,
+"skin": "#f8b48e",
+"wSkin": 0.034,
+"color": "#d4d0cc",
+"shade": "#a9a198",
+"shoe": "#6d7651",
+"sole": "#3e392c",
+"shoeHi": "#a9b386",
+"split": 549,
+"hipCx": 145.0,
+"fade": 18
+}
 },
 "aerial-soojin": {
 "w": 768,
@@ -1630,7 +1691,41 @@
 },
 "w-kayla": {
 "w": 324,
-"h": 900
+"h": 900,
+"stride": {
+"step": 0.37,
+"steps": 7,
+"lift": 0.045,
+"sway": 0.01,
+"hipY": 0.47,
+"ankle": 0.045,
+"thigh": 0.54,
+"soft": 0.02,
+"heel": 0.035,
+"over": 0.0,
+"soleH": 0.26,
+"hipX": 0.04,
+"footX": 0.033,
+"wHip": 0.086,
+"wKnee": 0.066,
+"wHem": 0.06,
+"shoeW": 0.088,
+"shoeH": 0.064,
+"style": "sneaker",
+"crop": 0.88,
+"skin": "#f2a684",
+"wSkin": 0.034,
+"cuff": "#6f9bc6",
+"color": "#1469b0",
+"shade": "#093f76",
+"shoe": "#f7f7f5",
+"sole": "#b5b8b7",
+"shoeHi": "#ffffff",
+"edge": "rgba(90,90,90,0.35)",
+"split": 531,
+"hipCx": 148.0,
+"fade": 8
+}
 },
 "aerial-kayla": {
 "w": 768,
@@ -1642,7 +1737,35 @@
 },
 "w-luis": {
 "w": 277,
-"h": 900
+"h": 900,
+"stride": {
+"step": 0.37,
+"steps": 7,
+"lift": 0.045,
+"sway": 0.01,
+"hipY": 0.47,
+"ankle": 0.045,
+"thigh": 0.54,
+"soft": 0.02,
+"heel": 0.035,
+"over": 0.01,
+"soleH": 0.2,
+"hipX": 0.045,
+"footX": 0.037,
+"wHip": 0.09,
+"wKnee": 0.074,
+"wHem": 0.068,
+"shoeW": 0.09,
+"shoeH": 0.066,
+"color": "#0b0b0b",
+"shade": "#000000",
+"shoe": "#1c1c1c",
+"sole": "#050505",
+"shoeHi": "#5a5a5a",
+"split": 675,
+"hipCx": 145.5,
+"fade": 8
+}
 },
 "aerial-luis": {
 "w": 768,
@@ -1654,7 +1777,43 @@
 },
 "w-tanya-cart": {
 "w": 302,
-"h": 900
+"h": 900,
+"stride": {
+"step": 0.26,
+"steps": 7,
+"lift": 0.035,
+"sway": 0.006,
+"hipY": 0.47,
+"ankle": 0.045,
+"thigh": 0.54,
+"soft": 0.02,
+"heel": 0.035,
+"over": 0.0,
+"soleH": 0.2,
+"bobScale": 0.4,
+"hips": false,
+"back": 0.16,
+"hipX": 0.046,
+"footX": 0.04,
+"wHip": 0.1,
+"wKnee": 0.088,
+"wHem": 0.082,
+"shoeW": 0.076,
+"shoeH": 0.05,
+"style": "flat",
+"crop": 0.55,
+"skin": "#8a4a22",
+"wSkin": 0.042,
+"color": "#172234",
+"shade": "#0a111c",
+"shoe": "#141414",
+"sole": "#000000",
+"shoeHi": "#5a5a5a",
+"split": 708,
+"hipCx": 151.5,
+"fade": 4,
+"front": "w-tanya-cart-front"
+}
 },
 "aerial-tanya-cart": {
 "w": 768,
@@ -1666,7 +1825,45 @@
 },
 "w-dwayne": {
 "w": 335,
-"h": 900
+"h": 900,
+"stride": {
+"step": 0.35,
+"steps": 7,
+"lift": 0.045,
+"sway": 0.01,
+"hipY": 0.47,
+"ankle": 0.045,
+"thigh": 0.54,
+"soft": 0.02,
+"heel": 0.035,
+"over": 0.01,
+"soleH": 0.2,
+"patch": [
+[
+150,
+488,
+184,
+552,
+"#a8855d"
+]
+],
+"hipX": 0.048,
+"footX": 0.04,
+"wHip": 0.1,
+"wKnee": 0.08,
+"wHem": 0.074,
+"shoeW": 0.092,
+"shoeH": 0.068,
+"style": "lace",
+"color": "#ab885f",
+"shade": "#7d5e3c",
+"shoe": "#8a4413",
+"sole": "#311902",
+"shoeHi": "#c27a40",
+"split": 549,
+"hipCx": 167.0,
+"fade": 12
+}
 },
 "aerial-dwayne": {
 "w": 768,
@@ -1678,7 +1875,36 @@
 },
 "w-hank": {
 "w": 316,
-"h": 900
+"h": 900,
+"stride": {
+"step": 0.33,
+"steps": 7,
+"lift": 0.035,
+"sway": 0.01,
+"hipY": 0.47,
+"ankle": 0.045,
+"thigh": 0.54,
+"soft": 0.02,
+"heel": 0.035,
+"over": 0.01,
+"soleH": 0.2,
+"hipX": 0.045,
+"footX": 0.038,
+"wHip": 0.094,
+"wKnee": 0.076,
+"wHem": 0.07,
+"shoeW": 0.092,
+"shoeH": 0.066,
+"style": "lace",
+"color": "#857c7b",
+"shade": "#5b524f",
+"shoe": "#6e3806",
+"sole": "#261501",
+"shoeHi": "#b06a35",
+"split": 549,
+"hipCx": 149.5,
+"fade": 11
+}
 },
 "aerial-hank": {
 "w": 768,
@@ -1690,7 +1916,37 @@
 },
 "w-marisol": {
 "w": 316,
-"h": 900
+"h": 900,
+"stride": {
+"step": 0.37,
+"steps": 7,
+"lift": 0.045,
+"sway": 0.01,
+"hipY": 0.47,
+"ankle": 0.045,
+"thigh": 0.54,
+"soft": 0.02,
+"heel": 0.035,
+"over": 0.01,
+"soleH": 0.26,
+"hipX": 0.042,
+"footX": 0.035,
+"wHip": 0.09,
+"wKnee": 0.072,
+"wHem": 0.068,
+"shoeW": 0.088,
+"shoeH": 0.064,
+"style": "sneaker",
+"color": "#01b1ac",
+"shade": "#007673",
+"shoe": "#f3f3f3",
+"sole": "#c9c8c6",
+"shoeHi": "#ffffff",
+"edge": "rgba(90,90,90,0.35)",
+"split": 549,
+"hipCx": 145.5,
+"fade": 18
+}
 },
 "aerial-marisol": {
 "w": 768,
@@ -1712,44 +1968,8 @@
 0.669
 ]
 },
-"w-ben-b": {
-"w": 317,
-"h": 900,
-"split": 0.63
-},
-"w-soojin-b": {
-"w": 279,
-"h": 900,
-"split": 0.61
-},
-"w-kayla-b": {
-"w": 324,
-"h": 900,
-"split": 0.59
-},
-"w-luis-b": {
-"w": 277,
-"h": 900,
-"split": 0.75
-},
-"w-marisol-b": {
-"w": 316,
-"h": 900,
-"split": 0.61
-},
-"w-hank-b": {
-"w": 316,
-"h": 900,
-"split": 0.61
-},
-"w-dwayne-b": {
-"w": 335,
-"h": 900,
-"split": 0.61
-},
-"w-tanya-cart-b": {
+"w-tanya-cart-front": {
 "w": 302,
-"h": 900,
-"split": 0.7756
+"h": 900
 }
 }

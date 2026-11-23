@@ -159,19 +159,29 @@ function expr() {} /* the pictures keep one calm face; feelings show in the word
 /* ---------------- listening: the phone's speech recognition, ended by quiet ---------------- */
 function listen(o) {
   /* o: { onWords(text), onDone(text), onError(code) }. Quiet ends the turn by the practice voters' rule: 1.2 seconds after a line
-     that sounds finished, 2.8 mid-thought or under three words. A tap on the mic ends it at once. Nobody is ever cut off. */
-  var text = "", changed = 0, done = false, started = 0;
+     that sounds finished, 2.8 when it could go on or is under three words (SIGG.pauseMs). A tap on the mic ends it at once. Nobody is
+     ever cut off: when the phone stops listening on its own partway through a line (iOS does, after a short pause), listening starts
+     again and the words so far are kept, so the quiet rule or a tap ends a line (or, at most, a minute's talk, or an error, which still
+     sends what was heard) (Robert, Nov 22, 2026, 4:10 PM: "it just cut off
+     my voice. I was still talking, unfinished."; playbook rule 34a). */
+  var text = "", base = "", changed = 0, done = false, started = 0, again = 0;
   try { if (navigator.audioSession) navigator.audioSession.type = "play-and-record"; } catch (e) {}
   var R = new SR(); R.lang = "en-US"; R.interimResults = true; R.continuous = true; R.maxAlternatives = 1;
   var tick = setInterval(function () { if (done || !text) return; if (performance.now() - changed > SIGG.pauseMs(text)) finish(); }, 50);
   var cap = setTimeout(function () { finish(); }, 60000);
   function end() { done = true; clearInterval(tick); clearTimeout(cap); try { R.onend = null; R.abort(); } catch (e) {} try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {} }
   function finish() { if (done) return; end(); o.onDone(text.trim()); }
-  R.onresult = function (e) { var parts = []; for (var j = 0; j < e.results.length; j += 1) parts.push(String(e.results[j][0].transcript || "").trim()); var t = parts.filter(Boolean).join(" ").replace(/\s+/g, " "); if (t !== text) { text = t; changed = performance.now(); o.onWords(text); } };
+  R.onresult = function (e) { var parts = [base]; for (var j = 0; j < e.results.length; j += 1) parts.push(String(e.results[j][0].transcript || "").trim()); var t = parts.filter(Boolean).join(" ").replace(/\s+/g, " ").trim(); if (t !== text) { text = t; changed = performance.now(); o.onWords(text); } };
   R.onstart = function () { if (o.onStart) o.onStart(); }; /* listening, after any permission prompt */
-  R.onspeechstart = function () { if (o.onSpeech) o.onSpeech(true); }; R.onspeechend = function () { if (o.onSpeech) o.onSpeech(false); }; /* a walking passerby slows while you talk */
-  R.onerror = function (e) { var c = e && e.error; if (c === "no-speech" || c === "aborted") return; if (done) return; end(); o.onError(c === "not-allowed" || c === "service-not-allowed" ? "denied" : c === "audio-capture" ? "busy" : "error"); };
-  R.onend = function () { if (done) return; if (text) { finish(); return; } if (performance.now() - started < 9000) { try { R.start(); } catch (e) { finish(); } return; } finish(); }; /* iOS ends a quiet session on its own */
+  R.onspeechstart = function () { if (text && again < 4) changed = performance.now(); if (o.onSpeech) o.onSpeech(true); }; R.onspeechend = function () { if (o.onSpeech) o.onSpeech(false); }; /* a walking passerby slows while you talk; talking again restarts the quiet clock */
+  R.onerror = function (e) { var c = e && e.error; if (c === "no-speech" || c === "aborted") return; if (done) return; if (text) { finish(); return; } /* what was heard is still said (the outside review, Nov 22) */ end(); o.onError(c === "not-allowed" || c === "service-not-allowed" ? "denied" : c === "audio-capture" ? "busy" : "error"); };
+  R.onend = function () { /* the phone stopped listening on its own: listen again and keep the words, unless the quiet rule says the line is done */
+    if (done) return;
+    if (text && performance.now() - changed > SIGG.pauseMs(text)) { finish(); return; }
+    if ((!text && performance.now() - started >= 9000) || again >= 30) { finish(); return; }
+    base = text; again += 1;
+    try { R.start(); } catch (e) { finish(); }
+  };
   try { R.start(); started = performance.now(); } catch (e) { end(); setTimeout(function () { o.onError("error"); }, 0); }
   return { stop: finish, abort: end };
 }
@@ -206,37 +216,176 @@ function sceneTwo(by, who, cls, pic) { var n = "two-" + by + "-" + (pic || who);
    could see where the canvasser is stationed and see the person walking"), then the canvasser's own view down the sidewalk ("the
    vantage point of looking down a sidewalk where they are walking towards you"), then face to face. The canvasser's face never
    shows ("we only see the pedestrian's face"). walkable(who, pic): the walker's own pictures, or null. */
-function walkable(who, pic) { var k = pic && IMG["w-" + pic] ? pic : who; return IMG["w-" + k] && IMG["aerial-" + k] && IMG.walkway ? k : null; }
+function walkable(who, pic) { var k = pic && IMG["w-" + pic] ? pic : who; return IMG["w-" + k] && IMG["w-" + k].stride && IMG["aerial-" + k] && IMG.walkway ? k : null; } /* only walkers drawn walking (rule 69b); anyone else comes face to face, never slid */
 function sceneWalk(who, k) {
   var a = IMG["aerial-" + k].at || [0.5, 0.63];
   return '<div class="ph air" id="air-' + who + '" role="img" aria-label="Westside Market from above: the table out front, and ' + esc(someone(who).toLowerCase()) + ' walking up the sidewalk"><img src="' + imgUrl("aerial-" + k) + '" alt="" decoding="async" style="transform-origin:' + (a[0] * 100).toFixed(1) + '% ' + (a[1] * 100).toFixed(1) + '%"></div>' +
-    '<div class="ph pov" id="pov-' + who + '" data-k="' + k + '" role="img" aria-label="' + esc(someone(who)) + ' walking toward you down the sidewalk"><img class="bg" src="' + imgUrl("walkway") + '" alt="" decoding="async"><div class="wk">' + gait(k) + '</div></div>';
+    '<div class="ph pov" id="pov-' + who + '" data-k="' + k + '" role="img" aria-label="' + esc(someone(who)) + ' walking toward you down the sidewalk"><img class="bg" src="' + imgUrl("walkway") + '" alt="" decoding="async">' + gait(k) + '</div>';
 }
-/* a walker's feet step (rule 69a, Robert, Nov 21, 2026, 12:11 PM: "he's just kind of sliding down the street ... as if he were frozen
-   on a moving walkway"): the two steps' pictures (w-<who> and w-<who>-b, ai/tools/sig-pictures/r8_gait.py) take turns, and the first
-   picture's top lies over both, so the body never blinks. walkAt() sets which step shows and the bob. */
-function gait(k) {
-  var b = IMG["w-" + k + "-b"], src = imgUrl("w-" + k);
-  if (!b) return '<div class="gait"><img src="' + src + '" alt="" decoding="async"></div>';
-  var top = (100 - b.split * 100 - 0.6).toFixed(2);
-  return '<div class="gait"><img class="ga" src="' + src + '" alt="" decoding="async"><img class="gb" src="' + imgUrl("w-" + k + "-b") + '" alt="" decoding="async"><img class="g0" src="' + src + '" alt="" decoding="async" style="clip-path:inset(0 0 ' + top + '% 0)"></div>';
+/* a walker walks like a person (rule 69b; Robert, Nov 22, 2026, 4:10 PM, on lesson 2: "the walking is very phony ... Their feet
+   are mostly just kind of sliding, and then their feet are moving. It doesn't look natural at all for a person walking down a
+   sidewalk."). Before: two pictures of the legs, flipped twice a second while the whole picture slid about 12 meters down the walk in
+   3.6 seconds, three times walking speed, so the feet had to slide. Now the legs are drawn as they walk, from the hips down, and the
+   walker's own picture lies over them down to where the legs start (ai/tools/sig-pictures/r11_stride.py measures each picture and
+   sets each walker's legs, in body heights). The walk is driven by the ground covered: a foot on the ground stays where it landed
+   while the body moves over it, the other swings through with its knee bent, the hips ride as high as the planted feet allow (so the
+   body rises and falls with each step on its own), the back heel comes up before it leaves the ground and the last step brings the
+   feet together. The walk-up covers about 2.4 body heights, about 4 meters, in POV_S: a calm walk of a little over a meter a second. */
+var STRIDE = (function () {
+  var Z0 = 8; /* the walkway picture's far point is 8 near-distances away (its perspective, below) */
+  function proj(m, x, y, z) { var qq = (1 / z - 1 / Z0) / (1 - 1 / Z0), k = 1060 / z; return [(m.far[0] + (m.near[0] - m.far[0]) * qq) * m.w + x * k, (m.far[1] + (m.near[1] - m.far[1]) * qq) * m.h - y * k, k]; }
+  function hex(h) { h = String(h).replace("#", ""); return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]; }
+  function mix(a, b, t) { var A = hex(a), B = hex(b); return "rgb(" + [0, 1, 2].map(function (i) { return Math.round(A[i] + (B[i] - A[i]) * t); }).join(",") + ")"; }
+  var sm = function (t) { t = Math.max(0, Math.min(1, t)); return t * t * (3 - 2 * t); };
+  function Dend(o) { return (o.steps - 0.5) * o.step; }
+  /* where each foot is, from the ground covered D (0 to Dend): planted feet stay put, so nothing slides */
+  function gait(o, D) {
+    var s = o.step, N = o.steps, De = Dend(o), dbl = 0.2, H = function (k) { return k * s + s / 2; };
+    D = Math.max(0, Math.min(De, D));
+    function foot(par) {
+      var k = Math.floor(D / s); if ((((k % 2) + 2) % 2) !== par) k -= 1; /* this foot's last strike */
+      var last = N - 1, off = (k + 1 + dbl) * s, to = H(k + 2), land = (k + 2) * s;
+      if (k + 2 > last) { to = H(last); land = De; } /* the closing step: alongside the other foot, and stop */
+      if (k >= last || D < off) return { d: H(Math.min(k, last)), lift: 0, swing: 0 };
+      var tau = Math.min(1, (D - off) / Math.max(1e-6, land - off));
+      if (tau >= 1) return { d: to, lift: 0, swing: 0 }; /* landed */
+      return { d: H(k) + (to - H(k)) * sm(tau), lift: o.lift * Math.sin(Math.PI * tau) * Math.min(1, (to - H(k)) / s), swing: tau };
+    }
+    var ph = D / s, taper = sm((De - D) / (0.7 * s));
+    return { D: D, a: foot(0), b: foot(1), sway: -o.sway * Math.sin(Math.PI * ph) * taper, tilt: 0.008 * Math.sin(Math.PI * ph) * taper, walking: sm((De - D) / (0.5 * s)) };
+  }
+  /* the knee, bending forward (toward you), for a hip and an ankle in the walking plane (y up, z away) */
+  function knee(hy, hz, ay, az, a, b) {
+    var dy = ay - hy, dz = az - hz, d = Math.sqrt(dy * dy + dz * dz) || 1e-6, vy = dy / d, vz = dz / d;
+    if (d >= a + b - 1e-6) return [hy + vy * a, hz + vz * a];
+    var al = Math.acos(Math.max(-1, Math.min(1, (a * a + d * d - b * b) / (2 * a * d))));
+    return [hy + a * (vy * Math.cos(al) - vz * Math.sin(al)), hz + a * (vy * Math.sin(al) + vz * Math.cos(al))];
+  }
+  /* the whole body's place at u (0 to 1 of the walk-up): hips, knees, ankles and soles on the walkway picture, in its pixels.
+     The hips ride as high as the planted feet allow, a little lower while walking (soft knees), so the body rises and falls with each
+     step. A back foot's heel comes up before it leaves the ground, pivoting on its toe, so its sole stays down. Someone pushing a cart
+     walks a little behind the picture's plane, so their feet stay behind its wheels, and their body and the cart rise and fall less. */
+  function pose(m, f, o, u) {
+    var De = Dend(o), z0 = 1 + De, g = gait(o, Math.max(0, Math.min(1, u)) * De), zp = z0 - g.D, sy = (f.h - o.split) / f.h;
+    var top = o.hipY, len = top - o.ankle, a = len * o.thigh, b = len - a, reach = len * 0.999, bk = o.back || 0, zl = zp + bk;
+    var fx = Math.max(o.footX, 0.5 * o.shoeW + 0.004); /* each foot keeps one line across the walk, wide enough that the shoes never merge into one slab */
+    var feet = [[-1, g.a], [1, g.b]].map(function (q) { return { side: q[0], ft: q[1], fz: z0 - q[1].d + bk }; });
+    var rest = top - o.soft * g.walking, hy = rest;
+    feet.forEach(function (ft) { if (ft.ft.swing) return; var dz = ft.fz - zl; hy = Math.min(hy, o.ankle + (dz > 0 ? o.heel : 0) + Math.sqrt(Math.max(0, reach * reach - dz * dz))); });
+    var hx = g.sway, legs = feet.map(function (ft) {
+      var dz = ft.fz - zl, ay = o.ankle + ft.ft.lift, need = hy - Math.sqrt(Math.max(0, reach * reach - dz * dz)), heel = 0;
+      if (!ft.ft.swing) { ay = Math.max(ay, Math.min(o.ankle + o.heel, need)); heel = (ay - o.ankle) / Math.max(1e-6, o.heel); }
+      var hipX = hx + ft.side * o.hipX, ax = ft.side * fx, kn = knee(hy, zl, ay, ft.fz, a, b); /* the sway moves the body, never a planted foot */
+      return { side: ft.side, fz: ft.fz, heel: Math.max(0, Math.min(1, heel)), planted: !ft.ft.swing, lift: ft.ft.lift,
+        hip: proj(m, hipX, hy, zl), knee: proj(m, hipX * 0.4 + ax * 0.6, kn[0], kn[1]), ankle: proj(m, ax, ay, ft.fz),
+        sole: proj(m, ax, ft.ft.lift, ft.fz) }; /* the sole: on the ground when planted (a raised heel pivots on the toe) */
+    });
+    var drawnY = o.bobScale != null ? rest - (rest - hy) * o.bobScale : hy;
+    return { g: g, zp: zp, zl: zl, hy: hy, hx: hx, sy: sy, legs: legs, crotch: proj(m, hx, drawnY - o.hipY + sy - 0.035, zl), hipW: 2 * o.hipX + o.wHip, /* the crotch rides with the picture's cut */
+      body: proj(m, hx, drawnY - (o.hipY - sy), zp), ground: function (x, z) { return proj(m, x, 0, z); } };
+  }
+  var nrm = function (p, q) { var dx = q[0] - p[0], dy = q[1] - p[1], L = Math.sqrt(dx * dx + dy * dy) || 1; return [-dy / L, dx / L]; };
+  /* a trouser leg: hip, knee and hem as one smooth shape, its middle line moved across by `off` of its width */
+  function leg(ctx, P, K, A, w0, w1, w2, off) {
+    off = off || 0;
+    var n1 = nrm(P, K), n2 = nrm(K, A), nk = [n1[0] + n2[0], n1[1] + n2[1]], l = Math.sqrt(nk[0] * nk[0] + nk[1] * nk[1]) || 1;
+    nk = [nk[0] / l, nk[1] / l]; var h1 = w1 / 2 * Math.min(1.4, 1 / Math.max(0.5, nk[0] * n1[0] + nk[1] * n1[1]));
+    var c = function (p, n, w) { return [p[0] + n[0] * w * off, p[1] + n[1] * w * off]; }, P2 = c(P, n1, w0), K2 = c(K, nk, w1), A2 = c(A, n2, w2);
+    ctx.beginPath();
+    ctx.moveTo(P2[0] + n1[0] * w0 / 2, P2[1] + n1[1] * w0 / 2); ctx.lineTo(K2[0] + nk[0] * h1, K2[1] + nk[1] * h1); ctx.lineTo(A2[0] + n2[0] * w2 / 2, A2[1] + n2[1] * w2 / 2);
+    ctx.lineTo(A2[0] - n2[0] * w2 / 2, A2[1] - n2[1] * w2 / 2); ctx.lineTo(K2[0] - nk[0] * h1, K2[1] - nk[1] * h1); ctx.lineTo(P2[0] - n1[0] * w0 / 2, P2[1] - n1[1] * w0 / 2); ctx.closePath();
+  }
+  /* a shoe seen from the front: its sole on the ground at yb; a raised heel tips it up, so it shows taller */
+  function shoe(ctx, o, x, yb, k, col, sole, heel) {
+    var w = o.shoeW * k, h = o.shoeH * k * (1 + 0.45 * heel), low = o.style === "flat";
+    ctx.beginPath(); ctx.moveTo(x - w * 0.5, yb - h * 0.32);
+    ctx.bezierCurveTo(x - w * 0.54, yb - h * (low ? 0.9 : 1.08), x + w * 0.54, yb - h * (low ? 0.9 : 1.08), x + w * 0.5, yb - h * 0.32);
+    ctx.quadraticCurveTo(x + w * 0.5, yb, x + w * 0.36, yb); ctx.lineTo(x - w * 0.36, yb); ctx.quadraticCurveTo(x - w * 0.5, yb, x - w * 0.5, yb - h * 0.32); ctx.closePath();
+    ctx.fillStyle = col; ctx.fill();
+    ctx.save(); ctx.clip();
+    if (o.style === "sneaker" || o.style === "lace") { /* the laces: a short darker panel down the middle of the top */
+      ctx.fillStyle = o.style === "sneaker" ? "rgba(120,120,120,0.35)" : "rgba(0,0,0,0.25)"; ctx.beginPath(); ctx.ellipse(x, yb - h * 0.86, w * 0.13, h * 0.2, 0, 0, 2 * Math.PI); ctx.fill();
+    }
+    ctx.fillStyle = o.shoeHi || "#ffffff"; ctx.globalAlpha = 0.45; ctx.beginPath(); ctx.ellipse(x - w * 0.12, yb - h * 0.55, w * 0.2, h * 0.14, -0.2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1;
+    ctx.fillStyle = sole; ctx.fillRect(x - w, yb - h * o.soleH, 2 * w, h); ctx.restore();
+    if (o.edge) { ctx.strokeStyle = o.edge; ctx.lineWidth = Math.max(0.6, 0.0016 * k); ctx.stroke(); }
+  }
+  /* the grain of the pictures' printed look (rule 67), laid over the drawn legs; it moves and grows with the walker */
+  var GRAIN = null;
+  function grain(ctx) {
+    if (!GRAIN) { var c = document.createElement("canvas"); c.width = c.height = 96; var g = c.getContext("2d"), seed = 7, rnd = function () { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+      for (var i = 0; i < 260; i += 1) { g.fillStyle = rnd() < 0.5 ? "rgba(255,255,255,0.20)" : "rgba(0,0,0,0.16)"; g.fillRect(Math.floor(rnd() * 96), Math.floor(rnd() * 96), 1, 1); }
+      GRAIN = ctx.createPattern(c, "repeat"); }
+    return GRAIN;
+  }
+  /* the walker's picture down to where the legs start, its last rows fading over the drawn hips; patch: spots of the picture's own
+     trouser color laid over a painted detail that would end at the cut (Dwayne's fly) */
+  function topOf(img, f, o) {
+    if (img.__top) return img.__top;
+    var c = document.createElement("canvas"); c.width = f.w; c.height = o.split + 1; var g = c.getContext("2d");
+    g.drawImage(img, 0, 0, f.w, o.split + 1, 0, 0, f.w, o.split + 1);
+    (o.patch || []).forEach(function (q) { var pg = g.createRadialGradient((q[0] + q[2]) / 2, (q[1] + q[3]) / 2, 0, (q[0] + q[2]) / 2, (q[1] + q[3]) / 2, Math.max(q[2] - q[0], q[3] - q[1]) / 2);
+      pg.addColorStop(0, q[4]); pg.addColorStop(0.7, q[4]); pg.addColorStop(1, "rgba(0,0,0,0)"); g.save(); g.globalCompositeOperation = "source-atop"; g.fillStyle = pg; g.fillRect(q[0] - 4, q[1] - 4, q[2] - q[0] + 8, q[3] - q[1] + 8); g.restore(); });
+    var gr = g.createLinearGradient(0, o.split + 1 - o.fade, 0, o.split + 1); gr.addColorStop(0, "rgba(0,0,0,0)"); gr.addColorStop(1, "rgba(0,0,0,1)");
+    g.globalCompositeOperation = "destination-out"; g.fillStyle = gr; g.fillRect(0, o.split + 1 - o.fade, f.w, o.fade);
+    return (img.__top = c);
+  }
+  /* one frame on the walkway's canvas: m the walkway, f and img the walker's picture, front the cart's legs (or null), o the walker's
+     stride, u how far along the walk-up (0 to 1) */
+  function draw(cv, m, f, img, front, o, u) {
+    var W = cv.clientWidth, Hh = cv.clientHeight; if (!W || !Hh) return;
+    var dpr = Math.min(2, window.devicePixelRatio || 1), ctx = cv.getContext("2d");
+    if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(Hh * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(Hh * dpr); }
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height);
+    if (!img.complete || !img.naturalWidth) return;
+    var s = Math.max(W / m.w, Hh / m.h), ox = (W - m.w * s) / 2, oy = (Hh - m.h * s) * 0.5;
+    ctx.setTransform(dpr * s, 0, 0, dpr * s, dpr * ox, dpr * oy);
+    var P = pose(m, f, o, u), legs = P.legs.slice().sort(function (p, q) { return q.fz - p.fz; }); /* the farther leg first */
+    /* the hips under the picture's fade: the trousers' own color down to the crotch, so the legs part where trousers do */
+    var hipL = legs[0].hip, hipR = legs[1].hip, hw = P.hipW * P.crotch[2] / 2, cx = P.crotch[0], cy = P.crotch[1];
+    if (o.hips !== false) { ctx.beginPath(); ctx.moveTo(cx - hw, Math.min(hipL[1], hipR[1])); ctx.lineTo(cx + hw, Math.min(hipL[1], hipR[1])); ctx.lineTo(cx + hw * 0.92, cy - 0.02 * P.crotch[2]);
+    ctx.quadraticCurveTo(cx, cy + 0.03 * P.crotch[2], cx - hw * 0.92, cy - 0.02 * P.crotch[2]); ctx.closePath(); ctx.fillStyle = o.color; ctx.fill(); } /* not for the cart: her hips are behind its basket */
+    legs.forEach(function (lg, i) {
+      var t = sm(0.5 + (lg.fz - legs[1 - i].fz) / (0.5 * o.step)), dark = function (h) { return mix(h, "#000000", t * 0.22); };
+      shoe(ctx, o, lg.ankle[0], lg.sole[1], lg.sole[2], dark(o.shoe), dark(o.sole), lg.heel);
+      var hem = o.crop ? [lg.knee[0] + (lg.ankle[0] - lg.knee[0]) * o.crop, lg.knee[1] + (lg.ankle[1] - lg.knee[1]) * o.crop] : [lg.ankle[0], lg.ankle[1] + o.over * lg.ankle[2]];
+      if (o.crop) { var sw = o.wSkin * lg.ankle[2]; leg(ctx, hem, [(hem[0] + lg.ankle[0]) / 2, (hem[1] + lg.ankle[1]) / 2], [lg.ankle[0], lg.ankle[1] + 0.012 * lg.ankle[2]], sw, sw, sw); ctx.fillStyle = dark(o.skin); ctx.fill(); }
+      /* the leg's color: the picture's own trousers down to below the crotch, then darker toward the hem when this leg is behind */
+      var L = Math.max(1, hem[1] - lg.hip[1]), t0 = Math.max(0, Math.min(0.9, (cy - lg.hip[1]) / L)), gr = ctx.createLinearGradient(lg.hip[0], lg.hip[1], hem[0], hem[1]);
+      gr.addColorStop(0, o.color); gr.addColorStop(t0, o.color); gr.addColorStop(t0 + (1 - t0) * 0.35, mix(o.color, o.shade, t * 0.4)); gr.addColorStop(1, mix(o.color, o.shade, t));
+      leg(ctx, lg.hip, lg.knee, hem, o.wHip * lg.hip[2], o.wKnee * lg.knee[2], o.wHem * lg.ankle[2]); ctx.fillStyle = gr; ctx.fill();
+      /* a soft shadow down the inner side, so the trouser leg is round, not flat */
+      var top = [lg.hip[0] + (lg.knee[0] - lg.hip[0]) * 0.3, Math.max(lg.hip[1], cy)], ig = ctx.createLinearGradient(top[0], top[1], lg.knee[0], lg.knee[1]);
+      ig.addColorStop(0, "rgba(0,0,0,0)"); ig.addColorStop(1, "rgba(0,0,0,0.08)");
+      leg(ctx, top, lg.knee, hem, o.wHip * 0.32 * lg.hip[2], o.wKnee * 0.32 * lg.knee[2], o.wHem * 0.32 * lg.ankle[2], 0.34 * lg.side); ctx.fillStyle = ig; ctx.fill();
+      if (o.cuff) { var up = [hem[0] + (lg.knee[0] - hem[0]) * 0.1, hem[1] + (lg.knee[1] - hem[1]) * 0.1], cw = o.wHem * 1.1 * lg.ankle[2]; leg(ctx, up, [(up[0] + hem[0]) / 2, (up[1] + hem[1]) / 2], hem, cw, cw, cw); ctx.fillStyle = mix(o.cuff, o.shade, t * 0.7); ctx.fill(); }
+    });
+    var bodyScale = P.body[2] / f.h, gx = (P.body[0] * s + ox) * dpr, gy = (P.body[1] * s + oy) * dpr, pat = grain(ctx);
+    if (pat.setTransform && window.DOMMatrix) pat.setTransform(new DOMMatrix().translateSelf(gx, gy).scaleSelf(Math.max(0.5, bodyScale * s * dpr)));
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = "source-atop"; ctx.fillStyle = pat; ctx.fillRect(0, 0, cv.width, cv.height); ctx.restore();
+    /* shadows behind: a contact shadow under each planted foot, and a faint one under the body */
+    ctx.save(); ctx.globalCompositeOperation = "destination-over";
+    legs.forEach(function (lg) { var gp = P.ground(0, lg.fz), k = lg.sole[2], a = lg.planted ? 0.16 : Math.max(0, 0.16 - lg.lift * 3); ctx.fillStyle = "rgba(70,45,20," + a.toFixed(3) + ")"; ctx.beginPath(); ctx.ellipse(lg.ankle[0], gp[1] - 0.002 * k, o.shoeW * 0.62 * k, 0.012 * k, 0, 0, 2 * Math.PI); ctx.fill(); });
+    var c = P.ground(P.hx, P.zl); ctx.fillStyle = "rgba(70,45,20,0.05)"; ctx.beginPath(); ctx.ellipse(c[0], c[1] - 0.004 * c[2], 0.09 * c[2], 0.016 * c[2], 0, 0, 2 * Math.PI); ctx.fill();
+    ctx.restore();
+    /* the body: the picture down to where the legs start, at the hips' place, leaning a touch with each step */
+    var sc = bodyScale, ax0 = o.hipCx * sc, ay0 = o.split * sc;
+    ctx.save(); ctx.translate(P.body[0], P.body[1]); if (o.bobScale == null) ctx.rotate(P.g.tilt);
+    ctx.drawImage(topOf(img, f, o), 0, 0, f.w, o.split + 1, -ax0, -ay0, f.w * sc, (o.split + 1) * sc);
+    if (front && front.complete && front.naturalWidth) ctx.drawImage(front, 0, o.split, f.w, f.h - o.split, -ax0, 0, f.w * sc, (f.h - o.split) * sc); /* the cart's legs, in front of hers */
+    ctx.restore();
+  }
+  return { draw: draw, gait: gait, pose: pose, Dend: Dend };
+})();
+function gait(k) { /* the walker's canvas, and their picture for it (rule 69b) */
+  var f = IMG["w-" + k], st = f && f.stride; if (!st) return "";
+  return '<canvas class="stride" aria-hidden="true"></canvas><img class="wsrc" src="' + imgUrl("w-" + k) + '" alt="" hidden>' + (st.front ? '<img class="wfront" src="' + imgUrl(st.front) + '" alt="" hidden>' : "");
 }
-/* where a walker is on the sidewalk, u from 0 (far down the walk) to 1 (in front of you): they keep a steady pace, so they grow
-   slowly at first and quickly at the end, as anyone walking toward you does */
+/* where a walker is on the sidewalk, u from 0 (down the walk) to 1 (in front of you) */
 function walkAt(who, u) {
   var el = document.getElementById("pov-" + who); if (!el) return;
-  var wk = el.querySelector(".wk"), k = el.getAttribute("data-k"), m = IMG.walkway, f = IMG["w-" + k], W = el.clientWidth, Hh = el.clientHeight; if (!wk || !W || !Hh) return;
-  var s = Math.max(W / m.w, Hh / m.h), ox = (W - m.w * s) / 2, oy = (Hh - m.h * s) * 0.5;
-  var z0 = 8, z1 = 1, z = z0 - (z0 - z1) * Math.max(0, Math.min(1, u)), qq = (1 / z - 1 / z0) / (1 / z1 - 1 / z0);
-  var fx = (m.far[0] + (m.near[0] - m.far[0]) * qq) * m.w, fy = (m.far[1] + (m.near[1] - m.far[1]) * qq) * m.h, h = 1060 * z1 / z, w = h * f.w / f.h;
-  wk.style.width = (w * s).toFixed(1) + "px"; wk.style.height = (h * s).toFixed(1) + "px";
-  wk.style.transform = "translate(" + (ox + fx * s - w * s / 2).toFixed(1) + "px," + (oy + fy * s - h * s).toFixed(1) + "px)";
-  /* the steps keep time with the ground covered (outside review, Nov 21): about two a second at a walk, fewer when they slow, none
-     when they stand, so they never step in place or glide. The legs switch as the body is highest (the bob's top). */
-  var now = performance.now(), g = el.__g || (el.__g = { p: 0, t: now, u: u }), dt = Math.min(0.1, (now - g.t) / 1000), v = dt > 0 ? Math.abs(u - g.u) / dt : 0;
-  g.t = now; g.u = u; if (v > 0) g.p += dt * 1.8 * Math.max(0.5, Math.min(1.25, v / 0.31)); /* 0.31: rule 54b's calm walk-up (POV_S), about two steps a second */
-  el.setAttribute("data-step", Math.floor(g.p + 0.5) % 2 ? "b" : "a");
-  var gt = wk.querySelector(".gait"); if (gt) gt.style.transform = "translateY(" + (-1.1 * Math.pow(Math.sin(Math.PI * g.p), 2)).toFixed(3) + "%)";
+  var k = el.getAttribute("data-k"), f = IMG["w-" + k], cv = el.querySelector("canvas.stride");
+  if (cv && f && f.stride) STRIDE.draw(cv, IMG.walkway, f, el.querySelector("img.wsrc"), el.querySelector("img.wfront"), f.stride, u);
 }
 /* the storefront with nobody in it yet */
 function sceneStore() { return '<div class="ph shop" data-img="store" role="img" aria-label="Westside Market, with your table out front"><div class="fr"><img class="bg" src="' + imgUrl("store") + '" alt="" decoding="async"></div></div>'; }
