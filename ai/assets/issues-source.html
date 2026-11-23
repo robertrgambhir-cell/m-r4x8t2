@@ -83,7 +83,7 @@
   .goal { margin: 0; background: var(--p-soft); color: var(--p-deep); border-radius: 14px; padding: 11px 13px; font: 600 14.5px/1.4 var(--sans); }
   .lesson.open { background: #fff; border: 1.5px solid var(--p-green); }
   .lesson.open .n { background: var(--p-ink); border-color: var(--p-ink); color: #fff; }
-  .lesson.locked { cursor: default; opacity: .62; }
+  .lesson.locked { cursor: default; color: var(--p-kick); }
   .lesson.locked .n { color: var(--p-kick); }
   .srcbtn { border: 0; background: none; color: var(--p-src-ink); font: 700 13.5px var(--sans); text-decoration: underline; padding: 0; cursor: pointer; }
   .srclist { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
@@ -180,6 +180,7 @@
   .st-top { display: flex; align-items: center; gap: 8px; margin: 10px 0 4px; font-size: 13.5px; }
   .st-top img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1.5px solid currentColor; }
   .st-top span { opacity: .65; }
+  .story:not(.dark) .st-top span, .story:not(.dark) .st-kick { opacity: 1; color: var(--p-kick); }
   .st-x { margin-left: auto; border: 0; background: none; color: inherit; font: 600 18px/1 var(--sans); width: 34px; height: 34px; cursor: pointer; opacity: .75; }
   .st-body { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 14px; padding: 10px 0; }
   .st-kick { font: 700 12px/1.2 var(--sans); letter-spacing: .14em; text-transform: uppercase; opacity: .7; }
@@ -294,7 +295,7 @@
   .nd.l .nd-t { left: 50px; } .nd.r .nd-t { right: 50px; text-align: right; }
   .nd-t b { font: 700 15px/1.2 var(--sans); }
   .nd-t span { font-size: 12.5px; color: var(--p-muted); }
-  .nd.locked .nd-t { opacity: .55; }
+  .nd.locked .nd-t { color: var(--p-kick); }
   .hm-pw { margin: auto 0 16px; padding-top: 18px; }
   /* new story cards */
   .st-icard { align-self: center; width: 240px; background: #fff; border-radius: 18px; padding: 16px 16px 14px; border: 1.5px solid #D8E8E5; transform: rotate(-4deg); display: flex; flex-direction: column; gap: 9px; animation: tilt 3.5s ease-in-out infinite; }
@@ -343,12 +344,12 @@
   .st-h.q { font-size: 28px; }
   .st-h.q.sm { font-size: 21px; }
   .qlist { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
-  .qlist li { display: flex; align-items: center; gap: 8px; font: 600 13.5px/1.25 var(--sans); color: var(--p-muted); opacity: .6; }
+  .qlist li { display: flex; align-items: center; gap: 8px; font: 600 13.5px/1.25 var(--sans); color: var(--p-kick); }
   .qlist li i { flex: none; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font: 800 11px/1 var(--sans); font-style: normal; background: #D8E8E5; color: var(--p-muted); }
   .qlist li.on { opacity: 1; color: var(--p-ink); font-weight: 700; }
   .qlist li.on i { background: #1F4C91; color: #fff; }
   .qlist li.ok i { background: var(--p-green); color: var(--btn-ink); }
-  .qlist li.ok { opacity: .8; }
+  .qlist li.ok { color: var(--p-muted); }
   .sy-micwrap { display: flex; flex-direction: column; align-items: center; gap: 14px; margin: 14px 0 4px; }
   .sy-mic { width: 120px; height: 120px; border-radius: 50%; border: 0; background: var(--btn); color: var(--mic-ink); display: grid; place-items: center; cursor: pointer; transition: width .25s, height .25s; }
   .sy-micwrap.small .sy-mic { width: 84px; height: 84px; }
@@ -760,8 +761,8 @@
   /* hear it done and catch the mistake: two faces, the line being said, the three moves */
   .duo-face { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .duo-face .who { display: grid; justify-items: center; gap: 4px; padding: 10px 6px 8px; border-radius: 20px; background: rgba(0,0,0,.035); border: 2px solid transparent; transition: border-color .25s, background .25s; }
-  .duo-face .who.on { border-color: var(--accent); background: var(--accent-soft); }
-  .duo-face .who.v.on { border-color: #d9c6a8; background: #f6ecdc; }
+  .duo-face .who.on { border-color: var(--accent-soft); background: var(--accent-soft); }
+  .duo-face .who.v.on { border-color: #f6ecdc; background: #f6ecdc; }
   .duo-face .who svg { width: 64px; height: 70px; }
   .duo-face .who b { font-size: 14px; }
   .duo-face .who span { font-size: 12px; opacity: .65; text-align: center; }
@@ -783,8 +784,8 @@
   .spot-tiles .tile { all: unset; box-sizing: border-box; width: 100%; cursor: pointer; display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; min-height: 58px; padding: 10px 14px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--card); font-size: 15.5px; line-height: 1.3; transition: transform .12s ease, border-color .2s ease, background .2s; }
   .spot-tiles .tile small { display: block; font: 700 10.5px/1.2 var(--sans); letter-spacing: .1em; text-transform: uppercase; opacity: .55; margin-bottom: 2px; }
   .spot-tiles .tile:active { transform: scale(.985); }
-  .spot-tiles .tile.ok { border-color: var(--accent); background: var(--accent-soft); }
-  .spot-tiles .tile.no { border-color: var(--bad); background: var(--bad-soft); animation: shake .35s ease; }
+  .spot-tiles .tile.ok { border-color: var(--accent-soft); background: var(--accent-soft); }
+  .spot-tiles .tile.no { border-color: var(--bad-soft); background: var(--bad-soft); animation: shake .35s ease; }
   .spot-tiles .tile em { font-style: normal; font: 800 15px/1 var(--sans); }
   @keyframes shake { 0%, 100% { transform: none; } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
   .fixbox { border-radius: 16px; padding: 12px 14px; background: var(--accent-soft); font-size: 15px; line-height: 1.42; animation: rise .35s ease both; }
@@ -878,18 +879,18 @@
   .spot-tiles .tile:active { transform: scale(.98); border-color: var(--ink); }
   .spot-tiles .tile small { font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }
   .spot-tiles.done { grid-template-columns: 1fr; gap: 6px; margin-top: 0; animation: none; }
-  .spot-tiles.done .tile { cursor: default; opacity: .5; min-height: 44px; padding: 6px 11px; flex-direction: row; align-items: center; justify-content: flex-start; gap: 9px; font-size: 14px; line-height: 1.25; }
-  .spot-tiles.done .tile.missing { opacity: 1; border: 2px solid var(--accent-ink); background: var(--accent-soft); font-weight: 600; }
-  .spot-tiles.done .tile.wrong { opacity: 1; border: 2px solid #C0564B; background: #FBEDEA; }
+  .spot-tiles.done .tile { cursor: default; color: #586E71; min-height: 44px; padding: 6px 11px; flex-direction: row; align-items: center; justify-content: flex-start; gap: 9px; font-size: 14px; line-height: 1.25; }
+  .spot-tiles.done .tile.missing { opacity: 1; border: 2px solid var(--accent-soft); background: var(--accent-soft); color: var(--ink); font-weight: 600; }
+  .spot-tiles.done .tile.wrong { opacity: 1; border: 2px solid #FFECE3; background: #FFECE3; color: var(--ink); }
   .spot-tiles .tile .sp-mk { flex: none; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; color: #FFFFFF; }
   .spot-tiles .tile.missing .sp-mk { background: var(--accent-ink); }
-  .spot-tiles .tile.wrong .sp-mk { background: #C0564B; }
+  .spot-tiles .tile.wrong .sp-mk { background: #B4472B; }
   .spot-tiles .tile .sp-tx { display: grid; gap: 1px; }
   .spot-tiles.done .tile.missing small { color: var(--accent-ink); }
-  .spot-tiles.done .tile.wrong small { color: #9C3B31; }
+  .spot-tiles.done .tile.wrong small { color: #B4472B; }
   /* feedback cards, as in the warm-up */
   .fb { margin-top: 10px; padding: 14px 15px; border-radius: 20px; background: var(--card); border: 1.5px solid var(--line); }
-  .fb.strong, .fb.try { border-color: var(--accent); background: var(--accent-soft); }
+  .fb.strong, .fb.try { border-color: var(--accent-soft); background: var(--accent-soft); }
   .fb.try.partial { border-color: var(--line); background: var(--card); }
   .fb h3 { margin: 0 0 6px; font-family: var(--serif); font-weight: 500; font-size: 21px; line-height: 1.2; }
   .fb p { margin: 0; font-size: 15px; line-height: 1.45; }
@@ -1140,10 +1141,10 @@
   .sb2 .pseg button.cur .seg, .sb2 .pseg button.done .seg { opacity: 1; background: var(--p-track); }
   .story.dark .sb2 .pseg button.cur .seg, .story.dark .sb2 .pseg button.done .seg { background: rgba(255,255,255,.22); }
   .sb2 .pseg .seg i { position: absolute; inset: 0 auto 0 0; border-radius: 6px; background: var(--accent); transition: width .45s cubic-bezier(.2,.8,.2,1); }
-  .sb2 .pseg .nm { font: 700 10px/1.1 var(--sans); white-space: nowrap; text-align: center; opacity: .5; letter-spacing: -.01em; }
+  .sb2 .pseg .nm { font: 700 10px/1.1 var(--sans); white-space: nowrap; text-align: center; color: var(--p-kick); letter-spacing: -.01em; }
   .sb2 .pseg button.cur .nm { opacity: 1; color: var(--accent-ink); }
   .story.dark .sb2 .pseg button.cur .nm { color: #9ee6bf; }
-  .sb2 .pseg button.done .nm { opacity: .75; }
+  .sb2 .pseg button.done .nm { color: var(--p-muted); }
   .sb2 button:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; border-radius: 4px; }
   .sb2.enter .lchip { animation: chipIn .55s cubic-bezier(.2,.8,.2,1) both; }
   .sb2.enter .pseg button { animation: segIn .5s cubic-bezier(.2,.8,.2,1) both; }
@@ -1287,11 +1288,12 @@
   .g12 .hr-ic { position: relative; width: calc(54px * var(--k)); height: calc(54px * var(--k)); border-radius: 50%; background: var(--c); display: grid; place-items: center; }
   .g12 .hr-ic svg { width: 58%; height: 58%; }
   .g12 .hr-ic i { position: absolute; top: -4px; left: -4px; width: 22px; height: 22px; border-radius: 50%; background: #fff; color: var(--ink); font: 800 12px/19px var(--sans); font-style: normal; text-align: center; border: 1.5px solid var(--line); }
-  .g12 .hr.locked .hr-ic { filter: grayscale(.85); opacity: .55; }
+  .g12 .hr.locked .hr-ic { background: #D8E8E5; }
+  .g12 .hr.locked .hr-ic svg { filter: grayscale(1); opacity: .55; }
   .g12 .hr-tx { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
   .g12 .hr-tx b { font: 800 calc(16.5px * var(--k))/1.15 var(--sans); }
   .g12 .hr-tx q { position: relative; align-self: flex-start; quotes: "\201C" "\201D"; font: 500 calc(13.5px * var(--k))/1.3 var(--sans); color: var(--body); background: #E9F5FA; border-radius: 4px 12px 12px 12px; padding: 5px 9px; }
-  .g12 .hr.locked .hr-tx { opacity: .6; }
+  .g12 .hr.locked .hr-tx, .g12 .hr.locked .hr-tx q { color: #586E71; }
   .g12 .hr-parts { font: 700 calc(12.5px * var(--k))/1.2 var(--sans); color: var(--green-deep); }
   .g12 .hr-mini { display: flex; height: 6px; border-radius: 3px; overflow: hidden; width: 120px; margin-top: 2px; }
   .g12 .hr-mini i { display: block; } .g12 .hr-mini i.l { flex: 3; background: var(--green); } .g12 .hr-mini i.p { flex: 2; background: #4a7fd1; border-left: 2px solid #fff; }
@@ -1364,7 +1366,7 @@
   .g12.hear12 .door12 { min-height: 72px; }
   .g12 .thread12.give { min-height: 0; flex: 1 1 0; }
   .g12.hear12 .things12 { flex: none; gap: 6px; border-top: 2px solid var(--line); padding-top: 10px; }
-  .g12.hear12 .things12 li { opacity: .35; }
+  .g12.hear12 .things12 li:not(.y) b { color: #586E71; }
   .g12.hear12 .things12 li.y { opacity: 1; }
   .g12.hear12 .things12 li > svg, .g12.hear12 .things12 li > i { width: 20px; height: 20px; font-size: 11px; }
   .g12.hear12 .things12 b { font-size: 14px; }
@@ -1409,6 +1411,8 @@
   .g12 .win12 { flex: none; display: flex; flex-direction: column; align-items: flex-start; gap: calc(12px * var(--k)); background: var(--win); border-radius: 24px; padding: calc(18px * var(--k)) 18px; }
   .g12 .win12 .ring12 { width: calc(64px * var(--k)); height: calc(64px * var(--k)); }
   .g12 .win12 h2 { color: var(--ink); }
+  /* a result that isn't a win (rule 54): the same words in a white panel with a 1.5px line, the ring open in three parts */
+  .g12 .win12.plain { background: #FFFFFF; border: 1.5px solid #D8E8E5; }
   @media (max-height: 620px) {
     .g12 .body.chat h2 { font-size: 20px; }
     .g12 .tiles12 { gap: 6px; }
@@ -2459,6 +2463,9 @@
   var OK12 = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#16C79A"/><path d="M7 12.5l3.2 3.2L17 9" stroke="#0E2F2B" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var NO12 = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#D8E8E5"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="#586E71" stroke-width="2.6" stroke-linecap="round"/></svg>';
   var RING12 = '<svg class="ring12" viewBox="0 0 100 100" aria-hidden="true"><circle class="rt" cx="50" cy="50" r="42.5" fill="none" stroke="#D8E8E5" stroke-width="15"/><circle class="ra" cx="50" cy="50" r="42.5" fill="none" stroke="#16C79A" stroke-width="15" transform="rotate(-90 50 50)"/><path class="rc" d="M31 52 L44 65 L69 39" fill="none" stroke="#0E2F2B" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>'; /* version 175: the ring that closes the win */
+  function ringOpen12(h) { /* version 175: a result that isn't a win keeps the ring open, one part per thing, mint for each thing the best try had */
+    return '<svg class="ring12 open" viewBox="0 0 100 100" aria-hidden="true">' + ["M52.96 7.60 A42.5 42.5 0 0 1 88.20 68.63", "M85.23 73.77 A42.5 42.5 0 0 1 14.77 73.77", "M11.80 68.63 A42.5 42.5 0 0 1 47.04 7.60"].map(function (d, k) { return '<path d="' + d + '" fill="none" stroke="' + (h[k] ? "#16C79A" : "#D8E8E5") + '" stroke-width="15"/>'; }).join("") + '</svg>';
+  }
   var BAD12 = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#B4472B"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>';
 
   /* which of the eight Practice screens this is (GA P1 to GA P8) */
@@ -2495,7 +2502,7 @@
   }
   function draw12(o) {
     $("body").innerHTML = '<div class="g12 pr12' + (o.cls ? " " + o.cls : "") + '" id="g12"><div class="top"><button class="x" type="button" id="home" aria-label="Close lesson">' + X12 + '</button>' + bar12() + '</div>' +
-      '<div class="body' + (o.chat ? " chat" : "") + '" id="g12b">' + (o.win ? '<div class="win12">' + RING12 + '<h2>' + o.h + '</h2></div>' : '<h2>' + o.h + '</h2>') + o.body + '</div><div class="foot' + (o.col ? " col" : "") + '">' + (o.btns || "") + '</div></div>';
+      '<div class="body' + (o.chat ? " chat" : "") + '" id="g12b">' + (o.win ? '<div class="win12">' + RING12 + '<h2>' + o.h + '</h2></div>' : o.ring ? '<div class="win12 plain">' + o.ring + '<h2>' + o.h + '</h2></div>' : '<h2>' + o.h + '</h2>') + o.body + '</div><div class="foot' + (o.col ? " col" : "") + '">' + (o.btns || "") + '</div></div>';
     foot("");
     if (!o.chat) refit12();
     var th = $("thread12"); if (th) th.scrollTop = th.scrollHeight;
@@ -2591,7 +2598,7 @@
     var a = (S.res1 && S.res1.hits) || [false, false, false], b = (S.res && S.res.hits) || [false, false, false];
     var na = a.filter(Boolean).length, nb = b.filter(Boolean).length;
     var rows = x.things.map(function (m, k) { return '<tr><th>' + esc(m[1]) + '</th><td>' + (a[k] ? OK12 : NO12) + '</td><td>' + (b[k] ? OK12 : NO12) + '</td></tr>'; }).join("");
-    draw12({ h: nb > na ? "You went from " + na + " to " + nb + " of the 3 things" : "You got " + nb + " of the 3 things, twice", win: true,
+    draw12({ h: nb > na ? "You went from " + na + " to " + nb + " of the 3 things" : "You got " + nb + " of the 3 things, twice", win: Math.max(na, nb) === 3, ring: ringOpen12(nb >= na ? b : a),
       body: '<table class="grow12"><thead><tr><th></th><th>1st try</th><th>2nd try</th></tr></thead><tbody>' + rows + '</tbody></table>' +
         '<div class="reveal12"><b>Where this lesson came from</b><p>Maya stood in for <strong>' + esc(x.from) + '</strong>, the Democrat in the 2026 ' + esc(x.race) + ' race. Her Republican opponent is <strong>' + esc(x.opp) + '</strong>.</p><button class="lnk" type="button" id="srcs">See all sources</button></div>',
       btns: '<button class="next" type="button" id="home">Back to your briefs</button>' });

@@ -192,9 +192,9 @@ export const LESSONS = {
     coverH: "Three things we want you to know about your electric bill",
     startLabel: "Play the one-minute story",
     points: [
-      ["Bills are up more than half since 2019", "#FDF1DC", '<span style="color:#E08A1A;display:contents">' + BOLT + "</span>"],
-      ["Data centers are the biggest new reason", "#E3E8F0", '<span style="color:#1F2A3D;display:contents">' + SERVER + "</span>"],
-      ["Maya makes them pay their own way. Her opponent leaves it to each state", "#E7EEF9", '<span style="color:#1F4C91;display:contents">' + CHECK + "</span>"],
+      ["Bills are up more than half since 2019", "#FFF1B0", '<span style="color:#5B4A1E;display:contents">' + BOLT + "</span>"],
+      ["Data centers are the biggest new reason", "#E2F3FC", '<span style="color:#0B6199;display:contents">' + SERVER + "</span>"],
+      ["Maya makes them pay their own way. Her opponent leaves it to each state", "#DDF7EE", '<span style="color:#00795F;display:contents">' + CHECK + "</span>"],
     ],
     beats: [
       { h: "Home electric bills are up more than half since 2019", lines: [0, 1, 2], art: `<div class="a"><div class="a-bill rise" data-at="0"><div class="a-bill-h">${BOLT}Monthly electric bill</div><hr><div class="a-bars"><div class="a-b rise" data-at="1"><span class="v">$89</span><i style="height:48%"></i><small>2019</small></div><div class="a-b hot rise" data-at="2"><span class="v">$145</span><i style="height:78%"></i><small>This January</small></div></div><div class="a-stamp pop" data-at="2">Up more<br>than half</div></div></div>` },
@@ -236,8 +236,8 @@ export const LESSONS = {
     coverH: "Three things we want you to know about school vouchers",
     startLabel: "Play the one-minute story",
     points: [
-      ["$1 billion in tax money for private school, to start", "#E7EEF9", '<span style="color:#1F4C91;display:contents">' + SCHOOL + "</span>"],
-      ["7 in 10 vouchers went to kids who weren’t in public school", "#FCEBD8", '<span style="color:#E08A2C;display:contents">' + KIDS + "</span>"],
+      ["$1 billion in tax money for private school, to start", "#E2F3FC", '<span style="color:#0B6199;display:contents">' + SCHOOL + "</span>"],
+      ["7 in 10 vouchers went to kids who weren’t in public school", "#FFECE3", '<span style="color:#B4472B;display:contents">' + KIDS + "</span>"],
       ["Maya fights vouchers. Her opponent vowed to defend them", "#DDF7EE", '<span style="color:#00795F;display:contents">' + CHECK + "</span>"],
     ],
     beats: [

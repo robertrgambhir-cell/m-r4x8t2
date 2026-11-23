@@ -254,7 +254,7 @@ function micState(k, html) {
   var cs = $("#capts"), nt = cs && cs.querySelector(".capt.note.mic");
   if (cs && html) { if (!nt) { nt = document.createElement("div"); cs.appendChild(nt); } nt.className = "capt note mic"; nt.innerHTML = html; html = ""; } /* on the call, a note sits on the picture, so the card never jumps */
   else if (nt) nt.remove();
-  if (t) t.innerHTML = html != null ? html : ""; var f = $("#typed"); if (f) { f.style.opacity = k === "wait" ? .5 : 1; $("#say").disabled = k === "wait"; } }
+  if (t) t.innerHTML = html != null ? html : ""; var f = $("#typed"); if (f) { f.classList.toggle("off", k === "wait"); $("#say").disabled = k === "wait"; } } /* off by color, never opacity (version 12) */
 /* the live card, as the door-knocking lessons have it (version 8, Robert, Nov 20, 3:51 PM: theirs "is a green button. It shows the
    voice feature going up and down anytime it's hearing your voice"): a big mic, white while it starts and mint once it listens,
    bars that move while your words come in, and the words themselves. It sits over the bottom of the picture, or over the button

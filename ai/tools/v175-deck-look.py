@@ -486,6 +486,50 @@ const ringW = (s) => Math.round(s * 0.15);''')
     # the review copy opens its own copy of the rebuilt issue trainings (review/train/); the live demo keeps train/ until "ship it"
     sw("ov.innerHTML = '<iframe src=\"/wdpfxqlsvp/train/?l=' + lesson",
        "ov.innerHTML = '<iframe src=\"' + (/\\/review\\//.test(location.pathname) ? \"/wdpfxqlsvp/review/train/\" : \"/wdpfxqlsvp/train/\") + '?l=' + lesson")
+    # ------------------------------------------------------------- the outside review's fixes (rule 63), version 175
+    # an off button keeps its words readable: its own colors, not a fade (every word 4.5 to 1, rule 58)
+    sw("  .btn:disabled { opacity: 0.38; cursor: not-allowed; }\n",
+       "  .btn:disabled { opacity: 0.38; cursor: not-allowed; }\n"
+       "  [data-skin=\"recognize\"] .btn:disabled, [data-skin=\"recognize\"] .iconbtn:disabled, [data-skin=\"recognize\"] .mic-btn:disabled { opacity: 1; background: var(--track); border-color: var(--track); color: var(--ink-2); } /* version 175: an off button keeps its words readable */\n"
+       "  [data-skin=\"recognize\"] .btn.secondary:disabled { background: var(--card); border-color: var(--line); color: var(--ink-3); }\n"
+       "  [data-skin=\"recognize\"] .mic-btn:disabled .mic-dot { background: #FFFFFF; color: var(--ink-3); }\n")
+    # an answer left unchosen keeps readable words (color, not a fade); right and wrong are fill only, no colored outline (rule 58d)
+    sw(".spot-tiles.done .tile { cursor: default; opacity: .4; min-height: 46px;", ".spot-tiles.done .tile { cursor: default; opacity: 1; color: var(--ink-3); min-height: 46px;")
+    sw(".spot-tiles.done .tile { cursor: default; opacity: 0.5; min-height: 44px;", ".spot-tiles.done .tile { cursor: default; opacity: 1; color: var(--ink-3); min-height: 44px;")
+    sw(".spot-tiles.done .tile.missing { opacity: 1; border: 2px solid var(--accent); background: var(--accent-soft); font-weight: 700; }",
+       ".spot-tiles.done .tile.missing { opacity: 1; color: var(--ink); border: 2px solid var(--accent-soft); background: var(--accent-soft); font-weight: 700; }")
+    sw(".spot-tiles.done .tile.mine { opacity: .8; border-style: dashed; border-color: var(--ink-3); }", ".spot-tiles.done .tile.mine { opacity: 1; border-style: dashed; border-color: var(--ink-3); }")
+    sw(".spot-tiles.done .tile.missing { opacity: 1; border: 2px solid var(--accent-ink); background: var(--accent-soft); font-weight: 600; }",
+       ".spot-tiles.done .tile.missing { opacity: 1; color: var(--ink); border: 2px solid var(--accent-soft); background: var(--accent-soft); font-weight: 600; }")
+    sw(".spot-tiles.done .tile.wrong { opacity: 1; border: 2px solid var(--bad); border-style: solid; background: var(--bad-soft); }",
+       ".spot-tiles.done .tile.wrong { opacity: 1; color: var(--ink); border: 2px solid var(--bad-soft); border-style: solid; background: var(--bad-soft); }")
+    sw(".spot-tiles .tile.missing .sp-mk { background: var(--accent-ink); }", ".spot-tiles .tile.missing .sp-mk { background: var(--accent); color: var(--mark-ink); }")
+    sw(".spot-opts .opt.is-right { border-color: var(--accent); background: var(--accent-soft); }", ".spot-opts .opt.is-right { border-color: var(--accent-soft); background: var(--accent-soft); }")
+    sw(".rec-badges li.zero .ring-wrap { opacity: 0.7; }", ".rec-badges li.zero .ring-wrap { opacity: 1; }")
+    # a check on a badge is pine on mint, as everywhere
+    sw(".chp-badge.done { background: var(--accent-ink); color: #FFFFFF; }", ".chp-badge.done { background: var(--accent); color: var(--mark-ink); }")
+    # Maya's issue lessons' progress is mint like every bar and ring (rule 58); her name block keeps her blue
+    sw(".lp-bar.blue i.on { background: var(--maya-stage, #1F4C91); }", ".lp-bar.blue i.on { background: var(--accent); }")
+    sw('return ringMedal(parts, done, 40, brief ? "var(--maya, #1F4C91)" : "");', "return ringMedal(parts, done, 40);")
+    sw('const on = brief ? "#1F4C91" : "#16C79A", off = brief ? "#D3DCEB" : "#D8E8E5", won = n >= (brief ? NB() : 5);', 'const on = "#16C79A", off = "#D8E8E5", won = n >= (brief ? NB() : 5);')
+    sw('"The campaign’s " + NWORD(NB()) + " issue lessons", "var(--maya, #1F4C91)")', '"The campaign’s " + NWORD(NB()) + " issue lessons", true)')
+    # no sparkles on How you grew: the ring closing is the reward
+    P.resub(r'const GV_SPARK = \(x, y, s, at\) => `<svg class="gv-spark"[^`]*`;', 'const GV_SPARK = () => ""; /* version 175: no sparkles; the ring closing is the reward */')
+    # the two older finish screens (the demo menu's ready screens) take the win too
+    sw('''    <div class="badge-art"><div class="ring-wrap" style="width:168px;height:168px">${ring(1, 168, 20)}<span class="ring-num"><svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true"><path d="M16 33 L28 45 L49 21" fill="none" stroke="var(--ink)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div></div>
+    <h1 class="h1" style="text-align:center">Ready before the shift.</h1>
+    <p class="lede" style="text-align:center">All three lessons done for ${t.shift}. See you there.</p>
+    <div class="record">''', '''    <div class="win"><div class="ring-wrap" style="width:116px;height:116px">${ringGrow(0.75, 1, 116, ringW(116))}<span class="ring-num win-ck pop">${WIN_CK}</span></div>
+    <h1 class="h1">Ready before the shift.</h1>
+    <p class="lede">All three lessons done for ${t.shift}. See you there.</p></div>
+    <div class="record win-next">''')
+    sw('''    <div class="badge-art"><div class="ring-wrap" style="width:150px;height:150px">${ring(1, 150, 18)}<span class="ring-num"><svg width="56" height="56" viewBox="0 0 64 64" aria-hidden="true"><path d="M16 33 L28 45 L49 21" fill="none" stroke="var(--ink)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div></div>
+    <h1 class="h1" style="text-align:center">Ready for Saturday.</h1>
+    <p class="lede" style="text-align:center">You warmed up within a day of your shift, so it counts as a ready shift. See you at 9 AM on the Elm Street side.</p>
+    <div class="record">''', '''    <div class="win"><div class="ring-wrap" style="width:116px;height:116px">${ringGrow(0.75, 1, 116, ringW(116))}<span class="ring-num win-ck pop">${WIN_CK}</span></div>
+    <h1 class="h1">Ready for Saturday.</h1>
+    <p class="lede">You warmed up within a day of your shift, so it counts as a ready shift. See you at 9 AM on the Elm Street side.</p></div>
+    <div class="record win-next">''')
     return P
 
 
@@ -504,7 +548,8 @@ for path in APPS:
 # white words; the issue icons are tinted tiles with a darker drawing; the briefing hero is a flat Maya blue; no shadows,
 # glows, gradients or 3D button edges in the frame. A lesson's end holds the win panel: a light mint panel with the Warmup
 # ring, whose last quarter closes to a full circle before a pine check appears (closed at once with reduced motion), and the
-# next step under it in a pale blue panel. Words, screens, order, timing, voices, grading and the train links are unchanged.
+# next step under it in a pale blue panel. A result that isn't a win (the lesson's end when the better try didn't have all
+# three things) keeps the same words in a plain white panel with an open ring, one part per thing, and no check. Words, screens, order, timing, voices, grading and the train links are unchanged.
 # Pictures (people, doors, houses, the news clippings, charts' data colors) keep their colors.
 #
 # How: patch_issues(s, path) takes the text of one issue lessons page (ai/assets/issues-source.html,
@@ -524,6 +569,11 @@ RING12 = ('<svg class="ring12" viewBox="0 0 100 100" aria-hidden="true">'
           '<circle class="rt" cx="50" cy="50" r="42.5" fill="none" stroke="#D8E8E5" stroke-width="15"/>'
           '<circle class="ra" cx="50" cy="50" r="42.5" fill="none" stroke="#16C79A" stroke-width="15" transform="rotate(-90 50 50)"/>'
           '<path class="rc" d="M31 52 L44 65 L69 39" fill="none" stroke="#0E2F2B" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>')
+# a result that isn't a win: the ring open in three parts from 12 o'clock, 8 degrees apart, mint for each thing the best try had
+RINGOPEN12 = ("  function ringOpen12(h) { /* version 175: a result that isn't a win keeps the ring open, one part per thing, mint for each thing the best try had */\n"
+              "    return '<svg class=\"ring12 open\" viewBox=\"0 0 100 100\" aria-hidden=\"true\">' + [\"M52.96 7.60 A42.5 42.5 0 0 1 88.20 68.63\", \"M85.23 73.77 A42.5 42.5 0 0 1 14.77 73.77\", \"M11.80 68.63 A42.5 42.5 0 0 1 47.04 7.60\"]"
+              ".map(function (d, k) { return '<path d=\"' + d + '\" fill=\"none\" stroke=\"' + (h[k] ? \"#16C79A\" : \"#D8E8E5\") + '\" stroke-width=\"15\"/>'; }).join(\"\") + '</svg>';\n"
+              "  }\n")
 
 # retired values still in the page's style block once the swaps in patch_issues are done, mapped to the deck look (see CSS_KEEP)
 RETIRED = {
@@ -775,6 +825,35 @@ def patch_issues(s, path):
     ]:
         C(old, new)
 
+    # every word holds 4.5 to 1, so nothing that is off or not chosen is faded with opacity: a locked lesson, a thing the
+    # canvasser hasn't said yet and a part not reached are quieter words (#586E71); a locked lesson's tile is the off color
+    C(".g12 .hr.locked .hr-ic { filter: grayscale(.85); opacity: .55; }",
+      ".g12 .hr.locked .hr-ic { background: #D8E8E5; }\n  .g12 .hr.locked .hr-ic svg { filter: grayscale(1); opacity: .55; }")
+    C(".g12 .hr.locked .hr-tx { opacity: .6; }", ".g12 .hr.locked .hr-tx, .g12 .hr.locked .hr-tx q { color: #586E71; }")
+    C(".g12.hear12 .things12 li { opacity: .35; }", ".g12.hear12 .things12 li:not(.y) b { color: #586E71; }")
+    C(".sb2 .pseg .nm { font: 700 10px/1.1 var(--sans); white-space: nowrap; text-align: center; opacity: .5; letter-spacing: -.01em; }",
+      ".sb2 .pseg .nm { font: 700 10px/1.1 var(--sans); white-space: nowrap; text-align: center; color: var(--p-kick); letter-spacing: -.01em; }")
+    C(".sb2 .pseg button.done .nm { opacity: .75; }", ".sb2 .pseg button.done .nm { color: var(--p-muted); }")
+    C(".st-top span { opacity: .65; }", ".st-top span { opacity: .65; }\n  .story:not(.dark) .st-top span, .story:not(.dark) .st-kick { opacity: 1; color: var(--p-kick); }")
+    C(".lesson.locked { cursor: default; opacity: .62; }", ".lesson.locked { cursor: default; color: var(--p-kick); }")
+    C(".nd.locked .nd-t { opacity: .55; }", ".nd.locked .nd-t { color: var(--p-kick); }")
+    C("font: 600 13.5px/1.25 var(--sans); color: var(--p-muted); opacity: .6; }", "font: 600 13.5px/1.25 var(--sans); color: var(--p-kick); }")
+    C(".qlist li.ok { opacity: .8; }", ".qlist li.ok { color: var(--p-muted); }")
+    # an answer not chosen is a white card with a 1.5px line and quieter words; a right or wrong answer is a fill only (the border
+    # the same as the fill: the mark carries the meaning), in the deck's right #DDF7EE and wrong #FFECE3 with #B4472B marks
+    C(".spot-tiles.done .tile { cursor: default; opacity: .5;", ".spot-tiles.done .tile { cursor: default; color: #586E71;")
+    C(".spot-tiles.done .tile.missing { opacity: 1; border: 2px solid var(--accent-ink); background: var(--accent-soft); font-weight: 600; }",
+      ".spot-tiles.done .tile.missing { opacity: 1; border: 2px solid var(--accent-soft); background: var(--accent-soft); color: var(--ink); font-weight: 600; }")
+    C(".spot-tiles.done .tile.wrong { opacity: 1; border: 2px solid #C0564B; background: #FBEDEA; }",
+      ".spot-tiles.done .tile.wrong { opacity: 1; border: 2px solid #FFECE3; background: #FFECE3; color: var(--ink); }")
+    C(".spot-tiles .tile.wrong .sp-mk { background: #C0564B; }", ".spot-tiles .tile.wrong .sp-mk { background: #B4472B; }")
+    C(".spot-tiles.done .tile.wrong small { color: #9C3B31; }", ".spot-tiles.done .tile.wrong small { color: #B4472B; }")
+    C(".spot-tiles .tile.ok { border-color: var(--accent); background: var(--accent-soft); }", ".spot-tiles .tile.ok { border-color: var(--accent-soft); background: var(--accent-soft); }")
+    C(".spot-tiles .tile.no { border-color: var(--bad); background: var(--bad-soft);", ".spot-tiles .tile.no { border-color: var(--bad-soft); background: var(--bad-soft);")
+    C(".fb.strong, .fb.try { border-color: var(--accent); background: var(--accent-soft); }", ".fb.strong, .fb.try { border-color: var(--accent-soft); background: var(--accent-soft); }")
+    C(".duo-face .who.on { border-color: var(--accent); background: var(--accent-soft); }", ".duo-face .who.on { border-color: var(--accent-soft); background: var(--accent-soft); }")
+    C(".duo-face .who.v.on { border-color: #d9c6a8; background: #f6ecdc; }", ".duo-face .who.v.on { border-color: #f6ecdc; background: #f6ecdc; }")
+
     # a mark on mint is pine, never white (checks, numbers and mics on mint)
     WOM = re.compile(r"(background: var\(--(?:p-green|accent)\); color: )#fff;")
     n = len(WOM.findall(box["css"]))
@@ -808,6 +887,8 @@ def patch_issues(s, path):
       "  .g12 .win12 { flex: none; display: flex; flex-direction: column; align-items: flex-start; gap: calc(12px * var(--k)); background: var(--win); border-radius: 24px; padding: calc(18px * var(--k)) 18px; }\n"
       "  .g12 .win12 .ring12 { width: calc(64px * var(--k)); height: calc(64px * var(--k)); }\n"
       "  .g12 .win12 h2 { color: var(--ink); }\n"
+      "  /* a result that isn't a win (rule 54): the same words in a white panel with a 1.5px line, the ring open in three parts */\n"
+      "  .g12 .win12.plain { background: #FFFFFF; border: 1.5px solid #D8E8E5; }\n"
       "  @media (max-height: 620px) {\n    .g12 .body.chat h2 { font-size: 20px; }")
 
     # ---------- the page's script: icons, hero, marks and the win panel's markup ----------
@@ -846,18 +927,20 @@ def patch_issues(s, path):
       '<circle cx="12" cy="12" r="11" fill="#D8E8E5"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="#586E71"')
     J('<circle cx="12" cy="12" r="11" fill="#b3261e"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="#fff"',
       '<circle cx="12" cy="12" r="11" fill="#B4472B"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="#fff"')
-    J("  var BAD12 = '", "  var RING12 = '" + RING12 + "'; /* version 175: the ring that closes the win */\n  var BAD12 = '")
+    J("  var BAD12 = '", "  var RING12 = '" + RING12 + "'; /* version 175: the ring that closes the win */\n" + RINGOPEN12 + "  var BAD12 = '")
     # the learner's own lines get their own class, for the deep green bubble
     J("return '<div class=\"msg ' + (me || cv ? \"you\" : \"bri\") + ", "return '<div class=\"msg ' + (me ? \"you me\" : cv ? \"you\" : \"bri\") + ")
     # the talk button knows when it is listening
     J("btns = '<button class=\"next\" type=\"button\" id=\"talk\">' + MIC12 + ",
       "btns = '<button class=\"next talk12' + (r.listening ? \" on\" : \"\") + '\" type=\"button\" id=\"talk\">' + MIC12 + ")
-    # the win panel: the ring and the headline in a light mint panel (the medal on a won 2nd try becomes the ring)
+    # the win panel: the ring and the headline in a light mint panel (the medal on a won 2nd try becomes the ring); the lesson's
+    # end shows the win only when its best try had all 3 things, and otherwise the open ring in a plain panel (rule 54)
     J("'\" id=\"g12b\"><h2>' + o.h + '</h2>' + o.body + '</div>",
-      "'\" id=\"g12b\">' + (o.win ? '<div class=\"win12\">' + RING12 + '<h2>' + o.h + '</h2></div>' : '<h2>' + o.h + '</h2>') + o.body + '</div>")
+      "'\" id=\"g12b\">' + (o.win ? '<div class=\"win12\">' + RING12 + '<h2>' + o.h + '</h2></div>' : o.ring ? '<div class=\"win12 plain\">' + o.ring + '<h2>' + o.h + '</h2></div>' : '<h2>' + o.h + '</h2>') + o.body + '</div>")
     J("cls: all ? \"won\" : \"\",\n      body: (all ? '<div class=\"badge12\">' + OK12 + '</div>' : '') + things12(R.hits)",
       "cls: all ? \"won\" : \"\", win: all,\n      body: things12(R.hits)")
-    J("\" of the 3 things, twice\",\n      body: '<table class=\"grow12\">", "\" of the 3 things, twice\", win: true,\n      body: '<table class=\"grow12\">")
+    J("\" of the 3 things, twice\",\n      body: '<table class=\"grow12\">",
+      "\" of the 3 things, twice\", win: Math.max(na, nb) === 3, ring: ringOpen12(nb >= na ? b : a),\n      body: '<table class=\"grow12\">")
     # the older lesson end: the same ring on a white screen
     J("shell({ bg: BLUE_BG, dark: true, cls: \"donec\", body: '<div class=\"dn-top\"><svg viewBox=\"0 0 48 48\" width=\"74\" height=\"74\" aria-hidden=\"true\"><circle cx=\"24\" cy=\"24\" r=\"20\" fill=\"#7ee0a8\"/><path d=\"M15.5 24.5 L21.5 30.5 L33 18.5\" fill=\"none\" stroke=\"#163a72\" stroke-width=\"3.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>",
       "shell({ bg: \"#FBFEFD\", dark: false, cls: \"donec\", body: '<div class=\"dn-top\">' + RING12 + '")

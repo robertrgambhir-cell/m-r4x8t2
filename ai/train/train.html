@@ -54,7 +54,7 @@ h1.lg { font-size: calc(29 * var(--u)); }
 .btn:active { transform: scale(.985); }
 .btn.ghost { background: var(--btn2); color: var(--btn2-ink); border-color: var(--btn2-line); flex: 0 1 auto; }
 .btn.blue { background: var(--btn); color: var(--btn-ink); } /* the next lesson's button: a main button like every other */
-.btn[disabled] { opacity: .45; pointer-events: none; }
+.btn[disabled] { background: #D8E8E5; border-color: #D8E8E5; color: #4C5F62; pointer-events: none; } /* an off button: the off color, never faded */
 .link { border: 0; background: none; color: var(--muted); font: 600 14px/1.2 "Figtree"; text-decoration: underline; text-underline-offset: 3px; padding: 8px 4px; cursor: pointer; }
 .tapzone { position: absolute; top: 0; bottom: 0; width: 34%; z-index: 2; background: none; border: 0; padding: 0; cursor: pointer; }
 .tapzone.l { left: 0; width: 26%; } .tapzone.r { right: 0; }
@@ -89,7 +89,7 @@ h1.lg { font-size: calc(29 * var(--u)); }
 .opt:active { transform: scale(.985); }
 .opt.right { background: var(--green-soft); border-color: var(--green-soft); }
 .opt.wrong { background: var(--red-soft); border-color: var(--red-soft); }
-.opt.faded { opacity: .45; }
+.opt.faded { background: var(--card); border-color: var(--line); color: #586E71; } /* an answer not chosen: quieter words, never faded */
 .tf { flex-direction: row; } .tf .opt { flex: 1; text-align: center; }
 .why { margin-top: 16px; display: flex; gap: 10px; align-items: flex-start; font: 600 calc(16 * var(--u))/1.4 "Figtree"; animation: in .35s ease both; }
 .why .dot { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--green); color: var(--ink); }

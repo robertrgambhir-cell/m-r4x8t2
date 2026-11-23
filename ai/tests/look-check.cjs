@@ -8,7 +8,8 @@
    2. Rendered: real screens at 390x844 with the real fonts. Every visible element and its ::before and ::after outside a
       picture: no retired color in its words, fill or border; no shadow unless it's a hairline or a mark (no blur, no offset, in a
       palette color); no gradient unless MARKS allows it; every main button mint #16C79A with deep pine #0E2F2B words, the
-      listening button deep green #00795F with white words, and no dark button anywhere.
+      listening button deep green #00795F with white words, and no dark button anywhere. Every word holds 4.5 to 1 on what's
+      behind it (3 to 1 at 44px and up), with fades and see-through fills counted, so an off button or a faded answer can't hide.
    Usage (from the repo's top folder): NODE_PATH=/opt/node-tools/node_modules node ai/tests/look-check.cjs [--live] [--static]
      --live    adds the live demo (app.html, p1/, issues/, p1/issues/, train/) and the front pages: run it after "ship it".
      --static  only the first half (no browser).
@@ -20,7 +21,8 @@ const LIVE = process.argv.includes('--live'), STATIC = process.argv.includes('--
 /* the values rule 58 retired (its "before"), and their rgb forms */
 const RETIRED = ['FCF8F2', 'FFFDF9', '262320', '5B554D', '6F685F', 'F4EEE5', 'F3F0EA', 'E3DBCF', 'E6E0D6', 'E6DFD3', '35B57C', '22895A', '1B7A4D', 'DDF0E4',
   'E6F5EC', '2F8A5F', '3E7C4F', '23744F', '9A6A0C', 'F6E7C1', 'A4432F', 'C2412D', 'F5DDD6', 'FBE8E4',
-  /* warm grays and greens the pass retired in the frame */ '8D877A', '9B9389', 'A69E92', 'B8B0A3', 'BFB8A8', 'B4AE9E', 'FDFBF6', 'FFFEFA', '1C1A18', '201D1A'];
+  /* warm grays, greens, reds and ambers the pass retired in the frame */ '8D877A', '9B9389', 'A69E92', 'B8B0A3', 'BFB8A8', 'B4AE9E', 'FDFBF6', 'FFFEFA', '1C1A18', '201D1A',
+  'C0564B', 'FBEDEA', '9C3B31', '9A3412', '9A5B12', 'D99A2B', 'FFF7E6', '8A5A0B'];
 const rgbOf = (h) => [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
 const RET_RGB = new Set(RETIRED.map((h) => rgbOf(h).join(',')));
 const OK_RING = new Set(['216,232,229', '22,199,154', '0,121,95', '251,254,253', '255,255,255', '31,76,145', '14,47,43', '221,247,238', '233,245,250']); /* line, mint, deep green, paper, card, Maya blue, pine, light mint, pale blue */
@@ -35,7 +37,8 @@ if (LIVE) PAGES.push(['wdpfxqlsvp/app.html', 'app'], ['wdpfxqlsvp/p1/index.html'
 
 /* rules a picture owns (their colors and shading are the picture's): selectors matched as regular expressions */
 const PICTURE = {
-  app: [/^\.?(vid|cut|real-door|rd-|maria-vid|sms|sb-|selfie|hl\b|voter|story-art|st-)/, /\.frame\.full::before/, /\.av\.anon/, /^\.vid-cap/, /^@keyframes (cut|vpdot)/, /\.cut-/, /\.vid-/],
+  app: [/^\[data-skin="(okafor|libraries|porch|textthree|neighbors)"\]/, /* the other campaigns' skins keep their own look */
+    /^\.?(vid|cut|real-door|rd-|maria-vid|sms|sb-|selfie|hl\b|voter|story-art|st-)/, /\.frame\.full::before/, /\.av\.anon/, /^\.vid-cap/, /^@keyframes (cut|vpdot)/, /\.cut-/, /\.vid-/],
   issues: [/^\.g12 \.(news|nw-o)\b/], /* the news clipping is a picture of a newspaper: its paper, shadow and print */
   train: [/^\.a-(donut|dash)\b/], /* a donut chart and a striped bar: the charts' own colors */
   front: [],
@@ -46,12 +49,13 @@ const PICTURE = {
 const MARKS = [/li\.near::before/, /li\.p::before/, /\.app\.more \.content/, /mask-image/];
 
 let problems = 0;
-const fail = (where, what) => { problems += 1; if (problems <= 80) console.log('  ' + where + ': ' + what); };
+const shown = {};
+const fail = (where, what) => { problems += 1; shown[where] = (shown[where] || 0) + 1; if (shown[where] <= 10) console.log('  ' + where + ': ' + what); };
 
 /* ------------------------------------------------------------------ 1. static */
 function stripDark(css) {
   let out = '', i = 0;
-  const re = /@media[^{]*prefers-color-scheme:\s*dark[^{]*\{|[^{}]*\[data-theme="dark"\][^{]*\{/g;
+  const re = /@media[^{]*prefers-color-scheme:\s*dark[^{]*\{|[^{}]*\[data-theme="dark"\][^{]*\{|@keyframes cut\w*\s*\{/g; /* dark mode stays dark; the welcome video's cutaway keyframes are the video's */
   let m;
   while ((m = re.exec(css))) {
     out += css.slice(i, m.index);
@@ -88,7 +92,7 @@ function staticCheck(file, kind) {
       const [prop, ...rest] = d.split(':'), v = rest.join(':').trim(), p = (prop || '').trim();
       if (!p || !v) continue;
       if (p === 'box-shadow' && v !== 'none') {
-        const ok = v.split(/,(?![^(]*\))/).every((sh) => /^(inset\s+)?0(px)?\s+0(px)?\s+0(px)?\s+[\d.]+px\s+(var\(--(line|track|paper|card|accent|accent-ink|maya|camp|ink|g-line|g-acc-2)[^)]*\)|#D8E8E5|#16C79A|#FFFFFF|#FBFEFD)(\s+inset)?$/i.test(sh.trim()));
+        const ok = v.split(/,(?![^(]*\))/).every((sh) => /^(inset\s+)?0(px)?\s+0(px)?\s+0(px)?\s+[\d.]+px\s+(var\(--(line|track|paper|card|accent|accent-ink|maya|camp|ink|g-line|g-acc-2)\)|#D8E8E5|#16C79A|#FFFFFF|#FBFEFD)(\s+inset)?$/i.test(sh.trim()));
         if (!ok) fail(file, `${sel} has a shadow (${v.slice(0, 70)})`);
       }
       if (p === 'text-shadow' && v !== 'none') fail(file, `${sel} has a text shadow`);
@@ -107,6 +111,8 @@ const SCREENS = {
     ['the Knock screen', '?home', ['__H.S.lesson=2; __H.go("door")', 3600]],
     ['Hear it done', '?home', ['__H.S.lesson=2; __H.go("watch")', 3800]],
     ['Catch the mistake', '?home', ['__H.S.lesson=2; __H.go("spot")', 3800]],
+    ['Catch the mistake, answered', '?home', ['__H.S.lesson=2; __H.go("spot")', 3800, '__H.S.spot.picked = 0; __H.S.spot.played = true; __H.render()', 1500]],
+    ['the Cooldown (an off button)', '?home', ['__H.go("debrief", { noBeat: true })', 1500]],
     ['the 1st try card', '?home', ["__H.S.lesson=1; __H.S.tryRes={lesson:1,hits:[true,false,true,false],text:'Hi, I am Rosa with Maya Kaur.',at:Date.now()}; __H.go('try',{noBeat:true})", 2500]],
     ["the coach's score", '?home', ["__H.S.lesson=2; __H.S.last={skill:'listen',lesson:2,moves:[true,true,false,true],prior:[],text:'Hi there, I am Rosa. What matters to you this year?',who:'Jamal',day:1}; __H.go('score',{noBeat:true})", 2500]],
     ['How you grew', '?home', ["__H.S.lesson=2; __H.S.done5[2]=[true,true,true,true]; __H.S.doneAt[2]=Date.now(); __H.S.tryRes={lesson:2,hits:[true,false,true,false],text:'Hi',at:1}; __H.S.doneCard=0; __H.go('close',{noBeat:true})", 4000]],
@@ -126,7 +132,7 @@ const SKIP = { /* picture containers: their insides keep their own colors */
   app: 'svg, img, video, canvas, iframe, .vid, .vid-cut, .frame, .hn-art, .lk-art, .pk-stack, .chp-art, .lp-art, .gv-pic, .rd-ring, .sms, .story-art, .td2-ring, .ring-wrap, .medal-art, .sat-doors, .gv-faces, .stage-top .camp-mark, .tabs svg',
   issues: 'svg, img, video, canvas, iframe, .fig, .ph, .pic, .art', train: 'svg, img, video, canvas, iframe, .fig, .ph, .pic, .art', sig: 'svg, img, video, canvas, iframe, .ph, .pic, .ft .ph, .dock .pet, .pet, .record, .grew img',
 };
-const MAIN = { app: '.btn:not(.secondary), .iconbtn.primary, .mic-btn:not(.on), .pg-cta, .g-next', issues: '.btn:not(.ghost):not(.secondary), .st-next', train: '.btn:not(.ghost):not(.secondary)', sig: '.btn:not(.ghost):not(.secondary):not(.sec)' };
+const MAIN = { app: '.btn:not(.secondary):not(:disabled), .iconbtn.primary:not(:disabled), .mic-btn:not(.on):not(:disabled), .pg-cta, .g-next', issues: '.btn:not(.ghost):not(.secondary):not(:disabled), .st-next', train: '.btn:not(.ghost):not(.secondary):not(:disabled)', sig: '.btn:not(.ghost):not(.secondary):not(.sec):not(:disabled)' }; /* an off button has its own look: #D8E8E5 with #4C5F62 words */
 
 async function rendered() {
   const { chromium } = require('playwright');
@@ -172,10 +178,25 @@ async function rendered() {
           if (/drop-shadow/.test(cs.filter)) out.push(`${name(el)}: a drop shadow`);
           if (/gradient\(/.test(cs.backgroundImage) && !/near|\bp\b/.test(el.className)) out.push(`${who === 'el' ? '' : who + ' of '}${name(el)}: a gradient`);
         };
+        const mix = (t, u, a) => ({ r: t.r * a + u.r * (1 - a), g: t.g * a + u.g * (1 - a), b: t.b * a + u.b * (1 - a) });
+        const ratio = (x, y) => { const a = lum(x), b = lum(y); return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05); };
+        const moving = (el) => { for (let e = el; e && e.nodeType === 1; e = e.parentElement) if (e.getAnimations && e.getAnimations().some((a) => a.playState === 'running')) return true; return false; };
+        const contrast = (el) => { /* the words' color and what's behind them, each fade and see-through fill counted from the page down */
+          const chain = []; for (let e = el; e && e.nodeType === 1; e = e.parentElement) chain.unshift(e);
+          let under = { r: 255, g: 255, b: 255 }, o = 1;
+          for (const e of chain) { const cs = getComputedStyle(e); o *= +cs.opacity; const b = rgb(cs.backgroundColor); if (b && b.a > 0) under = mix(b, under, b.a * o); }
+          const t = rgb(getComputedStyle(el).color); if (!t) return null;
+          if (o < 0.05) return null; /* not shown yet (a reveal that hasn't started) */
+          return ratio(mix(t, under, t.a * o), under);
+        };
         const all = [...document.querySelectorAll('body *')].filter((el) => !el.closest(SKIPSEL) && visible(el));
         for (const el of all) {
           look(el, getComputedStyle(el), 'el');
           for (const pe of ['::before', '::after']) { const cs = getComputedStyle(el, pe); if (cs.content && cs.content !== 'none') look(el, cs, pe); }
+          if ([...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()) && !moving(el)) {
+            const cr = contrast(el), fs = parseFloat(getComputedStyle(el).fontSize);
+            if (cr != null && cr < (fs >= 44 ? 3 : 4.5)) out.push(`${name(el)} "${el.textContent.trim().slice(0, 28)}": words at ${cr.toFixed(2)} to 1`);
+          }
           if (el.matches('button, [role=button], a.btn')) {
             const bg = rgb(getComputedStyle(el).backgroundColor);
             if (bg && bg.a > 0.6 && lum(bg) < 0.06 && !el.matches('.vid *')) out.push(`${name(el)}: a dark button (rgb(${bg.k}))`);
