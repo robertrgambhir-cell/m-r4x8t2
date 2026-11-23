@@ -4,7 +4,7 @@
    (any static server for the site root on :8765, e.g. the mock or p1 server) */
 const { chromium } = require('playwright');
 const fs = require('fs'), path = require('path');
-const realFonts = require('/home/claude/work/fonts.js');
+const realFonts = require('./fonts.cjs');
 const [,, ROOT, REL = 'wdpfxqlsvp/app.html', OUT = '/tmp/t163'] = process.argv;
 fs.mkdirSync(OUT, { recursive: true });
 const src = fs.readFileSync(path.join(ROOT, REL), 'utf8');

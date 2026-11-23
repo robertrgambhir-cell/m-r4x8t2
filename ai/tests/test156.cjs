@@ -6,7 +6,7 @@
    (start the mock first: node ai/tests/mock-server.mjs /abs/site-root) */
 const { chromium } = require('playwright');
 const fs = require('fs'), path = require('path');
-const realFonts = require('/home/claude/work/fonts.js');
+const realFonts = require('./fonts.cjs');
 const [,, ROOT, NOURL, OUT, W = '402', H = '713'] = process.argv;
 fs.mkdirSync(OUT, { recursive: true });
 const END = '\nloadVoices();\nrender();\n})();\n</script>';

@@ -4,7 +4,7 @@
    Usage: node ai/tests/train-server.mjs /abs/site & then NODE_PATH=$(npm root -g) node ai/tests/test-train.cjs /abs/outdir [full] */
 const { chromium } = require("playwright");
 const fs = require("fs"), path = require("path");
-const realFonts = require("/home/claude/work/fonts.js");
+const realFonts = require("./fonts.cjs");
 const OUT = process.argv[2] || "/tmp/train-out", FULL = process.argv[3] === "full";
 fs.mkdirSync(OUT, { recursive: true });
 const BASE = "http://127.0.0.1:8765/wdpfxqlsvp/train/?ai=http://127.0.0.1:8799";

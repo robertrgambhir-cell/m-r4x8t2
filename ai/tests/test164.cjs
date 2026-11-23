@@ -4,7 +4,7 @@
    Usage: (train-server.mjs running on a copy of the site) NODE_PATH=$(npm root -g) node ai/tests/test164.cjs [page path] [outdir] */
 const { chromium } = require("playwright");
 const fs = require("fs"), path = require("path");
-const realFonts = require("/home/claude/work/fonts.js");
+const realFonts = require("./fonts.cjs");
 const PAGE = process.argv[2] || "wdpfxqlsvp/app.html", OUT = process.argv[3] || "/tmp/t164";
 fs.mkdirSync(OUT, { recursive: true });
 let pass = 0, fail = 0; const ok = (c, m) => { if (c) pass++; else { fail++; console.log("FAIL", m); } };
