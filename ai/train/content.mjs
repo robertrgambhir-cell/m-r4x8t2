@@ -52,7 +52,7 @@ const RAY = doorArt({
 
 export const CSS = `
 .a { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 16px; position: relative; }
-.a-bill { width: min(78%, 270px); height: 92%; max-height: 330px; background: #fff; border-radius: 14px; box-shadow: 0 10px 30px rgba(60,40,10,.12); padding: 16px 18px; display: flex; flex-direction: column; position: relative; }
+.a-bill { width: min(78%, 270px); height: 92%; max-height: 330px; background: #fff; border-radius: 14px; border: 1.5px solid #D8E8E5; padding: 16px 18px; display: flex; flex-direction: column; position: relative; }
 .a-bill-h { display: flex; align-items: center; gap: 8px; font: 800 13px/1 Figtree; letter-spacing: .05em; text-transform: uppercase; color: #8A6A3E; }
 .a-bill-h svg { width: 18px; height: 18px; color: #E08A1A; }
 .a-bill hr { border: 0; border-top: 2px dashed #EADFCC; margin: 12px 0 0; }
@@ -60,66 +60,66 @@ export const CSS = `
 .a-b { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px; }
 .a-b i { width: 100%; border-radius: 8px 8px 3px 3px; background: #F2C76B; display: block; transform-origin: bottom; }
 .a-b.hot i { background: #E08A1A; }
-.a-b .v { font: 800 26px/1 Figtree; color: #262320; }
+.a-b .v { font: 800 26px/1 Figtree; color: #0E2F2B; }
 .a-b.hot .v { color: #C2410C; font-size: 32px; }
-.a-b small { font: 700 13px/1.1 Figtree; color: #6F685F; text-align: center; }
-.a-stamp { position: absolute; right: -14px; top: 30%; transform: rotate(10deg); background: #C2412D; color: #fff; font: 800 13px/1.1 Figtree; letter-spacing: .02em; text-transform: uppercase; padding: 9px 11px; border-radius: 10px; box-shadow: 0 6px 16px rgba(194,65,45,.3); text-align: center; }
+.a-b small { font: 700 13px/1.1 Figtree; color: #586E71; text-align: center; }
+.a-stamp { position: absolute; right: -14px; top: 30%; transform: rotate(10deg); background: #B4472B; color: #fff; font: 800 13px/1.1 Figtree; letter-spacing: .02em; text-transform: uppercase; padding: 9px 11px; border-radius: 10px; text-align: center; }
 .a-stamp.pop[data-at].on { transform: rotate(10deg); }
 .a-stamp.pop[data-at] { transform: rotate(10deg) scale(.6); }
 .a-dc { display: flex; align-items: center; justify-content: center; gap: 4%; width: 100%; height: 100%; }
 .a-dc svg.b { width: 52%; height: auto; max-height: 100%; }
 .a-donut { width: 40%; aspect-ratio: 1; border-radius: 50%; background: conic-gradient(#E08A1A 0 45%, #E8E1D4 45% 100%); display: grid; place-items: center; position: relative; }
-.a-donut::before { content: ""; position: absolute; inset: 18%; border-radius: 50%; background: #F3F0EA; }
+.a-donut::before { content: ""; position: absolute; inset: 18%; border-radius: 50%; background: #E9F5FA; }
 .a-donut b { position: relative; font: 800 clamp(24px, 9vw, 40px)/1 Figtree; color: #C2410C; }
-.a-donut small { position: absolute; top: 104%; left: -20%; right: -20%; text-align: center; font: 700 12px/1.25 Figtree; color: #6F685F; }
+.a-donut small { position: absolute; top: 104%; left: -20%; right: -20%; text-align: center; font: 700 12px/1.25 Figtree; color: #586E71; }
 .a-quote { margin: 0; width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 14px; }
 .a-quote .qm { font: 600 72px/0.6 Newsreader, Georgia, serif; color: #1F4C91; height: 34px; }
 .a-quote blockquote { margin: 0; font: 600 clamp(21px, 6.1vw, 27px)/1.28 Newsreader, Georgia, serif; color: #1A2C4F; text-wrap: balance; }
 .a-quote figcaption { display: flex; align-items: center; gap: 10px; font: 800 14px/1 Figtree; letter-spacing: .04em; text-transform: uppercase; color: #1F4C91; }
 .a-quote figcaption i { width: 26px; height: 3px; background: #1F4C91; border-radius: 2px; }
-.a-pill { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; background: #fff; border-radius: 99px; padding: 10px 14px; font: 700 15px/1.2 Figtree; box-shadow: 0 6px 18px rgba(31,76,145,.12); }
-.a-pill svg { width: 18px; height: 18px; color: #35B57C; flex: none; }
+.a-pill { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; background: #fff; border-radius: 99px; padding: 10px 14px; font: 700 15px/1.2 Figtree; border: 1.5px solid #D8E8E5; }
+.a-pill svg { width: 18px; height: 18px; color: #16C79A; flex: none; }
 .a-vs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 380px; }
 .a-side { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 16px 10px; border-radius: 18px; }
 .a-side.m { background: #1F4C91; color: #fff; }
-.a-side.o { background: #fff; color: #262320; box-shadow: inset 0 0 0 2px #E6E0D6; }
+.a-side.o { background: #fff; color: #0E2F2B; border: 1.5px solid #D8E8E5; }
 .a-side .who { font: 800 12px/1 Figtree; letter-spacing: .06em; text-transform: uppercase; opacity: .8; }
 .a-side .ic { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; }
-.a-side.m .ic { background: rgba(255,255,255,.16); } .a-side.o .ic { background: #F3F0EA; color: #8E8579; }
+.a-side.m .ic { background: rgba(255,255,255,.16); } .a-side.o .ic { background: #E9F5FA; color: #586E71; }
 .a-side .ic svg { width: 32px; height: 32px; }
 .a-side b { font: 800 clamp(17px, 5vw, 20px)/1.2 Figtree; }
 .a-side small { font: 600 13px/1.3 Figtree; opacity: .85; }
-.a-stall { grid-column: 1 / -1; justify-self: center; display: inline-flex; align-items: center; gap: 8px; background: #FBE8E4; color: #9A3222; border-radius: 99px; padding: 9px 14px; font: 800 13px/1 Figtree; letter-spacing: .03em; text-transform: uppercase; }
+.a-stall { grid-column: 1 / -1; justify-self: center; display: inline-flex; align-items: center; gap: 8px; background: #FFECE3; color: #B4472B; border-radius: 99px; padding: 9px 14px; font: 800 13px/1 Figtree; letter-spacing: .03em; text-transform: uppercase; }
 .a-steps { display: flex; flex-direction: column; gap: 0; width: 100%; max-width: 300px; }
 .a-step { display: flex; align-items: center; gap: 16px; position: relative; padding: 10px 0; }
-.a-step .n { flex: none; width: 58px; height: 58px; border-radius: 18px; display: grid; place-items: center; color: #fff; box-shadow: 0 5px 0 rgba(0,0,0,.12); }
+.a-step .n { flex: none; width: 58px; height: 58px; border-radius: 18px; display: grid; place-items: center; color: #fff; }
 .a-step .n svg { width: 30px; height: 30px; }
 .a-step b { font: 800 clamp(18px, 5.4vw, 22px)/1.2 Figtree; }
-.a-step small { display: block; font: 600 14px/1.3 Figtree; color: #6F685F; margin-top: 2px; }
-.a-step + .a-step::before { content: ""; position: absolute; left: 28px; top: -12px; height: 22px; border-left: 3px dotted #CFC8BC; }
+.a-step small { display: block; font: 600 14px/1.3 Figtree; color: #586E71; margin-top: 2px; }
+.a-step + .a-step::before { content: ""; position: absolute; left: 28px; top: -12px; height: 22px; border-left: 3px dotted #D8E8E5; }
 .a-flow { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 6px; width: 100%; max-width: 380px; }
 .a-bld { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; font: 800 14px/1.2 Figtree; }
 .a-bld svg { width: 82%; max-width: 120px; height: auto; }
 .a-arrow { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .a-big { grid-column: 1 / -1; text-align: center; margin-top: 14px; }
 .a-big b { display: block; font: 800 clamp(38px, 12vw, 54px)/1 Figtree; color: #1F4C91; }
-.a-big small { font: 700 14px/1.3 Figtree; color: #6F685F; }
+.a-big small { font: 700 14px/1.3 Figtree; color: #586E71; }
 .a-kids { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px 12px; width: 100%; max-width: 330px; }
 .a-kids svg { width: 100%; height: auto; color: #3B80B6; transition: color .5s; }
-.a-legend { display: flex; flex-direction: column; gap: 6px; margin-top: 16px; font: 700 13px/1.25 Figtree; color: #4A453F; }
+.a-legend { display: flex; flex-direction: column; gap: 6px; margin-top: 16px; font: 700 13px/1.25 Figtree; color: #4C5F62; }
 .a-legend span { display: flex; gap: 8px; align-items: center; } .a-legend i { width: 12px; height: 12px; border-radius: 3px; flex: none; }
 .a-col { display: flex; flex-direction: column; align-items: center; width: 100%; }
 .a-grow { display: flex; align-items: flex-end; justify-content: center; gap: 28px; height: 78%; width: 100%; max-width: 300px; }
 .a-grow > div { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 8px; }
 .a-grow i { display: block; width: 100%; border-radius: 10px 10px 4px 4px; }
 .a-grow .v { font: 800 30px/1 Figtree; }
-.a-grow small { font: 700 13px/1.2 Figtree; color: #6F685F; text-align: center; }
+.a-grow small { font: 700 13px/1.2 Figtree; color: #586E71; text-align: center; }
 .a-dash { background: repeating-linear-gradient(135deg, #E08A2C 0 10px, #F2B36B 10px 20px) !important; }
 .a-chips { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
 .a-caps { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 360px; align-items: end; }
 .a-cap { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; font: 800 14px/1.2 Figtree; }
 .a-cap svg { width: 100%; max-width: 140px; height: auto; }
-.a-no { grid-column: 1 / -1; justify-self: center; display: inline-flex; gap: 8px; align-items: center; background: #FBE8E4; color: #9A3222; border-radius: 99px; padding: 10px 14px; font: 800 14px/1.2 Figtree; }
+.a-no { grid-column: 1 / -1; justify-self: center; display: inline-flex; gap: 8px; align-items: center; background: #FFECE3; color: #B4472B; border-radius: 99px; padding: 10px 14px; font: 800 14px/1.2 Figtree; }
 .a-no svg { width: 18px; height: 18px; }
 .kids-in svg { transition: color .5s ease; transition-delay: calc(700ms + var(--k) * 160ms); }
 .kids-in.turn svg.kid7 { color: #E08A2C; }
@@ -238,7 +238,7 @@ export const LESSONS = {
     points: [
       ["$1 billion in tax money for private school, to start", "#E7EEF9", '<span style="color:#1F4C91;display:contents">' + SCHOOL + "</span>"],
       ["7 in 10 vouchers went to kids who weren’t in public school", "#FCEBD8", '<span style="color:#E08A2C;display:contents">' + KIDS + "</span>"],
-      ["Maya fights vouchers. Her opponent vowed to defend them", "#E6F5EC", '<span style="color:#22895A;display:contents">' + CHECK + "</span>"],
+      ["Maya fights vouchers. Her opponent vowed to defend them", "#DDF7EE", '<span style="color:#00795F;display:contents">' + CHECK + "</span>"],
     ],
     beats: [
       { h: "Vouchers started with $1 billion from the budget that pays for public schools", lines: [0, 1, 2], art: `<div class="a"><div class="a-flow"><div class="a-bld rise" data-at="0">${SCHOOL_BLD("#3B80B6", "#2C5F8A", "#fff")}Public schools</div><div class="a-arrow rise" data-at="1"><svg width="70" height="34" viewBox="0 0 70 34" aria-hidden="true"><path class="flow" d="M4 17 H60" stroke="#1F4C91" stroke-width="5" fill="none"/><path d="M54 7 L66 17 L54 27" stroke="#1F4C91" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span style="font:800 18px/1 Figtree;color:#1F4C91">$</span></div><div class="a-bld rise" data-at="0">${SCHOOL_BLD("#E08A2C", "#B5541B", "#fff")}Private schools</div><div class="a-big pop" data-at="2"><b>$1 billion</b><small>to start, from the same state budget</small></div></div></div>` },

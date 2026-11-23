@@ -2,7 +2,10 @@
    ai/train/content.mjs (screens, pictures, checks, sources) and ai/scenarios-issues.js (the narration, the voter, the facts the
    coach checks). With --audio it also records the narration and each voter's opening line from the live AI server's voice
    into wdpfxqlsvp/train/audio/, refetching only lines whose words changed (audio/manifest.json keeps a hash of each).
-   Usage: node ai/tools/build-train.mjs [--audio] [--force]   (from the repo root) */
+   --out <folder> builds into another folder instead, relative to the repo root, for both index.html and audio/ (so --audio
+   with --out records into that folder's audio/). Without it the build goes to wdpfxqlsvp/train, the page the live demo opens;
+   the review copy builds with --out wdpfxqlsvp/review/train.
+   Usage: node ai/tools/build-train.mjs [--audio] [--force] [--out <folder>]   (from the repo root) */
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -10,7 +13,9 @@ import { ISSUE_SCENARIOS } from "../scenarios-issues.js";
 import { LESSONS, CSS } from "../train/content.mjs";
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../..");
-const OUT = path.join(ROOT, "wdpfxqlsvp/train");
+const oi = process.argv.indexOf("--out");
+if (oi >= 0 && !/^[^-]/.test(process.argv[oi + 1] || "")) throw new Error("--out needs a folder, like --out wdpfxqlsvp/review/train");
+const OUT = path.resolve(ROOT, oi >= 0 ? process.argv[oi + 1] : "wdpfxqlsvp/train");
 const AI = process.env.WARMUP_AI_URL || "https://warmup-ai.robertrgambhir.workers.dev";
 const lessons = {};
 for (const [id, L] of Object.entries(LESSONS)) {

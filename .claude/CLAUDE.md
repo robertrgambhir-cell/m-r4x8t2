@@ -12,6 +12,7 @@ Every rule file has one home: the `rules/` folder of the private repo robertrgam
 2. Read part A of `rules/training-playbook.md` in full, then the part B section for your course.
 3. Issue trainings: also read `rules/issue-lesson-playbook.md`. Practice voters: also read the voter rules the README points to.
 4. Pick a training structure from `rules/structures.md` before you build: the closest one that fits, or say plainly that this training needs a new one. Structures are learned from Robert's notes on real trainings; his guess is that 4 to 10 will cover more than 90% of trainings. None is fixed until his notes have shaped it.
+5. **One look everywhere.** Every page, course and training uses the look in rule 58 of `rules/training-playbook.md` (the investor deck's "five-minute refresh": white, deep pine and mint; Robert, Nov 23, 2026), and every new course starts in it; the look check (rule 62b) runs with the other tests before Robert sees anything.
 
 ## When Robert gives a note
 
