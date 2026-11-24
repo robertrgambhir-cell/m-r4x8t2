@@ -34,7 +34,7 @@ const DEFAULTS = {
   VOTER_TIMEOUT_MS: 12000,
   COACH_TIMEOUT_MS: 30000,
 };
-const BUILD = "165-18"; /* shows on /health, so a deploy can be confirmed */
+const BUILD = "165-19"; /* shows on /health, so a deploy can be confirmed */
 const MAX_TURNS = 24, MAX_TURN_CHARS = 600, MAX_TOTAL_CHARS = 9000;
 const MOODS = ["warm", "neutral", "busy", "skeptical", "surprised"];
 const STATUSES = ["met", "partial", "missed", "not_applicable"]; /* the worker adds not_judged for an item the model skipped */
@@ -56,11 +56,16 @@ const cfg = (env) => ({
 export const dashes = (t) => String(t || "").replace(/(\d)\s*[\u2013\u2014]\s*(\d)/g, "$1 to $2").replace(/\s*[\u2014\u2013]\s*/g, ", ").replace(/ ,/g, ",");
 /* for checking quotes: lower case, plain quotes, letters and digits only */
 export const norm = (t) => String(t || "").toLowerCase().replace(/[‘’ʼ]/g, "'").replace(/[^a-z0-9' ]+/g, " ").replace(/'/g, "").replace(/\s+/g, " ").trim();
-/* a credit needs the quote, word for word, inside one of the volunteer's own turns (two words, or one word of four letters or more) */
+/* a credit needs the quote, word for word, inside one of the volunteer's own turns (two words, or one word of four letters or more).
+   165-19 (Robert's Nov 23, 2026 run, about 4:07 PM PT): fillers don't count either way. He said "the um election we have next
+   Tuesday"; the coach credited it but quoted it without the "um", so the check took the credit away ("Didn't remind her Election
+   Day is Tuesday"). In replays of his exact words that happened 2 times in 3. */
+const FILLERS = /(^| )(um+|uh+|uhm+|umm+|erm?|ah+|hmm+|mm+|mhm)(?= |$)/g;
+const plainWords = (t) => norm(t).replace(FILLERS, " ").replace(/\s+/g, " ").trim();
 export function inLearner(quote, turns) {
-  const q = norm(quote);
+  const q = plainWords(quote);
   if (!q || (q.split(" ").length < 2 && q.length < 4)) return false;
-  return turns.some((t) => t.who === "you" && (" " + norm(t.text) + " ").includes(" " + q + " "));
+  return turns.some((t) => t.who === "you" && (" " + plainWords(t.text) + " ").includes(" " + q + " "));
 }
 /* a penalty needs the learner's own turn to carry it: every number in the model's quote, and most of its words, in one turn.
    The evidence shown is then the learner's own words from that turn, never the model's wording. */
@@ -197,8 +202,15 @@ export function introParts(turns) {
 /* version 165-7 (Robert's Nov 16, 8:14 PM PT run: asked twice for his name, the model said "Sorry, I'm a bit confused by what
    you're after. Your name first? Then you're volunteering for someone?"). When a part is missing, the server writes the question
    itself: the model only adds a few words of reaction. A question asked once is asked a second way once; after that the voter
-   moves on to the next missing part instead of pressing. */
-const ASKS = [["name", ["Sorry, and you are?", "Sorry, I didn't catch your name."]], ["maya", ["Who are you volunteering with?", "And who are you volunteering for?"]], ["why", ["What's this about?", "And what brings you by?"]]];
+   moves on to the next missing part instead of pressing.
+   165-19 (Robert, Nov 23, 2026, about 4 PM PT, after Sofia asked his name twice: "We shouldn't have the voter ask, 'What's
+   your name?' They might ask, 'Who are you with?'"). The voter never asks the canvasser's name; a missing name is the card's to
+   point out ("Didn't say your name"). She asks only who they're with and what it's about, and NAME_ASK keeps any name question
+   the AI writes from being spoken. */
+const ASKS = [["maya", ["Who are you volunteering with?", "And who are you volunteering for?"]], ["why", ["What's this about?", "And what brings you by?"]]];
+/* a question for the canvasser's name, in any words ("What's your name?", "And you are?", "I didn't catch your name"); never
+   "Who are you with?" or "Who are you volunteering for?" */
+export const NAME_ASK = /\b(what'?s|what is|what was|what'?d you say) (your|ur) name\b|\b(your|ur) name( again)?\s*\?|\b(didn'?t|did not|don'?t think i) (catch|get|hear) (your|the) name\b|\b(and|sorry,?) you are\s*(\?|\.\.\.|\u2026)|\bwho are you( again)?\s*\?|\b(can|could|may) i (get|have|ask|know) your name\b|\band your name\b|\bname,? please\b/i;
 export function introPlan(turns) {
   if (!turns.some((t) => t.who === "you")) return { ask: "" };
   const p = introParts(turns), them = turns.filter((t) => t.who === "them").map((t) => t.text);
@@ -206,7 +218,7 @@ export function introPlan(turns) {
      volunteering). A voter only knows what she's been told: with nothing yet on who sent them or why, she asks the open door
      question; "volunteering" is in her question only once they've said it. */
   const vol = /\bvolunteer/i.test(turns.filter((t) => t.who === "you").map((t) => t.text).join(" "));
-  const asks = [ASKS[0], ...(!p.maya && !p.why ? [["open", ["What can I do for you?", "Sorry, what's this about?"]]] : []), ["maya", vol ? ASKS[1][1] : ["And who are you with?", "Sorry, who are you with?"]], ASKS[2]];
+  const asks = [...(!p.maya && !p.why ? [["open", ["What can I do for you?", "Sorry, what's this about?"]]] : []), ["maya", vol ? ASKS[0][1] : ["And who are you with?", "Sorry, who are you with?"]], ASKS[1]]; /* 165-19: no name question */
   for (const [k, qs] of asks) {
     if (p[k]) continue;
     const times = them.filter((l) => qs.some((q) => l.includes(q))).length;
@@ -215,6 +227,7 @@ export function introPlan(turns) {
   }
   return { ask: "" };
 }
+const NAME_ASK_FALLBACK = "Oh, okay."; /* 165-19: what she says when the AI's whole line was a question for the name */
 const REACT_FORMAT = (name) => `\n\nHOW TO ANSWER THIS TURN: write one mood word from this list: ${MOODS.join(", ")}. Then a vertical bar |. Then ONLY a short, friendly reaction from ${name} to the LAST thing they said, at most eight words. If they asked you something, answer it in a few words ("Oh, hi Robert! Yes, I know about Tuesday."). If they made small talk (the weather, asking how ${name} is), answer it ("Ha, it sure is!", "Oh, I'm good, thanks."); otherwise a short greeting ("Oh, hi there.", "Oh, hi Robert!"). No question, nothing about what they haven't said yet, no goodbye. A question will follow it. Example: warm|Ha, it sure is!`; /* version 165-8: the replays caught small talk being skipped */
 /* small talk in the volunteer's last line, and the answer the voter gives it if the AI's reaction skipped it */
 export function smallTalk(turns) {
@@ -235,16 +248,16 @@ export function cleanReaction(txt, name) {
   const mood = m && MOODS.includes(m[1].toLowerCase()) ? m[1].toLowerCase() : "neutral";
   if (m) w = m[2].trim();
   w = (w.split(/(?<=[.!?])\s+/)[0] || "").trim().replace(/^["\u201c]|["\u201d]$/g, "");
-  const bad = !w || /\?/.test(w) || w.split(/\s+/).length > 10 || outOfCharacter(w, name) || /confus|what you'?re after|your name|volunteer|who are you|what'?s this/i.test(w);
+  const bad = !w || /\?/.test(w) || w.split(/\s+/).length > 10 || outOfCharacter(w, name) || NAME_ASK.test(w) || /confus|what you'?re after|your name|volunteer|who are you|what'?s this/i.test(w);
   return { mood, say: bad ? "" : w };
 }
 export function introPartsLine(turns) {
   if (!turns.some((t) => t.who === "you")) return "";
   if (introPlan(turns).ask) return ""; /* version 165-7: the server asks this one itself */
   const p = introParts(turns), done = [p.name && "their name", p.maya && "that they're with Maya Kaur's campaign", p.why && "why they came (the election)"].filter(Boolean);
-  const vol = /\bvolunteer/i.test(turns.filter((t) => t.who === "you").map((t) => t.text).join(" "));
-  const ask = !p.name ? "Sorry, and you are?" : !p.maya ? (vol ? "Who are you volunteering with?" : "And who are you with?") : !p.why ? "What's this about?" : "";
-  return `WHAT THEY'VE SAID SO FAR: ${done.length ? done.join(", ") : "nothing yet about who they are"}. ` + (ask ? `Your whole turn is a short, natural greeting (a few words, like "Oh, hi Robert!" if they gave a name) followed by this question, word for word: "${ask}" Say nothing else: no comment on Tuesday or the election, no "oh, nice", no second question.` : "They've said who they are, who they're with and why they came, so don't ask them anything; just respond warmly in a sentence."); /* version 165-6 (Robert, Nov 15, 9:49 PM PT: "Oh, nice" in the middle made no sense) */
+  /* 165-19: with no question from the server (every part said, or each missing one already asked twice), she asks nothing about
+     who they are, and never their name: before, a name still missing here was asked a third time ("Sorry, and you are?") */
+  return `WHAT THEY'VE SAID SO FAR: ${done.length ? done.join(", ") : "nothing yet about who they are"}. ` + (p.name && p.maya && p.why ? "They've said who they are, who they're with and why they came, so don't ask them anything; just respond warmly in a sentence." : "Don't ask them anything more about who they are, who they're with or why they came, and never ask their name; just respond warmly in a sentence."); /* version 165-6 (Robert, Nov 15, 9:49 PM PT: "Oh, nice" in the middle made no sense) */
 }
 const TIDY_PROMPT = "You add punctuation and capital letters to a transcript of something a person said out loud. Keep every word exactly as it is, in the same order: never add, drop, fix or reorder a word, and keep fillers like um. Only add periods, commas, question marks, apostrophes and capitals. Reply with the punctuated text and nothing else.";
 /* the tidy may only add punctuation and capitals: the words must match one for one */
@@ -264,6 +277,7 @@ export function voterPrompt(s, turns) {
     "- Sound like a real person at a door: one or two short sentences, usually under 20 words, with contractions. No speeches, lists or stage directions.",
     "- If the volunteer asked you something, answer it first, the way this person would.",
     "- Remember the whole conversation. Never ask what was already answered. Never repeat a line you already said; say it a new way or move on.",
+    "- Never ask the volunteer's name, even if they haven't given it. You may ask who they're with or what it's about.", /* 165-19 (Robert, Nov 23) */
     "- The volunteer's words come from speech-to-text and may contain slips. If a word is clearly a mis-hearing of something sensible (\"Maya Core\" for Maya Kaur, \"two's day\" for Tuesday), understand the meaning and carry on. If the line is too garbled to follow, ask them to say it again, like someone who half-heard.",
     "- If they correct themselves, go with the correction. If they say they don't know something, react naturally; that's fine.",
     "- If they change the subject, follow briefly, then come back to what matters to you or start wrapping up.",
@@ -669,13 +683,14 @@ function turnStream(env, c, s, scen, turns, h, t0, ip) {
         if (needsCare(turns)) out.care = true;
       } else {
         const said = []; let rawText = "";
-        let broke = false;
+        let broke = false, askedName = false;
         const byeNow = you.length >= 2 && FAREWELL.test(last); /* 165-11: after the canvasser's goodbye the voter asks nothing ("Oh, you're leaving already?" was spoken in a live replay) */
-        const sp2 = makeSplitter(s.voter.name, (p) => { if (broke) return; if (byeNow && /\?/.test(p)) return; if (outOfCharacter(p, s.voter.name)) { broke = true; if (!said.length) { said.push(GOODBYE); say1(GOODBYE, 0); } return; } said.push(p); say1(p, said.length - 1); }); /* version 165-2 */
+        const sp2 = makeSplitter(s.voter.name, (p) => { if (broke) return; if (byeNow && /\?/.test(p)) return; if (NAME_ASK.test(p)) { askedName = true; return; } /* 165-19 */ if (outOfCharacter(p, s.voter.name)) { broke = true; if (!said.length) { said.push(GOODBYE); say1(GOODBYE, 0); } return; } said.push(p); say1(p, said.length - 1); }); /* version 165-2 */
         const r = await claudeStream(env, c, { model: c.voterModel, system: voterPrompt(s, turns) + TURN_FORMAT(s.voter.name), user: `The conversation so far:\n${transcriptText(turns, s.voter.name)}\n\nWrite ${s.voter.name}'s next turn. Don't repeat anything ${s.voter.name} already said.`, maxTokens: DEFAULTS.VOTER_MAX_TOKENS, timeout: c.voterTimeout }, (t) => { if (!ms.tok1) ms.tok1 = Date.now() - t0; rawText += t; sp2.feed(t); });
         sp2.end();
         usd = r.usd; usage = r.usage;
         if (!said.length && byeNow) { said.push(GOODBYE); say1(GOODBYE, 0); } /* 165-11 */
+        if (!said.length && askedName) { said.push(NAME_ASK_FALLBACK); say1(NAME_ASK_FALLBACK, 0); } /* 165-19: her only words asked his name */
         if (!said.length) { console.log(JSON.stringify({ route: "/turn", scen, empty: rawText.slice(0, 200), types: r.usage.types })); const e = new HttpError(502, "bad_model_output", "the voter's reply was empty"); e.detail = JSON.stringify({ raw: rawText.slice(0, 200), types: r.usage.types, head: r.usage.head.slice(0, 400) }); throw e; }
         out = cleanVoter({ say: said.join(" "), mood: sp2.mood, end: sp2.ended || broke }, s, turns);
         out.say = said.join(" ");
@@ -744,6 +759,7 @@ const SIG_NEVER = [
   "Never say whether you're registered unless the canvasser asked or the decision says it (rule 37b).",
   "Answer a question you were asked before anything else; a yes-or-no question gets yes, no or \"I'm not sure\" first, never \"Not really\" (rules 37d and 37e).",
   "Never ask about things the canvasser couldn't know, like when the polls open or what other people think.",
+  "Never ask the canvasser's name (rule 31).",
   "No pet names: never dear, honey, hon, sweetie or sweetheart (rule 39c).",
   "Never promise anything and never say what the county will do.",
   "Never step out of character: no talk of practice, lines, turns, scripts, AI or this conversation.",
@@ -776,6 +792,7 @@ function sigLiveCheck(planned, live, decidedSign) {
   if (/\b(yes, i am|i'?m registered|yeah, i'?m registered)\b/.test(p) && !/\b(yes|yeah|yep|i am|registered)\b/.test(l)) return "registered_lost";
   if (!/\bregistered\b|\bi am\b|yes, i am/.test(p) && /\bregistered\b/.test(l) && !NOT_REG.test(p)) return "registered_unasked";
   if (/\b(dear|honey|hon|sweetie|sweetheart)\b/.test(l)) return "pet_name";
+  if (NAME_ASK.test(l) && !NAME_ASK.test(p)) return "asks_name"; /* rule 31 (Robert, Nov 23): nobody asks the canvasser's name */
   if (/\b(a\.?i\.?|artificial|language model|practice|role ?play|script|my line|this conversation)\b/.test(l)) return "character";
   return "";
 }

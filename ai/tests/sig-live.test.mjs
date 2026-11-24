@@ -40,6 +40,9 @@ const post = (body, origin = ORIGIN) => worker.fetch(new Request("https://w.exam
   modelText = "Sure thing, dear. What do you need?";
   j = await (await post({ lesson: 2, who: "soojin", said: "Hi there! It's for longer library hours.", keys: ["lib"] })).json();
   ok(j.fallback === "pet_name", "no pet names");
+  modelText = "Oh, the library? Sure. And you are?";
+  j = await (await post({ lesson: 2, who: "soojin", said: "Hi there! It's for longer library hours.", keys: ["lib"] })).json();
+  ok(j.fallback === "asks_name", "nobody asks the canvasser's name (rule 31, Robert, Nov 23): the script plays instead");
   modelText = "As an AI in this practice, I'd say yes.";
   j = await (await post({ lesson: 2, who: "luis", said: "Are you registered to vote in LA County?", keys: ["stop", "other"] })).json();
   ok(!!j.fallback, "nothing out of character");

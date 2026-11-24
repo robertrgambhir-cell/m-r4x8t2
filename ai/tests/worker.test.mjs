@@ -108,6 +108,15 @@ ok(c2d.items.find((x) => x.id === "nominute").status === "not_judged" && c2d.hit
 const wed = T(K0, "Hi, I'm Dana with Maya Kaur. Maya voters vote on Wednesday this year.");
 const c2g = cleanCoach({ ...fake, invented: [], improvement: null, items: fake.items.map((x) => (x.id === "accurate" ? { ...x, status: "met" } : x)) }, K, wed);
 ok(c2g.items.find((x) => x.id === "accurate").status === "missed" && /Tuesday/.test(c2g.improvement.text), "red-team C5: a wrong voting day counts even when the coach marks it met, and the improvement names it");
+/* 165-19 (Robert's Nov 23, 2026 run, about 4:07 PM PT): he said "the um election we have next Tuesday"; the coach credited it
+   but quoted it without the "um", and the word-for-word check took the credit away (6 times in 9 replays of his words) */
+const rob = T(K0, "Hi, I'm... I live down the street, and I'm knocking on doors to let neighbors know about the um election we have next Tuesday. Do you know about the election?", "Oh, hi there! Yes, I know about Tuesday.", "I'm volunteering for the Maya Kaur's for U.S. Senate campaign. Have you heard of Maya?");
+for (const q of ["the election we have next Tuesday", "know about the election we have next Tuesday", "the um election we have next Tuesday", "election we have next Tuesday"]) {
+  const cr = cleanCoach({ ...fake, invented: [], items: fake.items.map((x) => (x.id === "tuesday" ? { ...x, evidence: q } : x)) }, K, rob).items.find((x) => x.id === "tuesday");
+  ok(cr.status === "met" && !cr.downgraded, `a quote without his "um" keeps the credit: "${q}"`);
+}
+for (const q of ["Election Day is Tuesday", "the election is next Tuesday", "um"]) ok(cleanCoach({ ...fake, invented: [], items: fake.items.map((x) => (x.id === "tuesday" ? { ...x, evidence: q } : x)) }, K, rob).items.find((x) => x.id === "tuesday").status === "missed", `words he didn't say still get no credit: "${q}"`);
+ok(inLearner("I live down the street", T(K0, "Hi, um, uh, I live down, um, the street.")) && !inLearner("I live up the street", T(K0, "Hi, um, I live down the street.")), "fillers are skipped on both sides, and only fillers");
 const rem = T(K0, "Hi, I'm Dana with Maya Kaur. Can I text you a reminder to vote on Tuesday?");
 ok(cleanCoach({ ...fake, invented: [] }, K, rem).invented.length === 0, "a text reminder to vote Tuesday is not a wrong claim");
 const c3 = cleanCoach({ ...fake, invented: [] }, K, conv);
