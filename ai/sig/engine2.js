@@ -22,14 +22,14 @@ function top(o) {
     return '<button class="' + (f === 100 ? "full" : "") + (k === cur ? " cur" : "") + '" data-seg="' + idx[0] + '" aria-label="' + esc(nm) + (k === cur ? ", where you are" : ", go there") + '"><i><b style="width:' + f + '%"></b></i><span>' + esc(nm) + '</span></button>';
   }).join("");
   /* a result (a card after a try, the feedback, the lesson end) has no way back: back works on every screen that isn't home or a result */
-  $("#top").innerHTML = S.step < 0 || o.beat ? "" : '<div class="row">' + (o.result ? '<span class="x" aria-hidden="true"></span>' : '<button class="x" id="close" aria-label="Back">' + ICON.back + '</button>') + driveMark() + '<span class="sp"></span>' + (o.pp ? '<button class="pp" id="pp" aria-label="Pause">' + ICON.pause + '</button>' : "") + '</div><div class="bar">' + segs + '</div>';
+  $("#top").innerHTML = S.step < 0 || o.beat ? "" : '<div class="row">' + (o.result ? '<span class="x" aria-hidden="true"></span>' : '<button class="x" id="close" aria-label="Back">' + ICON.back + '</button>') + driveMark() + '<span class="sp"></span>' + (o.pp ? '<button class="pp" id="pp" aria-label="Pause">' + ICON.pause + '</button>' : '<span class="pp" aria-hidden="true"></span>') + '</div><div class="bar">' + segs + '</div>';
   $("#top").style.display = S.step < 0 ? "none" : "";
   if ($("#close")) $("#close").onclick = back;
   if ($("#pp")) $("#pp").onclick = function () { PAUSED = !PAUSED; if (AC) { PAUSED ? AC.suspend() : AC.resume(); } $("#pp").innerHTML = PAUSED ? ICON.play : ICON.pause; $("#pp").setAttribute("aria-label", PAUSED ? "Play" : "Pause"); };
   [].forEach.call(document.querySelectorAll(".bar button"), function (b) { var i = +b.getAttribute("data-seg"); b.onclick = function () { audio(); go(i, 0); }; });
   fitDrive();
 }
-function noPause() { var p = $("#pp"); if (p) p.remove(); } /* nothing is playing, so there is nothing to pause */
+function noPause() { var p = $("#pp"); if (p) p.outerHTML = '<span class="pp" aria-hidden="true"></span>'; } /* nothing is playing, so there is nothing to pause. An empty slot keeps its place, so the drive's name is one size on every screen (the outside review, Nov 23) */
 function micAbort() { if (M.rec) { try { M.rec.abort(); } catch (e) {} M.rec = null; } M.busy = false; }
 function go(step, sub) {
   var prev = S.step;
@@ -282,14 +282,19 @@ function micErr(c) { return c === "denied" ? "<b>The microphone is off for this 
    before anything else happens (rule 34), so an opener that's been said always gets its answer. They stop when it lands. Silent too
    long and they're past you: "Oh, sorry, I'm busy. Have a good day." said in view, and on they go. Stopped and left waiting, they
    say "Okay, bye now." The coach never counts down (rule 7a): the street does. x is where they are, in widths of the picture: 0 is
-   in front of you; the face is in full view from about -0.3 to 0.3. */
+   in front of you; the face is in full view from about -0.3 to 0.3.
+   Once they've said something, it's your turn, and a real one (Robert, Nov 23, 2026, 4:10 PM: "before I could even reply, it said,
+   'Oh, sorry, I have to go.' It wasn't natural how the passerby spoke two times back to back without me being able to talk in the
+   middle of it"; rule 37g): they slow while they talk, then amble, and nothing more comes from them for at least 5 seconds after
+   their line and at least 4 once the mic is listening again. Before, 2.5 seconds counted from the end of their line, and the
+   mic took part of that to come back on. */
 function walker(who) {
   var p = $("#p-" + who), pt = p && (p.querySelector(".pt.walker") || p.querySelector(".pt")); if (!pt) return null;
   var k = FAST ? 8 : 1, last = 0, X0 = -0.62, X1 = -0.25, vin = (X1 - X0) / 1.75;
   /* a walker with the walk-up pictures comes from above and down the sidewalk first (u from 0 to 1, rule 54b's calm pace), then face to
      face at X1, where the talk button turns on. From there they keep a slow pace until you start, and a walking one after. */
   var pov = !!$("#pov-" + who), e = 0, arrived = null, atFace = new Promise(function (res) { arrived = res; });
-  var w = { x: pov ? X1 : X0, u: pov ? 0 : 1, slow: 1, state: "in", live: false, held: false, speaking: false, talkAt: 0, graceTo: 0, dead: false, out: false, onPass: null, onWait: null, r: RUN };
+  var w = { x: pov ? X1 : X0, u: pov ? 0 : 1, slow: 1, state: "in", live: false, held: false, speaking: false, talkAt: 0, graceTo: 0, turn: 0, dead: false, out: false, onPass: null, onWait: null, r: RUN }; /* turn: 1 once they've spoken, 2 once the mic listens again */
   p.classList.add("walking");
   var put = function () { pt.style.transform = "translateX(" + (w.x * (p.clientWidth || 360)).toFixed(1) + "px) scale(" + (1 - 0.08 * Math.min(1, Math.abs(w.x))).toFixed(3) + ")"; };
   put();
@@ -307,12 +312,13 @@ function walker(who) {
         if (w.u >= 1) face();
       } else if (w.state === "in") w.x = Math.min(X1, w.x + vin * k * dt);
       else if (w.state === "walk") {
-        /* before your mic is on they amble; then they walk. While you talk they slow to listen, and after they answer they slow a little */
-        w.x = Math.min(0.5, w.x + k * dt * (!w.live ? 0.04 : talking ? 0.06 : 0.12 * w.slow));
+        /* before your mic is on they amble; then they walk. While you talk they slow to listen; while they talk, and through your turn
+           after, they amble; once it's over they walk on, a little slower after answering */
+        w.x = Math.min(0.5, w.x + k * dt * (!w.live ? 0.04 : M.busy || (w.turn && now < w.graceTo) ? 0.03 : talking ? 0.06 : 0.12 * w.slow));
         if (w.onPass && !M.busy && !talking && w.x > 0.2 && now > w.graceTo) { var f = w.onPass; w.onPass = null; f(); }
       } else if (w.state === "stop") {
         w.x += (0 - w.x) * Math.min(1, dt * 3 * k); /* they stop, and step back in front of you if they'd passed */
-        if (w.onWait && !M.busy && !talking && now > w.graceTo + 6000 / k) { var g = w.onWait; w.onWait = null; g(); }
+        if (w.onWait && !M.busy && !talking && now > w.graceTo + 4000 / k) { var g = w.onWait; w.onWait = null; g(); }
       } else if (w.state === "say") w.x += 0.04 * k * dt; /* the brush-off, said in view */
       else if (w.state === "leave") { w.x += 0.5 * k * dt; if (w.x > 1.1) w.state = "gone"; }
       p.classList.toggle("walk", w.state === "in" || w.state === "walk" || w.state === "say" || w.state === "leave" || (w.state === "stop" && Math.abs(w.x) > 0.03));
@@ -325,6 +331,8 @@ function walker(who) {
   w.go = function () { if (w.state === "in") w.state = "walk"; }; /* you can talk now: they keep walking */
   w.grace = function (ms) { w.graceTo = Math.max(w.graceTo, performance.now() + ms / k); };
   w.liven = function () { if (!w.live) { w.live = true; w.grace(1500); } }; /* your mic is on (or your typing box): the street's clock runs */
+  w.yourTurn = function () { w.turn = 1; w.grace(5000); }; /* they've said something: your turn (rule 37g) */
+  w.listening = function () { if (w.turn === 1) { w.turn = 2; w.grace(4000); } }; /* ...with at least 4 s once the mic is back on */
   w.talk = function () { w.talkAt = performance.now(); };
   w.stop = function () { if (w.state === "in" || w.state === "walk") w.state = "stop"; };
   w.say = function () { if (w.state !== "gone") w.state = "say"; };
@@ -332,19 +340,21 @@ function walker(who) {
   w.end = function () { w.dead = true; if (w.u < 1) face(); };
   /* what they do as they answer: stop for the opener, slow to answer small talk or ask what this is, leave on a goodbye */
   w.react = function (key) {
-    if (/^(stop|lib|not|sure)$/.test(key)) w.stop();
+    if (/^(stop|lib|libAny|not|sure)$/.test(key)) w.stop();
     else if (/^(other|fHi|fSmall|@look)$/.test(key)) w.slow = 0.55;
     else if (/^(time|busy|fBye|bye|@go|fGo|fDone)$/.test(key)) w.leave();
   };
   return w;
 }
+var SCHOOLS_RE = /\b(?:schools?|education|educational|teachers?|classrooms?|students?|k ?12|community colleges?)\b/;
 function talk(cfg) {
-  var r = RUN, T = SIGG.talk(cfg.key, cfg.again ? Object.assign({}, ST, { again: true }) : ST), who = cfg.who, fill = Object.assign({}, cfg.line || {}), convo = []; /* convo: what's been said, for live replies */
+  var asks = Object.keys(cfg.replies || {}).filter(function (k) { return cfg.replies[k] && /\?\s*$/.test(cfg.replies[k].text); }); /* their lines that ask you something: each gets its answer (rule 37g) */
+  var r = RUN, T = SIGG.talk(cfg.key, Object.assign({}, ST, cfg.again ? { again: true } : {}, { asks: asks })), who = cfg.who, fill = Object.assign({}, cfg.line || {}), convo = []; /* convo: what's been said, for live replies */
   var petOpts = { top: false }, W = null; /* W: a walking passerby (lesson 2) */
   function redrawPet(o) { var p = $("#pet"); if (p) p.outerHTML = pet(fill, Object.assign({}, petOpts, o || {})); fitHw(); }
   function your(first) {
     M.busy = false; if (r !== RUN) return;
-    if (W) { W.go(); W.grace(first ? 0 : 2500); } /* after they answer, a moment to start your reply before they walk on */
+    if (W) { W.go(); if (first) W.grace(0); else W.yourTurn(); } /* after they answer, your turn to reply before they walk on (rule 37g) */
     if (!SR) { micState("idle"); var i = $("#say"); if (i && !FAST) i.focus(); return; }
     micState("idle");
     if (M.used && (W || !first) && !FAST) setTimeout(function () { if (r === RUN && !M.rec && !M.busy) start(true); }, first ? 120 : 280); /* the mic reopens for the next line, and for a passerby walking up once you've used it; a tap works too */
@@ -353,7 +363,7 @@ function talk(cfg) {
     if (r !== RUN || M.rec || M.busy) return;
     audio(); stopSound(); micState("on");
     M.rec = listen({
-      onStart: function () { if (r !== RUN) return; liveGo(); if (W) W.liven(); },
+      onStart: function () { if (r !== RUN) return; liveGo(); if (W) { W.liven(); W.listening(); } },
       onSpeech: function (on) { if (W) { W.speaking = on; W.talk(); } },
       onWords: function (t) { if (r !== RUN) return; if (W) { W.liven(); W.held = true; W.talk(); } liveWords(t); },
       onDone: function (t) { M.rec = null; M.used = true; heard(t); },
@@ -363,12 +373,15 @@ function talk(cfg) {
   function heard(text) {
     if (r !== RUN) return;
     MICLAB = null;
-    if (W) { W.held = false; if (W.out) { if (text && !SIGG.misheard(text, false)) { youCap(text); T.hear(text); } return brushOff(); } } /* a word that came in as they passed still counts on the card */
+    if (W) { W.held = false; W.turn = 0; if (W.out) { if (text && !SIGG.misheard(text, false)) { youCap(text); T.hear(text); } return brushOff(); } } /* a word that came in as they passed still counts on the card */
     if (SIGG.misheard(text, cfg.opener && !T.pieces.length)) { micState("idle", "<b>" + q(SH.misheard) + "</b>");
-      if (W) { W.grace(2500); if (M.used && !FAST) setTimeout(function () { if (r === RUN && !M.rec && !M.busy) start(true); }, 1200); } /* the app missed it, not the passerby: a moment more, and the mic reopens */
+      if (W) { W.yourTurn(); if (M.used && !FAST) setTimeout(function () { if (r === RUN && !M.rec && !M.busy) start(true); }, 1200); } /* the app missed it, not the passerby: your turn again, and the mic reopens */
       return; }
     youCap(text); M.busy = true;
     var res = T.hear(text);
+    /* told what it's for with no word of schools (only health care, or only the tax), they don't echo "for the schools?" (the outside
+       review of version 13, Nov 23: rules 30 and 37e): "Oh, okay. What do you need?" */
+    if (cfg.replies && cfg.replies.libAny && !SCHOOLS_RE.test(SIGG.norm(T.pieces.join(" ")))) res = { say: res.say.map(function (k) { return k === "lib" ? "libAny" : k; }), end: res.end };
     micState("wait", ""); /* their answer shows on the picture as they say it */
     convo.push({ who: "you", text: text });
     /* the grader has decided what they do; their words are written live to what was said (rule 37f), or the script's if they don't come in time */
@@ -388,7 +401,8 @@ function talk(cfg) {
      conversation ... give a gentle, kind, considerate end, so it feels like the conversation is over"). When their last words
      didn't, they add one: a goodbye back, a thank-you as they go, or "Sorry, I've got to run. Good luck!" */
   function closing(keys, text) {
-    var R = cfg.replies || {}, k = null;
+    var R = cfg.replies || {}, k = null, lt = convo[convo.length - 1];
+    if (lt && lt.who === "them" && /\?["”’']*\s*$/.test(lt.text)) return null; /* they've just asked you something: no goodbye tacked on after a question (rule 37g). Only a try the coach stops for (an untrue line) ends this way */
     for (var i = keys.length - 1; i >= 0; i -= 1) if (R[keys[i]]) { k = keys[i]; break; }
     var ln = k && R[k];
     if (ln && (ln.act === "go" || ln.act === "pen" || /^(sure|bye|fBye|fGo|fDone|time|busy|good|thanks|thanksDodge|argue|straight)$/.test(k))) return null;

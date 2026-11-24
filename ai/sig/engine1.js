@@ -163,23 +163,27 @@ function listen(o) {
      ever cut off: when the phone stops listening on its own partway through a line (iOS does, after a short pause), listening starts
      again and the words so far are kept, so the quiet rule or a tap ends a line (or, at most, a minute's talk, or an error, which still
      sends what was heard) (Robert, Nov 22, 2026, 4:10 PM: "it just cut off
-     my voice. I was still talking, unfinished."; playbook rule 34a). */
-  var text = "", base = "", changed = 0, done = false, started = 0, again = 0;
+     my voice. I was still talking, unfinished."; playbook rule 34a). The time the phone takes to listen again isn't the learner's
+     quiet: it's left off the clock, up to 2 seconds a time (Robert, Nov 23, 4:10 PM: "It cut me off when I was talking too soon"). */
+  var text = "", base = "", changed = 0, done = false, started = 0, again = 0, off = 0; /* off: when the phone stopped on its own, until it listens again */
+  var offFor = function (now) { return off ? Math.min(2000, now - off) : 0; };
   try { if (navigator.audioSession) navigator.audioSession.type = "play-and-record"; } catch (e) {}
   var R = new SR(); R.lang = "en-US"; R.interimResults = true; R.continuous = true; R.maxAlternatives = 1;
-  var tick = setInterval(function () { if (done || !text) return; if (performance.now() - changed > SIGG.pauseMs(text)) finish(); }, 50);
+  var tick = setInterval(function () { if (done || !text) return; var now = performance.now(); if (now - changed - offFor(now) > SIGG.pauseMs(text)) finish(); }, 50);
   var cap = setTimeout(function () { finish(); }, 60000);
   function end() { done = true; clearInterval(tick); clearTimeout(cap); try { R.onend = null; R.abort(); } catch (e) {} try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {} }
   function finish() { if (done) return; end(); o.onDone(text.trim()); }
   R.onresult = function (e) { var parts = [base]; for (var j = 0; j < e.results.length; j += 1) parts.push(String(e.results[j][0].transcript || "").trim()); var t = parts.filter(Boolean).join(" ").replace(/\s+/g, " ").trim(); if (t !== text) { text = t; changed = performance.now(); o.onWords(text); } };
-  R.onstart = function () { if (o.onStart) o.onStart(); }; /* listening, after any permission prompt */
+  R.onstart = function () { if (off) { changed += offFor(performance.now()); off = 0; } if (o.onStart) o.onStart(); }; /* listening, after any permission prompt; a restart's own time is left off the quiet */
   R.onspeechstart = function () { if (text && again < 4) changed = performance.now(); if (o.onSpeech) o.onSpeech(true); }; R.onspeechend = function () { if (o.onSpeech) o.onSpeech(false); }; /* a walking passerby slows while you talk; talking again restarts the quiet clock */
   R.onerror = function (e) { var c = e && e.error; if (c === "no-speech" || c === "aborted") return; if (done) return; if (text) { finish(); return; } /* what was heard is still said (the outside review, Nov 22) */ end(); o.onError(c === "not-allowed" || c === "service-not-allowed" ? "denied" : c === "audio-capture" ? "busy" : "error"); };
   R.onend = function () { /* the phone stopped listening on its own: listen again and keep the words, unless the quiet rule says the line is done */
     if (done) return;
-    if (text && performance.now() - changed > SIGG.pauseMs(text)) { finish(); return; }
-    if ((!text && performance.now() - started >= 9000) || again >= 30) { finish(); return; }
-    base = text; again += 1;
+    var now = performance.now();
+    if (off) { changed += offFor(now); off = 0; } /* a restart that stopped again before it listened */
+    if (text && now - changed > SIGG.pauseMs(text)) { finish(); return; }
+    if ((!text && now - started >= 9000) || again >= 30) { finish(); return; }
+    base = text; again += 1; off = now;
     try { R.start(); } catch (e) { finish(); }
   };
   try { R.start(); started = performance.now(); } catch (e) { end(); setTimeout(function () { o.onError("error"); }, 0); }

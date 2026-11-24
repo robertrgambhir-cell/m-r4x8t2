@@ -65,7 +65,7 @@ export const SIG_MEASURE = {
   gist: "a ballot measure that would make funding for schools and health care permanent, paid for by keeping today's state tax on high incomes",
   stamp: "PRACTICE ONLY. NOT A REAL PETITION.",
   /* the line at the foot of every sources sheet (version 13: the measure is real, the people aren't, and the practice isn't its campaign's) */
-  fine: "The passersby and the canvassers are AI voices, and every person here is made up for practice. Prop 3 is a real California measure from 2026. Its words here are its petition's own, and this practice isn't from its campaign.",
+  fine: "The passersby and the canvassers are AI voices, and every person here is made up for practice. Prop 3 is a real California measure from 2026. The practice petition quotes the measure's official title word for word, and this practice isn't from the measure's campaign.", /* version 14 (the outside review): the opener and the two halves are the course's words, not the petition's */
   boxes: { name: "Print Your Name", sig: "Sign As Registered To Vote", addr: "Residence Address ONLY", city: "City", zip: "Zip" },
   fundersHead: "OFFICIAL TOP FUNDERS",
   fundersValid: "Valid only for",
@@ -197,7 +197,7 @@ const L1 = {
   nextShift: "On your next shift: before anyone picks up the pen, ask 'Are you registered to vote in LA County?'",
   endExtra: "Your first-shift card is in your texts. It has the eight rules for your first signature.",
   steps: [
-    { kind: "taps", name: "Guess how many get thrown out", secs: 18, coach: c("Welcome! You'll practice on a real measure from 2026, Prop 3. It keeps funding schools and health care."),
+    { kind: "taps", name: "Guess how many get thrown out", secs: 18, coach: c("Welcome! You'll practice on Prop 3, a real 2026 measure that keeps funding schools and health care."),
       qs: [{ ask: "What share of the signatures a drive turns in get thrown out?", opts: ["5%", "25%", "50%"], row: true, right: 1, after: c("About 25% get thrown out. Let's learn which ones count."),
         sources: [["About 1 in 4 thrown out", [["Proposition 3's final report", "https://elections.cdn.sos.ca.gov/ccrov/2026/june/26153jh.pdf"], ["Proposition 37's", "https://elections.cdn.sos.ca.gov/ccrov/2026/april/26102jl.pdf"]], "Warmup's arithmetic from the Secretary of State's nine final reports for 2026, two of them here"]] }] },
     { kind: "cards", name: "How the county checks", secs: 25, coach: c("The county checks each signer's voter record for four things."),
@@ -221,7 +221,7 @@ const L1 = {
       who: "marisol", note: "Stage note, art only: Marisol Vega, 34, in scrubs.", hint: "Tell her why. Who counts? Who checks?",
       /* asked whether she's registered, she answers that; told only what it's for, she asks what you need; asked any other question, she says so */
       ask: s("marisol", "I am. Why do you ask?"), askOther: s("marisol", "Me? I vote in every election. Why do you ask?"),
-      replies: Object.assign({ lib: s("marisol", "Oh, for the schools? What do you need?"), yes: s("marisol", "Makes sense. I vote every time, so sure, I'll sign.", { act: "pen" }), other: s("marisol", "Oh, okay. Well, good luck!", { act: "go" }) }, fb("marisol")),
+      replies: Object.assign({ lib: s("marisol", "Oh, for the schools? What do you need?"), libAny: s("marisol", "Oh, okay. What do you need?"), yes: s("marisol", "Makes sense. I vote every time, so sure, I'll sign.", { act: "pen" }), other: s("marisol", "Oh, okay. Well, good luck!", { act: "go" }) }, fb("marisol")),
       oneWay: "One way to say it: 'Only registered voters in LA County count on this sheet, and the county checks every line.'" },
     { kind: "stop", name: "One whole stop", secs: 63, play: "Start watching", coach: c("Now watch a trained canvasser do the whole job, start to finish."), who: "ines", props: "stroller",
       note: "Stage note, art only: Lena stands in front of her table. Ines Romero, 39, walks up pushing a stroller.",
@@ -272,7 +272,7 @@ const L2 = {
   steps: [
     { kind: "try1", name: "Your 1st try", secs: 34, coach: c("Let's try one. Here comes a man with a coffee. Say hi when he's close, and see if he'll stop."),
       who: "ben", walk: true, note: "Stage note, art only: Ben Feldman, 38, coffee in hand, heading for the door.",
-      replies: Object.assign({ stop: s("ben", "Yeah, I'm registered.", { act: "slow" }), sure: s("ben", "Sure, I'll sign.", { act: "slow" }), lib: s("ben", "Oh, for the schools? What do you need?", { act: "slow" }), busy: s("ben", "Oh, sorry, I'm busy. Have a good day.", { act: "go" }), time: s("ben", "Sorry, I don't have a minute.", { act: "go" }), other: s("ben", "Sorry, what's this?", { act: "turn" }) }, fb("ben")) },
+      replies: Object.assign({ stop: s("ben", "Yeah, I'm registered.", { act: "slow" }), sure: s("ben", "Sure, I'll sign.", { act: "slow" }), lib: s("ben", "Oh, for the schools? What do you need?", { act: "slow" }), libAny: s("ben", "Oh, okay. What do you need?", { act: "slow" }), busy: s("ben", "Oh, sorry, I'm busy. Have a good day.", { act: "go" }), time: s("ben", "Sorry, I don't have a minute.", { act: "go" }), other: s("ben", "Sorry, what's this?", { act: "turn" }) }, fb("ben")) },
     /* version 10 (Robert, Nov 21, 2026, 12:56 PM: "She does this all day" is unclear, "Listen to a well-trained canvasser ... do the opening
        here really well," and "You don't even need to know the four things"): each example opens on its own sheet (Example 1 of 2 and
        Example 2 of 2, rule 13a), each part shows up ticked as she says it (a tick lands where its words end: line, at), then the why */
@@ -313,13 +313,13 @@ const L2 = {
        throws me off"): it opens like the 1st try, on one passerby, and the next comes after (rule 16) */
     { kind: "try2", name: "Your 2nd try", secs: 80, coach: c("Your turn again. Here comes a woman with a tote bag. Say hi when she's close, and see if she'll stop."),
       people: [
-        { who: "soojin", walk: true, note: "Stage note, art only: Soo-jin Kim, 67, with a tote bag.", replies: Object.assign({ stop: s("soojin", "Yes, I am.", { act: "slow" }), sure: s("soojin", "Oh, that's nice. Sure, I'll sign.", { act: "slow" }), lib: s("soojin", "Oh, for the schools? What do you need?", { act: "slow" }), busy: s("soojin", "Oh, sorry, I'm busy. Have a good day.", { act: "go" }), other: s("soojin", "Sorry, what's this for?", { act: "turn" }) }, fb("soojin")) },
+        { who: "soojin", walk: true, note: "Stage note, art only: Soo-jin Kim, 67, with a tote bag.", replies: Object.assign({ stop: s("soojin", "Yes, I am.", { act: "slow" }), sure: s("soojin", "Oh, that's nice. Sure, I'll sign.", { act: "slow" }), lib: s("soojin", "Oh, for the schools? What do you need?", { act: "slow" }), libAny: s("soojin", "Oh, okay. What do you need?", { act: "slow" }), busy: s("soojin", "Oh, sorry, I'm busy. Have a good day.", { act: "go" }), other: s("soojin", "Sorry, what's this for?", { act: "turn" }) }, fb("soojin")) },
         /* who comes next is named by the button alone (version 8, Robert: "You can just have that be in the button") */
         { who: "kayla", walk: true, note: "Stage note, art only: Kayla Jones, 24, earbuds in.", upBtn: "Next: a woman with earbuds",
-          replies: Object.assign({ not: s("kayla", "Oh. I'm not registered.", { act: "turn" }), lib: s("kayla", "Oh, for the schools? What do you need?", { act: "turn" }), busy: s("kayla", "Oh, sorry, I'm busy. Have a good day.", { act: "go" }), bye: s("kayla", "Thanks! Have a good one.", { act: "go" }) }, fb("kayla")) },
+          replies: Object.assign({ not: s("kayla", "Oh. I'm not registered.", { act: "turn" }), lib: s("kayla", "Oh, for the schools? What do you need?", { act: "turn" }), libAny: s("kayla", "Oh, okay. What do you need?", { act: "turn" }), busy: s("kayla", "Oh, sorry, I'm busy. Have a good day.", { act: "go" }), bye: s("kayla", "Thanks! Have a good one.", { act: "go" }) }, fb("kayla")) },
         /* someone new is "a" or "an" (rule 39e, Robert, Nov 21, 2026, 12:56 PM: "Please change the button language to 'a man in an apron'") */
         { who: "luis", walk: true, note: "Stage note, art only: Luis Ortega, 29, in a kitchen apron, heading to work.", upBtn: "Next: a man in an apron",
-          replies: Object.assign({ stop: s("luis", "Yeah, I'm registered.", { act: "slow" }), sure: s("luis", "Cool. Sure, I'll sign.", { act: "slow" }), lib: s("luis", "Oh, for the schools? What do you need?", { act: "slow" }), busy: s("luis", "Oh, sorry, I'm busy. Have a good day.", { act: "go" }), other: s("luis", "Sorry, what's this for?", { act: "turn" }) }, fb("luis")) },
+          replies: Object.assign({ stop: s("luis", "Yeah, I'm registered.", { act: "slow" }), sure: s("luis", "Cool. Sure, I'll sign.", { act: "slow" }), lib: s("luis", "Oh, for the schools? What do you need?", { act: "slow" }), libAny: s("luis", "Oh, okay. What do you need?", { act: "slow" }), busy: s("luis", "Oh, sorry, I'm busy. Have a good day.", { act: "go" }), other: s("luis", "Sorry, what's this for?", { act: "turn" }) }, fb("luis")) },
       ] },
     { kind: "end", name: "Feedback and lesson done", secs: 31 },
   ],
@@ -376,8 +376,8 @@ const L3 = {
     { kind: "taps", name: "Three taps on honest wording", short: "honest wording", secs: 64,
       qs: [
         /* pic: what the screen shows above the options. It has no words of its own: a person from the cast, or the thing the question describes. */
-        { pic: { who: "tanya" }, ask: "Which line about the measure can you say?", opts: ["It keeps our schools from closing.", "It funds schools and health care, and it won't cost you a thing.", "It makes school and health care funding permanent with today's tax on high incomes."], quote: true, right: 2,
-          after: c("C is right. Nothing in the measure says schools are closing, and nobody can promise what a tax will cost.") },
+        { pic: { who: "tanya" }, ask: "Which line about the measure can you say?", opts: ["It keeps our schools from closing.", "It funds schools and health care with a new tax on the rich.", "It makes school and health care funding permanent with today's tax on high incomes."], quote: true, right: 2,
+          after: c("C is right. Nothing in the measure says schools are closing, and the tax isn't new.") }, /* version 14 (the outside review): "won't cost you a thing" is true for most signers */
         { pic: { sheet: "March", day: ["April", "3"] }, ask: "Your top funders sheet says 'Valid only for March.' It's April 3. What do you do?", opts: ["Use it anyway.", "Get this month's sheet from your lead.", "Skip the sheet today."], right: 1,
           after: c("B is right. A sheet is only good for the month printed on it."),
           printed: { pic: { who: "soojin" }, ask: "A passerby asks who is paying for the drive. What do you do?", opts: ["Say you don't know.", "Point to the top funders box on the petition.", "Say it's the schools."], right: 1, after: c("B is right. The top funders are printed in the box on the petition, so point to the box.") } },
@@ -397,7 +397,7 @@ const L3 = {
     { kind: "try2", name: "Your 2nd try", secs: 78, coach: c("Your turn again. Here comes a woman in scrubs. Do the whole stop, starting from hello."),
       people: [
         { who: "marisol", walk: true, note: "Stage note, art only: Marisol Vega, 34, in scrubs.", scored: true,
-          replies: Object.assign({ reg: s("marisol", "Yes, I'm registered. I've got a minute.", { act: "slow" }), what: s("marisol", "Hi. What's this one for?", { act: "slow" }), lib: s("marisol", "Oh, for the schools? What do you need?", { act: "slow" }), dbl: s("marisol", "No, I haven't signed it."), yes: s("marisol", "Sure. Where do I sign?", { act: "pen" }), wait: s("marisol", "So, what do you need from me?") }, fb("marisol")) },
+          replies: Object.assign({ reg: s("marisol", "Yes, I'm registered. I've got a minute.", { act: "slow" }), what: s("marisol", "Hi. What's this one for?", { act: "slow" }), lib: s("marisol", "Oh, for the schools? What do you need?", { act: "slow" }), libAny: s("marisol", "Oh, okay. What do you need?", { act: "slow" }), dbl: s("marisol", "No, I haven't signed it."), yes: s("marisol", "Sure. Where do I sign?", { act: "pen" }), wait: s("marisol", "So, what do you need from me?") }, fb("marisol")) },
         /* version 10: who comes next is said by the button alone (rule 16), "a man in an apron" (rule 39e) */
         { who: "luis", stopped: true, upBtn: "Next: a man in an apron", note: "Stage note, art only: Luis Ortega, 29, in a kitchen apron.",
           replies: Object.assign({ what: s("luis", "Hey. What's this one for?"), signed: s("luis", "Oh, the school one. I think I signed that at the farmers market last week."), go: s("luis", "Cool. Good luck out here.", { act: "go" }), again: s("luis", "Are you sure? I'm pretty sure I signed it.") }, fb("luis")) },
@@ -481,7 +481,7 @@ const L5 = {
   n: 5, id: "sig5", title: "How to answer a hard question",
   parts: [
     { name: "Answers the question straight, first", step: "A straight, true answer", must: "A straight, true answer is a must. Try it once more.", done: "Answered the question straight, first.", missed: "Dodged the question.", missedAlt: "Said something that isn't true.",
-      tip: "Answer first. When they ask about a tax, the first word is 'yes.'", tipPaid: "Answer first. When someone asks if you're a volunteer, say 'No, I'm paid to gather signatures.'" },
+      tip: "Answer first, and true: 'Yes, it keeps today's tax on high incomes.'", tipPaid: "Answer first. When someone asks if you're a volunteer, say 'No, I'm paid to gather signatures.'" },
     { name: "Shows the petition", done: "Showed where it's printed.", missed: "Didn't show the petition.", tip: "Point to the page: 'It's printed right here.' The petition backs you up." },
     { name: "Asks once more", done: "Asked once more.", missed: "Didn't ask again.", tip: "After you answer, ask once: 'Want to sign?'" },
     { name: "Lets a no go", done: "Let the no go with a thank-you.", missed: "Argued after a no.", missedAlt: "Asked again after a no.", missedVague: "Didn't thank her and let her go.", tip: "When it's a no, say thanks and let them go. Someone else is always coming." },
@@ -507,7 +507,7 @@ const L5 = {
       qs: [
         { pic: { who: "soojin" }, ask: "'Are you getting paid for this?' Which answer is straight?", opts: ["I'm just here for the schools.", "Yes, I'm paid to gather signatures."], quote: true, right: 1, after: c("B is right. You already said you're paid once, so say it again.") },
         { pic: { who: "bob" }, ask: "'If I sign, am I voting for it?' Which answer is straight?", opts: ["No. Signing only helps put it on the ballot. The voters decide.", "Pretty much. Signing means you support it."], quote: true, right: 0, after: c("A is right. A signature helps put the question on the ballot, and it isn't a vote.") },
-        { pic: { who: "anika" }, ask: "'How much is the tax?' Which answer is straight?", opts: ["It's tiny. You won't notice it.", "I don't know. The summary doesn't say. The full text is right here."], quote: true, right: 1, after: c("B is right. Never guess. 'I don't know, but it's printed right here' is a whole answer, and you can ask your lead later.") },
+        { pic: { who: "anika" }, ask: "'What's the tax rate?' Which answer is straight?", opts: ["It's tiny. You won't notice it.", "I don't know. The summary doesn't give the rate. The full text is right here."], /* version 14 (the outside review): the summary says who pays, not the rates */ quote: true, right: 1, after: c("B is right. Never guess. 'I don't know, but it's printed right here' is a whole answer, and you can ask your lead later.") },
         { pic: { who: "ines" }, ask: "'What do I get for signing?' Which answer is straight?", opts: ["Nothing from me. I can't give anything for a signature.", "You get a free pen if you sign."], quote: true, right: 0, after: c("A is right. Giving anything of value for a signature is against the law, even something small.") },
       ] },
     { kind: "spot", name: "Catch the mistake", secs: 44, head: "Listen for the part that goes wrong.", coach: c("Here's the new canvasser one last time. Listen for the part that goes wrong."), who: "karim", by: "rico", stopped: true, note: "Stage note, art only: Karim Nassar, 33, a rideshare driver between rides, car keys in his hand.",

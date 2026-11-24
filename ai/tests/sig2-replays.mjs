@@ -2,8 +2,10 @@
 
    One replay for every example in the lesson's grading table (claude/signature-curriculum-claude-v5.md, "What gets
    graded in the spoken practice"), word for word, plus the five Robert asked for on Nov 18: "in LA" with no "County",
-   a hello that comes after the question, "Do you have a minute?", "save our schools" and three openers where only
-   the second is good.
+   a hello that comes after the question, "Do you have a minute?", "save our libraries" and three openers where only
+   the second is good. Since version 13 (Prop 3) the measure's words stand in for the libraries' in every replay, so a line marked
+   "Robert" below is his line with the measure's words, not his exact words (the outside review, Nov 23: "save our schools" and
+   "Signatures for school funding!" were "save our libraries" and "Signatures for longer library hours!").
 
    Each replay is what a canvasser says and what must come back: the four parts [hello first, what it's for, the
    registered question with the county, no ask for time], Ben's answer on the 1st try (stop, time or other) and whether
@@ -19,12 +21,12 @@ export const REPLAYS = [
   { id: "1-not-no-greeting", table: "Part 1 doesn't count: no greeting", say: `This petition is for school funding. ${Q}`, parts: [0, 1, 1, 1], ben: "stop", stops: true },
   { id: "1-not-greeting-after", table: "Part 1 doesn't count: a greeting after the question", say: `This petition is for school funding. ${Q} Hi there!`, parts: [0, 1, 1, 1], ben: "stop", stops: true },
   /* ---- Part 2. Says what the petition is for (version 5, Nov 20: the hours named after "for" or a verb count; the library alone doesn't) ---- */
-  { id: "2-counts-signatures-for", table: 'Part 2 counts: "Signatures for school funding!" (Robert, Nov 20)', say: `Hi there! Signatures for school funding! ${Q}`, parts: [1, 1, 1, 1], ben: "stop", stops: true },
-  { id: "2-not-support", table: 'Part 2 doesn\'t count: "Support your schools!" (Robert, Nov 20)', say: `Hi there! Support your schools! ${Q}`, parts: [1, 0, 1, 1], ben: "stop", stops: true, topicOnly: true },
-  { id: "2-not-for-the-library", table: 'Part 2 doesn\'t count: "This petition is for the schools." (Robert, Nov 20)', say: `Hi there! This petition is for the schools. ${Q}`, parts: [1, 0, 1, 1], ben: "stop", stops: true, topicOnly: true },
+  { id: "2-counts-signatures-for", table: 'Part 2 counts: "Signatures for school funding!" (Robert\'s Nov 20 line, with the measure\'s words)', say: `Hi there! Signatures for school funding! ${Q}`, parts: [1, 1, 1, 1], ben: "stop", stops: true },
+  { id: "2-not-support", table: 'Part 2 doesn\'t count: "Support your schools!" (Robert\'s Nov 20 line, with the measure\'s words)', say: `Hi there! Support your schools! ${Q}`, parts: [1, 0, 1, 1], ben: "stop", stops: true, topicOnly: true },
+  { id: "2-not-for-the-library", table: 'Part 2 doesn\'t count: "This petition is for the schools." (Robert\'s Nov 20 line, with the measure\'s words)', say: `Hi there! This petition is for the schools. ${Q}`, parts: [1, 0, 1, 1], ben: "stop", stops: true, topicOnly: true },
   { id: "2-counts-this-petition", table: 'Part 2 counts: "This petition is for school funding"', say: `Hi there! This petition is for school funding. ${Q}`, parts: [1, 1, 1, 1], ben: "stop", stops: true },
   { id: "2-counts-gathering", table: 'Part 2 counts: "I\'m gathering signatures for school funding"', say: `Hi there! I'm gathering signatures for school funding. ${Q}`, parts: [1, 1, 1, 1], ben: "stop", stops: true },
-  { id: "2-counts-evening-weekend", table: 'Part 2 counts: "It\'s for more evening and weekend hours at the library"', say: `Hi there! It's for more money for schools and health care. ${Q}`, parts: [1, 1, 1, 1], ben: "stop", stops: true },
+  { id: "2-counts-more-money", table: 'Part 2 counts: "It\'s for more money for schools and health care" (version 12: "more evening and weekend hours at the library")', say: `Hi there! It's for more money for schools and health care. ${Q}`, parts: [1, 1, 1, 1], ben: "stop", stops: true },
   { id: "2-not-topic-only", table: 'Part 2 doesn\'t count: the topic words on their own, "School funding."', say: `Hi there! School funding. ${Q}`, parts: [1, 0, 1, 1], ben: "stop", stops: true, topicOnly: true },
   { id: "2-not-no-topic", table: "Part 2 doesn't count: no topic", say: `Hi there! ${Q}`, parts: [1, 0, 1, 1], ben: "stop", stops: true },
   { id: "2-not-save", table: 'Part 2 doesn\'t count: a label the measure doesn\'t support, "save our schools"', say: `Hi there! Save our schools. ${Q}`, parts: [1, 0, 1, 1], ben: "stop", stops: true, untrue: "closing" },
@@ -48,7 +50,7 @@ export const REPLAYS = [
   { id: "x1-in-la-no-county", table: 'Extra 1: "in LA" with no "County"', say: "Hi there! This petition is for school funding. Are you registered to vote in LA?", parts: [1, 1, 0, 1], ben: "stop", stops: true },
   { id: "x2-hello-after-question", table: "Extra 2: a hello that comes after the question", say: "Are you registered to vote in LA County? Hello!", parts: [0, 0, 1, 1], ben: "stop", stops: false },
   { id: "x3-minute", table: 'Extra 3: "Do you have a minute?"', say: "Do you have a minute?", parts: [0, 0, 0, 0], ben: "time", stops: false },
-  { id: "x4-save-our-libraries", table: 'Extra 4: "save our schools"', say: "Hi there! Save our schools! Are you registered to vote in LA County?", parts: [1, 0, 1, 1], ben: "stop", stops: true, untrue: "closing" },
+  { id: "x4-save-our-libraries", table: 'Extra 4: "save our schools" (Robert\'s "save our libraries," Nov 18, with the measure\'s words)', say: "Hi there! Save our schools! Are you registered to vote in LA County?", parts: [1, 0, 1, 1], ben: "stop", stops: true, untrue: "closing" },
 ];
 /* Extra 5: three openers in a row where only the second is good. The best one counts, and its tip is the all-four line. */
 export const THREE = {

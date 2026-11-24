@@ -15,13 +15,13 @@
   "bytes": 25005,
   "text": "Only the county decides. Leave out the promise and try it once more."
  },
- "ac2bc866b979": {
-  "file": "ac2bc866b979.mp3",
+ "af69f84cf3cc": {
+  "file": "af69f84cf3cc.mp3",
   "who": "coach",
   "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
-  "dur": 7.97,
-  "bytes": 48045,
-  "text": "Welcome! You'll practice on a real measure from 2026, Prop 3. It keeps funding schools and health care."
+  "dur": 7.03,
+  "bytes": 42429,
+  "text": "Welcome! You'll practice on Prop 3, a real 2026 measure that keeps funding schools and health care."
  },
  "85dac67e8850": {
   "file": "85dac67e8850.mp3",
@@ -150,6 +150,14 @@
   "dur": 2.64,
   "bytes": 16077,
   "text": "Oh, for the schools? What do you need?"
+ },
+ "eca49007a2c9": {
+  "file": "eca49007a2c9.mp3",
+  "who": "marisol",
+  "voice": "el:EXAVITQu4vr4xnSDxMaL:0.88",
+  "dur": 1.61,
+  "bytes": 9885,
+  "text": "Oh, okay. What do you need?"
  },
  "e62911dbe97c": {
   "file": "e62911dbe97c.mp3",
@@ -343,6 +351,14 @@
   "bytes": 13197,
   "text": "Oh, for the schools? What do you need?"
  },
+ "abfe7f8fdd20": {
+  "file": "abfe7f8fdd20.mp3",
+  "who": "ben",
+  "voice": "el:cjVigY5qzO86Huf0OWal:0.88",
+  "dur": 1.46,
+  "bytes": 9021,
+  "text": "Oh, okay. What do you need?"
+ },
  "b12668162eca": {
   "file": "b12668162eca.mp3",
   "who": "ben",
@@ -511,9 +527,10 @@
   "file": "5c34699c60de.mp3",
   "who": "rico",
   "voice": "el:bIHbv24MWmeRgasZH58o:0.88",
-  "dur": 8.5,
-  "bytes": 51213,
-  "text": "Hi! Do you have a minute? I'm collecting signatures for a ballot measure to keep funding schools and health care. Are you registered to vote in L.A. County?"
+  "dur": 9.6,
+  "bytes": 57837,
+  "text": "Hi! Do you have a minute? I'm collecting signatures for a ballot measure to keep funding schools and health care. Are you registered to vote in L.A. County?",
+  "take": 3
  },
  "42e1c48a595a": {
   "file": "42e1c48a595a.mp3",
@@ -563,6 +580,14 @@
   "dur": 2.62,
   "bytes": 15933,
   "text": "Oh, for the schools? What do you need?"
+ },
+ "be7c4c3c2065": {
+  "file": "be7c4c3c2065.mp3",
+  "who": "soojin",
+  "voice": "el:5u41aNhyCU6hXOcjPPv0:0.9",
+  "dur": 1.37,
+  "bytes": 8445,
+  "text": "Oh, okay. What do you need?"
  },
  "8ebe89e55452": {
   "file": "8ebe89e55452.mp3",
@@ -643,6 +668,14 @@
   "dur": 2.14,
   "bytes": 13053,
   "text": "Oh, for the schools? What do you need?"
+ },
+ "d487da9d4dec": {
+  "file": "d487da9d4dec.mp3",
+  "who": "kayla",
+  "voice": "el:FGY2WhTYpPnrIDTdsKH5:0.88",
+  "dur": 1.56,
+  "bytes": 9597,
+  "text": "Oh, okay. What do you need?"
  },
  "19e6209c5a45": {
   "file": "19e6209c5a45.mp3",
@@ -731,6 +764,14 @@
   "dur": 2.38,
   "bytes": 14493,
   "text": "Oh, for the schools? What do you need?"
+ },
+ "5c1f4c65af65": {
+  "file": "5c1f4c65af65.mp3",
+  "who": "luis",
+  "voice": "el:TX3LPaxmHKxFdv7VOQHJ:0.88",
+  "dur": 1.75,
+  "bytes": 10749,
+  "text": "Oh, okay. What do you need?"
  },
  "26c474323878": {
   "file": "26c474323878.mp3",
@@ -941,13 +982,13 @@
   "bytes": 69645,
   "text": "The law requires saying you're paid and showing the top funders before the petition leaves her hand, even if nobody asks. And one double can cost about 1,000 signatures."
  },
- "051fb648a806": {
-  "file": "051fb648a806.mp3",
+ "1776d9747839": {
+  "file": "1776d9747839.mp3",
   "who": "coach",
   "voice": "el:bRlp5mUWs01wX4H4oW4X:0.9",
-  "dur": 6.62,
-  "bytes": 39981,
-  "text": "C is right. Nothing in the measure says schools are closing, and nobody can promise what a tax will cost."
+  "dur": 5.18,
+  "bytes": 31341,
+  "text": "C is right. Nothing in the measure says schools are closing, and the tax isn't new."
  },
  "75d33bb8bfa1": {
   "file": "75d33bb8bfa1.mp3",
