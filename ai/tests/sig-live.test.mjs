@@ -60,6 +60,18 @@ const post = (body, origin = ORIGIN) => worker.fetch(new Request("https://w.exam
   modelText = "Okay, sure, I'll sign it.";
   j = await (await post({ lesson: 3, who: "tanya", said: "I'm paid to gather signatures. Here are the top funders. Would you sign?", keys: ["yes"] })).json();
   ok(j.text === modelText, "a passerby who takes the pen may say she'll sign (lesson 3's Tanya, \"Okay, sure.\")");
+  /* rule 37g (Robert, Nov 23, 2026): a passerby who asks something isn't leaving as they ask it. Pat's "dodge" is a question; Hank's
+     is a goodbye. The motion comes from each line's own act. */
+  const said5 = "It's a good cause. Will you sign?";
+  modelText = "That isn't what I asked. Is there a tax in it or not?";
+  await post({ lesson: 5, who: "pat", said: said5, keys: ["dodge"] });
+  ok(/stopped to talk/.test(calls[calls.length - 1].messages[0].content) && !/leaving/.test(calls[calls.length - 1].messages[0].content), "rule 37g: Pat's dodge is a question, so she isn't told she's leaving");
+  modelText = "Says here it's a tax. I'll pass, thanks.";
+  await post({ lesson: 5, who: "hank", said: said5, keys: ["dodge"] });
+  ok(/leaving/.test(calls[calls.length - 1].messages[0].content), "Hank's dodge is his goodbye: he says it as he goes");
+  modelText = "Oh, okay. What do you need?";
+  await post({ lesson: 2, who: "ben", said: "Hi! It keeps funding health care.", keys: ["libAny"] });
+  ok(/stopped to talk/.test(calls[calls.length - 1].messages[0].content) && /Oh, okay\. What do you need\?/.test(calls[calls.length - 1].messages[0].content), "version 14: the neutral \"What do you need?\" (nobody said schools) is a stop, with its own gist");
   console.log(`sig-live: ${pass} pass, ${fail} fail`);
   process.exit(fail ? 1 : 0);
 })();

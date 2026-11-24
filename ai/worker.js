@@ -758,10 +758,12 @@ const SIG_SYSTEM = [
   "Things a passerby never says:",
   ...SIG_NEVER.map((x) => "- " + x),
 ].join("\n");
-/* what the decision means for where they are: the same groups the page's walker uses */
-function sigMotion(keys) {
-  if (keys.some((k) => /^(time|busy|fBye|bye|fGo|fDone|go|argue|thanks|thanksDodge|good|dodge)$/.test(k))) return "You're leaving: you say this as you go.";
-  if (keys.some((k) => /^(stop|lib|not|sure|yes|reg|what|dbl|nodbl|wait|ask|ask0|self|set|oops|there|straight|paid|noask|no1|no2|signed|again|agree|other|askOther)$/.test(k))) return "You've stopped to talk.";
+/* what the decision means for where they are, from each decided line's own act (signature version 14, playbook rule 37g: a passerby
+   who asks something isn't leaving as they ask it; before, "dodge" counted as leaving for everyone, though Ben's and Pat's is a question) */
+function sigMotion(keys, P) {
+  const act = (k) => (P && P.replies[k] && P.replies[k].act) || "";
+  if (keys.some((k) => act(k) === "go")) return "You're leaving: you say this as you go.";
+  if (keys.some((k) => /^(stop|lib|libAny|not|sure|yes|reg|what|dbl|nodbl|wait|ask|ask0|self|set|oops|there|straight|paid|noask|no1|no2|signed|again|agree|other|askOther|dodge)$/.test(k) || /^(slow|turn|pen)$/.test(act(k)))) return "You've stopped to talk.";
   return "";
 }
 const SIGNS = /\b(i'?ll sign|i will sign|where do i sign|let me sign|sign me up|count me in|i'?ll do it|happy to sign|i can sign)\b/;
@@ -801,7 +803,7 @@ async function sigReply(env, c, body, h, ip, t0) {
   await checkRate(env, ip, "voter", c.voterPerHour);
   await checkBudget(env, c);
   const user = "Who you are: " + (P.note || SIG_CAST[who].name) + ".\n" + (hist.length ? "The talk so far:\n" + hist.join("\n") + "\n" : "") + "The canvasser just said: \"" + said + "\"\n" +
-    "Decided: " + (sigMotion(keys) + " ").trim() + "\nThe gist of what you say (keep its facts and its decision; use your own words): \"" + planned + "\"\nWhat you say:";
+    "Decided: " + (sigMotion(keys, P) + " ").trim() + "\nThe gist of what you say (keep its facts and its decision; use your own words): \"" + planned + "\"\nWhat you say:";
   let txt = "";
   await claudeStream(env, c, { model: c.voterModel, system: SIG_SYSTEM, user, maxTokens: 90, timeout: 6000 }, (t) => { txt += t; });
   txt = txt.replace(/\s+/g, " ").trim().replace(/^["“']+|["”']+$/g, "").replace(/^(passerby|you|me|soo-jin|[a-z]+):\s*/i, "");
