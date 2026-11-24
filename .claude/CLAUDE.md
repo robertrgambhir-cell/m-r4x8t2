@@ -16,7 +16,9 @@ Every rule file has one home: the `rules/` folder of the private repo robertrgam
 
 ## When Robert gives a note
 
-Do all of this in the same session, before you finish:
+**First, pick up what other threads saved** (Robert, Nov 23, 2026). Pull the issue-trainings repo and read what changed in `rules/` since you last looked (in a new session, since the "swept through" commit in your course's start file, or in the issue-training skill for issue trainings). Sweep your own course for each new rule and check that no rule number is used twice. Step 6 of the standing rule at the top of `rules/training-playbook.md` has the details.
+
+Then do all of this in the same session, before you finish:
 
 1. **Save it as a rule** in the right rule file: his own words, then the general rule, then his before and after when there is one, with the date. A note on one lesson is a rule for every lesson unless he says it's for that lesson only. Part A if it would hold for any course, part B if it only fits one; when unsure, part A.
 2. **Sweep.** Check every other built training against the new rule. Fix what you safely can and list the rest for Robert. Scripts are fixed at their source, never only in a build.
