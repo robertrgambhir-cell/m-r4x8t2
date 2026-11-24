@@ -25,6 +25,7 @@ const post = (body, origin = ORIGIN) => worker.fetch(new Request("https://w.exam
   ok(r.status === 200 && j.text === modelText && typeof j.audio === "string" && j.audio.length > 0, "Robert's line gets a live answer with its voice: " + JSON.stringify(j).slice(0, 120));
   const sys = calls[calls.length - 1].system[0].text, user = calls[calls.length - 1].messages[0].content;
   ok(/Never agree to sign/.test(sys) && /pet names/.test(sys) && !/four parts|Says hello first|grade/i.test(sys + user), "the model gets the never-say list and never the lesson's parts");
+  ok(/Schools and Health Care/.test(sys) && /schools and health care permanent/.test(sys) && !/librar/i.test(sys), "the model knows the drive from the course's own words (version 13: Prop 3), not the libraries");
   ok(user.includes(ROB) && /Yes, I am\. Oh, for the schools\? What do you need\?/.test(user) && /stopped/.test(user), "the model gets his exact words, the gist and the decision");
   ok(voices.length === 1 && voices[0].url.includes("5u41aNhyCU6hXOcjPPv0") && voices[0].body.voice_settings.speed === 0.9, "Soo-jin's own voice and speed");
   /* the words can't change the decision: no signing that wasn't decided, no flipping registered */

@@ -37,7 +37,7 @@ export const SIG_SETTINGS = {
   drive: { name: "Schools and Health Care", measure: "Prop 3", color: "#5A3E99" },
   /* live replies (rule 37f) wait for "ship it": the AI server's own description of the drive for live passersby still names the libraries
      (SIG_SYSTEM in ai/worker.js), so until it reads the drive from this file the passersby say their scripted lines (version 13) */
-  liveReplies: false,
+  liveReplies: true,
   site: "Westside Market",
 };
 

@@ -17,7 +17,7 @@
 
 import { SCENARIOS, publicScenario } from "./scenarios.js";
 import { NARRATOR } from "./scenarios-issues.js";
-import { SIG_NARRATION, SIG_LESSONS, SIG_CAST, SIG_VOICES, SIG_VOICE_SETTINGS, SIG_SETTINGS, sigFill } from "./sig/content.js"; /* the signature course's spoken lines (Nov 18, 2026), and since Nov 21 its passersby for live replies (POST /sig/reply) */
+import { SIG_NARRATION, SIG_LESSONS, SIG_CAST, SIG_VOICES, SIG_VOICE_SETTINGS, SIG_SETTINGS, SIG_MEASURE, sigFill } from "./sig/content.js"; /* the signature course's spoken lines (Nov 18, 2026), and since Nov 21 its passersby for live replies (POST /sig/reply) */
 import { isAdmin, isLearnerRoute, learnerRoute, LearnerError } from "./learner.js"; /* phase 1: progress, events, admin views */
 
 const DEFAULTS = {
@@ -751,7 +751,8 @@ const SIG_NEVER = [
   "At most two short sentences, 25 words in all, the way people talk on a sidewalk.",
 ];
 const SIG_SYSTEM = [
-  "You are a passerby on the sidewalk outside Westside Market in Los Angeles. A paid canvasser at a small table is gathering signatures for a petition drive called Libraries for All, for a ballot measure called the Neighborhood Libraries Act. It would fund longer evening and weekend hours at branch libraries, paid for by a new state tax on digital ad sales.",
+  /* the drive comes from the course's own words (signature version 13, Nov 23, 2026: Prop 3), so a new measure needs no server change */
+  "You are a passerby on the sidewalk outside " + SIG_SETTINGS.site + " in Los Angeles. A paid canvasser at a small table is gathering signatures for a petition drive called " + SIG_SETTINGS.drive.name + ", for " + SIG_MEASURE.gist + ".",
   "Write only the next thing the passerby says out loud: plain spoken words, no quotation marks, no stage directions, no name labels.",
   "What the passerby does now is already decided, and you never change it: you get the decision and the gist of what they'd say. Say it the way this person would, in their own words, so it fits what the canvasser just said: answer what they asked, react to what they actually said, and keep every fact and the decision in the gist.",
   "Things a passerby never says:",
