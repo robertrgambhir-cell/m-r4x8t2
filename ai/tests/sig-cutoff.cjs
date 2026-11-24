@@ -6,7 +6,10 @@
       the man answers the whole line, not the half;
    2. the phone stops listening on its own partway through a line (iOS does, after a short pause): the app listens again, keeps the
       words and hears the line whole;
-   3. a finished opener still gets its answer after the short pause, so nothing got slow.
+   3. a finished opener still gets its answer after the short pause, so nothing got slow;
+   4. (Robert, Nov 23, 2026, 4:10 PM: "It cut me off when I was talking too soon, and I was still talking") the phone stops after a
+      line that sounds finished and takes 1.5 seconds to listen again: that time isn't the learner's quiet, so the rest that follows is
+      the same line. (His own words, "Hi how are you", and the turn after them are played in tests/sig-turn.cjs.)
    Usage (from the repo root, with Playwright installed): node ai/tests/sig-cutoff.cjs. Exits 1 on any failure. */
 const { chromium } = require("playwright");
 const fs = require("fs"), path = require("path"), http = require("http");
@@ -16,7 +19,7 @@ const serve = () => new Promise((res) => { const s = http.createServer((q, r) =>
 const FAKE_SR = () => {
   window.__starts = 0;
   class FakeSR {
-    start() { window.__sr = this; window.__starts += 1; this.on = true; setTimeout(() => { if (this.on && this.onstart) this.onstart(); }, 10); }
+    start() { window.__sr = this; window.__starts += 1; this.on = true; this.listening = false; setTimeout(() => { if (this.on) { this.listening = true; if (this.onstart) this.onstart(); } }, window.__startDelay || 10); } /* __startDelay: a phone that takes a while to listen again */
     stop() { if (!this.on) return; this.on = false; setTimeout(() => { if (this.onend) this.onend(); }, 50); }
     abort() { if (!this.on) return; this.on = false; setTimeout(() => { if (this.onend) this.onend(); }, 0); }
   }
@@ -84,6 +87,16 @@ const ok = (c, m) => { console.log((c ? "ok   " : "FAIL ") + m); if (!c) fails +
   });
   ok(r.you.length === 1 && t0 < 2200, "3. a finished opener is sent after the short pause (" + t0 + " ms)");
   ok(!r.errs.length, "3. no page errors " + r.errs.join(" "));
+  /* 4. the phone stops after a finished-sounding piece and takes 1.5 seconds to listen again */
+  r = await run(async (p) => {
+    await p.evaluate((t) => window.__speak(t), "Hi there! I'm collecting signatures for Prop 3."); await p.waitForTimeout(500);
+    await p.evaluate(() => { window.__startDelay = 1500; window.__phoneStops(); });
+    for (let i = 0; i < 80 && !(await p.evaluate(() => window.__sr && window.__sr.listening)); i += 1) await p.waitForTimeout(50);
+    await p.waitForTimeout(300);
+    await p.evaluate((t) => window.__speak(t), "It keeps funding schools and health care. Are you registered to vote in LA County?");
+  });
+  ok(r.starts >= 2 && r.you.length === 1 && /Prop 3/i.test(r.you[0]) && /LA County/i.test(r.you[0]), "4. a slow restart isn't counted as quiet: one line, whole (" + r.you.join(" / ") + ")");
+  ok(!r.errs.length, "4. no page errors " + r.errs.join(" "));
   await b.close(); srv.close();
   console.log(fails ? `sig-cutoff: ${fails} failed` : "sig-cutoff: all pass");
   process.exit(fails ? 1 : 0);

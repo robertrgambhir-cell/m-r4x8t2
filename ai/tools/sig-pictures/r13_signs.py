@@ -12,7 +12,9 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 
 IMG = os.path.join(ROOT, "wdpfxqlsvp", "sig", "img")
 FONT = sys.argv[1] if len(sys.argv) > 1 else os.environ.get("FIGTREE", "/root/sig-fonts/Figtree.ttf")
 LINES = ["SCHOOLS &", "HEALTH CARE"]
-CARD_LINES = ["SCHOOLS &", "HEALTH", "CARE"]  # the card is small and nearly square: three short lines read bigger than two long ones
+CARD_LINES = ["SCHOOLS", "AND HEALTH", "CARE"]  # the card is small and nearly square: three short lines read bigger than two long ones. Version 14
+# (the outside review): "AND" in words, since a small "&" read as "2" from above. Run it on version 12's pictures (git show 0444978:...):
+# each run lays the card a little larger
 PURPLE = (90, 62, 153)
 CLOTH = ["spot-sit", "spot-stand", "spot-doorway", "spot-side"]
 CARDS = ["aerial-ben", "aerial-soojin", "aerial-kayla", "aerial-luis"]
