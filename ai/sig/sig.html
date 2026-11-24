@@ -43,7 +43,7 @@ button { font: inherit; color: inherit; }
 .top { flex: none; display: block; }
 .top .row { display: flex; align-items: center; gap: 4px; height: 46px; margin-top: 4px; }
 .top .row .sp { flex: 1; }
-.top .drive { margin: 0; } .top .drive b { font-size: 24px; line-height: .92; } .top .drive small { font-size: 8px; letter-spacing: .04em; margin-top: 4px; } /* the door-knocking lessons' campaign name, at their size */
+.top .drive { margin: 0; min-width: 0; flex: 0 1 auto; } .top .drive b { font-size: 24px; line-height: .92; white-space: nowrap; overflow: hidden; display: block; } /* one line, shrunk to fit by fitDrive() (version 13) */ .top .drive small { font-size: 8px; letter-spacing: .04em; margin-top: 4px; } /* the door-knocking lessons' campaign name, at their size */
 .x, .pp { flex: none; width: 34px; height: 34px; border: 0; background: none; padding: 0; display: grid; place-items: center; color: var(--ink); cursor: pointer; }
 .x { margin-left: -9px; } span.x { cursor: default; } /* a result screen has no way back; the bar keeps its place */
 .x svg { width: 24px; height: 24px; } .pp svg { width: 20px; height: 20px; }

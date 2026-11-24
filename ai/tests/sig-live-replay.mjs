@@ -10,7 +10,7 @@ const CASES = [
   /* Nov 21, 12:56 PM: "I asked her, 'Are you registered to vote in Los Angeles County, and are you a lover of libraries?' She didn't answer. She said, 'Sure, I'll sign.'" */
   { n: 2, who: "soojin", key: "2.soojin", lines: ["Hi, how are you? Um, are you registered to vote in Los Angeles County, and are you a lover of libraries?"],
     must: [/\b(yes|yeah|yep|i am|registered)\b/i], never: [/\bsign\b/i] },
-  { n: 2, who: "ben", key: "2.ben", lines: ["Hi there! I'm collecting signatures for a ballot measure to keep libraries open later. Are you registered to vote in LA County?"],
+  { n: 2, who: "ben", key: "2.ben", lines: ["Hi there! I'm collecting signatures for a ballot measure to keep funding schools and health care. Are you registered to vote in LA County?"],
     must: [/\b(yes|yeah|yep|i am|registered)\b/i, /\bsign\b/i], never: [/\bnot registered\b/i] },
   { n: 2, who: "kayla", key: "2.kayla", lines: ["Hi! Are you registered to vote in LA County?"], must: [/\bnot\b/i], never: [/\bsign\b/i] },
 ];

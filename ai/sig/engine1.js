@@ -98,7 +98,7 @@ function stopSound() { if (READ) READ(); var p = playing; playing = []; if (p.le
    passerby stops or keeps walking stays tied to how good my opener was"): the grader decides what a passerby does, as always, and the
    AI server writes their words to what the learner said, in their own voice (POST /sig/reply). Anything that doesn't come back in time,
    or comes back as {fallback}, plays the scripted line. ?live=off keeps the scripted lines, only to compare. */
-var LIVE = !FAST && qs.get("live") !== "off";
+var LIVE = !FAST && qs.get("live") !== "off" && (ST.liveReplies !== false || qs.get("live") === "on"); /* version 13: off until the AI server's description of the drive is this course's (it waits for "ship it"); ?live=on tries them anyway */
 function liveFetch(o, ms) {
   if (!LIVE) return Promise.resolve(null);
   return new Promise(function (res) {
@@ -473,6 +473,9 @@ var CHECK_PICS = [
   '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M10 30 l22 -18 l22 18" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 28 v24 h32 v-24" fill="#fff" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><rect x="27" y="36" width="10" height="16" rx="1.5" fill="currentColor"/></svg>',
   '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M8 50 h48" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M10 40 c6 -26 13 -24 11 -4 c-1 12 9 -16 15 -6 c4 7 7 -9 12 -2 c3 5 5 -2 8 -1" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 ];
+/* the drive's name on top keeps to one line and shrinks to fit its row, never wraps (version 13: "Schools and Health Care" is longer
+   than "Libraries for All" was) */
+function fitDrive() { [].forEach.call(document.querySelectorAll(".top .drive b"), function (b) { var n = 0; b.style.fontSize = ""; while (b.scrollWidth > b.clientWidth + 1 && n < 14) { n += 1; b.style.fontSize = (parseFloat(getComputedStyle(b).fontSize) - 1) + "px"; } }); }
 function fitHw() { [].forEach.call(document.querySelectorAll(".box .hw"), function (h) { var n = 0; h.style.fontSize = ""; while (h.scrollWidth > h.clientWidth + 1 && n < 12) { n += 1; h.style.fontSize = (parseFloat(getComputedStyle(h).fontSize) - 1) + "px"; } }); }
 /* the practice petition's line. fill: { name, sig, addr, city, zip, other: [boxes in someone else's writing] }; o: { tap, glow: [], marks: {}, top } */
 var SIGN = '<svg viewBox="0 0 120 26" aria-label="signed"><path d="M4 18 C10 2 16 2 15 14 C14 24 22 6 27 12 C31 17 33 8 38 12 C42 16 44 9 50 13 C56 17 58 4 64 12 C70 20 76 8 84 13 C92 18 100 10 116 9" fill="none" stroke="#1F3F8F" stroke-width="2.2" stroke-linecap="round"/></svg>';

@@ -6,7 +6,7 @@
       never brushes you off, and the card has all four;
    3. the 2nd try's first passerby, said nothing: she walks past and her card has part 4's walked-on line;
    4. an opener begun just before he'd pass and said slowly is still heard and lands, since every line is heard first (rule 34);
-   5. a passerby who stopped ("Oh, the library? What do you need?") and was left waiting says "Okay, bye now." and goes, with no
+   5. a passerby who stopped ("Oh, for the schools? What do you need?") and was left waiting says "Okay, bye now." and goes, with no
       walked-on line, because the opener had landed.
    Usage (from the repo root, with Playwright installed): node ai/tests/sig-walkpast.cjs. Exits 1 on any failure. */
 const { chromium } = require("playwright");
@@ -70,8 +70,8 @@ const ok = (c, m) => { console.log((c ? "ok   " : "FAIL ") + m); if (!c) fails +
   r = await run("1.0", OPENER, true, { atX: 0.12, gap: 250 });
   ok(r.card && r.said.includes("Yeah, I’m registered.") && r.said.includes("Sure, I’ll sign.") && !r.said.includes(BUSY), "1st try, the opener begun late and said slowly: still heard, he stops");
   ok(!r.errs.length, "no page errors " + r.errs.join(" "));
-  r = await run("6.0", "Hi there! This petition is for longer library hours.", true);
-  ok(r.card && r.said.includes("Oh, the library? What do you need?") && r.said.includes("Okay, bye now.") && !r.said.includes(BUSY), "2nd try, stopped and left waiting: \"Okay, bye now.\"");
+  r = await run("6.0", "Hi there! This petition is for school funding.", true);
+  ok(r.card && r.said.includes("Oh, for the schools? What do you need?") && r.said.includes("Okay, bye now.") && !r.said.includes(BUSY), "2nd try, stopped and left waiting: \"Okay, bye now.\"");
   ok(r.card && !r.card.rows.some((x) => /walked on/.test(x)), "2nd try, stopped and left waiting: no walked-on line");
   ok(!r.errs.length, "no page errors " + r.errs.join(" "));
   await b.close(); srv.close();

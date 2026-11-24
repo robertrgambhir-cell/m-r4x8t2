@@ -18,17 +18,29 @@ var SIGG = (function () {
   var TIME_RE = /\ba (?:minute|moment|second|sec|min|quick minute|quick second|quick sec)\b|\bquick (?:minute|second|sec|moment)\b|\b(?:one|two|a couple|a few|couple of|few) (?:minutes?|seconds?|secs?|moments?)\b(?: of your time)?|\b(?:bad|good|okay|ok|better) time\b|\bbusy right now\b|\bare you busy\b|\b(?:got|have) (?:some |a little |any )?time\b|\bof your time\b|\bcan i (?:talk to|ask|bother|borrow|grab|stop) you\b|\b(?:may|could) i (?:talk|ask|bother|borrow)\b|\bmind if i\b|\bcan i steal\b|\bis now (?:okay|ok|good|fine)\b|\bsorry\b|\bapologi[sz]e\b|\bapologies\b|\bpardon\b|\bbother(?:ing)? you\b|\bask you (?:something|a question|a quick question)\b/;
   /* a promise that a signature will count never passes (the scoring contract) */
   var PROMISE_RE = /\b(?:yours|your signature|your line|it|that|this|that one|this one|they|theirs)(?: all| definitely| totally)? ?(?:will|'ll|would|is going to|is gonna|are going to|gonna)(?: definitely| totally| still)? count\b|\bi (?:promise|guarantee)\b/;
-  /* a label the measure doesn't support (part 2): libraries closing, or a claim about what it costs */
-  var LIB = "librar(?:y|ies)(?:'s)?";
+  /* ---- the measure's own words (version 13, Robert's go, Nov 23, 2026: Prop 3, the 2026 initiative that made funding for schools and
+     health care permanent by keeping today's tax on high incomes; before, the made-up Neighborhood Libraries Act). The grader's shape is
+     the measure's: a topic (TOPIC_RE), what it does (WHAT_RE), who pays (WHO_RE) and what it never says (CLOSING, COST). ---- */
+  var TOPIC = "(?:schools?|education|educational|teachers?|classrooms?|students?|k ?12|community colleges?|health ?care|healthcare|medi ?cal)";
+  var TOPIC_RE = new RegExp("\\b" + TOPIC + "\\b");
+  /* a label the measure doesn't support: schools closing (the closing story), or a claim about what it costs or who pays */
   var CLOSING = [
-    new RegExp("\\b(?:sav(?:e|es|ing)|rescu(?:e|es|ing)|protect(?:s|ing)?|defend(?:s|ing)?)\\b(?: [a-z']+){0,3}? " + LIB + "\\b"),
-    new RegExp("\\b" + LIB + "\\b(?: [a-z']+){0,4}? (?:clos(?:e|es|ed|ing|ure|ures)|shut(?:ting)? down|shutdowns?|shut)\\b"),
-    new RegExp("\\b(?:clos(?:ing|ure|ures)|shut(?:ting)? down|shutdowns?)\\b(?: [a-z']+){0,4}? " + LIB + "\\b"),
+    new RegExp("\\b(?:sav(?:e|es|ing)|rescu(?:e|es|ing))\\b(?: (?:our|the|public|local|california|california's|la|these|those|all))* (?:schools?|education|teachers|students|kids|children|health ?care|healthcare|hospitals?)\\b(?! (?:funding|money|budgets?|dollars))"),
+    new RegExp("\\b(?:schools?|hospitals?|clinics?)\\b(?: [a-z']+){0,4}? (?:clos(?:e|es|ed|ing|ure|ures)|shut(?:ting)? down|shutdowns?|shut)\\b"),
+    new RegExp("\\b(?:clos(?:ing|ure|ures)|shut(?:ting)? down|shutdowns?)\\b(?: [a-z']+){0,4}? (?:schools?|hospitals?|clinics?)\\b"),
     new RegExp("\\b(?:stop|stops|stopping|prevent|prevents|preventing|fight|fighting|end|ending|block|blocking)\\b(?: [a-z']+){0,3}? (?:clos(?:ing|ure|ures|ings)|shut ?downs?)\\b"),
-    new RegExp("\\bkeep(?:s|ing)?\\b(?: [a-z']+){0,3}? " + LIB + " open\\b(?! (?:later|longer|late|more|evenings?|weekends?|nights?|on|at night|till|until|past|after))"),
-    new RegExp("\\b" + LIB + "\\b(?: [a-z']+){0,2}? stay(?:s|ing)? open\\b(?! (?:later|longer|late|more|evenings?|weekends?|nights?|on|at night|till|until|past|after))"), /* "help our libraries stay open" (Nov 20) */
+    new RegExp("\\bkeep(?:s|ing)?\\b(?: [a-z']+){0,3}? (?:schools?|hospitals?|clinics?) open\\b"),
+    new RegExp("\\b(?:schools?|hospitals?|clinics?)\\b(?: [a-z']+){0,2}? stay(?:s|ing)? open\\b"),
   ];
-  var COST = /\bfree\b|\bno (?:new |more |extra )?tax(?:es)?\b|\b(?:won't|wont|will not|doesn't|doesnt|does not|isn't going to|not going to) cost\b|\b(?:no|zero) cost\b|\bwithout (?:raising|new|any) tax(?:es)?\b|\bnot a tax\b|\bcosts? (?:you |taxpayers |anyone |anybody )?nothing\b/;
+  /* what it costs or who pays, said untrue: free, no tax at all, a new tax (it keeps one that's already there), a tax on everyone or
+     on millionaires (it starts at about $360,000). "No new taxes" is true, so costText() turns a "new tax" that's denied into a neutral
+     word first, and only a "new tax" that's claimed is untrue. */
+  var COST = new RegExp("\\bfree\\b|\\b(?:won't|wont|will not|doesn't|doesnt|does not|isn't going to|not going to) cost\\b|\\b(?:no|zero) cost\\b|\\bcosts? (?:you |taxpayers |anyone |anybody |us )?nothing\\b" +
+    "|\\bnot a (?:real )?tax\\b|\\bisn't (?:a|really a) tax\\b|\\bthere(?:'s| is) no tax\\b|\\bno (?:more |extra )?tax(?:es)?\\b(?! (?:increase|increases|hike|hikes))|\\bwithout (?:any )?tax(?:es)?\\b" +
+    "|\\b(?:brand )?new (?:state |statewide |income )?tax(?:es)?\\b|\\b(?:adds?|adding|creates?|creating|imposes?|imposing) (?:a |an )?(?:state |statewide |income )?tax(?:es)?\\b" +
+    "|\\btax(?:es)? on (?:everyone|everybody|all of us|all californians|every californian|working people|the middle class)\\b|\\b(?:raise|raises|raising|increase|increases|increasing) (?:your|everyone's|everybody's|our|all our) taxes\\b|\\byour taxes (?:will |would )?go up\\b|\\bmillionaires?'?s?\\b");
+  var NEW_DENIED = /\b(?:not|isn't|isnt|is not|no|without|never|doesn't|doesnt|does not|nothing|zero|instead of|rather than)(?: (?:a|an|any|the|really|even|brand|add|adding|create|creating|raise|raising|impose|imposing))* (?:brand )?new (?:state |statewide |income )?tax(?:es)?\b/g;
+  function costText(t) { return t.replace(/\bfeel free\b/g, " ").replace(NEW_DENIED, " oldtax "); }
   /* a statement about being registered isn't the question */
   var STATEMENT = /\b(?:have to be|has to be|need to be|needs to be|must be|should be|gotta be|got to be|only|if you're|if you are|if they're|who are|who's|who is|i'm|i am|we're|we are|not|looking for|for|need|needs|want|wants|require|requires|all|any)$/;
   /* the county said without its name, right after the registered question: "in this county" (rule 27b, Robert, Nov 21, 12:56 PM).
@@ -42,7 +54,7 @@ var SIGG = (function () {
     if (/\bany$/.test(before) && /^[^?]{0,80}\?/.test(t.slice(at))) return false; /* "Any registered voters in LA County here?": "any" with a "?" to come */
     return STATEMENT.test(before) || /\b(?:have|has|need|needs|must|should|got|gotta) to be$|\bonly(?: [a-z']+){0,2}$/.test(last4);
   }
-  var MID = /\b(?:um+|uh+|uhm|er+|erm|hmm+|ah|and|but|so|or|because|cause|i|i'?m|i am|my|me|we|we'?re|our|the|a|an|to|for|with|of|in|on|at|about|from|like|just|that|this|is|are|was|am|be|it'?s|you|your|who|what|if|then|also|really|very|here|registered|vote|la|los|angeles|library|longer|hi|hello|hey)$/i;
+  var MID = /\b(?:um+|uh+|uhm|er+|erm|hmm+|ah|and|but|so|or|because|cause|i|i'?m|i am|my|me|we|we'?re|our|the|a|an|to|for|with|of|in|on|at|about|from|like|just|that|this|is|are|was|am|be|it'?s|you|your|who|what|if|then|also|really|very|here|registered|vote|la|los|angeles|health|high|hi|hello|hey)$/i;
   var esc = function (s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); };
 
   /* lower case, straight quotes, "L.A." as "la", "?" kept as its own word, everything else that isn't a letter dropped */
@@ -117,19 +129,19 @@ var SIGG = (function () {
      "Support your library!" and "This petition is for the library." don't, because they never say what it does, and neither do the
      hours on their own ("Longer library hours."). The words have to sit outside the registered question. */
   /* the verbs that can come before the hours ("This petition is", "I'm gathering signatures", "It funds"), with "for" counted too */
-  var VERB = /^(?:is|are|am|was|i'm|we're|it's|that's|this's|petition's|here's|what's|its|funds?|funding|keeps?|keeping|gives?|giving|adds?|extends?|expands?|means|would|will|brings?|pays|opens?|makes?|gets?|gathering|collecting|getting|asking|want|wants|need|needs|trying|pushing|proposes?|supports?|supporting|backs?|backing|wins?|winning|help|helps|helping|hear|hearing|sign|signing|imagine|see|fight|fighting|vote|voting|like|love|deliver|delivers|restore|restores|demand|demanding)$/;
-  var AFTER = /^(?:is|are|was|it's|that's|this's|what's|means|would|will)$/; /* the topic first: "Longer library hours is what this petition is for." */
-  function hoursFor(t, q, g) {
+  var VERB = /^(?:is|are|am|was|i'm|we're|it's|that's|this's|petition's|here's|what's|its|funds?|funding|keeps?|keeping|gives?|giving|adds?|extends?|expands?|means|would|will|brings?|pays|opens?|makes?|gets?|gathering|collecting|getting|asking|want|wants|need|needs|trying|pushing|proposes?|supports?|supporting|backs?|backing|wins?|winning|help|helps|helping|hear|hearing|sign|signing|imagine|see|fight|fighting|vote|voting|like|love|deliver|delivers|restore|restores|demand|demanding|protect|protects|protecting|secure|secures|securing|continue|continues|continuing|renew|renews|renewing|extending)$/;
+  var AFTER = /^(?:is|are|was|it's|that's|this's|what's|means|would|will)$/; /* what it does first: "School funding is what this petition is for." */
+  function whatFor(t, q, g) {
     var at = 0, ws = t.split(" ").map(function (w) { var o = { w: w, at: at }; at += w.length + 1; return o; }).filter(function (x) { return x.w && x.w !== "?"; });
     var inQ = function (x) { return q && x.at >= q.at && x.at < q.end; };
-    var re = new RegExp(HOURS_RE.source, "g"), m;
+    var re = new RegExp(WHAT_ALL.source, "g"), m;
     while ((m = re.exec(t))) {
       var s = m.index, e = s + m[0].length, first = -1, last = -1, inside = q && s >= q.at && s < q.end;
       for (var k = 0; k < ws.length; k += 1) { if (first < 0 && ws[k].at + ws[k].w.length > s) first = k; if (ws[k].at < e) last = k; }
       if (first < 0) continue;
-      if (!inside && /^(?:keep|keeps|keeping|extends?|extending|expands?|expanding|lengthens?|lengthening|increas(?:e|es|ed|ing)|boost(?:s|ing)?|raise|raises|raising|adds?|adding|stay|stays|staying)\b/.test(m[0])) return true; /* the verb is part of the match: "keep libraries open later", "increasing the number of hours" */
+      if (!inside && /^(?:fund|funds|pays?|paying|keeps?|keeping|extends?|extending|makes?|making|renews?|renewing|continues?|continuing|gives?|giving|provides?|providing)\b/.test(m[0])) return true; /* the verb is part of the match: "funds schools", "pays for schools and health care" */
       for (var j = Math.max(g, first - 9); j < first; j += 1) {
-        if (ws[j].w === "for" && j >= first - 2) return true; /* "for longer library hours", even inside the registered question */
+        if (ws[j].w === "for" && j >= first - 2) return true; /* "for school funding", even inside the registered question */
         if (!inQ(ws[j]) && (ws[j].w === "for" || VERB.test(ws[j].w))) return true;
       }
       for (var n = last + 1; n < Math.min(ws.length, last + 7); n += 1) { if (inQ(ws[n])) break; if (AFTER.test(ws[n].w)) return true; }
@@ -140,9 +152,9 @@ var SIGG = (function () {
   function grade(text, st) {
     var t = norm(text), ws = words(t), g = greetLen(ws), q = question(t, st), lre = labelRe(st);
     var tm = TIME_RE.exec(t), timeAt = tm ? tm.index : -1;
-    var tn = t.replace(/\bneighborhood librar(?:y|ies) act\b/g, "the measure"); /* the measure's name isn't what it's for */
-    var libAny = new RegExp("\\b" + LIB + "\\b").test(tn) || /\bbranch(?:es)?\b(?: [a-z']+){0,3}? (?:hours?|open)\b/.test(tn) || (lre ? lre.test(tn) : false);
-    var ta = t.replace(/\bfeel free\b/g, " "), um = null;
+    var tn = t.replace(/\b(?:prop(?:osition)? (?:3|three)|neighborhood librar(?:y|ies) act)\b/g, "the measure"); /* the measure's name isn't what it's for */
+    var topicAny = TOPIC_RE.test(tn) || (lre ? lre.test(tn) : false);
+    var ta = costText(t), um = null;
     CLOSING.some(function (r) { var m = r.exec(t); if (m) um = m[0]; return !!m; });
     var closing = !!um, cm = closing ? null : COST.exec(ta), cost = !!cm, untrue = closing ? "closing" : cost ? "cost" : null;
     if (cm) um = cm[0];
@@ -157,12 +169,12 @@ var SIGG = (function () {
       explWords += 1;
     });
     var long = !!q && explWords > 18; /* runs past about 17 words before the question (version 8: the course's own opener now says it's collecting signatures for a ballot measure, 12 words), one word of grace for a recognizer's extra word. With no question it can't run long before it. */
-    var hoursAny = HOURS_RE.test(t), topic = libAny || hoursAny, sentence = hoursAny && hoursFor(t, q, g), topicOnly = topic && !sentence && !untrue && !long;
+    var whatAny = WHAT_ALL.test(t), topic = topicAny || whatAny, sentence = whatAny && whatFor(t, q, g), topicOnly = topic && !sentence && !untrue && !long;
     var sorryWord = !!(tm && /sorry|pardon|apolog|excuse|bother/.test(tm[0])), sorryFirst = sorryWord && (!q || timeAt < q.at);
     var hits = [g > 0, sentence && !untrue && !long, !!(q && q.county), timeAt < 0 && ws.length > 0]; /* part 4 is about what you leave out, so it counts only once you've said something (a passerby who walked past a silent canvasser) */
     return {
       hits: hits, n: hits.filter(Boolean).length, text: String(text || "").trim(), norm: t,
-      greet: g > 0, topic: topic, sentence: sentence, hours: sentence, topicOnly: topicOnly, long: long,
+      greet: g > 0, topic: topic, sentence: sentence, hours: sentence, what: sentence, topicOnly: topicOnly, long: long,
       /* signatures or a petition came up, so a passerby can offer to sign (rule 37e, Robert, Nov 21, 12:56 PM: "I didn't ask her to sign anything") */
       sig: /\bsignatures?\b|\bsign(?:ing|ed)?\b|\bpetitions?\b|\b(?:put|add|write) (?:down )?your name\b/.test(t), explWords: explWords, untrue: untrue, untrueSaid: um, promise: promise,
       alt: [false, topicOnly, false, sorryFirst], /* the second "missed" lines: only the topic, and an apology first */
@@ -204,7 +216,7 @@ var SIGG = (function () {
   function misheard(text, opener) {
     var r = words(norm(text)).filter(function (w) { return !HES.test(w); });
     if (!r.length) return true;
-    if (opener && r.length === 1 && GREET1.indexOf(r[0]) < 0 && !/^librar/.test(r[0])) return true;
+    if (opener && r.length === 1 && GREET1.indexOf(r[0]) < 0 && !/^(?:librar|school|education|health)/.test(r[0])) return true;
     return false;
   }
   /* how long quiet has to last before a passerby answers (playbook A4, rules 34 and 34a): 1.2 seconds after a line that sounds
@@ -213,9 +225,9 @@ var SIGG = (function () {
      signatures on, uh, have something on the ballot in November to get" counted as finished after 1.2 seconds, because "get" wasn't
      on the list. A line could go on when its last word is one that needs more after it (MID, MORE) or it ends on "to" and a verb
      ("to get," "to keep"); only "to sign," "to help," "to talk" and the like end a thought there. When unsure, it waits. */
-  var MORE = /\b(?:get|gets|got|getting|keep|keeps|keeping|make|makes|making|have|has|had|having|give|gives|giving|put|puts|putting|need|needs|want|wants|wanted|try|tries|trying|tryna|going|gonna|wanna|gotta|let|lets|let's|ask|asking|tell|telling|bring|bringing|take|taking|show|showing|extend|extends|extending|fund|funds|funding|collect|collecting|gather|gathering|add|adds|adding|pay|pays|paying|would|could|should|might|must|than|as|some|any|every|each|more|most|its|their|his|which|where|when|how|why|there'?s|they'?re|they|he|she|was|were|been|being|extended|extra|additional|new|public|branch|neighborhood|local|statewide|state|digital|evening|weekend|ballot measure|whole|by|until|till|into|onto|through|called|will|can|open|that'?s|you'?re|we'?ll|it'?ll)$/i;
+  var MORE = /\b(?:get|gets|got|getting|keep|keeps|keeping|make|makes|making|have|has|had|having|give|gives|giving|put|puts|putting|need|needs|want|wants|wanted|try|tries|trying|tryna|going|gonna|wanna|gotta|let|lets|let's|ask|asking|tell|telling|bring|bringing|take|taking|show|showing|extend|extends|extending|fund|funds|funding|collect|collecting|gather|gathering|add|adds|adding|pay|pays|paying|would|could|should|might|must|than|as|some|any|every|each|more|most|its|their|his|which|where|when|how|why|there'?s|they'?re|they|he|she|was|were|been|being|extended|extra|additional|new|public|branch|neighborhood|local|statewide|state|digital|evening|weekend|ballot measure|whole|by|until|till|into|onto|through|called|will|can|open|that'?s|you'?re|we'?ll|it'?ll|today'?s|existing|higher|top)$/i;
   /* ...unless it ends the way a finished line does (the outside review, Nov 22): a greeting, a goodbye or thanks, an ask to sign */
-  var DONE_END = /\b(?:how'?s it going|how are (?:you|ya)|how (?:are )?you doing|how'?re you doing|what'?s up|good (?:morning|afternoon|evening|night)|have a (?:good|great|nice|lovely|wonderful) (?:one|day|evening|night|weekend|morning|afternoon)|thank you(?: so much| very much)?|thanks(?: so much| a lot| anyway| anyways| for stopping(?: by)?)?|(?:good ?)?bye(?: now| bye)?|take care|see (?:you|ya)(?: later| around| soon)?|you too|no problem|no worries|of course|sure|okay|ok|all good|that'?s (?:ok|okay|fine|alright)|yes (?:you|it|they|we) (?:can|will|do|does|are|is)|if you want|hear more|learn more|sign it|sign this|sign here|right here|open later|la county)$/i;
+  var DONE_END = /\b(?:how'?s it going|how are (?:you|ya)|how (?:are )?you doing|how'?re you doing|what'?s up|good (?:morning|afternoon|evening|night)|have a (?:good|great|nice|lovely|wonderful) (?:one|day|evening|night|weekend|morning|afternoon)|thank you(?: so much| very much)?|thanks(?: so much| a lot| anyway| anyways| for stopping(?: by)?)?|(?:good ?)?bye(?: now| bye)?|take care|see (?:you|ya)(?: later| around| soon)?|you too|no problem|no worries|of course|sure|okay|ok|all good|that'?s (?:ok|okay|fine|alright)|yes (?:you|it|they|we) (?:can|will|do|does|are|is)|if you want|hear more|learn more|sign it|sign this|sign here|right here|health care|healthcare|la county)$/i;
   var TO_DONE = /\bto (?:sign|help|talk|chat|go|register|vote|wait|stop|know|meet|it)$/;
   function pauseMs(text) {
     var t = norm(text), last = t.replace(/[ ?]+$/, "");
@@ -273,39 +285,49 @@ var SIGG = (function () {
   var PAID_RE = /\b(?:i'?m|i am|we'?re|we are) (?:a |an |also |actually |being |getting |all )*paid\b|\bi (?:do )?(?:get|got) paid\b|\bpaid to (?:gather|collect|get|do|be|circulat|stand|work|ask)|\bpaid (?:signature |petition )?(?:gatherer|canvasser|circulator|collector|staff|staffer|worker|employee)\b|\b(?:they|the campaign|the firm|the company|the drive)(?: do| does)? (?:pays?|is paying|are paying) me\b|\bthis is (?:my|a paid) job\b|\bit'?s (?:my|a paid) job\b|\bi'?m (?:on the clock|compensated)\b/;
   var NOT_PAID_RE = /\b(?:not|never|don't|do not|aren't|isn't)(?: [a-z']+)? (?:being |getting |get )?paid\b|\bunpaid\b/;
   var VOL_RE = /\b(?:i'?m|i am|we'?re|we are|i'?m just|we'?re all) (?:a |an |just a |only a |just |all |actually a )?volunteer(?:s|ing)?\b|\bi (?:just )?volunteer\b|\bas a volunteer\b/;
-  var FUND_RE = /\bfunders?\b|\bfunding\b|\bfunded by\b|\bwho(?:'s| is| are)? (?:paying|behind|funding|backing)\b|\bdonors?\b|\bbackers?\b|\bwho pays for\b/;
+  /* the funders (version 13): "funding" alone is now the measure's own word ("funding for schools"), so it needs a sheet or a "who" */
+  var FUND_RE = /\bfunders?\b|\bfunding (?:sheet|list|page|disclosure)\b|\bfunded by\b|\bwho(?:'s| is| are)? (?:paying|behind|funding|backing)\b|\bdonors?\b|\bbackers?\b|\bwho pays for\b/;
   var ASK_RE = /\b(?:will|would|can|could|won't|wouldn't) (?:you|ya|u)(?: (?:please|be willing to|like to|want to|be able to|mind|care to|go ahead and|add your name and))* sign(?:ing)?\b|\b(?:want|wanna|like|care|willing|ready|able|happy) (?:to )?sign\b|\bwanna sign\b|\b(?:can|could|may|might) i (?:get|have|grab) (?:your|a|ur) (?:signature|autograph|john hancock)\b|\b(?:get|have|need) your signature\b|\badd your (?:name|signature)\b|\bput your (?:name|signature)\b|\bhow about (?:a|your) signature\b|\byour signature \?/;
   var PRESS_RE = /\byou (?:have|need|got|gotta|ought|are going) to sign\b|\byou (?:must|should|better|gotta) sign\b|\bevery(?:body|one)(?:'s| is| else is| has| else has) sign|\bjust sign\b|\bsign it already\b/;
   var DBL_RE = /\b(?:have|did|haven't|didn't|had|has) (?:you|ya|u|he|she)(?: guys| already| ever| maybe| possibly)* (?:sign|signed|seen and signed)\b|\b(?:already|previously) sign(?:ed)?\b|\bsign(?:ed)? (?:this|it|that|one|the [a-z]+)(?: [a-z']+){0,3} (?:already|before|yet)\b|\bsign(?:ed)? (?:already|before)\b|\bfirst time (?:signing|seeing)\b/;
-  /* the words that can sit inside "longer ... hours" (Nov 20 review: "more signatures for library hours" isn't the hours) */
-  var HW = "(?:library|libraries|library's|branch|branches|evening|evenings|weekend|weekends|night|nights|and|open|opening|public|neighborhood|local|our|the|their)";
-  var HOURS_RE = new RegExp("\\b(?:longer|more|extended|extra|later|additional|added|expanded) (?:" + HW + " ){0,3}?hours\\b|\\bhours\\b(?: (?:open|a|bit|little|lot|much|each|every|day|night|at|the|library|libraries|branch|branches|stay|stays|staying|run|runs|go|goes)){0,3} (?:longer|later)\\b|\\b(?:evenings?|weekends?|nights?)\\b(?: " + HW + "){0,3}? (?:hours|open)\\b|\\bopen (?:later|longer|more|late|evenings?|weekends?|nights?|on (?:evenings|weekends|nights))\\b|\\bstay(?:s|ing)? open (?:later|longer|late|more|evenings?|weekends?|nights?)\\b|\\bkeep(?:s|ing)?\\b(?: [a-z']+){0,4}? open (?:later|longer|late|more|evenings?|weekends?|nights?)\\b|\\b(?:extends?|extending|expands?|expanding|lengthens?|lengthening|increas(?:e|es|ed|ing)|boost(?:s|ing)?|raise|raises|raising|adds?|adding)\\b(?: [a-z']+){0,4}? hours\\b"); /* version 8: "increasing the number of hours" */
+  /* what it does (version 13): funding for schools and health care, named with its money word on either side ("funding for schools",
+     "school funding", "money for our schools", "pays for schools and health care") */
+  var FUNDW = "(?:fund|funds|funded|funding|money|dollars|budgets?|resources|revenue|pays? for|paying for)";
+  var WHAT_RE = new RegExp("\\b" + FUNDW + "\\b(?: [a-z']+){0,4}? " + TOPIC + "\\b|\\b" + TOPIC + "\\b(?: (?:and|or) " + TOPIC + ")?(?: [a-z']+)?? (?:funding|money|budgets?|dollars)\\b");
+  /* who pays (lesson 3's second half, and what it does in an opener): today's tax on high incomes, said any true way */
+  var WHO_RE = new RegExp("\\btax(?:es|ed|ing)?\\b(?: [a-z']+){0,5}? (?:high|higher|highest|top|wealthy|wealthiest|rich|richest|upper)\\b" +
+    "|\\bpaid for by (?:the |a tax on the |taxing the )?(?:wealthy|wealthiest|rich|richest|high earners?|top earners?|highest earners?)\\b" +
+    "|\\b(?:high|higher|highest|top|upper)[ -]?(?:income|incomes|earners?|earning|bracket|brackets|end)\\b(?: [a-z']+){0,4}? tax(?:es)?\\b" +
+    "|\\b(?:wealthy|wealthiest|rich|richest|high earners?|top earners?|high incomes?|upper incomes?)\\b(?: [a-z']+){0,3}? (?:pay|pays|paying|taxed|tax)\\b" +
+    "|\\b(?:top|highest|high) (?:tax )?rates?\\b|\\b(?:over|above|more than|past|exceeding)(?: about| around| roughly| approximately)? (?:3[0-9]{2}|4[0-9]{2}|7[0-9]{2})(?: 000| thousand| k| grand)\\b" +
+    "|\\b2012\\b(?: [a-z']+){0,4}? tax|\\btax(?:es)?(?: [a-z']+){0,4}? 2012\\b|\\bprop(?:osition)? (?:30|55|thirty|fifty five)\\b");
+  var WHAT_ALL = new RegExp(WHAT_RE.source + "|" + WHO_RE.source);
   var TAX_RE = /\btax(?:es|ed)?\b/;
   /* something untrue about the measure or about being paid, in any lesson (the scoring contract): what kind, and the words */
   function untrueOf(t, raw) {
     var m = VOL_RE.exec(t), i;
     if (m && !/\bnot (?:a |an )?volunteer/.test(t)) return { kind: "volunteer", said: around(t, m, raw) };
     for (i = 0; i < CLOSING.length; i += 1) { m = CLOSING[i].exec(t); if (m) return { kind: "closing", said: around(t, m, raw) }; }
-    var ta = t.replace(/\bfeel free\b/g, "feel okay"); m = COST.exec(ta);
+    var ta = costText(t); m = COST.exec(ta);
     return m ? { kind: "cost", said: around(ta, m, raw) } : null;
   }
   function grade3(text, st) {
-    var t = norm(text), ta = t.replace(/\bfeel free\b/g, " ");
+    var t = norm(text), ta = costText(t);
     var askAt = at(ASK_RE, t), press = PRESS_RE.test(t), paidAt = NOT_PAID_RE.test(t) ? -1 : at(PAID_RE, t), funAt = at(FUND_RE, t);
     var before = function (x) { return x >= 0 && (askAt < 0 || x < askAt); };
     var sheet = st.funders !== "printed", paid = before(paidAt), fun = !sheet || before(funAt);
     var vol = VOL_RE.test(t) && !/\bnot (?:a |an )?volunteer/.test(t), closing = CLOSING.some(function (r) { return r.test(t); }), cost = COST.test(ta);
-    var hours = HOURS_RE.test(t), tax = TAX_RE.test(t) && !cost, dbl = DBL_RE.test(t);
+    var hours = WHAT_RE.test(t), taxWord = TAX_RE.test(t), tax = WHO_RE.test(t) && !cost, dbl = DBL_RE.test(t); /* the tax half names who pays (version 13) */
     var untrue = vol ? "volunteer" : closing ? "closing" : cost ? "cost" : null, promise = PROMISE_RE.test(t);
     var hits = [paid && fun, hours && tax && !closing, dbl, askAt >= 0 && !press];
     return {
       hits: hits, n: hits.filter(Boolean).length, text: String(text || "").trim(),
-      alt: [paid && !fun, tax && !hours && !cost, false, false], /* the second "missed" line: only the sheet, or only the hours half */
-      paid: paid, funders: fun, late: (paidAt >= 0 && !paid) || (sheet && funAt >= 0 && !before(funAt)), hours: hours, tax: tax, dbl: dbl, ask: askAt >= 0, press: press,
-      untrue: untrue, untrueSaid: untrue ? (untrueOf(t, text) || { said: "" }).said : "", promise: promise, heardTopic: /\blibrar|\bpetition\b|\bballot\b|\bmeasure\b|\bsignatures?\b|\bhours\b|\binitiative\b|\bact\b/.test(t),
+      alt: [paid && !fun, tax && !hours && !cost, false, false], /* the second "missed" line: only the sheet, or only the tax half */
+      paid: paid, funders: fun, late: (paidAt >= 0 && !paid) || (sheet && funAt >= 0 && !before(funAt)), hours: hours, what: hours, tax: tax, dbl: dbl, ask: askAt >= 0, press: press,
+      untrue: untrue, untrueSaid: untrue ? (untrueOf(t, text) || { said: "" }).said : "", promise: promise, heardTopic: TOPIC_RE.test(t) || /\bpetition\b|\bballot\b|\bmeasure\b|\bsignatures?\b|\binitiative\b|\bprop\b|\btax(?:es)?\b/.test(t),
       /* a part that was missed in a way its "missed" line doesn't describe: the paid line said after the ask, or pressure in place of an ask */
       vague: [!(paid && fun) && ((paidAt >= 0 && !paid) || (sheet && funAt >= 0 && !before(funAt))) && paidAt >= 0, false, false, press && askAt < 0],
-      miss: [paid && sheet && funAt >= 0 && !before(funAt) ? "FundersLate" : null, closing || cost ? "Untrue" : null, null, null], /* the funders shown after the ask; part 2 with something the measure doesn't say (rule 22a) */
+      miss: [paid && sheet && funAt >= 0 && !before(funAt) ? "FundersLate" : null, closing || cost ? "Untrue" : hours && taxWord && !tax ? "Who" : null, null, null], /* the funders shown after the ask; part 2 with something the measure doesn't say, or a tax with nobody named to pay it (rule 22a) */
     };
   }
   /* a passerby who thinks he signed already: thank him and let him go */
@@ -332,14 +354,14 @@ var SIGG = (function () {
 
   /* ---------------- lesson 5: the hard question ---------------- */
   var SHOW_RE = /\bprinted\b|\bin print\b|\bsummary\b|\bright here\b|\btake a look\b|\bhave a look\b|\blook at\b|\bread (?:it|this|the|for)\b|\bit says\b|\bsays (?:it |so )?(?:right )?here\b|\bhere(?:'s| is) the (?:petition|summary|sheet|text|page|full text)\b|\bon (?:the|this) (?:sheet|page|petition|board)\b|\b(?:full )?text\b|\bsee for yourself\b|\ball (?:there|here)\b|\bpoint(?:ing)?\b|\bwritten (?:right )?(?:here|there|down)\b|\bthis sheet\b/;
-  var YES_RE = /^(?:(?:um+|uh+|oh|well|so|honestly|actually) )*(?:yes|yeah|yep|yup|it is|it does|it will|correct|that's right|right|true|sure is|yes it is)\b|\bit(?:'s| is) a (?:new |state |statewide |brand new )*tax\b|\bthere(?:'s| is) a (?:new |state |statewide )*tax\b|\byes\b|\bit does (?:raise|add|create)\b|\ba new (?:state |statewide )?tax\b/;
+  var YES_RE = /^(?:(?:um+|uh+|oh|well|so|honestly|actually) )*(?:yes|yeah|yep|yup|it is|it does|it will|correct|that's right|right|true|sure is|yes it is)\b|\bit(?:'s| is) a (?:new |state |statewide |brand new )*tax\b|\bthere(?:'s| is) a (?:new |state |statewide )*tax\b|\byes\b|\bit (?:keeps|extends|continues|renews) (?:today's |the |a |an |this |that |our |existing |current )*(?:state |income )?tax(?:es)?\b|\bit makes (?:today's |the |a |an |this |that )*(?:state |income )?tax(?:es)?\b(?: [a-z']+){0,5}? permanent\b|\bit(?:'s| is) (?:the|an|our) (?:existing|current|same) (?:state |income )?tax\b/;
   var NO_RE = /^(?:(?:um+|uh+|oh|well|so|honestly|actually) )*(?:no|nope|nah|not really|not exactly)\b(?! problem| worries| sweat)/;
-  var NOTAX_RE = /\bno (?:new |more |extra )?tax(?:es)?\b|\bnot a (?:new |real )?tax\b|\bisn't (?:a|really a) tax\b|\b(?:few|couple of|couple) (?:cents|pennies|dollars|bucks)\b|\bpennies\b|\bwon't (?:even )?notice\b|\b(?:won't|wont|will not|doesn't|does not) (?:cost|raise|affect|touch)\b|\bfree\b|\bnot on you\b|\bonly (?:on|for) (?:big|large|tech)\b/;
+  var NOTAX_RE = new RegExp("\\bno (?:more |extra )?tax(?:es)?\\b(?! (?:increase|increases|hike|hikes))|\\bnot a (?:real )?tax\\b|\\bisn't (?:a|really a) tax\\b|\\b(?:few|couple of|couple) (?:cents|pennies|dollars|bucks)\\b|\\bpennies\\b|\\bwon't (?:even )?notice\\b|\\b(?:won't|wont|will not|doesn't|does not) (?:cost|raise|affect|touch)\\b|\\bfree\\b|\\bnot on you\\b|" + COST.source); /* version 13: "no new taxes" is true, so costText() first */
   var IDK_RE = /\bi (?:don't|do not) know\b|\bnot sure\b/;
-  var ARGUE_RE = /\bbut\b|\bdon't you\b|\bdo you not\b|\bcome on\b|\bare you sure\b|\bwhy not\b|\breconsider\b|\bthink about\b|\bfor the (?:kids|children|community|libraries)\b|\bplease\b|\bit(?:'s| is) (?:only|just)\b|\bjust (?:a|one|this)\b|\byou should\b|\byou really\b|\breally\b \?|\bat least\b|\bwhat if\b|\bcare about\b|\bwouldn't you\b|\bit would help\b|\bwe need\b|\bhelp (?:me|us) out\b/;
+  var ARGUE_RE = /\bbut\b|\bdon't you\b|\bdo you not\b|\bcome on\b|\bare you sure\b|\bwhy not\b|\breconsider\b|\bthink about\b|\bfor the (?:kids|children|community|schools|students|teachers)\b|\bplease\b|\bit(?:'s| is) (?:only|just)\b|\bjust (?:a|one|this)\b|\byou should\b|\byou really\b|\breally\b \?|\bat least\b|\bwhat if\b|\bcare about\b|\bwouldn't you\b|\bit would help\b|\bwe need\b|\bhelp (?:me|us) out\b/;
   /* one answer: kind is the question it answers, "tax" (is this a new tax?) or "paid" (are you a volunteer?) */
   function answer5(text, kind, st) {
-    var t = norm(text), ta = t.replace(/\bfeel free\b/g, " "), head = real(t).slice(0, 10).join(" ");
+    var t = norm(text), ta = costText(t), head = real(t).slice(0, 10).join(" ");
     var paid = !NOT_PAID_RE.test(t) && PAID_RE.test(t), vol = VOL_RE.test(t) && !/\bnot (?:a |an )?volunteer/.test(t);
     var untrue = null, straight = false;
     if (kind === "tax") {
@@ -385,7 +407,7 @@ var SIGG = (function () {
     /* the fallback lines: a hello or small talk gets one back (once each), a push to sign gets "I'll think about it." */
     var hello = function () { var f = fallback(mine()); return f && !saidK(f) ? out([f]) : null; }; /* said once: after that a bare hello is nothing new */
     /* does this piece add to the ask: being paid, the funders, what it does, how it's paid for, or what it is */
-    var adds3 = function (text) { var x = norm(text); return PAID_RE.test(x) || FUND_RE.test(x) || HOURS_RE.test(x) || TAX_RE.test(x) || /\blibrar|\bpetition\b|\bballot\b|\bmeasure\b|\binitiative\b|\bact\b/.test(x); };
+    var adds3 = function (text) { var x = norm(text); return PAID_RE.test(x) || FUND_RE.test(x) || WHAT_ALL.test(x) || TAX_RE.test(x) || TOPIC_RE.test(x) || /\bpetition\b|\bballot\b|\bmeasure\b|\binitiative\b|\bprop\b/.test(x); };
     var M = {
       /* lesson 1, step 6: the question, then why you ask. She answers the question when it has been asked, in whichever piece. */
       "1.marisol": {

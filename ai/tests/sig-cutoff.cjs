@@ -54,30 +54,30 @@ const ok = (c, m) => { console.log((c ? "ok   " : "FAIL ") + m); if (!c) fails +
   };
   /* 1. Robert's exact line, a pause, then the rest */
   const HALF = "We're collecting signatures on Uh have something on the ballot in November to get";
-  const WHOLE = HALF + " longer library hours. Are you registered to vote in LA County?";
+  const WHOLE = HALF + " funding for schools and health care. Are you registered to vote in LA County?";
   let r = await run(async (p) => {
     await p.evaluate((t) => window.__speak(t), "Hi there!"); await p.waitForTimeout(300);
     await p.evaluate((t) => window.__speak(t), "Hi there! " + HALF); await p.waitForTimeout(1700); /* past 1.2 seconds of quiet */
     await p.evaluate((t) => window.__speak(t), "Hi there! " + WHOLE);
   });
   ok(r.started, "1. the 1st try's talk button turned on");
-  ok(r.you.length === 1 && /longer library hours/i.test(r.you[0]) && /LA County/i.test(r.you[0]), "1. Robert's line after a 1.7-second pause on \"to get\" is heard whole, once (" + r.you.join(" / ") + ")");
+  ok(r.you.length === 1 && /funding for schools and health care/i.test(r.you[0]) && /LA County/i.test(r.you[0]), "1. Robert's line after a 1.7-second pause on \"to get\" is heard whole, once (" + r.you.join(" / ") + ")");
   ok(r.them.length && !r.them.some((x) => /got to run/i.test(x)), "1. the man answers the whole line, and doesn't leave (" + r.them.join(" / ") + ")");
   ok(!r.errs.length, "1. no page errors " + r.errs.join(" "));
   /* 2. the phone stops listening partway through */
   r = await run(async (p) => {
     await p.evaluate((t) => window.__speak(t), "Hi there! I'm collecting signatures for a ballot measure to keep"); await p.waitForTimeout(400);
     await p.evaluate(() => window.__phoneStops()); await p.waitForTimeout(200);
-    await p.evaluate((t) => window.__speak(t), "libraries open later. Are you registered to vote in LA County?");
+    await p.evaluate((t) => window.__speak(t), "funding schools and health care. Are you registered to vote in LA County?");
   });
   ok(r.starts >= 2, "2. the app listens again when the phone stops on its own (" + r.starts + " starts)");
-  ok(r.you.length === 1 && /to keep libraries open later/i.test(r.you[0]) && /LA County/i.test(r.you[0]), "2. the words from before and after the stop make one line (" + r.you.join(" / ") + ")");
+  ok(r.you.length === 1 && /to keep funding schools and health care/i.test(r.you[0]) && /LA County/i.test(r.you[0]), "2. the words from before and after the stop make one line (" + r.you.join(" / ") + ")");
   ok(r.them.some((x) => /registered/i.test(x)), "2. the man answers the whole opener (" + r.them.join(" / ") + ")");
   ok(!r.errs.length, "2. no page errors " + r.errs.join(" "));
   /* 3. a finished opener is answered after the short pause */
   let t0 = 0;
   r = await run(async (p) => {
-    await p.evaluate((t) => window.__speak(t), "Hi there! I'm collecting signatures for a ballot measure to keep libraries open later. Are you registered to vote in LA County?");
+    await p.evaluate((t) => window.__speak(t), "Hi there! I'm collecting signatures for a ballot measure to keep funding schools and health care. Are you registered to vote in LA County?");
     t0 = Date.now();
     for (let i = 0; i < 60; i += 1) { if (await p.evaluate(() => window.__caps.some((x) => /^You/.test(x)))) break; await p.waitForTimeout(50); }
     t0 = Date.now() - t0;

@@ -27,6 +27,7 @@ function top(o) {
   if ($("#close")) $("#close").onclick = back;
   if ($("#pp")) $("#pp").onclick = function () { PAUSED = !PAUSED; if (AC) { PAUSED ? AC.suspend() : AC.resume(); } $("#pp").innerHTML = PAUSED ? ICON.play : ICON.pause; $("#pp").setAttribute("aria-label", PAUSED ? "Play" : "Pause"); };
   [].forEach.call(document.querySelectorAll(".bar button"), function (b) { var i = +b.getAttribute("data-seg"); b.onclick = function () { audio(); go(i, 0); }; });
+  fitDrive();
 }
 function noPause() { var p = $("#pp"); if (p) p.remove(); } /* nothing is playing, so there is nothing to pause */
 function micAbort() { if (M.rec) { try { M.rec.abort(); } catch (e) {} M.rec = null; } M.busy = false; }
@@ -98,7 +99,7 @@ var why = function (right, text, plain) { return '<div class="why' + (plain ? " 
    3:51 PM: "we can't rely too much on names in this app, because it's just going to be information overload") */
 var whoTag = function () { return ""; };
 var whoDiv = function (who) { var t = whoTag(who); return t ? '<div class="who">' + t + '</div>' : ""; };
-function show(html, sub) { $("#scr").innerHTML = html; tag(sub); fillUp(); fitPic(); place(); fitHw(); }
+function show(html, sub) { $("#scr").innerHTML = html; tag(sub); fillUp(); fitPic(); place(); fitHw(); fitDrive(); }
 /* fill: a screen with room to spare grows its words and pictures together, up to FILL_MAX times their size, until the room is
    used (playbook A50: content scaled to fill the screen, no blank bands). The main button keeps its size. A screen whose
    picture already takes the spare room is left alone. The measuring is done with the blocks packed at the sizes they would
@@ -108,7 +109,7 @@ function fillUp() {
   var scr = $("#scr"); if (!scr) return;
   scr.style.removeProperty("--k");
   if (!fillWatch && window.MutationObserver) {
-    var pend = false, later = function () { if (pend) return; pend = true; requestAnimationFrame(function () { pend = false; fillUp(); fitPic(); place(); fitHw(); }); };
+    var pend = false, later = function () { if (pend) return; pend = true; requestAnimationFrame(function () { pend = false; fillUp(); fitPic(); place(); fitHw(); fitDrive(); }); };
     fillWatch = new MutationObserver(function (ms) { for (var i = 0; i < ms.length; i += 1) { var x = ms[i].target; if (x.nodeType !== 1) x = x.parentElement; if (x && !x.closest("svg, .capts, .mic, .dock, .pet, .ft")) return later(); } });
     fillWatch.observe(scr, { childList: true, subtree: true });
     window.addEventListener("resize", later);
@@ -153,7 +154,7 @@ function act(who, a) {
 }
 function fgSheet(on) {
   var p = $("#panel"); if (!p) return; var f = p.querySelector(".fgs");
-  if (on && !f) { f = document.createElement("div"); f.className = "fgs"; f.innerHTML = sceneSheet(new Date().toLocaleString("en-US", { month: "long" })); p.appendChild(f); requestAnimationFrame(function () { requestAnimationFrame(function () { f.classList.add("on"); }); }); }
+  if (on && !f) { f = document.createElement("div"); f.className = "fgs"; f.innerHTML = sceneSheet(ME.month || new Date().toLocaleString("en-US", { month: "long" })); /* the practice's own month when the measure sets one (version 13: April 2026, the drive's last month) */ p.appendChild(f); requestAnimationFrame(function () { requestAnimationFrame(function () { f.classList.add("on"); }); }); }
   else if (!on && f) { f.classList.remove("on"); setTimeout(function () { if (f.parentNode) f.remove(); }, 450); }
 }
 /* the passerby comes up (version 8): the view from above, then down the sidewalk toward you, then face to face. stage() switches
@@ -200,7 +201,7 @@ function approach(who, r, stop) {
    just our one best source ... the tenth best adds nothing to it. It only dilutes attention from the main best ones.") */
 function sources(rows) {
   var sh = document.createElement("div"), was = $("#tag").textContent; sh.className = "sheet";
-  sh.innerHTML = '<div role="dialog" aria-label="Sources"><h2>Sources</h2><ul>' + (Array.isArray(rows) ? rows : L.sources || []).map(function (g) { var link = function (n, u) { return '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + q(n) + '</a>'; }; return '<li>' + q(g[0]) + ': ' + (typeof g[1] === "string" ? g[1].split(/(\{[^|}]+\|[^}]+\})/).map(function (x) { var m = x.match(/^\{([^|}]+)\|([^}]+)\}$/); return m ? link(m[1], m[2]) : q(x); }).join("") : g[1].map(function (s) { return link(s[0], s[1]); }).join(", ") + (g[2] ? ", " + q(g[2]) : "")) + '</li>'; }).join("") + '</ul><p class="fine">The passersby and the canvassers are AI voices. The Neighborhood Libraries Act, Libraries for All and every person here are made up for practice.</p><button class="btn ghost" id="shx">Close</button></div>';
+  sh.innerHTML = '<div role="dialog" aria-label="Sources"><h2>Sources</h2><ul>' + (Array.isArray(rows) ? rows : L.sources || []).map(function (g) { var link = function (n, u) { return '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + q(n) + '</a>'; }; return '<li>' + q(g[0]) + ': ' + (typeof g[1] === "string" ? g[1].split(/(\{[^|}]+\|[^}]+\})/).map(function (x) { var m = x.match(/^\{([^|}]+)\|([^}]+)\}$/); return m ? link(m[1], m[2]) : q(x); }).join("") : g[1].map(function (s) { return link(s[0], s[1]); }).join(", ") + (g[2] ? ", " + q(g[2]) : "")) + '</li>'; }).join("") + '</ul><p class="fine">' + q(ME.fine) + '</p><button class="btn ghost" id="shx">Close</button></div>';
   $("#app").appendChild(sh); dimFrom(sh); $("#tag").textContent = was + "s"; $("#tag").className = "tag onpic";
   sh.addEventListener("click", function (e) { if (e.target === sh || e.target.id === "shx") { sh.remove(); $("#tag").textContent = was; $("#tag").className = "tag"; } });
 }
@@ -471,7 +472,7 @@ function coverName() { return coverWho(); }
 function coverPic() { return sceneOne(coverWho(), ""); }
 function vCover() {
   S.step = -1; top({});
-  show('<span class="drive" role="img" aria-label="Libraries for All, the Neighborhood Libraries Act petition drive"><b>' + esc(ST.drive.name) + '</b><small>' + esc(ST.drive.measure) + ' · petition drive</small></span>' +
+  show('<span class="drive" role="img" aria-label="' + esc(ST.drive.name + ", " + ST.drive.measure + " petition drive") + '"><b>' + esc(ST.drive.name) + '</b><small>' + esc(ST.drive.measure) + ' · petition drive</small></span>' +
     '<h1 class="lg" style="margin-top:18px">' + q(L.title) + '</h1><div class="meta"><span>Lesson ' + LN + ' of 5 · 5 minutes</span></div>' +
     '<div class="panel cap">' + coverPic() + '</div>' +
     (saved().must && saved().must[LN] ? mustNote(LN, saved().must).replace(' style="color:var(--red)"', "") : "") + foot(btn(L.start || SH.startLesson.replace("{n}", LN), "start")), "");
