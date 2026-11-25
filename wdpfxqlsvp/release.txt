@@ -40,3 +40,8 @@ app.html sha256: a55169bb1af4ca4d1d61511cd86cce1ee0c91ea14e90982a2ab174488f1e7f2
 
 update: 2026-11-18 Version 173, from Robert's Nov 17, 8:47 PM PT run (5 to 15 s frozen after the door): grading starts as the voter's goodbye arrives, and the result card opens as soon as the door shuts with the four parts pulsing, then fills in. 1st intro card and score card. Patch ai/tools/v173-no-wait-after-door.py.
 app.html sha256: b804a5f58f67cb0b16119b1a8191dfceebe14d359afa358b49b0490fd5c72dda
+
+release: 2026-11-25 Version 175, the deck look, shipped (Robert's "ship it," Nov 25, 2026, morning PT; his five edits, Nov 23, 12:17 PM PT): the review copy copied over the live demo byte for byte (review/index.html over app.html and p1/index.html, review/issues/index.html over issues/index.html and p1/issues/index.html, review/train/index.html over train/index.html), with the front pages, the four icons and the link preview in the same look. White screens and pine words, mint main buttons with pine words, the ring that closes the win, medals drawn as rings, Maya's issue icons on the deck's tints and nothing raised or glowing. Patch ai/tools/v175-deck-look.py (on the review copy, Nov 23). The AI server is unchanged (165-18); practice AI 165-19 waits for its own "ship it."
+app.html sha256: 854fb1a7f6571276b054f06e029c17d3027e2c4cc6d015b91005940be409ea33
+issues sha256: aad20c8747e74e20f3dfd3f52b1385235b311dbea9394390dd37bd73c7fe60c1
+train sha256: ddaf6b357578feaeaaaceb6e68d79ca9cfbd50533e8e4e80f8c9d43d425f1853
