@@ -1,11 +1,12 @@
 /* Browser tests for the two rebuilt issue trainings (wdpfxqlsvp/train/): every screen at phone sizes with the real fonts, the
    whole flow from cover to done with a stand-in speech recognizer, the live voter's streamed turns against the real worker.js
    (stubbed model and voice), failure and retry, a blocked mic, a browser that can't listen, the app frame's done message.
-   Usage: node ai/tests/train-server.mjs /abs/site & then NODE_PATH=$(npm root -g) node ai/tests/test-train.cjs /abs/outdir [full] */
+   Usage: node ai/tests/train-server.mjs /abs/site & then TRAIN_SITE=/abs/site NODE_PATH=$(npm root -g) node ai/tests/test-train.cjs /abs/outdir [full] */
 const { chromium } = require("playwright");
 const fs = require("fs"), path = require("path");
 const realFonts = require("./fonts.cjs");
 const OUT = process.argv[2] || "/tmp/train-out", FULL = process.argv[3] === "full";
+const SITE = process.env.TRAIN_SITE || path.resolve(__dirname, "../.."); /* the folder train-server.mjs serves (TRAIN_SITE), for the frame page; it was a path from one sandbox */
 fs.mkdirSync(OUT, { recursive: true });
 const BASE = "http://127.0.0.1:8765/wdpfxqlsvp/train/?ai=http://127.0.0.1:8799";
 let pass = 0, fail = 0; const ok = (c, m) => { if (c) pass++; else { fail++; console.log("FAIL", m); } };
@@ -120,11 +121,11 @@ async function waitFor(p, fn, ms = 20000, arg) { const t0 = Date.now(); while (D
     ok(/This part is spoken/.test(await p.evaluate(() => document.body.innerText)) && !(await p.$("textarea, input[type=text]")), "a browser that can't listen gets the open-in-Safari card, no text box"); await ctx.close(); }
   /* inside the app: the done message reaches the parent */
   { const ctx = await b.newContext({ viewport: { width: 390, height: 844 } }); const p = await ctx.newPage(); await p.addInitScript(FAKE);
-    fs.writeFileSync("/tmp/claude-0/-home-claude/4f985791-cb78-5151-a3d6-e6a9c0d013a5/scratchpad/site/wdpfxqlsvp/zzframe.html", '<html><body style="margin:0"><iframe id="f" style="width:390px;height:844px;border:0" src="train/?ai=http://127.0.0.1:8799&l=oh&at=done"></iframe><script>window.got=[];addEventListener("message",e=>got.push(e.data))</script></body></html>');
+    const ZZF = path.join(SITE, "wdpfxqlsvp", "zzframe.html"); fs.writeFileSync(ZZF, '<html><body style="margin:0"><iframe id="f" style="width:390px;height:844px;border:0" src="train/?ai=http://127.0.0.1:8799&l=oh&at=done"></iframe><script>window.got=[];addEventListener("message",e=>got.push(e.data))</script></body></html>');
     await p.goto("http://127.0.0.1:8765/wdpfxqlsvp/zzframe.html"); await p.waitForTimeout(1500);
     ok(await p.evaluate(() => window.got.some((d) => d.warmup === "brief-done" && d.lesson === "oh")), "inside the app, done tells Warmup to check it off");
     const fr = p.frame({ url: /train/ }); await fr.click("#back"); await p.waitForTimeout(300);
-    ok(await p.evaluate(() => window.got.some((d) => d.warmup === "issues-close")), "Back to Learn closes the overlay"); await ctx.close(); }
+    ok(await p.evaluate(() => window.got.some((d) => d.warmup === "issues-close")), "Back to Learn closes the overlay"); await ctx.close(); try { fs.unlinkSync(ZZF); } catch (e) { /* ignore */ } }
   await b.close();
   console.log(`train: ${pass} pass, ${fail} fail`); process.exit(fail ? 1 : 0);
 })();

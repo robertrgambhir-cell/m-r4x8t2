@@ -249,24 +249,61 @@ function level() { if (!AN) return 0; var d = new Uint8Array(AN.fftSize); AN.get
 function knock() { var a = audio(), t = a.currentTime + .02; [0, .18, .36].forEach(function (dt, k) { var o = a.createOscillator(), g = a.createGain(); o.type = "triangle"; o.frequency.setValueAtTime(140 - k * 6, t + dt); o.frequency.exponentialRampToValueAtTime(60, t + dt + .09); g.gain.setValueAtTime(.0001, t + dt); g.gain.exponentialRampToValueAtTime(.55, t + dt + .008); g.gain.exponentialRampToValueAtTime(.0001, t + dt + .12); o.connect(g); g.connect(OUT); o.start(t + dt); o.stop(t + dt + .14); }); return 620; }
 
 /* ---------------- listening: the phone's speech recognition, ended by a short silence ---------------- */
+const WAI_MID = /\b(um+|uh+|uhm|er+|erm|hmm+|ah|and|but|so|or|because|cause|i|i'?m|i am|my|me|we|we'?re|our|the|a|an|to|for|with|of|in|on|at|about|from|like|just|that|this|is|are|was|am|be|it'?s|you|your|who|what|if|then|also|really|very|name'?s|called|here|um i'?m)$/i;
+/* version 176 (playbook rule 34a; Robert, on the signature course, Nov 22, 2026: "it just cut off my voice. I was still talking,
+   unfinished.", and Nov 23: "It cut me off when I was talking too soon"): nobody is cut off mid-sentence, with the same rule as the
+   app's door (waiPause() in wdpfxqlsvp/review/index.html; keep the two the same, tests/door-pause.test.mjs checks). Only a line that
+   sounds finished gets the quick answer (1.2 s of quiet); one that could go on, a hello or small talk on its own, or a line under three
+   words waits 2.8 s. Before: every line here ended after 0.9 s of quiet. [early answer starts, ends] in ms */
+const WAI_MORE = /\b(get|gets|got|getting|keep|keeps|keeping|make|makes|making|have|has|had|having|give|gives|giving|put|putting|need|needs|want|wants|wanted|try|tries|trying|tryna|going|gonna|wanna|gotta|hoping|planning|wondering|thinking|looking|let|lets|let'?s|ask|asking|tell|telling|remind|reminding|bring|bringing|take|taking|show|showing|would|could|than|as|since|while|though|although|unless|whether|some|any|every|each|more|most|its|their|his|which|whose|where|when|how|why|there'?s|that'?s|what'?s|they'?re|they|he|she|were|been|being|by|until|till|into|onto|through|maybe|actually|running|volunteering|knocking)$/;
+const WAI_TO_DONE = /\bto (vote|help|talk|chat|go|know|meet|stop|wait|sign|register|volunteer|do|it|her|him|them|me|us|that|this|there|today|tonight|tomorrow|tuesday|voters|neighbors|people|folks|everyone|everybody|door|doors|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|noon)$/;
+const WAI_BYE = /\b(good ?night|good ?bye|bye( now| bye)?|have an? (good|great|nice|lovely|wonderful|blessed) (one|day|evening|night|weekend|morning|afternoon)|thank you( so much| very much| for your time)?|thanks( so much| a lot| anyway| again| for your time)?|take care|see (you|ya)( later| around| soon| then| tuesday)?|you too|(nice|great|good) (to meet|meeting|talking to|chatting with) you)$/;
+const WAI_DONE = /\b(no problem|no worries|of course|sure|okay|ok|all good|appreciate (it|you|that)|count on you|not (you|me|us|them|her|him)|(hear|learn|know) more|(stop|stopping|come|coming|drop|dropping|swing|swinging) by)$/;
+const WAI_SMALL = /\b(how (are|r) (you|ya|u)( doing)?( today| tonight| this (morning|afternoon|evening))?|how('?s| is) it going|how('?s| is| has) your (day|morning|afternoon|evening|night|week)( going| been)?|how (you|ya) doing|how'?re you( doing)?|how'?s everything|how are things|what'?s up|good (morning|afternoon|evening))$/;
+const WAI_HELLO = /^((hi|hello|hey|hiya|howdy|there|um+|uh+|oh|so|well|yeah|ma'?am|sir|folks|neighbor|good (morning|afternoon|evening)) ?)+$/;
+function waiPause(text) {
+  const raw = String(text).trim(), t = raw.toLowerCase().replace(/\u2019/g, "'").replace(/[.,!?;:\u2026"\u201c\u201d-]+/g, " ").replace(/\s+/g, " ").trim();
+  const LONG = [2000, 2800], SHORT = [500, 1200];
+  if (WAI_BYE.test(t)) return SHORT; /* a goodbye or thanks */
+  if (WAI_SMALL.test(t) || WAI_HELLO.test(t)) return LONG; /* only a hello, or small talk at the end: the rest is coming (Nov 23) */
+  if (t.split(" ").filter(Boolean).length < 3) return LONG; /* "Okay" or "Sure" alone may be the start of more */
+  if (WAI_DONE.test(t)) return SHORT; /* an answer that ends a thought ("Sure, no problem.") */
+  if (/\?["\u201d]?$/.test(raw) && !/\b(um+|uh+|uhm|er+|erm|hmm+|ah)$/.test(t)) return SHORT; /* a question the phone heard end */
+  if (WAI_TO_DONE.test(t)) return SHORT; /* "planning to vote," "talking to voters," "door to door" */
+  return WAI_MID.test(t) || WAI_MORE.test(t) || /\bto [a-z']+$/.test(t) ? LONG : SHORT;
+}
 var rec = null;
 function listen(o) {
-  /* o: { onWords(text), onSpec(text), onDone(text), onError(code) }. A pause of SPEC ms sends the words early (the answer is
-     thrown away if they keep talking); a pause of DONE ms ends the turn. A tap on the mic ends it at once. */
-  var SPEC = 420, DONE = 900, text = "", changed = 0, specAt = "", done = false, started = 0;
+  /* o: { onWords(text), onSpec(text), onDone(text), onError(code) }. Quiet ends the turn by waiPause(): the words go early at its
+     first number (the answer is thrown away if they keep talking) and the turn ends at its second. A tap on the mic ends it at once.
+     Nobody is cut off (version 176, rule 34a): when the phone stops listening on its own partway through a line (iOS does, after a short
+     pause), listening starts again and the words are kept, so the quiet rule or a tap ends a line (or, at most, a minute's talk, or an
+     error, which still sends what was heard). The time the phone takes to listen again is left off the quiet clock, up to 2 s a time.
+     Before: when the phone stopped on its own, the words so far went at once. */
+  var text = "", base = "", changed = 0, specAt = "", done = false, started = 0, again = 0, off = 0;
+  var offFor = function (now) { return off ? Math.min(2000, now - off) : 0; };
   try { if (navigator.audioSession) navigator.audioSession.type = "play-and-record"; } catch (e) {}
   var R = new SR(); rec = R; R.lang = "en-US"; R.interimResults = true; R.continuous = true; R.maxAlternatives = 1;
   var tick = setInterval(function () {
     if (done || !text) return;
-    var quiet = performance.now() - changed;
-    if (quiet > SPEC && specAt !== text) { specAt = text; if (o.onSpec) o.onSpec(text); }
-    if (quiet > DONE) finish();
+    var now = performance.now(), quiet = now - changed - offFor(now), pw = waiPause(text);
+    if (quiet > pw[0] && specAt !== text) { specAt = text; if (o.onSpec) o.onSpec(text); }
+    if (quiet > pw[1]) finish();
   }, 40);
-  var cap = setTimeout(function () { finish(); }, 30000);
+  var cap = setTimeout(function () { finish(); }, 60000); /* at most a minute's talk (was 30 s) */
   function finish() { if (done) return; done = true; clearInterval(tick); clearTimeout(cap); try { R.onend = null; R.abort(); } catch (e) {} rec = null; try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {} o.onDone(text.trim(), { quietMs: Math.round(performance.now() - changed) }); }
-  R.onresult = function (e) { var parts = []; for (var j = 0; j < e.results.length; j++) parts.push(String(e.results[j][0].transcript || "").trim()); var t = parts.filter(Boolean).join(" ").replace(/\s+/g, " "); if (t !== text) { text = t; changed = performance.now(); o.onWords(text); } };
-  R.onerror = function (e) { var c = e && e.error; if (c === "no-speech" || c === "aborted") return; done = true; clearInterval(tick); clearTimeout(cap); rec = null; o.onError(c === "not-allowed" || c === "service-not-allowed" ? "denied" : c === "audio-capture" ? "busy" : "error"); };
-  R.onend = function () { if (done) return; if (text) { finish(); return; } if (performance.now() - started < 8000) { try { R.start(); } catch (e) { finish(); } return; } finish(); }; /* iOS ends a quiet session on its own */
+  R.onresult = function (e) { var parts = [base]; for (var j = 0; j < e.results.length; j++) parts.push(String(e.results[j][0].transcript || "").trim()); var t = parts.filter(Boolean).join(" ").replace(/\s+/g, " "); if (t !== text) { text = t; changed = performance.now(); off = 0; o.onWords(text); } };
+  R.onstart = function () { if (off) { changed += offFor(performance.now()); off = 0; } }; /* listening again: the restart's own time isn't quiet */
+  R.onerror = function (e) { var c = e && e.error; if (c === "no-speech" || c === "aborted" || done) return; if (text) { finish(); return; } /* what was heard still goes */ done = true; clearInterval(tick); clearTimeout(cap); rec = null; o.onError(c === "not-allowed" || c === "service-not-allowed" ? "denied" : c === "audio-capture" ? "busy" : "error"); };
+  R.onend = function () { /* the phone stopped listening on its own (iOS does, after a short pause): listen again and keep the words, unless the quiet rule says the line is done */
+    if (done) return;
+    var now = performance.now();
+    if (off) { changed += offFor(now); off = 0; } /* a restart that stopped again before it listened */
+    if (text && now - changed > waiPause(text)[1]) { finish(); return; }
+    if ((!text && now - started >= 8000) || again >= 30) { finish(); return; }
+    base = text; again += 1; off = now;
+    try { R.start(); } catch (e) { finish(); }
+  };
   try { R.start(); started = performance.now(); } catch (e) { done = true; clearInterval(tick); clearTimeout(cap); o.onError("error"); }
   return { stop: finish, abort: function () { done = true; clearInterval(tick); clearTimeout(cap); try { R.onend = null; R.abort(); } catch (e) {} rec = null; } };
 }
